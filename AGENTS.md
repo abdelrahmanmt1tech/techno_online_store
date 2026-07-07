@@ -15,8 +15,12 @@
 | `npm run build` / `npm run dev` | Vite build / dev |
 
 - New Filament resources go under `app/Filament/Resources/` (auto-discovered).
-- Admin panel at `/admin`, panel ID `admin`, primary color `Amber`.
+- Admin panel at `/admin`, panel ID `admin`, primary color `Amber`, uses `admin` auth guard.
 - Run `php artisan make:filament-resource` for resource generation.
+- Permissions system via `spatie/laravel-permission` with `admin` guard:
+  - `app/Helper/PermissionsArray.php` — `permissionsArray()` defines all permissions (grouped), `StorePermissionsArray()` syncs them to DB.
+  - Admin `id == 1` bypasses all permission checks (`Gate::before` in `AppServiceProvider`).
+  - Seed super admin: `php artisan db:seed --class=AdminSeeder` (email: `admin@admin.com`, password: `123456`).
 
 ## Testing
 
@@ -31,7 +35,7 @@
 
 ## Architecture Notes
 
-- No custom Filament resources/pages/widgets yet — skeleton only.
+- Custom Filament resources: `Admins`, `Roles` (under `app/Filament/Resources/`). Each resource has `Pages/`, `Schemas/`, `Tables/` subdirectories.
 - No API routes registered yet; `bootstrap/app.php` has placeholder JSON handling for `api/*`.
 - `session`, `cache`, `queue` drivers all default to `database` — ensure migrations ran.
 - `public/build/` is gitignored; run `npm run build` before deploying.
