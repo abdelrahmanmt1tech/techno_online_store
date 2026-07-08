@@ -14,11 +14,11 @@ class AdminSeeder extends Seeder
         StorePermissionsArray();
 
         $admin = Admin::updateOrCreate(
-            ['email' => 'admin@admin.com'],
+            ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Super Admin',
-                'email' => 'admin@admin.com',
-                'password' => Hash::make('123456'),
+                'email' => 'admin@gmail.com',
+                'password' => Hash::make('password'),
                 'is_active' => true,
             ]
         );
