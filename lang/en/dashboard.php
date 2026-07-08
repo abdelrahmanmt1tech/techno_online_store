@@ -59,4 +59,21 @@ return [
         'delete' => 'Delete',
     ],
 
+    // Categories
+    'categories' => 'Categories',
+    'category' => 'Category',
+    'category_details' => 'Category Details',
+    'category_name' => 'Category Name',
+    'parent_category' => 'Parent Category',
+    'no_categories' => 'No categories',
+    'no_categories_desc' => 'Start by creating your first category.',
+    'cannot_delete_category_has_children' => 'This category has subcategories. Delete them first.',
+    'slug' => 'Slug',
+    'slug_helper' => 'Auto-generated from name. Leave blank to auto-generate.',
+    'image' => 'Image',
+    'show_in_header' => 'Show in Header',
+    'description' => 'Description',
+    'yes' => 'Yes',
+    'no' => 'No',
+
 ];

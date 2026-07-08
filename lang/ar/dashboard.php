@@ -59,4 +59,21 @@ return [
         'delete' => 'حذف',
     ],
 
+    // Categories
+    'categories' => 'التصنيفات',
+    'category' => 'تصنيف',
+    'category_details' => 'بيانات التصنيف',
+    'category_name' => 'اسم التصنيف',
+    'parent_category' => 'التصنيف الأب',
+    'no_categories' => 'لا توجد تصنيفات',
+    'no_categories_desc' => 'ابدأ بإنشاء أول تصنيف.',
+    'cannot_delete_category_has_children' => 'هذا التصنيف يحتوي على تصنيفات فرعية. قم بحذفها أولاً.',
+    'slug' => 'الرابط المختصر',
+    'slug_helper' => 'يتم إنشاؤه تلقائياً من الاسم. اتركه فارغاً للإنشاء التلقائي.',
+    'image' => 'الصورة',
+    'show_in_header' => 'عرض في القائمة',
+    'description' => 'الوصف',
+    'yes' => 'نعم',
+    'no' => 'لا',
+
 ];

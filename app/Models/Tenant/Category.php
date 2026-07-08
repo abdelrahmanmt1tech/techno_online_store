@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Models\Tenant;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Openplain\FilamentTreeView\Concerns\HasTreeStructure;
+
+class Category extends Model
+{
+    use HasTreeStructure;
+
+    protected $connection = 'tenant';
+
+    protected $fillable = [
+        'name',
+        'slug',
+        'image',
+        'parent_id',
+        'is_active',
+        'show_in_header',
+        'order',
+        'description',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'show_in_header' => 'boolean',
+    ];
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+}

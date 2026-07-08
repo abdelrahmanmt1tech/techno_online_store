@@ -39,7 +39,6 @@ class TenantResource extends Resource
         return __('dashboard.tenant');
     }
 
-
     public static function getNavigationGroup(): ?string
     {
         return __('dashboard.settings_group');
