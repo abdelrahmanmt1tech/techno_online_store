@@ -27,9 +27,27 @@ return [
     'other' => 'Other',
     'id' => 'ID',
 
+    // Tenants
+    'tenants' => 'Stores',
+    'tenant' => 'Store',
+    'settings_group' => 'Settings',
+    'tenant_details' => 'Store Details',
+    'tenant_name' => 'Store Name',
+    'phone' => 'Phone',
+    'domain' => 'Domain',
+    'subdomain' => 'Subdomain',
+    'subdomain_help' => 'Lowercase letters and numbers only. e.g. store1',
+    'domain_taken' => 'This domain is already taken',
+    'archive' => 'Archive',
+    'restore' => 'Restore',
+    'archived' => 'Archived',
+    'inactive' => 'Inactive',
+    'created_at' => 'Created At',
+
     // Permissions groups
     'permissions_groups' => [
         'roles' => 'Roles',
+        'tenants' => 'Stores',
         'admins' => 'Admins',
     ],
 

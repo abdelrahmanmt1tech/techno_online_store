@@ -27,9 +27,27 @@ return [
     'other' => 'أخرى',
     'id' => 'ID',
 
+    // Tenants
+    'tenants' => 'المتاجر',
+    'tenant' => 'متجر',
+    'settings_group' => 'الإعدادات',
+    'tenant_details' => 'بيانات المتجر',
+    'tenant_name' => 'اسم المتجر',
+    'phone' => 'رقم الهاتف',
+    'domain' => 'الدومين',
+    'subdomain' => 'الرابط الفرعي',
+    'subdomain_help' => 'أحرف إنجليزية صغيرة وأرقام فقط. مثال: store1',
+    'domain_taken' => 'هذا الرابط مستخدم بالفعل',
+    'archive' => 'أرشفة',
+    'restore' => 'استعادة',
+    'archived' => 'مؤرشف',
+    'inactive' => 'غير نشط',
+    'created_at' => 'تاريخ الإنشاء',
+
     // Permissions groups
     'permissions_groups' => [
         'roles' => 'الأدوار',
+        'tenants' => 'المتاجر',
         'admins' => 'المشرفين',
     ],
 

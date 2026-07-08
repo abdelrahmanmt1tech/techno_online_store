@@ -19,6 +19,15 @@ function permissionsArray(): array
             ],
         ],
         [
+            'name' => 'dashboard.permissions_groups.tenants',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'tenants.view'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'tenants.create'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'tenants.update'],
+                ['name' => 'dashboard.permissions.delete', 'key' => 'tenants.delete'],
+            ],
+        ],
+        [
             'name' => 'dashboard.permissions_groups.admins',
             'permissions' => [
                 ['name' => 'dashboard.permissions.view', 'key' => 'admins.view'],

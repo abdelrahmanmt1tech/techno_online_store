@@ -2,26 +2,28 @@
 
 namespace App\Models;
 
-use Database\Factories\AdminFactory;
+use Database\Factories\TenantUserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class Admin extends Authenticatable
+class TenantUser extends Authenticatable
 {
-    /** @use HasFactory<AdminFactory> */
+    /** @use HasFactory<TenantUserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
-    protected $table = 'admins';
+    protected $connection = 'tenant';
 
-    protected $guard_name = 'admin';
+    protected $table = 'users';
+
+    protected $guard_name = 'tenant';
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'is_active',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -34,7 +36,6 @@ class Admin extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_active' => 'boolean',
         ];
     }
 }

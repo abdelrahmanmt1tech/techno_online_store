@@ -34,7 +34,6 @@ class AdminForm
                             ->revealable()
                             ->autocomplete('new-password')
                             ->required(fn ($record) => $record === null)
-                            ->dehydrateStateUsing(fn ($state) => bcrypt($state))
                             ->dehydrated(fn ($state) => filled($state)),
 
                         TextInput::make('password_confirmation')
@@ -47,7 +46,7 @@ class AdminForm
 
                         Select::make('role')
                             ->label(__('dashboard.role_select'))
-                            ->options(Role::all()->pluck('name', 'id'))
+                            ->options(Role::where('guard_name', 'admin')->get()->pluck('name', 'id'))
                             ->searchable()
                             ->preload()
                             ->native(false)

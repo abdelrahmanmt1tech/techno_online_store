@@ -3,39 +3,59 @@
 ## Stack
 
 - **Laravel 13** / PHP ^8.3 / Filament ~5.0 / Tailwind CSS v4 / Vite
-- **MySQL** (`multi_tenant_store`) — DB, sessions, cache, queues all use `database` driver
+- **stancl/tenancy** — multi-tenant app (central DB `multi_tenant_store` + per-tenant databases)
+- **MySQL** — DB, sessions (`database`), cache (`database`), queues (`database`)
 - **Locale**: Arabic (`ar`) in `.env`
 
 ## Commands
 
 | Command | Action |
 |---|---|
+| `composer run setup` | Fresh install: install deps, create `.env`, key:generate, migrate, `npm install && npm run build` |
 | `composer run dev` | Start dev server + queue + logs + Vite (4 concurrent processes) |
 | `composer run test` | `config:clear` then `php artisan test` |
 | `npm run build` / `npm run dev` | Vite build / dev |
+| `./vendor/bin/pint` | Lint (Laravel Pint) |
+| `php artisan db:seed --class=AdminSeeder` | Seed super admin (`admin@admin.com` / `123456`) |
 
-- New Filament resources go under `app/Filament/Resources/` (auto-discovered).
-- Admin panel at `/admin`, panel ID `admin`, primary color `Amber`, uses `admin` auth guard.
-- Run `php artisan make:filament-resource` for resource generation.
-- Permissions system via `spatie/laravel-permission` with `admin` guard:
-  - `app/Helper/PermissionsArray.php` — `permissionsArray()` defines all permissions (grouped), `StorePermissionsArray()` syncs them to DB.
-  - Admin `id == 1` bypasses all permission checks (`Gate::before` in `AppServiceProvider`).
-  - Seed super admin: `php artisan db:seed --class=AdminSeeder` (email: `admin@admin.com`, password: `123456`).
+## Architecture
+
+- **Two Filament panels** (separate auth guards, primary color `Amber`):
+  - **Admin panel** (`/admin`, panel ID `admin`, `authGuard('admin')`) — central management. Discovers `app/Filament/Resources/`.
+  - **Tenant panel** (`/app`, panel ID `tenant`, `authGuard('tenant')`) — per-tenant. Discovers `app/Filament/Tenant/{Resources,Pages,Widgets}/`. Uses `InitializeTenancyByDomain` middleware; routes in `routes/tenant.php`.
+- **Central DB** tables: `admins`, `tenants`, `domains`, `permissions`, `roles`, `role_has_permissions`, `model_has_permissions`, sessions/cache/jobs.
+- **Per-tenant DBs** created synchronously on tenant creation (pipeline in `TenancyServiceProvider` calls `shouldBeQueued(false)` despite `SeedTenantDatabase` implementing `ShouldQueue`). The pipeline runs: `CreateDatabase` → `MigrateDatabase` → `SeedTenantDatabase`.
+- **Tenant admin password**: `CreateTenant` passes the password as a constructor argument to `SeedTenantDatabase`. The job uses `config('auth.providers.tenant_users.model')` to create the first user. Password hashing is handled by the model's `hashed` cast.
+- **Auth models**: `App\Models\Admin` (`$guard_name = 'admin'`, `table: users`, central DB) and `App\Models\TenantUser` (`$guard_name = 'tenant'`, `table: users`, per-tenant DB). Both use spatie `HasRoles`. The old `App\Models\User` was removed.
+- **Auth providers**: `admins` → `Admin::class`, `tenant_users` → `TenantUser::class`. Admin panel uses `admin` guard → `admins` provider → central DB. Tenant panel uses `tenant` guard → `tenant_users` provider → tenant DB (after tenancy initialization).
+- **Models**: `Tenant` (stancl base, soft deletes, custom columns: name, email, phone, is_active).
+- **No API routes** registered. `bootstrap/app.php` has placeholder JSON handling for `api/*` paths.
+
+## Filament Resources
+
+- Custom resources under `app/Filament/Resources/{Admins,Roles,Tenants}/`. Each has `Pages/`, `Schemas/`, `Tables/` subdirectories.
+- Navigation labels use `__('dashboard.*')` translations (`lang/{ar,en}/dashboard.php`).
+- `Tenants` resource handles tenant lifecycle (creates domain + triggers DB creation/migration/seed).
+- Run `php artisan make:filament-resource` for new resources.
+
+## Permissions
+
+- **spatie/laravel-permission** with `admin` guard. Custom migration adds `display_name` and `group_name` columns to the permissions table.
+- `app/Helper/PermissionsArray.php` (auto-loaded via `composer.json` `files`) defines:
+  - `permissionsArray()` — all permissions grouped: roles, tenants, admins.
+  - `StorePermissionsArray()` — syncs permissions to DB (creates/updates/deletes).
+- Admin `id == 1` bypasses all checks (`Gate::before` in `AppServiceProvider`).
+- Permission keys follow pattern: `{group}.{action}` (e.g. `tenants.view`, `admins.create`).
+- Resources use static `can*()` methods per permission key.
 
 ## Testing
 
-- PHPUnit (not Pest) — `tests/Unit/` and `tests/Feature/`.
-- In-memory SQLite (`:memory:`) used in `phpunit.xml`.
-- `tests/TestCase.php` uses `Illuminate\Foundation\Testing\TestCase` (no `RefreshDatabase` by default — add trait when tests need DB).
+- **PHPUnit** (not Pest) — `tests/Unit/` and `tests/Feature/`.
+- In-memory SQLite (`:memory:`) used in `phpunit.xml`. `QUEUE_CONNECTION=sync`, `CACHE_STORE=array`, `SESSION_DRIVER=array`.
+- `tests/TestCase.php` extends `Illuminate\Foundation\Testing\TestCase` (no `RefreshDatabase` by default — add trait when tests need DB).
+- Unit tests extend `PHPUnit\Framework\TestCase` directly (no Laravel app boot).
 
 ## Code Style
 
 - Laravel Pint for formatting, 4-space indentation per `.editorconfig`.
-- Lint: `./vendor/bin/pint` (no dedicated npm lint script).
-
-## Architecture Notes
-
-- Custom Filament resources: `Admins`, `Roles` (under `app/Filament/Resources/`). Each resource has `Pages/`, `Schemas/`, `Tables/` subdirectories.
-- No API routes registered yet; `bootstrap/app.php` has placeholder JSON handling for `api/*`.
-- `session`, `cache`, `queue` drivers all default to `database` — ensure migrations ran.
-- `public/build/` is gitignored; run `npm run build` before deploying.
+- No dedicated npm lint script.

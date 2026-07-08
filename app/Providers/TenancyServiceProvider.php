@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -15,26 +16,19 @@ use Stancl\Tenancy\Middleware;
 
 class TenancyServiceProvider extends ServiceProvider
 {
-    // By default, no namespace is used to support the callable array syntax.
     public static string $controllerNamespace = '';
 
     public function events()
     {
         return [
-            // Tenant events
             Events\CreatingTenant::class => [],
             Events\TenantCreated::class => [
                 JobPipeline::make([
                     Jobs\CreateDatabase::class,
                     Jobs\MigrateDatabase::class,
-                    // Jobs\SeedDatabase::class,
-
-                    // Your own jobs to prepare the tenant.
-                    // Provision API keys, create S3 buckets, anything you want!
-
                 ])->send(function (Events\TenantCreated $event) {
                     return $event->tenant;
-                })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
+                })->shouldBeQueued(false),
             ],
             Events\SavingTenant::class => [],
             Events\TenantSaved::class => [],
@@ -42,11 +36,11 @@ class TenancyServiceProvider extends ServiceProvider
             Events\TenantUpdated::class => [],
             Events\DeletingTenant::class => [],
             Events\TenantDeleted::class => [
-                JobPipeline::make([
-                    Jobs\DeleteDatabase::class,
-                ])->send(function (Events\TenantDeleted $event) {
-                    return $event->tenant;
-                })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
+                function (Events\TenantDeleted $event): void {
+                    if ($event->tenant->isForceDeleting()) {
+                        app(Jobs\DeleteDatabase::class, ['tenant' => $event->tenant])->handle();
+                    }
+                },
             ],
 
             // Domain events
@@ -87,7 +81,6 @@ class TenancyServiceProvider extends ServiceProvider
                 Listeners\UpdateSyncedResource::class,
             ],
 
-            // Fired only when a synced resource is changed in a different DB than the origin DB (to avoid infinite loops)
             Events\SyncedResourceChangedInForeignDatabase::class => [],
         ];
     }
@@ -131,9 +124,7 @@ class TenancyServiceProvider extends ServiceProvider
     protected function makeTenancyMiddlewareHighestPriority()
     {
         $tenancyMiddleware = [
-            // Even higher priority than the initialization middleware
             Middleware\PreventAccessFromCentralDomains::class,
-
             Middleware\InitializeTenancyByDomain::class,
             Middleware\InitializeTenancyBySubdomain::class,
             Middleware\InitializeTenancyByDomainOrSubdomain::class,
@@ -142,7 +133,7 @@ class TenancyServiceProvider extends ServiceProvider
         ];
 
         foreach (array_reverse($tenancyMiddleware) as $middleware) {
-            $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
+            $this->app[Kernel::class]->prependToMiddlewarePriority($middleware);
         }
     }
 }
