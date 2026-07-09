@@ -28,12 +28,10 @@ return new class extends Migration
                 ->default(0);
 
             $table->decimal('commission_per_order', 12, 2)
-                ->nullable()
-                ->after('price');
+                ->nullable();
 
             $table->enum('subscription_period', ['monthly', 'yearly'])
-                ->nullable()
-                ->after('commission_per_order');
+                ->nullable();
 
             $table->char('currency', 3)
                 ->default('SAR');
