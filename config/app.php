@@ -125,4 +125,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bypass Permission Checks (development only)
+    |--------------------------------------------------------------------------
+    |
+    | When true, all authorization checks pass. Use only while features are
+    | still under active development. Set BYPASS_PERMISSIONS=false before
+    | production hardening.
+    |
+    */
+
+    'bypass_permissions' => (bool) env('BYPASS_PERMISSIONS', env('APP_ENV', 'production') !== 'production'),
+
 ];

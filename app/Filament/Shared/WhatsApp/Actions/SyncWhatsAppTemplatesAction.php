@@ -20,9 +20,9 @@ class SyncWhatsAppTemplatesAction
             ->requiresConfirmation()
             ->modalHeading(__('dashboard.whatsapp_sync_templates'))
             ->modalDescription(__('dashboard.whatsapp_sync_templates_confirm'))
-            ->action(function (SyncWhatsAppTemplatesFromMetaAction $action): void {
+            ->action(function (): void {
                 try {
-                    $result = $action->execute();
+                    $result = app(SyncWhatsAppTemplatesFromMetaAction::class)->execute();
                     static::notifyResult($result);
                 } catch (\Throwable $exception) {
                     Notification::make()

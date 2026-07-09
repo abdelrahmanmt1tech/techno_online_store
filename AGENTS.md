@@ -48,6 +48,15 @@
 - Permission keys follow pattern: `{group}.{action}` (e.g. `tenants.view`, `admins.create`).
 - Resources use static `can*()` methods per permission key.
 
+### Development mode (active)
+
+**Until WhatsApp / store features are fully complete:**
+
+- Do **not** add new permission keys or `can*()` / `visible()` permission checks on new features.
+- All checks are bypassed when `BYPASS_PERMISSIONS=true` (see `.env`) or when `APP_ENV` is not `production`.
+- On CWP during development, set `BYPASS_PERMISSIONS=true` in `.env`.
+- Before production launch: set `BYPASS_PERMISSIONS=false`, add missing permissions to roles, and wire `can*()` on resources.
+
 ## Testing
 
 - **PHPUnit** (not Pest) — `tests/Unit/` and `tests/Feature/`.

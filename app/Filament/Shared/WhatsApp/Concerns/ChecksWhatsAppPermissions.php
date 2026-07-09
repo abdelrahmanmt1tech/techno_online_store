@@ -8,10 +8,11 @@ trait ChecksWhatsAppPermissions
 {
     protected static function canWhatsAppPermission(string $tenantPermission, ?string $adminPermission = null): bool
     {
-        $user = Auth::user();
-        if (app()->isLocal()) {
-        return true;
+        if (config('app.bypass_permissions')) {
+            return true;
         }
+
+        $user = Auth::user();
 
         if ($user === null) {
             return false;
