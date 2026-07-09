@@ -116,9 +116,10 @@ Admin WhatsApp pages (`WhatsAppInboxPage`, `WhatsAppTemplatesPage`):
 **Resources / pages (auto-discovered):**
 
 - `WhatsAppNumberResource` — CRUD numbers, set default, send test message
-- `WhatsAppTemplateResource` — manual template CRUD
+- `WhatsAppTemplateResource` — manual template CRUD + **Sync from Meta** header action
+- `WhatsAppContactResource` — contact list, manual add, send to number, open inbox
 - `WhatsAppWebhookEventResource` — events filtered to `tenant_id = current tenant`
-- `WhatsAppInboxPage` — conversation list + reply UI
+- `WhatsAppInboxPage` — conversation list + reply UI (supports `?conversation=` deep link)
 
 Tenant users only see data in their own tenant database (enforced by tenancy middleware + queries).
 
@@ -136,7 +137,7 @@ Tenant users only see data in their own tenant database (enforced by tenancy mid
 - `WhatsAppNumberResource` — reads **central registry** (`WhatsAppNumberRegistry`), enable/disable numbers
 - `WhatsAppWebhookEventResource` — all central events including unresolved; raw payload column gated by `whatsapp.platform.troubleshoot`
 - `WhatsAppInboxPage` — **requires tenant selection** first
-- `WhatsAppTemplatesPage` — **requires tenant selection** first; table query only runs when tenancy is initialized
+- `WhatsAppTemplatesPage` — **requires tenant selection** first; table query only runs when tenancy is initialized; **Sync from Meta** header action
 
 ---
 
@@ -156,13 +157,18 @@ Tenant users only see data in their own tenant database (enforced by tenancy mid
 - Freeform text replies **inside** 24h window only
 - Template sending **outside** 24h window (and anytime policy allows)
 - Manual WhatsApp template CRUD
+- **Template sync from Meta** (`SyncWhatsAppTemplatesFromMetaAction` + Filament sync button)
+- **WhatsApp contacts** — manual CRUD, send to number, inbound auto-upsert
 - Template variable placeholders validation
 - Message statuses: `pending`, `sent`, `delivered`, `read`, `failed`, `received`
 - Status idempotency via monotonic `canTransitionTo()` (no downgrade read → delivered/sent)
 - Central webhook raw event storage + post-process redaction
+- **Dedicated webhook request logging** (`storage/logs/whatsapp-webhook.log`)
 - Unresolved webhook diagnostics (`processing_status = unresolved`)
 - Admin tenant-context cleanup (audit fixes)
-- Feature tests (20 passing)
+- **Shared WhatsApp UI styles** (`resources/css/whatsapp-ui.css` via Filament panel assets)
+- **Filament inbox computed properties** for send permissions (`canSendMessages`, `canSendTemplates`, `canSwitchReplyNumber`)
+- Feature tests (**32 passing**)
 
 ---
 
@@ -181,8 +187,10 @@ Tenant users only see data in their own tenant database (enforced by tenancy mid
 
 Unique key: **`whatsapp_number_id` + `customer_phone`**
 
-If the agent **switches reply number** in the inbox:
+If the agent **switches reply number** in the inbox (`canSwitchReplyNumber`):
 
+- Requires permission `whatsapp.switch_reply_number` (tenant) or `whatsapp.platform.troubleshoot` (admin)
+- UI shows number selector only when **more than one active number** exists
 - `FindOrCreateConversationAction` finds/creates a **separate conversation** for `(selected_number, customer_phone)`
 - The 24h window is evaluated on **that target conversation**, not the originally selected list item’s conversation
 
@@ -192,13 +200,55 @@ If the agent **switches reply number** in the inbox:
 
 | Topic | Status |
 |---|---|
-| Storage | Manual CRUD in tenant DB |
+| Storage | Tenant DB `whatsapp_templates` |
+| Manual CRUD | Tenant `WhatsAppTemplateResource` + admin read-only `WhatsAppTemplatesPage` |
+| **Sync from Meta** | **Implemented** — `GET /{waba_id}/message_templates` with pagination |
+| Sync UI | **Sync Templates from Meta** button on tenant list + admin templates page |
+| Sync action | `SyncWhatsAppTemplatesFromMetaAction` — upsert by `(name, language, whatsapp_business_account_id)` |
 | Submission to Meta | **Not implemented** |
-| Sync from Meta | **Not implemented** |
-| Sending | Via `SendWhatsAppTemplateMessageAction` + `WhatsAppCloudApiService` |
+| Sending | Via `SendWhatsAppTemplateMessageAction` + `WhatsAppCloudApiService::sendTemplate()` |
 | Policy | Only `Approved` templates that are not `is_disabled_locally` |
 | Outside 24h | Allowed (templates are the correct channel for proactive/re-engagement messaging) |
 | Opt-in / consent | **Not implemented** — `WhatsAppSendingPolicyService` has a comment noting future opt-in enforcement for campaigns |
+
+### Sync behaviour
+
+1. User clicks **Sync Templates from Meta** (tenant or admin-with-tenant-selected).
+2. For each active unique WABA (via active `whatsapp_numbers` with token):
+   - `WhatsAppCloudApiService::fetchAllMessageTemplates()` paginates Graph API
+   - `WhatsAppTemplatePayloadMapper` maps Meta fields → local model
+   - `updateOrCreate` on `(name, language, whatsapp_business_account_id)`
+   - Sets `provider_template_id`, `components`, `variables_schema`, `raw_payload`, `last_synced_at`
+3. Notification shows created / updated / skipped counts.
+
+**Filament note:** header actions must resolve sync action via `app(SyncWhatsAppTemplatesFromMetaAction::class)` — Filament passes its own `Action` as the first closure argument, not Laravel DI.
+
+---
+
+## 8b. Contacts
+
+| Topic | Status |
+|---|---|
+| Table | `whatsapp_contacts` (tenant DB) |
+| Fields | `phone` (unique, normalized digits), `profile_name`, `last_message_at` |
+| Filament | `WhatsAppContactResource` (tenant panel only) |
+| Manual add | Create / edit / delete |
+| Inbound sync | `UpsertWhatsAppContactAction` on each inbound webhook message |
+| Send to contact | Row action **Send Message** — template or text modal |
+| Send to new number | Header action **Send to Number** — no pre-existing contact required |
+| Open inbox | Row action links to `WhatsAppInboxPage?conversation={id}` |
+
+### Important: no Meta contacts list API
+
+WhatsApp Cloud API does **not** expose an endpoint to download the merchant’s full contact book. Contacts are built from:
+
+1. Inbound messages (webhook) — automatic
+2. Manual entry in Filament — implemented
+3. Outbound send (creates/updates contact via `UpsertWhatsAppContactAction`) — implemented
+
+### `webhook_status` on numbers (not contacts)
+
+Column exists on `whatsapp_numbers` / registry for future health diagnostics. It is **not** auto-updated by Meta today and is hidden from the number form UI pending automation.
 
 ---
 
@@ -231,7 +281,9 @@ Meta sends dot-notation query parameters. The controller reads **dot params firs
 | `hub.verify_token` | `query('hub.verify_token') ?? query('hub_verify_token')` |
 | `hub.challenge` | `query('hub.challenge') ?? query('hub_challenge')` |
 
-When `hub.mode=subscribe` and verify token matches `config('whatsapp.webhook_verify_token')`, the controller returns the challenge string as plain text `200`.
+When `hub.mode=subscribe` and verify token matches `config('whatsapp.webhook_verify_token')` (trimmed before compare), the controller returns the challenge string as plain text `200`.
+
+**Verification and receive attempts are logged** to `storage/logs/whatsapp-webhook.log` via `WhatsAppWebhookRequestLogger` (secrets masked). Configure with `WHATSAPP_WEBHOOK_LOG_CHANNEL=whatsapp-webhook`.
 
 **Note:** PHP/Laravel also maps dotted query keys to underscored keys automatically in some environments; explicit dual-read ensures compatibility.
 
@@ -276,7 +328,44 @@ curl "https://YOUR-DOMAIN.com/webhooks/meta/whatsapp?hub.mode=subscribe&hub.veri
 
 ## 10. Sending flow
 
-1. User opens inbox and selects a conversation.
+### Graph API endpoint (all outbound messages)
+
+Every outbound message uses the same Meta endpoint:
+
+```
+POST https://graph.facebook.com/{version}/{phone_number_id}/messages
+Authorization: Bearer {access_token}
+Content-Type: application/json
+```
+
+Implemented in `WhatsAppCloudApiService::post()`.
+
+#### Template message example (curl)
+
+```bash
+curl -X POST "https://graph.facebook.com/v25.0/{phone_number_id}/messages" \
+  -H "Authorization: Bearer {access_token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messaging_product": "whatsapp",
+    "to": "201006960579",
+    "type": "template",
+    "template": {
+      "name": "hello_world",
+      "language": { "code": "en_US" }
+    }
+  }'
+```
+
+This is equivalent to `WhatsAppCloudApiService::sendTemplate()` → `SendWhatsAppTemplateMessageAction`.
+
+#### Text message (inside 24h window)
+
+Same endpoint with `"type": "text"` and `"text": { "body": "..." }` — see `sendText()`.
+
+### Application flow
+
+1. User opens inbox, contacts, or number test action and selects recipient.
 2. System resolves **reply number** (`replyNumberId` or conversation’s default number).
 3. If reply number differs from list conversation’s number → `FindOrCreateConversationAction` for `(number, customer_phone)`.
 4. `WhatsAppSendingPolicyService` checks:
@@ -332,7 +421,13 @@ Defined in `app/Helper/PermissionsArray.php`:
 | `whatsapp.platform.troubleshoot` | View raw payloads, send from admin inbox, switch reply number |
 | `whatsapp.platform.send_test_messages` | Mapped to troubleshoot for admin send actions |
 
-Admin `id === 1` bypasses all checks via `Gate::before` in `AppServiceProvider` (scoped to `Admin` model only).
+### Development permission bypass (active)
+
+While the module is still under active development, `BYPASS_PERMISSIONS=true` in `.env` (default when `APP_ENV` ≠ `production`) bypasses all `Gate` / `$user->can()` checks for authenticated users.
+
+**Convention during development:** do not add new permission keys or `visible()` gates on new features until pre-launch hardening.
+
+Admin `id === 1` still bypasses all checks via `Gate::before` when `BYPASS_PERMISSIONS=false`.
 
 ### Tenant permissions (`guard: tenant`)
 
@@ -426,15 +521,18 @@ php artisan tenants:sync-permissions --migrate
 - `SendWhatsAppTemplateMessageAction.php`
 - `SyncWhatsAppNumberRegistryAction.php`
 - `SyncWhatsAppNumberStatusAction.php`
+- `SyncWhatsAppTemplatesFromMetaAction.php`
 - `UpsertWhatsAppContactAction.php`
 
 ### Services (`app/WhatsApp/Services/`)
 
-- `WhatsAppCloudApiService.php`
+- `WhatsAppCloudApiService.php` — `sendText`, `sendTemplate`, `fetchAllMessageTemplates`, `healthCheck`
 - `WhatsAppSendingPolicyService.php`
+- `WhatsAppTemplatePayloadMapper.php`
 - `WhatsAppTenantContextService.php`
 - `WhatsAppTemplateVariableValidator.php`
 - `WhatsAppWebhookPayloadRedactor.php`
+- `WhatsAppWebhookRequestLogger.php`
 - `WhatsAppWebhookResolver.php`
 - `WhatsAppWebhookSignatureVerifier.php`
 
@@ -447,6 +545,7 @@ php artisan tenants:sync-permissions --migrate
 - `app/WhatsApp/DTOs/SendTextMessageData.php`
 - `app/WhatsApp/DTOs/SendTemplateMessageData.php`
 - `app/WhatsApp/DTOs/SendingPolicyResult.php`
+- `app/WhatsApp/DTOs/SyncWhatsAppTemplatesResult.php`
 
 ### Events
 
@@ -472,6 +571,7 @@ php artisan tenants:sync-permissions --migrate
 
 - `app/Filament/Tenant/Resources/WhatsAppNumbers/WhatsAppNumberResource.php` + Pages
 - `app/Filament/Tenant/Resources/WhatsAppTemplates/WhatsAppTemplateResource.php` + Pages
+- `app/Filament/Tenant/Resources/WhatsAppContacts/WhatsAppContactResource.php` + Pages
 - `app/Filament/Tenant/Resources/WhatsAppWebhookEvents/WhatsAppWebhookEventResource.php` + Pages
 - `app/Filament/Tenant/Pages/WhatsAppInboxPage.php`
 
@@ -486,16 +586,27 @@ php artisan tenants:sync-permissions --migrate
 
 - `app/Filament/Shared/WhatsApp/Concerns/ChecksWhatsAppPermissions.php`
 - `app/Filament/Shared/WhatsApp/Concerns/InteractsWithWhatsAppInbox.php`
+- `app/Filament/Shared/WhatsApp/Actions/SyncWhatsAppTemplatesAction.php`
+- `app/Filament/Shared/WhatsApp/Actions/SendWhatsAppMessageFilamentAction.php`
 - `app/Filament/Shared/WhatsApp/Schemas/WhatsAppNumberForm.php`
 - `app/Filament/Shared/WhatsApp/Schemas/WhatsAppTemplateForm.php`
+- `app/Filament/Shared/WhatsApp/Schemas/WhatsAppContactForm.php`
 - `app/Filament/Shared/WhatsApp/Tables/WhatsAppNumbersTable.php`
 - `app/Filament/Shared/WhatsApp/Tables/WhatsAppTemplatesTable.php`
+- `app/Filament/Shared/WhatsApp/Tables/WhatsAppContactsTable.php`
 
 ### Views
 
 - `resources/views/filament/shared/whatsapp/inbox.blade.php`
 - `resources/views/filament/shared/whatsapp/inbox-admin.blade.php`
+- `resources/views/filament/shared/whatsapp/tenant-selector.blade.php`
+- `resources/views/filament/tenant/pages/whatsapp-inbox.blade.php`
 - `resources/views/filament/pages/whatsapp-templates.blade.php`
+
+### Styles (Filament panel assets)
+
+- `resources/css/filament-custom.css`
+- `resources/css/whatsapp-ui.css`
 
 ### Permissions / helpers / commands
 
@@ -508,7 +619,7 @@ php artisan tenants:sync-permissions --migrate
 - `lang/en/dashboard.php` — WhatsApp keys
 - `lang/ar/dashboard.php` — WhatsApp keys
 
-### Tests (`tests/Feature/WhatsApp/`)
+### Tests (`tests/Feature/WhatsApp/` + `tests/Unit/WhatsApp/`)
 
 - `WhatsAppTestCase.php`
 - `WebhookVerificationTest.php`
@@ -518,16 +629,32 @@ php artisan tenants:sync-permissions --migrate
 - `TenantIsolationTest.php`
 - `AdminWhatsAppTenantContextTest.php`
 - `ReplyNumberConversationTest.php`
+- `SyncWhatsAppTemplatesTest.php`
+- `WhatsAppContactTest.php`
+- `tests/Unit/WhatsApp/WhatsAppTemplatePayloadMapperTest.php`
 
-### Latest patch files (audit fixes)
+### Auth / panel routing (tenant login fix)
+
+- `app/Support/FilamentPanelResolver.php`
+- `app/Http/Responses/Filament/PanelLoginResponse.php`
+- `app/Filament/Auth/Login.php`
+- `app/Http/Middleware/TenantAuthenticateSession.php`
+- `tests/Feature/Auth/FilamentPanelResolverTest.php`
+
+### Deployment
+
+- `.github/workflows/deploy.yml` — see [`docs/deployment-cwp.md`](deployment-cwp.md)
+
+### Latest patch files (post-freeze)
 
 - `app/Filament/Pages/WhatsAppInboxPage.php` — tenant context cleanup, hydrate/dehydrate
-- `app/Filament/Pages/WhatsAppTemplatesPage.php` — tenant context cleanup, lazy `getTableQuery()`
-- `app/Http/Controllers/WhatsAppWebhookController.php` — dotted webhook verify params
-- `tests/Feature/WhatsApp/WebhookVerificationTest.php` — Meta dotted params + fallback
-- `tests/Feature/WhatsApp/StatusWebhookTest.php` — downgrade prevention tests
-- `tests/Feature/WhatsApp/AdminWhatsAppTenantContextTest.php` — admin context tests
-- `tests/Feature/WhatsApp/ReplyNumberConversationTest.php` — separate conversation per number
+- `app/Filament/Pages/WhatsAppTemplatesPage.php` — tenant context cleanup, lazy `getTableQuery()`, template sync action
+- `app/Http/Controllers/WhatsAppWebhookController.php` — dotted webhook verify params, trim tokens, request logging
+- `app/WhatsApp/Services/WhatsAppWebhookRequestLogger.php` — dedicated webhook log channel
+- `config/logging.php` — `whatsapp-webhook` daily log channel
+- `app/Filament/Shared/WhatsApp/Concerns/InteractsWithWhatsAppInbox.php` — `#[Computed]` send permission properties
+- `config/tenancy.php` — tenant DB prefix `technomasrsystem_tenant`
+- `config/app.php` — `bypass_permissions` / `BYPASS_PERMISSIONS`
 
 ---
 
@@ -542,8 +669,10 @@ php artisan tenants:sync-permissions --migrate
 | `WHATSAPP_DEFAULT_LOCALE` | `ar` | Default locale for platform |
 | `WHATSAPP_REQUEST_TIMEOUT` | `30` | HTTP timeout (seconds) for Graph API calls |
 | `WHATSAPP_LOG_CHANNEL` | `stack` | Log channel for WhatsApp warnings/errors |
+| `WHATSAPP_WEBHOOK_LOG_CHANNEL` | `whatsapp-webhook` | Dedicated webhook verification/receive log |
 | `WHATSAPP_SEND_RATE_LIMIT` | `30` | Max sends per minute per tenant/user |
 | `WHATSAPP_WEBHOOK_PAYLOAD_RETENTION` | `minimized` | `full` / `minimized` / `metadata` — central payload redaction after processing |
+| `BYPASS_PERMISSIONS` | `true` when `APP_ENV` ≠ `production` | Skip permission checks during active development |
 
 Configured in `config/whatsapp.php`. Also documented in `.env.example`.
 
@@ -562,13 +691,23 @@ Configured in `config/whatsapp.php`. Also documented in `.env.example`.
 
 ```bash
 php artisan migrate
-php artisan tenants:migrate
-php artisan tenants:sync-permissions
-php artisan db:seed --class=AdminSeeder
+php artisan tenants:sync-permissions --migrate
 php artisan config:clear
 php artisan optimize:clear
 php artisan test
 ```
+
+**Do not** run `db:seed` on every production deploy — `AdminSeeder` resets the super admin password.
+
+For **first install only**:
+
+```bash
+php artisan db:seed --class=AdminSeeder
+```
+
+### CWP production (GitHub Actions)
+
+See [`docs/deployment-cwp.md`](deployment-cwp.md). Workflow runs on push to `main` via SSH with PHP 8.3 alt path.
 
 ### When to use `--migrate` on permission sync
 
@@ -650,6 +789,10 @@ POST      webhooks/meta/whatsapp
 - [ ] Confirm freeform reply works inside 24h
 - [ ] Confirm freeform text blocked outside 24h (policy error)
 - [ ] Confirm approved template sends outside 24h
+- [ ] **Sync templates from Meta** — tenant Templates page
+- [ ] **Add contact manually** and send template from Contacts page
+- [ ] **Send to Number** from Contacts header without pre-existing contact
+- [ ] Check `storage/logs/whatsapp-webhook.log` after Meta verify attempt
 - [ ] Confirm status updates: sent → delivered → read (no downgrades)
 - [ ] Admin inbox: select tenant, view conversations, clear tenant — no errors
 - [ ] Admin templates: select tenant, view templates
@@ -677,9 +820,20 @@ After the full module was implemented across all planned phases, implementation 
    - `StatusWebhookTest` — read does not downgrade to delivered/sent
    - `ReplyNumberConversationTest` — separate conversation per reply number
 
+### Post-freeze enhancements (July 2026)
+
+5. **Webhook request logging** — `WhatsAppWebhookRequestLogger`, verify token trim, dedicated log file
+6. **Template sync from Meta** — `SyncWhatsAppTemplatesFromMetaAction`, Filament sync button, mapper + tests
+7. **Contacts Filament resource** — manual CRUD, send to number, inbox deep link
+8. **Shared WhatsApp UI CSS** — `whatsapp-ui.css` registered in both Filament panels
+9. **Filament inbox fixes** — `#[Computed]` permission properties; tenant login panel resolver
+10. **CWP deploy workflow** — `tenants:sync-permissions --migrate`, no `db:seed`, `--no-dev`
+11. **Development permission bypass** — `BYPASS_PERMISSIONS` config flag
+12. **Tenant DB naming** — prefix `technomasrsystem_tenant` for CWP
+
 ### Final test result
 
-**20/20 tests passing**
+**32/32 tests passing**
 
 ---
 
@@ -689,7 +843,9 @@ After the full module was implemented across all planned phases, implementation 
 - **OAuth** token exchange not implemented
 - **Coexistence** onboarding not implemented
 - Template **creation/submission to Meta** not implemented
-- Template **sync from Meta** not implemented
+- Template **sync from Meta** — **implemented** (list/upsert only; no create via API)
+- **Meta contacts book sync** not possible — no Graph API; contacts built from inbound + manual entry
+- `webhook_status` on numbers — schema only; not auto-populated from Meta
 - **Media upload/download** beyond storing inbound metadata is not complete
 - **Campaigns / bulk sending** not implemented
 - **Opt-in / consent management** not implemented
@@ -705,7 +861,7 @@ Suggested phases for future work:
 
 1. **Embedded Signup / OAuth onboarding** — self-service merchant connection
 2. **Coexistence support** — WhatsApp Business app + Cloud API
-3. **Template sync and submission to Meta** — automated template lifecycle
+3. ~~**Template sync and submission to Meta**~~ — sync **done**; submission still TODO
 4. **Media handling** — download/store outbound media, upload attachments
 5. **Opt-in and consent management** — required before proactive/campaign template sends
 6. **Campaigns and bulk messaging** — segmented sends with policy enforcement
@@ -726,6 +882,7 @@ Suggested phases for future work:
   - Check whether `phone_number_id` exists in `whatsapp_number_registry`
   - Confirm tenant number is active and observer synced registry
 - If sends fail with auth errors → number may be marked **`reconnect_required`**; merchant must supply a new token
+- If webhook verification returns **Forbidden** → check `storage/logs/whatsapp-webhook.log` for `configured_verify_token_set`, `verify_token_matches`, run `php artisan config:clear`
 - Queue workers must be running for `ProcessWhatsAppWebhookJob`
 - After deploy, run `config:clear` and `optimize:clear` if env values changed
 
@@ -739,7 +896,8 @@ Suggested phases for future work:
 |---|---|
 | Embedded Signup / OAuth | New `app/WhatsApp/Onboarding/` actions + Filament connect wizard; token still saved via `WhatsAppNumber` model |
 | Template sync from Meta | New `SyncWhatsAppTemplatesFromMetaAction` + scheduled job; write to tenant `whatsapp_templates` |
-| Template submission | New action calling Graph API template endpoints |
+| Template submission | New action calling Graph API template **create** endpoints |
+| Contacts UI | `WhatsAppContactResource` + `SendWhatsAppMessageFilamentAction` — **implemented** |
 | Media download/upload | Extend `ProcessInboundMessageAction` + `WhatsAppCloudApiService` media methods |
 | Opt-in checks | Extend `WhatsAppSendingPolicyService::canSendTemplate()` before campaign sends |
 
@@ -766,9 +924,12 @@ Suggested phases for future work:
 | Manual Cloud API connection | **Implemented** |
 | Webhook verification + receiving | **Implemented** |
 | Tenant + Admin Filament UI | **Implemented** |
-| Automated tests | **20/20 passing** |
+| Automated tests | **32/32 passing** |
+| Template sync from Meta | **Implemented** |
+| Contacts management UI | **Implemented** |
+| Webhook diagnostic logging | **Implemented** |
 | Production readiness | **Ready for controlled staging test** with Meta test number or manually connected production number |
 
 ---
 
-*Document version: reflects implementation and audit fixes as of July 2026. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: reflects implementation through July 2026 (post-freeze enhancements: template sync, contacts, webhook logging, CWP deploy, dev permission bypass). Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

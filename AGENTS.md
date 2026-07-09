@@ -68,3 +68,42 @@
 
 - Laravel Pint for formatting, 4-space indentation per `.editorconfig`.
 - No dedicated npm lint script.
+
+## Documentation
+
+| Document | Purpose |
+|---|---|
+| [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md) | WhatsApp module — architecture, webhooks, sending, Filament UI, setup |
+| [`docs/deployment-cwp.md`](deployment-cwp.md) | GitHub Actions deploy to CWP production server |
+
+## Tenancy — tenant database naming
+
+Configured in `config/tenancy.php`:
+
+```
+prefix: technomasrsystem_tenant
+suffix: (empty)
+```
+
+Example DB name for tenant id `10963427-bd89-438a-bec5-b10ac19606e9`:
+
+```
+technomasrsystem_tenant10963427-bd89-438a-bec5-b10ac19606e9
+```
+
+**Note:** Existing tenants keep their stored `tenancy_db_name` in the `tenants.data` column. Changing the prefix only affects **new** tenants unless databases are renamed manually.
+
+## Auth — Filament panel login
+
+- `app/Support/FilamentPanelResolver.php` — resolves admin vs tenant panel from host/referer/session
+- `app/Http/Responses/Filament/PanelLoginResponse.php` — panel-aware post-login redirect
+- `app/Filament/Auth/Login.php` — locks panel id across Livewire requests
+- **Do not set** `SESSION_DOMAIN` to a value with port (e.g. `localhost:8000`)
+
+## Environment — development permission bypass
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `BYPASS_PERMISSIONS` | `true` when `APP_ENV` ≠ `production` | Skips all `Gate` / `$user->can()` checks for authenticated users during active development |
+
+Set `BYPASS_PERMISSIONS=false` and wire permissions before production launch. See `.cursor/rules/permissions-dev.mdc` (local IDE rule; not in git).
