@@ -34,8 +34,14 @@ class WhatsAppInboxPage extends Page
         return static::canWhatsAppPermission('whatsapp.view_inbox');
     }
 
-    public function mount(): void
+    public function mount(?int $conversation = null): void
     {
+        if ($conversation !== null) {
+            $this->selectedConversationId = $conversation;
+
+            return;
+        }
+
         if ($this->conversations->isNotEmpty() && $this->selectedConversationId === null) {
             $this->selectedConversationId = $this->conversations->first()->id;
         }

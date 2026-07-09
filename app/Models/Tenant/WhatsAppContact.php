@@ -17,6 +17,13 @@ class WhatsAppContact extends Model
         'last_message_at',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $contact): void {
+            $contact->phone = preg_replace('/\D+/', '', $contact->phone) ?? $contact->phone;
+        });
+    }
+
     protected function casts(): array
     {
         return [
