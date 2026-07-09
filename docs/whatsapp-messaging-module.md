@@ -1,0 +1,774 @@
+# WhatsApp Messaging Module Documentation
+
+Developer handoff document for the WhatsApp Business Cloud API messaging module in the Techno Online Store multi-tenant platform.
+
+---
+
+## 1. Purpose
+
+This module was built for a **multi-tenant ecommerce + CRM platform** where each merchant (tenant) can:
+
+- Connect one or more **WhatsApp Business Cloud API** numbers
+- Receive inbound customer messages via Meta webhooks
+- Reply from a **selected WhatsApp number**
+- Send **approved templates** when required by WhatsApp policy
+- Enforce WhatsApp’s **24-hour customer service window**
+
+The implementation uses the **official WhatsApp Cloud API** only. There is no unofficial QR / WhatsApp Web integration.
+
+**Current scope:** **manual number connection** — merchants paste `phone_number_id`, WABA ID, and a long-lived access token. **Meta Embedded Signup / OAuth onboarding is deferred** to a future phase.
+
+---
+
+## 2. Business context
+
+| Topic | Decision |
+|---|---|
+| **Platform owner** | Techno Web Masr |
+| **Merchant ownership** | Each merchant/tenant owns their own WhatsApp Business assets |
+| **Billing** | Customer-direct — each merchant pays Meta directly for WhatsApp usage |
+| **Platform role** | Store and use each merchant’s numbers and access tokens **only for messaging** |
+| **Multi-merchant** | Supported — full tenant isolation |
+| **Multiple numbers** | Supported per tenant |
+| **Reply number selection** | Supported — agent can switch which connected number sends the reply |
+| **API** | WhatsApp Cloud API (Graph API) |
+| **Not used** | Unofficial QR scanners, WhatsApp Web bridges, third-party unofficial APIs |
+
+---
+
+## 3. Architecture decision: Hybrid central + tenant DB
+
+### Confirmed hybrid architecture
+
+Meta delivers webhooks to **one global HTTPS endpoint** before the application knows which tenant owns the `phone_number_id`. The system therefore splits storage:
+
+#### Central DB stores
+
+| Table / data | Purpose |
+|---|---|
+| `whatsapp_number_registry` | Maps `phone_number_id` → `tenant_id` + tenant-local number ID |
+| `whatsapp_webhook_events` | Raw/minimized webhook payloads, processing status, diagnostics |
+| Registry metadata | Connection status, health timestamps, default/active flags (no tokens) |
+| Unresolved events | Events where `phone_number_id` is unknown or unmapped |
+
+#### Tenant DB stores (per merchant)
+
+| Table | Purpose |
+|---|---|
+| `whatsapp_numbers` | Connected numbers + **encrypted access tokens** |
+| `whatsapp_contacts` | Customer contact records |
+| `whatsapp_conversations` | Inbox threads, 24h window, assignment |
+| `whatsapp_messages` | Inbound/outbound message timeline |
+| `whatsapp_templates` | Manually entered approved templates |
+| Spatie permissions/roles | Tenant-scoped WhatsApp RBAC |
+
+### Why hybrid?
+
+```
+Meta webhook (global URL)
+    → store event centrally
+    → resolve phone_number_id in central registry
+    → tenancy()->initialize($tenant)
+    → write conversation/message in that tenant’s DB
+```
+
+### Explicit non-goals in this phase
+
+- **No central mirror/index** of conversations or messages
+- **Admin inbox is tenant-filtered** — admin must select a tenant; it is not a global cross-tenant inbox
+- **Tenant isolation is mandatory** at DB, middleware, service, and policy layers
+
+---
+
+## 4. Tenancy model
+
+| Aspect | Implementation |
+|---|---|
+| **Package** | `stancl/tenancy` — database-per-tenant |
+| **Tenant models** | `protected $connection = 'tenant'` (e.g. `App\Models\Tenant\WhatsApp*`) |
+| **Central models** | `CentralConnection` trait or default connection (e.g. `WhatsAppNumberRegistry`, `WhatsAppWebhookEvent`) |
+| **Tenant panel** | `/app` — `InitializeTenancyByDomain` middleware bootstraps tenant DB automatically |
+| **Webhook routes** | Registered in `routes/web.php` on the **central** app — **not** in `routes/tenant.php`, **no** tenancy middleware |
+| **Admin panel** | `/admin` — central DB by default; inbox/templates pages use **tenant selector** + `WhatsAppTenantContextService::initializeForTenant()` before reading tenant data |
+
+### Admin tenant context lifecycle (post-audit fix)
+
+Admin WhatsApp pages (`WhatsAppInboxPage`, `WhatsAppTemplatesPage`):
+
+- Call `initializeForTenant()` when a tenant is selected
+- Call `end()` when selection is cleared
+- Use Livewire `hydrate()` / `dehydrate()` to re-init per request and clean up after each response
+- When switching tenant A → B: `end()` then `initializeForTenant(B)` — no stale context
+
+---
+
+## 5. Filament panels
+
+### Tenant Panel
+
+| Setting | Value |
+|---|---|
+| **Provider** | `app/Providers/Filament/TenantPanelProvider.php` |
+| **Path** | `/app` |
+| **Guard** | `tenant` |
+| **Purpose** | Merchant manages own WhatsApp numbers, templates, inbox, webhook events |
+
+**Resources / pages (auto-discovered):**
+
+- `WhatsAppNumberResource` — CRUD numbers, set default, send test message
+- `WhatsAppTemplateResource` — manual template CRUD
+- `WhatsAppWebhookEventResource` — events filtered to `tenant_id = current tenant`
+- `WhatsAppInboxPage` — conversation list + reply UI
+
+Tenant users only see data in their own tenant database (enforced by tenancy middleware + queries).
+
+### Admin Panel
+
+| Setting | Value |
+|---|---|
+| **Provider** | `app/Providers/Filament/AdminPanelProvider.php` |
+| **Path** | `/admin` |
+| **Guard** | `admin` |
+| **Purpose** | Platform support, registry view, diagnostics |
+
+**Resources / pages:**
+
+- `WhatsAppNumberResource` — reads **central registry** (`WhatsAppNumberRegistry`), enable/disable numbers
+- `WhatsAppWebhookEventResource` — all central events including unresolved; raw payload column gated by `whatsapp.platform.troubleshoot`
+- `WhatsAppInboxPage` — **requires tenant selection** first
+- `WhatsAppTemplatesPage` — **requires tenant selection** first; table query only runs when tenancy is initialized
+
+---
+
+## 6. Main features implemented
+
+- Manual WhatsApp number connection (tenant panel)
+- Multiple numbers per tenant
+- Default number per tenant (`is_default`)
+- **Encrypted** `access_token` at rest
+- **Masked** token in Filament UI (never shows real token)
+- Empty token field on edit preserves existing token
+- Sending test messages from number resource
+- WhatsApp inbox (tenant + admin-with-tenant-selector)
+- Conversation list sorted by `last_message_at`
+- Message timeline per conversation
+- 24-hour customer service window badge / policy enforcement
+- Freeform text replies **inside** 24h window only
+- Template sending **outside** 24h window (and anytime policy allows)
+- Manual WhatsApp template CRUD
+- Template variable placeholders validation
+- Message statuses: `pending`, `sent`, `delivered`, `read`, `failed`, `received`
+- Status idempotency via monotonic `canTransitionTo()` (no downgrade read → delivered/sent)
+- Central webhook raw event storage + post-process redaction
+- Unresolved webhook diagnostics (`processing_status = unresolved`)
+- Admin tenant-context cleanup (audit fixes)
+- Feature tests (20 passing)
+
+---
+
+## 7. WhatsApp 24-hour customer service window
+
+### Rules
+
+1. An **inbound customer message** opens or reopens the window via `OpenCustomerServiceWindowAction`.
+2. `last_customer_message_at` is updated to the inbound timestamp.
+3. `customer_service_window_expires_at` = inbound timestamp + **24 hours** (`config/whatsapp.php` → `customer_service_window_hours`).
+4. **Freeform text** is allowed only while `now() < customer_service_window_expires_at` (`WhatsAppConversation::canSendFreeformReply()`).
+5. **Outside the window**, the user must send an **approved template** (`WhatsAppSendingPolicyService` returns `mustUseTemplate: true`).
+6. The window is evaluated **per conversation**.
+
+### Conversation identity
+
+Unique key: **`whatsapp_number_id` + `customer_phone`**
+
+If the agent **switches reply number** in the inbox:
+
+- `FindOrCreateConversationAction` finds/creates a **separate conversation** for `(selected_number, customer_phone)`
+- The 24h window is evaluated on **that target conversation**, not the originally selected list item’s conversation
+
+---
+
+## 8. Templates
+
+| Topic | Status |
+|---|---|
+| Storage | Manual CRUD in tenant DB |
+| Submission to Meta | **Not implemented** |
+| Sync from Meta | **Not implemented** |
+| Sending | Via `SendWhatsAppTemplateMessageAction` + `WhatsAppCloudApiService` |
+| Policy | Only `Approved` templates that are not `is_disabled_locally` |
+| Outside 24h | Allowed (templates are the correct channel for proactive/re-engagement messaging) |
+| Opt-in / consent | **Not implemented** — `WhatsAppSendingPolicyService` has a comment noting future opt-in enforcement for campaigns |
+
+---
+
+## 9. Webhook flow
+
+### Routes
+
+Registered in `routes/web.php` (central, public, `web` middleware only):
+
+```
+GET  /webhooks/meta/whatsapp  → WhatsAppWebhookController@verify
+POST /webhooks/meta/whatsapp  → WhatsAppWebhookController@receive
+```
+
+CSRF exclusion in `bootstrap/app.php`:
+
+```php
+$middleware->validateCsrfTokens(except: [
+    'webhooks/meta/whatsapp',
+]);
+```
+
+### GET — Meta verification
+
+Meta sends dot-notation query parameters. The controller reads **dot params first**, with **underscore fallback** for local testing:
+
+| Meta param | Controller reads |
+|---|---|
+| `hub.mode` | `query('hub.mode') ?? query('hub_mode')` |
+| `hub.verify_token` | `query('hub.verify_token') ?? query('hub_verify_token')` |
+| `hub.challenge` | `query('hub.challenge') ?? query('hub_challenge')` |
+
+When `hub.mode=subscribe` and verify token matches `config('whatsapp.webhook_verify_token')`, the controller returns the challenge string as plain text `200`.
+
+**Note:** PHP/Laravel also maps dotted query keys to underscored keys automatically in some environments; explicit dual-read ensures compatibility.
+
+#### curl example
+
+```bash
+curl "https://YOUR-DOMAIN.com/webhooks/meta/whatsapp?hub.mode=subscribe&hub.verify_token=YOUR_TOKEN&hub.challenge=12345"
+```
+
+**Expected response:**
+
+```
+12345
+```
+
+### POST — Receive message/status events
+
+1. Read raw body and `X-Hub-Signature-256` header.
+2. If `META_APP_SECRET` is configured:
+   - Invalid/missing signature → **403**, minimal diagnostic `WhatsAppWebhookEvent` (`invalid_signature`), **no job dispatched**
+3. If `META_APP_SECRET` is empty and `WHATSAPP_ALLOW_UNSIGNED_WEBHOOKS=false` → **403**, no processing
+4. Valid request → create central `WhatsAppWebhookEvent` (`processing_status = pending`, full payload stored initially)
+5. Dispatch `ProcessWhatsAppWebhookJob` (queue)
+6. Return `200 OK` immediately
+
+### Job processing (`ProcessWhatsAppWebhookJob`)
+
+1. Load central event
+2. For each `entry.changes[].value`:
+   - Read `metadata.phone_number_id`
+   - Resolve tenant via `WhatsAppWebhookResolver` → central `whatsapp_number_registry`
+   - If not found → mark event `unresolved`, continue
+   - `$tenant->run()`:
+     - Load tenant `WhatsAppNumber` by registry’s `tenant_whatsapp_number_id`
+     - `ProcessInboundMessageAction` for each `messages[]`
+     - `ProcessMessageStatusAction` for each `statuses[]`
+   - Update event: `tenant_id`, `processed`, redact payload per `webhook_payload_retention`
+
+**Critical:** `tenant_id` from the webhook JSON payload is **never trusted**. Only registry lookup by `phone_number_id` is authoritative.
+
+---
+
+## 10. Sending flow
+
+1. User opens inbox and selects a conversation.
+2. System resolves **reply number** (`replyNumberId` or conversation’s default number).
+3. If reply number differs from list conversation’s number → `FindOrCreateConversationAction` for `(number, customer_phone)`.
+4. `WhatsAppSendingPolicyService` checks:
+   - User permission (tenant or admin guard)
+   - Number `is_active` and `status = active`
+   - Conversation belongs to selected number
+   - Rate limit (`whatsapp.send_rate_limit`)
+   - For text: 24h window open
+   - For template: template approved and not locally disabled
+5. `SendWhatsAppTextMessageAction` or `SendWhatsAppTemplateMessageAction`:
+   - Create local `WhatsAppMessage` (`pending`)
+   - Call `WhatsAppCloudApiService` (Graph API)
+   - On success: save `provider_message_id`, set `sent`, update conversation preview/timestamps, sync registry
+   - On failure: mark `failed`, store safe error code/message, optionally set number `reconnect_required`
+6. Meta status webhooks update `sent` → `delivered` → `read` (monotonic; no downgrades)
+
+---
+
+## 11. Security
+
+| Control | Implementation |
+|---|---|
+| Token encryption | `WhatsAppNumber` cast: `'access_token' => 'encrypted'` |
+| Hidden from arrays | `WhatsAppNumber::$hidden` includes `access_token` |
+| UI masking | Filament password field + `masked_access_token` placeholder on edit |
+| Edit preserves token | `EditWhatsAppNumber::mutateFormDataBeforeSave()` unsets blank token |
+| No token logging | `WhatsAppCloudApiService` logs status/code only; job logs event ID + exception message |
+| Webhook signature | `WhatsAppWebhookSignatureVerifier` HMAC SHA-256 when secret configured |
+| Tenant resolution | Registry lookup by `phone_number_id` only — never trust payload `tenant_id` |
+| Raw payload visibility | Admin column visible only with `whatsapp.platform.troubleshoot` |
+| Tenant isolation | Tenant webhook resource: `where('tenant_id', tenant()->getTenantKey())` |
+| Admin inbox/templates | Require tenant selection; no tenant DB queries before init |
+| Central registry | Stores metadata only — **no access tokens** |
+
+---
+
+## 12. Permissions
+
+### Admin permissions (`guard: admin`)
+
+Defined in `app/Helper/PermissionsArray.php`:
+
+| Key | Purpose |
+|---|---|
+| `whatsapp.platform.view_all_numbers` | View central number registry |
+| `whatsapp.platform.manage_all_numbers` | Enable/disable numbers in registry |
+| `whatsapp.platform.view_all_conversations` | Access admin inbox (with tenant selector) |
+| `whatsapp.platform.view_all_messages` | Reserved for future message-level admin views |
+| `whatsapp.platform.view_all_templates` | Access admin templates page |
+| `whatsapp.platform.manage_all_templates` | Future admin template management |
+| `whatsapp.platform.view_webhook_events` | View central webhook events |
+| `whatsapp.platform.manage_webhook_events` | Future webhook management |
+| `whatsapp.platform.troubleshoot` | View raw payloads, send from admin inbox, switch reply number |
+| `whatsapp.platform.send_test_messages` | Mapped to troubleshoot for admin send actions |
+
+Admin `id === 1` bypasses all checks via `Gate::before` in `AppServiceProvider` (scoped to `Admin` model only).
+
+### Tenant permissions (`guard: tenant`)
+
+Defined in `app/Helper/TenantPermissionsArray.php`:
+
+| Key | Purpose |
+|---|---|
+| `whatsapp.view_numbers` | List numbers |
+| `whatsapp.manage_numbers` | Create/edit/delete numbers |
+| `whatsapp.view_inbox` | Open inbox |
+| `whatsapp.send_messages` | Send freeform text (inside 24h) |
+| `whatsapp.switch_reply_number` | Change reply number in inbox |
+| `whatsapp.view_templates` | List templates |
+| `whatsapp.manage_templates` | CRUD templates |
+| `whatsapp.send_template_messages` | Send templates |
+| `whatsapp.view_webhook_events` | View tenant-filtered central events |
+
+### Syncing permissions for existing tenants
+
+```bash
+php artisan tenants:sync-permissions
+```
+
+Runs `StoreTenantPermissionsArray()` and `setupStoreAdminRole()` inside each tenant DB, re-assigning the Store Admin role to the first tenant user.
+
+Use `--migrate` to run tenant migrations first:
+
+```bash
+php artisan tenants:sync-permissions --migrate
+```
+
+---
+
+## 13. Files created/changed
+
+### Config
+
+- `config/whatsapp.php`
+
+### Enums (`app/WhatsApp/Enums/`)
+
+- `WhatsAppConnectionStatus.php`
+- `WhatsAppConversationStatus.php`
+- `WhatsAppMessageDirection.php`
+- `WhatsAppMessageSenderType.php`
+- `WhatsAppMessageStatus.php`
+- `WhatsAppMessageType.php`
+- `WhatsAppTemplateCategory.php`
+- `WhatsAppTemplateStatus.php`
+- `WhatsAppWebhookProcessingStatus.php`
+
+### Models
+
+**Central:**
+
+- `app/Models/WhatsAppNumberRegistry.php`
+- `app/Models/WhatsAppWebhookEvent.php`
+
+**Tenant:**
+
+- `app/Models/Tenant/WhatsAppNumber.php`
+- `app/Models/Tenant/WhatsAppContact.php`
+- `app/Models/Tenant/WhatsAppConversation.php`
+- `app/Models/Tenant/WhatsAppMessage.php`
+- `app/Models/Tenant/WhatsAppTemplate.php`
+
+### Migrations
+
+**Central:**
+
+- `database/migrations/2026_07_09_100001_create_whatsapp_number_registry_table.php`
+- `database/migrations/2026_07_09_100002_create_whatsapp_webhook_events_table.php`
+
+**Tenant:**
+
+- `database/migrations/tenant/2026_07_09_100001_create_permission_tables.php`
+- `database/migrations/tenant/2026_07_09_100002_add_group_name_and_display_name_to_permissions_table.php`
+- `database/migrations/tenant/2026_07_09_100003_create_whatsapp_numbers_table.php`
+- `database/migrations/tenant/2026_07_09_100004_create_whatsapp_contacts_table.php`
+- `database/migrations/tenant/2026_07_09_100005_create_whatsapp_conversations_table.php`
+- `database/migrations/tenant/2026_07_09_100006_create_whatsapp_templates_table.php`
+- `database/migrations/tenant/2026_07_09_100007_create_whatsapp_messages_table.php`
+
+### Actions (`app/WhatsApp/Actions/`)
+
+- `FindOrCreateConversationAction.php`
+- `OpenCustomerServiceWindowAction.php`
+- `ProcessInboundMessageAction.php`
+- `ProcessMessageStatusAction.php`
+- `SendWhatsAppTextMessageAction.php`
+- `SendWhatsAppTemplateMessageAction.php`
+- `SyncWhatsAppNumberRegistryAction.php`
+- `SyncWhatsAppNumberStatusAction.php`
+- `UpsertWhatsAppContactAction.php`
+
+### Services (`app/WhatsApp/Services/`)
+
+- `WhatsAppCloudApiService.php`
+- `WhatsAppSendingPolicyService.php`
+- `WhatsAppTenantContextService.php`
+- `WhatsAppTemplateVariableValidator.php`
+- `WhatsAppWebhookPayloadRedactor.php`
+- `WhatsAppWebhookResolver.php`
+- `WhatsAppWebhookSignatureVerifier.php`
+
+### Jobs
+
+- `app/WhatsApp/Jobs/ProcessWhatsAppWebhookJob.php`
+
+### DTOs
+
+- `app/WhatsApp/DTOs/SendTextMessageData.php`
+- `app/WhatsApp/DTOs/SendTemplateMessageData.php`
+- `app/WhatsApp/DTOs/SendingPolicyResult.php`
+
+### Events
+
+- `app/WhatsApp/Events/WhatsAppConversationCreated.php`
+- `app/WhatsApp/Events/WhatsAppMessageFailed.php`
+- `app/WhatsApp/Events/WhatsAppMessageReceived.php`
+- `app/WhatsApp/Events/WhatsAppMessageSent.php`
+
+### Controllers
+
+- `app/Http/Controllers/WhatsAppWebhookController.php`
+
+### Observers
+
+- `app/Observers/Tenant/WhatsAppNumberObserver.php` (registered in `AppServiceProvider`)
+
+### Routes / bootstrap
+
+- `routes/web.php` — webhook routes
+- `bootstrap/app.php` — CSRF exception
+
+### Filament — Tenant panel
+
+- `app/Filament/Tenant/Resources/WhatsAppNumbers/WhatsAppNumberResource.php` + Pages
+- `app/Filament/Tenant/Resources/WhatsAppTemplates/WhatsAppTemplateResource.php` + Pages
+- `app/Filament/Tenant/Resources/WhatsAppWebhookEvents/WhatsAppWebhookEventResource.php` + Pages
+- `app/Filament/Tenant/Pages/WhatsAppInboxPage.php`
+
+### Filament — Admin panel
+
+- `app/Filament/Resources/WhatsAppNumbers/WhatsAppNumberResource.php` + Pages
+- `app/Filament/Resources/WhatsAppWebhookEvents/WhatsAppWebhookEventResource.php` + Pages
+- `app/Filament/Pages/WhatsAppInboxPage.php`
+- `app/Filament/Pages/WhatsAppTemplatesPage.php`
+
+### Filament — Shared
+
+- `app/Filament/Shared/WhatsApp/Concerns/ChecksWhatsAppPermissions.php`
+- `app/Filament/Shared/WhatsApp/Concerns/InteractsWithWhatsAppInbox.php`
+- `app/Filament/Shared/WhatsApp/Schemas/WhatsAppNumberForm.php`
+- `app/Filament/Shared/WhatsApp/Schemas/WhatsAppTemplateForm.php`
+- `app/Filament/Shared/WhatsApp/Tables/WhatsAppNumbersTable.php`
+- `app/Filament/Shared/WhatsApp/Tables/WhatsAppTemplatesTable.php`
+
+### Views
+
+- `resources/views/filament/shared/whatsapp/inbox.blade.php`
+- `resources/views/filament/shared/whatsapp/inbox-admin.blade.php`
+- `resources/views/filament/pages/whatsapp-templates.blade.php`
+
+### Permissions / helpers / commands
+
+- `app/Helper/PermissionsArray.php` (extended with `whatsapp.platform.*`)
+- `app/Helper/TenantPermissionsArray.php`
+- `app/Console/Commands/SyncTenantPermissionsCommand.php`
+
+### Translations
+
+- `lang/en/dashboard.php` — WhatsApp keys
+- `lang/ar/dashboard.php` — WhatsApp keys
+
+### Tests (`tests/Feature/WhatsApp/`)
+
+- `WhatsAppTestCase.php`
+- `WebhookVerificationTest.php`
+- `InboundWebhookTest.php`
+- `StatusWebhookTest.php`
+- `CustomerServiceWindowTest.php`
+- `TenantIsolationTest.php`
+- `AdminWhatsAppTenantContextTest.php`
+- `ReplyNumberConversationTest.php`
+
+### Latest patch files (audit fixes)
+
+- `app/Filament/Pages/WhatsAppInboxPage.php` — tenant context cleanup, hydrate/dehydrate
+- `app/Filament/Pages/WhatsAppTemplatesPage.php` — tenant context cleanup, lazy `getTableQuery()`
+- `app/Http/Controllers/WhatsAppWebhookController.php` — dotted webhook verify params
+- `tests/Feature/WhatsApp/WebhookVerificationTest.php` — Meta dotted params + fallback
+- `tests/Feature/WhatsApp/StatusWebhookTest.php` — downgrade prevention tests
+- `tests/Feature/WhatsApp/AdminWhatsAppTenantContextTest.php` — admin context tests
+- `tests/Feature/WhatsApp/ReplyNumberConversationTest.php` — separate conversation per number
+
+---
+
+## 14. Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `WHATSAPP_GRAPH_API_VERSION` | `v21.0` | Graph API version segment in URLs |
+| `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | — | Must match Meta App Dashboard verify token |
+| `META_APP_SECRET` | — | App Secret for `X-Hub-Signature-256` validation |
+| `WHATSAPP_ALLOW_UNSIGNED_WEBHOOKS` | `false` | Allow POST without signature when secret empty (local dev only) |
+| `WHATSAPP_DEFAULT_LOCALE` | `ar` | Default locale for platform |
+| `WHATSAPP_REQUEST_TIMEOUT` | `30` | HTTP timeout (seconds) for Graph API calls |
+| `WHATSAPP_LOG_CHANNEL` | `stack` | Log channel for WhatsApp warnings/errors |
+| `WHATSAPP_SEND_RATE_LIMIT` | `30` | Max sends per minute per tenant/user |
+| `WHATSAPP_WEBHOOK_PAYLOAD_RETENTION` | `minimized` | `full` / `minimized` / `metadata` — central payload redaction after processing |
+
+Configured in `config/whatsapp.php`. Also documented in `.env.example`.
+
+### Production warnings
+
+- **`WHATSAPP_ALLOW_UNSIGNED_WEBHOOKS` must be `false` in production.**
+- **`META_APP_SECRET` should be set in production** so all webhook POSTs are signature-verified.
+- **`WHATSAPP_WEBHOOK_VERIFY_TOKEN` must exactly match** the value in the Meta App Dashboard.
+- **Never commit real tokens or secrets** to version control.
+
+---
+
+## 15. Setup / deployment commands
+
+### Fresh / standard deployment sequence
+
+```bash
+php artisan migrate
+php artisan tenants:migrate
+php artisan tenants:sync-permissions
+php artisan db:seed --class=AdminSeeder
+php artisan config:clear
+php artisan optimize:clear
+php artisan test
+```
+
+### When to use `--migrate` on permission sync
+
+For **existing tenants** after pulling new tenant migrations (e.g. WhatsApp tables or permission schema):
+
+```bash
+php artisan tenants:sync-permissions --migrate
+```
+
+This runs `tenants:migrate --force` first, then syncs permissions and Store Admin role per tenant.
+
+### Pre-production warning
+
+**Before production deployment, review all migrations and take database backups.** Tenant migrations create new tables and permission schema; central migrations add registry and webhook tables.
+
+---
+
+## 16. How to manually connect a WhatsApp number
+
+1. Log in to the **Tenant Panel** at `/app` (tenant domain).
+2. Open **WhatsApp → Numbers**.
+3. Click **Create** and fill required fields:
+   - **Display phone number** — human-readable label
+   - **Phone number ID** — from Meta WhatsApp Manager (used for webhook routing)
+   - **WhatsApp Business Account ID (WABA ID)**
+   - **Access token** — long-lived token with messaging permissions
+4. Set **status** / **is_active** / **is_default** as needed.
+5. Save.
+
+**What happens at runtime:**
+
+- Token is **encrypted** in tenant `whatsapp_numbers` table
+- `WhatsAppNumberObserver` calls `SyncWhatsAppNumberRegistryAction`
+- Central `whatsapp_number_registry` row is created/updated with **metadata only** (no token)
+- Future webhooks for that `phone_number_id` route to this tenant
+
+---
+
+## 17. How to configure Meta webhook
+
+1. In **Meta App Dashboard** → WhatsApp → Configuration:
+   - **Callback URL:** `https://YOUR-DOMAIN.com/webhooks/meta/whatsapp`
+   - **Verify token:** same value as `WHATSAPP_WEBHOOK_VERIFY_TOKEN` in `.env`
+2. Subscribe to WhatsApp webhook fields (at minimum `messages` for inbound + statuses).
+3. Ensure:
+   - **HTTPS** is valid and publicly reachable
+   - Route is **not** behind admin/tenant auth
+   - `META_APP_SECRET` is set in production `.env`
+   - Queue worker is running (`QUEUE_CONNECTION=database` — process with `php artisan queue:work`)
+
+4. Click **Verify and save** in Meta — Meta sends `GET` with `hub.mode=subscribe`.
+
+---
+
+## 18. Testing checklist
+
+### Automated
+
+```bash
+php artisan test
+php artisan route:list --path=webhooks
+```
+
+Expected routes:
+
+```
+GET|HEAD  webhooks/meta/whatsapp
+POST      webhooks/meta/whatsapp
+```
+
+### Manual / staging
+
+- [ ] curl GET verification with **dotted** Meta params returns challenge
+- [ ] Send test message from Tenant → Numbers → Send test
+- [ ] Send inbound WhatsApp message to connected number from a real phone
+- [ ] Confirm central `whatsapp_webhook_events` row created
+- [ ] Confirm tenant `whatsapp_conversations` + `whatsapp_messages` created
+- [ ] Confirm 24h window opens (`customer_service_window_expires_at` set)
+- [ ] Confirm freeform reply works inside 24h
+- [ ] Confirm freeform text blocked outside 24h (policy error)
+- [ ] Confirm approved template sends outside 24h
+- [ ] Confirm status updates: sent → delivered → read (no downgrades)
+- [ ] Admin inbox: select tenant, view conversations, clear tenant — no errors
+- [ ] Admin templates: select tenant, view templates
+
+---
+
+## 19. Strict audit and fixes applied
+
+After the full module was implemented across all planned phases, implementation was **frozen** and a strict audit was performed.
+
+### Initial audit state
+
+- Core module functional
+- Initial test suite: **12/12 passed**
+- Findings: admin tenant context leak; webhook verify params relied on PHP underscore normalization; missing tests for edge cases
+
+### Fixes applied (minimal patches only)
+
+1. **`WhatsAppInboxPage`** — clearing `selectedTenantId` now calls `end()`, clears conversation state, returns early without querying tenant DB; `hydrate()`/`dehydrate()` lifecycle cleanup; safe A→B tenant switch via `end()` before `initializeForTenant()`
+2. **`WhatsAppTemplatesPage`** — same tenant context cleanup; **`getTableQuery()` returns `null`** until tenant is initialized (fixes `Database connection [tenant] not configured` on admin page load)
+3. **`WhatsAppWebhookController`** — explicit `hub.mode` / `hub.verify_token` / `hub.challenge` with underscore fallback
+4. **Tests added/extended:**
+   - `AdminWhatsAppTenantContextTest` — context cleanup and switching
+   - `WebhookVerificationTest` — dotted Meta params + underscore fallback
+   - `StatusWebhookTest` — read does not downgrade to delivered/sent
+   - `ReplyNumberConversationTest` — separate conversation per reply number
+
+### Final test result
+
+**20/20 tests passing**
+
+---
+
+## 20. Current limitations / not implemented yet
+
+- Meta **Embedded Signup** not implemented
+- **OAuth** token exchange not implemented
+- **Coexistence** onboarding not implemented
+- Template **creation/submission to Meta** not implemented
+- Template **sync from Meta** not implemented
+- **Media upload/download** beyond storing inbound metadata is not complete
+- **Campaigns / bulk sending** not implemented
+- **Opt-in / consent management** not implemented
+- **Messenger** and **Instagram** messaging not implemented
+- **Central global conversation search/index** not implemented
+- **Platform billing** not implemented (billing is customer-direct to Meta)
+
+---
+
+## 21. Future roadmap
+
+Suggested phases for future work:
+
+1. **Embedded Signup / OAuth onboarding** — self-service merchant connection
+2. **Coexistence support** — WhatsApp Business app + Cloud API
+3. **Template sync and submission to Meta** — automated template lifecycle
+4. **Media handling** — download/store outbound media, upload attachments
+5. **Opt-in and consent management** — required before proactive/campaign template sends
+6. **Campaigns and bulk messaging** — segmented sends with policy enforcement
+7. **WhatsApp Flows** — structured interactive flows
+8. **Messenger integration**
+9. **Instagram Messaging integration**
+10. **Central reporting / optional conversation index** — if platform-wide analytics needed
+11. **Billing reports and usage ledger** — only if platform billing model changes
+
+---
+
+## 22. Operational notes
+
+- The webhook endpoint is **global** — never create one webhook URL per tenant in Meta
+- Each tenant may have **multiple numbers**; each `phone_number_id` must be unique in central registry
+- Each `(whatsapp_number_id, customer_phone)` pair has its **own conversation and 24h window**
+- If webhooks show **`unresolved`** in admin:
+  - Check whether `phone_number_id` exists in `whatsapp_number_registry`
+  - Confirm tenant number is active and observer synced registry
+- If sends fail with auth errors → number may be marked **`reconnect_required`**; merchant must supply a new token
+- Queue workers must be running for `ProcessWhatsAppWebhookJob`
+- After deploy, run `config:clear` and `optimize:clear` if env values changed
+
+---
+
+## 23. Developer notes
+
+### Where to add future code
+
+| Feature | Suggested location |
+|---|---|
+| Embedded Signup / OAuth | New `app/WhatsApp/Onboarding/` actions + Filament connect wizard; token still saved via `WhatsAppNumber` model |
+| Template sync from Meta | New `SyncWhatsAppTemplatesFromMetaAction` + scheduled job; write to tenant `whatsapp_templates` |
+| Template submission | New action calling Graph API template endpoints |
+| Media download/upload | Extend `ProcessInboundMessageAction` + `WhatsAppCloudApiService` media methods |
+| Opt-in checks | Extend `WhatsAppSendingPolicyService::canSendTemplate()` before campaign sends |
+
+### Rules for maintainers
+
+- **Always use `WhatsAppCloudApiService`** for Graph API calls — do not scatter raw HTTP
+- **Always use `WhatsAppSendingPolicyService`** before sending — do not bypass 24h/template rules
+- **Never write tenant messages from webhook code without `$tenant->run()` or initialized tenancy**
+- **Never put `access_token` in central registry** — tokens stay in tenant DB only
+- **Never trust `tenant_id` from webhook payload** — use `WhatsAppWebhookResolver` only
+- **Admin pages that read tenant data** must use `WhatsAppTenantContextService` and call `end()` when done
+- New tenant permissions go in `TenantPermissionsArray.php` + run `tenants:sync-permissions`
+- New admin permissions go in `PermissionsArray.php` + run `StorePermissionsArray()` (e.g. via seeder)
+
+---
+
+## 24. Final status
+
+| Item | Status |
+|---|---|
+| WhatsApp Messaging module | **Implemented** |
+| Hybrid central + tenant architecture | **Implemented** |
+| Tenant isolation | **Implemented** |
+| Manual Cloud API connection | **Implemented** |
+| Webhook verification + receiving | **Implemented** |
+| Tenant + Admin Filament UI | **Implemented** |
+| Automated tests | **20/20 passing** |
+| Production readiness | **Ready for controlled staging test** with Meta test number or manually connected production number |
+
+---
+
+*Document version: reflects implementation and audit fixes as of July 2026. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

@@ -23,7 +23,7 @@ class SeedTenantDatabase
 
             $password = $this->password ?? 'password';
 
-            $userClass::updateOrCreate(
+            $user = $userClass::updateOrCreate(
                 ['email' => $email],
                 [
                     'name' => $this->tenant->name.' Admin',
@@ -31,6 +31,10 @@ class SeedTenantDatabase
                     'email_verified_at' => now(),
                 ]
             );
+
+            StoreTenantPermissionsArray();
+            $role = setupStoreAdminRole();
+            $user->assignRole($role);
         });
     }
 }
