@@ -26,4 +26,23 @@ class WebhookVerificationTest extends WhatsAppTestCase
         $response->assertOk();
         $response->assertSee('54321');
     }
+
+    public function test_webhook_verification_trims_configured_and_received_tokens(): void
+    {
+        config(['whatsapp.webhook_verify_token' => ' test-verify-token ']);
+
+        $response = $this->get('/webhooks/meta/whatsapp?hub.mode=subscribe&hub.verify_token=test-verify-token&hub.challenge=99999');
+
+        $response->assertOk();
+        $response->assertSee('99999');
+    }
+
+    public function test_webhook_verification_fails_when_configured_token_is_empty(): void
+    {
+        config(['whatsapp.webhook_verify_token' => '']);
+
+        $response = $this->get('/webhooks/meta/whatsapp?hub.mode=subscribe&hub.verify_token=anything&hub.challenge=12345');
+
+        $response->assertForbidden();
+    }
 }

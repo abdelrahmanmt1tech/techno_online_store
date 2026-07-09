@@ -8,6 +8,7 @@ return [
     'default_locale' => env('WHATSAPP_DEFAULT_LOCALE', 'ar'),
     'request_timeout' => (int) env('WHATSAPP_REQUEST_TIMEOUT', 30),
     'log_channel' => env('WHATSAPP_LOG_CHANNEL', 'stack'),
+    'webhook_log_channel' => env('WHATSAPP_WEBHOOK_LOG_CHANNEL', 'whatsapp-webhook'),
     'send_rate_limit' => (int) env('WHATSAPP_SEND_RATE_LIMIT', 30),
     'webhook_payload_retention' => env('WHATSAPP_WEBHOOK_PAYLOAD_RETENTION', 'minimized'),
     'customer_service_window_hours' => 24,
