@@ -2,9 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\Login;
 use App\Http\Middleware\EnsureTenantIsInitialized;
+use App\Http\Middleware\TenantAuthenticateSession;
 use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
@@ -30,7 +31,7 @@ class TenantPanelProvider extends PanelProvider
             ->id('tenant')
             ->path('app')
             ->authGuard('tenant')
-            ->login()
+            ->login(Login::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -48,18 +49,20 @@ class TenantPanelProvider extends PanelProvider
                 InitializeTenancyByDomain::class,
             ])
             ->middleware([
-                InitializeTenancyByDomain::class,
-                PreventAccessFromCentralDomains::class,
-                EnsureTenantIsInitialized::class,
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                AuthenticateSession::class,
+                TenantAuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+
+                InitializeTenancyByDomain::class,
+                PreventAccessFromCentralDomains::class,
+                EnsureTenantIsInitialized::class,
+
             ])
             ->authMiddleware([
                 Authenticate::class,
