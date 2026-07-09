@@ -14,6 +14,7 @@ use App\WhatsApp\Events\WhatsAppMessageFailed;
 use App\WhatsApp\Events\WhatsAppMessageSent;
 use App\WhatsApp\Services\WhatsAppCloudApiService;
 use App\WhatsApp\Services\WhatsAppSendingPolicyService;
+use App\WhatsApp\Services\WhatsAppTemplateComponentBuilder;
 use App\WhatsApp\Services\WhatsAppTemplateVariableValidator;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Client\Response;
@@ -26,6 +27,7 @@ class SendWhatsAppTemplateMessageAction
         protected WhatsAppSendingPolicyService $policy,
         protected WhatsAppCloudApiService $cloudApi,
         protected WhatsAppTemplateVariableValidator $variableValidator,
+        protected WhatsAppTemplateComponentBuilder $componentBuilder,
         protected SyncWhatsAppNumberRegistryAction $syncRegistry,
     ) {}
 
@@ -44,9 +46,10 @@ class SendWhatsAppTemplateMessageAction
             ]));
         }
 
-        $orderedVariables = array_values($data->variables);
+        $orderedVariables = $this->componentBuilder->normalizeVariables($data->variables);
+        $components = $this->componentBuilder->buildApiComponents($data->template, $orderedVariables);
 
-        return DB::transaction(function () use ($data, $user, $orderedVariables) {
+        return DB::transaction(function () use ($data, $user, $components) {
             $message = $data->conversation->messages()->create([
                 'whatsapp_number_id' => $data->whatsappNumber->id,
                 'direction' => WhatsAppMessageDirection::Outbound,
@@ -64,7 +67,7 @@ class SendWhatsAppTemplateMessageAction
                 $data->conversation->customer_phone,
                 $data->template->name,
                 $data->template->language,
-                $orderedVariables,
+                $components,
             );
 
             if ($response->failed()) {

@@ -24,39 +24,15 @@ class WhatsAppCloudApiService
     }
 
     /**
-     * @param  array<string, string>  $bodyVariables
-     * @param  array<string, string>  $headerVariables
+     * @param  array<int, array<string, mixed>>  $components
      */
     public function sendTemplate(
         WhatsAppNumber $number,
         string $recipientPhone,
         string $templateName,
         string $language,
-        array $bodyVariables = [],
-        array $headerVariables = [],
+        array $components = [],
     ): Response {
-        $components = [];
-
-        if ($headerVariables !== []) {
-            $components[] = [
-                'type' => 'header',
-                'parameters' => array_map(
-                    fn (string $value) => ['type' => 'text', 'text' => $value],
-                    array_values($headerVariables),
-                ),
-            ];
-        }
-
-        if ($bodyVariables !== []) {
-            $components[] = [
-                'type' => 'body',
-                'parameters' => array_map(
-                    fn (string $value) => ['type' => 'text', 'text' => $value],
-                    array_values($bodyVariables),
-                ),
-            ];
-        }
-
         $payload = [
             'messaging_product' => 'whatsapp',
             'to' => $this->normalizePhone($recipientPhone),

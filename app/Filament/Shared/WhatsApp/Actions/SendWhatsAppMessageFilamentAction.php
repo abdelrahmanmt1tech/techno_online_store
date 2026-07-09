@@ -10,20 +10,22 @@ use App\WhatsApp\Actions\SendWhatsAppTextMessageAction;
 use App\WhatsApp\Actions\UpsertWhatsAppContactAction;
 use App\WhatsApp\DTOs\SendTemplateMessageData;
 use App\WhatsApp\DTOs\SendTextMessageData;
+use App\WhatsApp\Services\WhatsAppTemplateComponentBuilder;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Component;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class SendWhatsAppMessageFilamentAction
 {
     /**
-     * @return array<int, Component>
+     * @return array<int, Component|Section>
      */
     public static function formSchema(bool $includePhoneField = false): array
     {
@@ -73,19 +75,42 @@ class SendWhatsAppMessageFilamentAction
             ->searchable()
             ->visible(fn (callable $get): bool => $get('message_type') === 'template')
             ->required(fn (callable $get): bool => $get('message_type') === 'template')
+            ->live()
             ->native(false);
 
-        $fields[] = KeyValue::make('template_variables')
-            ->label(__('dashboard.whatsapp_template_variables'))
-            ->keyLabel(__('dashboard.whatsapp_template_variable_key'))
-            ->valueLabel(__('dashboard.whatsapp_template_variable_value'))
-            ->visible(fn (callable $get): bool => $get('message_type') === 'template');
+        $fields[] = Section::make(__('dashboard.whatsapp_template_variables'))
+            ->schema(fn (callable $get): array => static::templateVariableFields($get))
+            ->visible(fn (callable $get): bool => $get('message_type') === 'template' && filled($get('template_id')))
+            ->columnSpanFull();
 
         $fields[] = Textarea::make('body')
             ->label(__('dashboard.whatsapp_reply'))
             ->rows(4)
             ->visible(fn (callable $get): bool => $get('message_type') === 'text')
             ->required(fn (callable $get): bool => $get('message_type') === 'text');
+
+        return $fields;
+    }
+
+    /**
+     * @return array<int, TextInput>
+     */
+    protected static function templateVariableFields(callable $get): array
+    {
+        $template = WhatsAppTemplate::query()->find($get('template_id'));
+
+        if ($template === null) {
+            return [];
+        }
+
+        $slots = app(WhatsAppTemplateComponentBuilder::class)->variableSlots($template);
+        $fields = [];
+
+        foreach ($slots as $index => $label) {
+            $fields[] = TextInput::make("template_variables.{$index}")
+                ->label($label)
+                ->required();
+        }
 
         return $fields;
     }
@@ -97,49 +122,57 @@ class SendWhatsAppMessageFilamentAction
         bool $includePhoneField = false,
         ?string $label = null,
     ): Action {
-        return Action::make($name)
+        $action = Action::make($name)
             ->label($label ?? __('dashboard.whatsapp_send_message'))
             ->icon(Heroicon::PaperAirplane)
-            ->schema(static::formSchema($includePhoneField))
-            ->action(function (...$arguments) use ($resolvePhone, $resolveName, $includePhoneField): void {
-                [$record, $data] = static::resolveActionArguments($arguments);
+            ->schema(static::formSchema($includePhoneField));
 
-                try {
-                    if ($includePhoneField) {
-                        $phone = (string) ($data['phone'] ?? '');
-                        $contactName = null;
-                    } else {
-                        $phone = (string) $resolvePhone($record);
-                        $contactName = $resolveName ? $resolveName($record) : null;
-                    }
-
-                    static::dispatch($data, $phone, $contactName);
-
-                    Notification::make()
-                        ->title(__('dashboard.whatsapp_send_message_success'))
-                        ->success()
-                        ->send();
-                } catch (\Throwable $exception) {
-                    Notification::make()
-                        ->title(__('dashboard.whatsapp_send_message_failed'))
-                        ->body($exception->getMessage())
-                        ->danger()
-                        ->send();
-                }
+        if ($includePhoneField) {
+            $action->action(function (array $data) use ($resolvePhone, $resolveName, $includePhoneField): void {
+                static::handleSend($data, null, $resolvePhone, $resolveName, $includePhoneField);
             });
-    }
-
-    /**
-     * @param  array<int, mixed>  $arguments
-     * @return array{0: mixed, 1: array<string, mixed>}
-     */
-    protected static function resolveActionArguments(array $arguments): array
-    {
-        if (count($arguments) === 1 && is_array($arguments[0])) {
-            return [null, $arguments[0]];
+        } else {
+            $action->action(function (Model $record, array $data) use ($resolvePhone, $resolveName, $includePhoneField): void {
+                static::handleSend($data, $record, $resolvePhone, $resolveName, $includePhoneField);
+            });
         }
 
-        return [$arguments[0] ?? null, is_array($arguments[1] ?? null) ? $arguments[1] : []];
+        return $action;
+    }
+
+    protected static function handleSend(
+        array $data,
+        ?Model $record,
+        callable $resolvePhone,
+        ?callable $resolveName,
+        bool $includePhoneField,
+    ): void {
+        try {
+            if ($includePhoneField) {
+                $phone = (string) ($data['phone'] ?? '');
+                $contactName = null;
+            } else {
+                if ($record === null) {
+                    throw new \RuntimeException(__('dashboard.whatsapp_send_message_failed'));
+                }
+
+                $phone = (string) $resolvePhone($record);
+                $contactName = $resolveName ? $resolveName($record) : null;
+            }
+
+            static::dispatch($data, $phone, $contactName);
+
+            Notification::make()
+                ->title(__('dashboard.whatsapp_send_message_success'))
+                ->success()
+                ->send();
+        } catch (\Throwable $exception) {
+            Notification::make()
+                ->title(__('dashboard.whatsapp_send_message_failed'))
+                ->body($exception->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     /**

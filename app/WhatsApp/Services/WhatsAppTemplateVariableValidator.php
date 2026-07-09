@@ -13,12 +13,12 @@ class WhatsAppTemplateVariableValidator
     public function validate(WhatsAppTemplate $template, array $variables): array
     {
         $required = $this->requiredPlaceholders($template);
+        $normalized = app(WhatsAppTemplateComponentBuilder::class)->normalizeVariables($variables);
         $missing = [];
 
-        foreach ($required as $index => $placeholder) {
-            $key = (string) $index;
-            if (! array_key_exists($key, $variables) && ! array_key_exists($placeholder, $variables)) {
-                $missing[] = $placeholder;
+        foreach ($required as $index => $label) {
+            if (! array_key_exists($index, $normalized) || trim($normalized[$index]) === '') {
+                $missing[] = $label;
             }
         }
 
@@ -33,27 +33,6 @@ class WhatsAppTemplateVariableValidator
      */
     public function requiredPlaceholders(WhatsAppTemplate $template): array
     {
-        if (is_array($template->variables_schema) && $template->variables_schema !== []) {
-            return array_values($template->variables_schema);
-        }
-
-        $placeholders = [];
-        $components = $template->components ?? [];
-
-        foreach ($components as $component) {
-            $text = $component['text'] ?? '';
-            if (! is_string($text)) {
-                continue;
-            }
-
-            preg_match_all('/\{\{(\d+)\}\}/', $text, $matches);
-            foreach ($matches[1] as $match) {
-                $placeholders[(int) $match] = '{{'.$match.'}}';
-            }
-        }
-
-        ksort($placeholders);
-
-        return array_values($placeholders);
+        return app(WhatsAppTemplateComponentBuilder::class)->variableSlots($template);
     }
 }

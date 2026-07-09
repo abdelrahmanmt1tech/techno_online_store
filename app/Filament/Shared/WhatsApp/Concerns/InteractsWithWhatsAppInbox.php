@@ -225,7 +225,7 @@ trait InteractsWithWhatsAppInbox
 
         $placeholders = app(WhatsAppTemplateVariableValidator::class)->requiredPlaceholders($template);
 
-        foreach ($placeholders as $index => $placeholder) {
+        foreach ($placeholders as $index => $label) {
             $this->templateVariables[(string) $index] = '';
         }
     }

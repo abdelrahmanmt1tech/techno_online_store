@@ -62,7 +62,7 @@ class SyncWhatsAppTemplatesTest extends WhatsAppTestCase
             $this->assertSame(WhatsAppTemplateStatus::Approved, $template->status);
             $this->assertSame(WhatsAppTemplateCategory::Utility, $template->category);
             $this->assertSame('tpl-1', $template->provider_template_id);
-            $this->assertSame(['{{1}}', '{{2}}'], $template->variables_schema);
+            $this->assertSame(['BODY {{1}}', 'BODY {{2}}'], $template->variables_schema);
             $this->assertNotNull($template->last_synced_at);
         });
     }

@@ -67,28 +67,6 @@ class WhatsAppTemplatePayloadMapper
      */
     public function deriveVariablesSchema(array $components): array
     {
-        $placeholders = [];
-
-        foreach ($components as $component) {
-            if (! is_array($component)) {
-                continue;
-            }
-
-            $text = $component['text'] ?? '';
-
-            if (! is_string($text) || $text === '') {
-                continue;
-            }
-
-            preg_match_all('/\{\{(\d+)\}\}/', $text, $matches);
-
-            foreach ($matches[1] as $match) {
-                $placeholders[(int) $match] = '{{'.$match.'}}';
-            }
-        }
-
-        ksort($placeholders);
-
-        return array_values($placeholders);
+        return app(WhatsAppTemplateComponentBuilder::class)->variableSlotsFromComponents($components);
     }
 }
