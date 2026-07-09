@@ -28,3 +28,4 @@ Homestead.yaml
 Thumbs.db
 /database/testing.sqlite
 /database/tenant*
+/database/technomasrsystem_tenant*
