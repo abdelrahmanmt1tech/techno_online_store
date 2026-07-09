@@ -69,10 +69,22 @@ class TenancyServiceProvider extends ServiceProvider
             Events\EndingTenancy::class => [],
             Events\TenancyEnded::class => [
                 Listeners\RevertToCentralContext::class,
+                function (): void {
+                    config([
+                        'filesystems.disks.public.url' => rtrim(config('app.url'), '/').'/storage',
+                    ]);
+                },
             ],
 
             Events\BootstrappingTenancy::class => [],
-            Events\TenancyBootstrapped::class => [],
+            Events\TenancyBootstrapped::class => [
+                function (): void {
+                    $tenantId = tenancy()->tenant->getTenantKey();
+                    config([
+                        'filesystems.disks.public.url' => request()->getSchemeAndHttpHost().'/storage/tenant'.$tenantId,
+                    ]);
+                },
+            ],
             Events\RevertingToCentralContext::class => [],
             Events\RevertedToCentralContext::class => [],
 

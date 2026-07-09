@@ -49,6 +49,10 @@ class AdminPanelProvider extends PanelProvider
                 Css::make('custom-stylesheet', resource_path('css/filament-custom.css')),
                 Css::make('whatsapp-ui', resource_path('css/whatsapp-ui.css')),
             ])
+                   ->colors([
+                'primary' => Color::Emerald,
+
+            ])
 
             ->middleware([
                 EncryptCookies::class,

@@ -55,6 +55,13 @@ class TenantPanelProvider extends PanelProvider
             ->persistentMiddleware([
                 InitializeTenancyByDomain::class,
             ])
+            ->assets([
+                Css::make('custom-stylesheet', resource_path('css/filament-custom.css')),
+            ])
+            ->colors([
+                'primary' => Color::Emerald,
+
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

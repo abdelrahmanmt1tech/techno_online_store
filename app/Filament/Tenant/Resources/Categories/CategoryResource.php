@@ -23,7 +23,7 @@ class CategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Tag;
 
-    protected static ?int $navigationSort = 26;
+    protected static ?int $navigationSort = 10;
 
     public static function getNavigationLabel(): string
     {
