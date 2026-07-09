@@ -281,4 +281,36 @@ trait InteractsWithWhatsAppInbox
 
         return $target?->canSendFreeformReply() ?? false;
     }
+
+    #[Computed]
+    public function canSendMessages(): bool
+    {
+        $user = Auth::user();
+
+        if ($user === null) {
+            return false;
+        }
+
+        if (filament()->getCurrentPanel()?->getId() === 'admin') {
+            return $user->can('whatsapp.platform.troubleshoot');
+        }
+
+        return $user->can('whatsapp.send_messages');
+    }
+
+    #[Computed]
+    public function canSendTemplates(): bool
+    {
+        $user = Auth::user();
+
+        if ($user === null) {
+            return false;
+        }
+
+        if (filament()->getCurrentPanel()?->getId() === 'admin') {
+            return $user->can('whatsapp.platform.troubleshoot');
+        }
+
+        return $user->can('whatsapp.send_template_messages');
+    }
 }

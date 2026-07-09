@@ -7,7 +7,6 @@ use App\Filament\Shared\WhatsApp\Concerns\InteractsWithWhatsAppInbox;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Auth;
 
 class WhatsAppInboxPage extends Page
 {
@@ -18,7 +17,7 @@ class WhatsAppInboxPage extends Page
 
     protected static ?int $navigationSort = 41;
 
-    protected string $view = 'filament.shared.whatsapp.inbox';
+    protected string $view = 'filament.tenant.pages.whatsapp-inbox';
 
     public static function getNavigationGroup(): ?string
     {
@@ -50,15 +49,5 @@ class WhatsAppInboxPage extends Page
     public function sendTenantTemplateReply(): void
     {
         $this->sendTemplateReply('tenant');
-    }
-
-    public function canSendMessages(): bool
-    {
-        return Auth::user()?->can('whatsapp.send_messages') ?? false;
-    }
-
-    public function canSendTemplates(): bool
-    {
-        return Auth::user()?->can('whatsapp.send_template_messages') ?? false;
     }
 }

@@ -9,7 +9,6 @@ use App\WhatsApp\Services\WhatsAppTenantContextService;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Auth;
 
 class WhatsAppInboxPage extends Page
 {
@@ -84,16 +83,6 @@ class WhatsAppInboxPage extends Page
     public function sendAdminTemplateReply(): void
     {
         $this->sendTemplateReply('admin');
-    }
-
-    public function canSendMessages(): bool
-    {
-        return Auth::user()?->can('whatsapp.platform.troubleshoot') ?? false;
-    }
-
-    public function canSendTemplates(): bool
-    {
-        return Auth::user()?->can('whatsapp.platform.troubleshoot') ?? false;
     }
 
     public function getTenantsProperty()

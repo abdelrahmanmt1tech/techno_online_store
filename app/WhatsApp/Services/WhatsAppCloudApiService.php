@@ -83,6 +83,51 @@ class WhatsAppCloudApiService
             ->get("https://graph.facebook.com/{$version}/{$number->phone_number_id}");
     }
 
+    public function listMessageTemplates(WhatsAppNumber $number, ?string $after = null): Response
+    {
+        $version = config('whatsapp.graph_api_version');
+
+        $query = ['limit' => 100];
+
+        if (filled($after)) {
+            $query['after'] = $after;
+        }
+
+        return Http::timeout(config('whatsapp.request_timeout'))
+            ->withToken($number->access_token)
+            ->get(
+                "https://graph.facebook.com/{$version}/{$number->whatsapp_business_account_id}/message_templates",
+                $query,
+            );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function fetchAllMessageTemplates(WhatsAppNumber $number): array
+    {
+        $templates = [];
+        $after = null;
+
+        do {
+            $response = $this->listMessageTemplates($number, $after);
+
+            if (! $response->successful()) {
+                throw new \RuntimeException($this->safeErrorMessage($response));
+            }
+
+            $batch = $response->json('data', []);
+
+            if (is_array($batch)) {
+                $templates = array_merge($templates, $batch);
+            }
+
+            $after = $response->json('paging.cursors.after');
+        } while (filled($after));
+
+        return $templates;
+    }
+
     /**
      * @param  array<string, mixed>  $payload
      */

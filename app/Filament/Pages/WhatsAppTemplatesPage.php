@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Shared\WhatsApp\Actions\SyncWhatsAppTemplatesAction;
 use App\Filament\Shared\WhatsApp\Concerns\ChecksWhatsAppPermissions;
 use App\Filament\Shared\WhatsApp\Tables\WhatsAppTemplatesTable;
 use App\Models\Tenant;
@@ -16,6 +17,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Auth;
 
 class WhatsAppTemplatesPage extends Page implements HasTable
 {
@@ -81,6 +83,11 @@ class WhatsAppTemplatesPage extends Page implements HasTable
     {
         return WhatsAppTemplatesTable::configure($table)
             ->headerActions([
+                SyncWhatsAppTemplatesAction::make(
+                    fn (): bool => filled($this->selectedTenantId)
+                        && tenancy()->initialized
+                        && (bool) Auth::user()?->can('whatsapp.platform.manage_all_templates'),
+                )->after(fn () => $this->resetTable()),
                 CreateAction::make()
                     ->url(fn () => $this->selectedTenantId
                         ? route('filament.tenant.resources.whatsapp-templates.create', ['tenant' => tenant()?->domains()->first()?->domain])
