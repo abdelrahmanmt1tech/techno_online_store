@@ -29,15 +29,12 @@ jobs:
             set -e
 
             echo "========== START DEPLOY =========="
-
             cd /home/technomasrsystem/online-store.technomasrsystems.com
-
             echo "Current Branch:"
             git branch --show-current
 
             echo "Pulling latest changes..."
             git pull origin main
-
             echo "Installing Composer packages..."
             /opt/alt/php83/usr/bin/php /usr/local/bin/composer install \
               --no-interaction \
