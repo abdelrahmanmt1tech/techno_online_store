@@ -70,6 +70,8 @@ class SendWhatsAppTemplateMessageAction
                 $components,
             );
 
+            $this->cloudApi->attachLastLoggedRequestToMessage($message->id);
+
             if ($response->failed()) {
                 $this->handleApiFailure($data->whatsappNumber, $message, $response);
 

@@ -16,10 +16,13 @@ class WhatsAppWebhookEvent extends Model
     protected $fillable = [
         'provider',
         'event_type',
+        'summary',
+        'interpretation',
         'phone_number_id',
         'tenant_id',
         'processing_status',
         'payload',
+        'original_payload',
         'payload_redacted',
         'signature_valid',
         'diagnostic_data',
@@ -31,12 +34,39 @@ class WhatsAppWebhookEvent extends Model
     {
         return [
             'processing_status' => WhatsAppWebhookProcessingStatus::class,
+            'interpretation' => 'array',
             'payload' => 'array',
+            'original_payload' => 'array',
             'payload_redacted' => 'boolean',
             'signature_valid' => 'boolean',
             'diagnostic_data' => 'array',
             'processed_at' => 'datetime',
         ];
+    }
+
+    public function reprocessablePayload(): ?array
+    {
+        $payload = $this->original_payload ?? $this->payload;
+
+        return is_array($payload) ? $payload : null;
+    }
+
+    public function canReprocess(): bool
+    {
+        if ($this->event_type === 'invalid_signature') {
+            return false;
+        }
+
+        if (! in_array($this->processing_status, [
+            WhatsAppWebhookProcessingStatus::Failed,
+            WhatsAppWebhookProcessingStatus::Unresolved,
+        ], true)) {
+            return false;
+        }
+
+        $payload = $this->reprocessablePayload();
+
+        return is_array($payload) && ($payload['entry'] ?? []) !== [];
     }
 
     public function tenant(): BelongsTo

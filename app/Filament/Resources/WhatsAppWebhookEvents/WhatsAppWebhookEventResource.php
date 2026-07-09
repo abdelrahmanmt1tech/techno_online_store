@@ -3,17 +3,18 @@
 namespace App\Filament\Resources\WhatsAppWebhookEvents;
 
 use App\Filament\Resources\WhatsAppWebhookEvents\Pages\ListWhatsAppWebhookEvents;
+use App\Filament\Resources\WhatsAppWebhookEvents\Pages\ViewWhatsAppWebhookEvent;
 use App\Filament\Shared\WhatsApp\Concerns\ChecksWhatsAppPermissions;
+use App\Filament\Shared\WhatsApp\Tables\WhatsAppWebhookEventsTable;
 use App\Models\WhatsAppWebhookEvent;
 use BackedEnum;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 
 class WhatsAppWebhookEventResource extends Resource
 {
@@ -50,6 +51,11 @@ class WhatsAppWebhookEventResource extends Resource
         return static::canWhatsAppPermission('whatsapp.view_webhook_events', 'whatsapp.platform.view_webhook_events');
     }
 
+    public static function canView(Model $record): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function canCreate(): bool
     {
         return false;
@@ -72,41 +78,31 @@ class WhatsAppWebhookEventResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('tenant.name')->label(__('dashboard.whatsapp_tenant')),
-                TextColumn::make('event_type')->label(__('dashboard.whatsapp_event_type')),
-                TextColumn::make('phone_number_id')->label(__('dashboard.whatsapp_phone_number_id')),
-                TextColumn::make('processing_status')->label(__('dashboard.whatsapp_processing_status'))->badge(),
-                TextColumn::make('error_message')->label(__('dashboard.description'))->limit(40)->toggleable(),
-                TextColumn::make('payload')
-                    ->label(__('dashboard.whatsapp_payload'))
-                    ->formatStateUsing(fn ($state) => is_array($state) ? json_encode($state) : $state)
-                    ->limit(50)
-                    ->visible(fn () => Auth::user()?->can('whatsapp.platform.troubleshoot') ?? false),
-                TextColumn::make('created_at')->label(__('dashboard.created_at'))->dateTime(),
-            ])
+        return WhatsAppWebhookEventsTable::configure($table, includeTenant: true)
             ->filters([
                 SelectFilter::make('processing_status')
                     ->label(__('dashboard.whatsapp_processing_status'))
                     ->options([
-                        'pending' => 'pending',
-                        'processed' => 'processed',
-                        'failed' => 'failed',
-                        'unresolved' => 'unresolved',
-                        'rejected' => 'rejected',
+                        'pending' => __('dashboard.whatsapp_webhook_status_pending'),
+                        'processed' => __('dashboard.whatsapp_webhook_status_processed'),
+                        'failed' => __('dashboard.whatsapp_webhook_status_failed'),
+                        'unresolved' => __('dashboard.whatsapp_webhook_status_unresolved'),
+                        'rejected' => __('dashboard.whatsapp_webhook_status_rejected'),
                     ]),
                 SelectFilter::make('tenant_id')
                     ->label(__('dashboard.whatsapp_tenant'))
                     ->relationship('tenant', 'name'),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->recordActions([
+                ViewAction::make(),
+            ]);
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ListWhatsAppWebhookEvents::route('/'),
+            'view' => ViewWhatsAppWebhookEvent::route('/{record}'),
         ];
     }
 }

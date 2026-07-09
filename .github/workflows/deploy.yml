@@ -38,8 +38,8 @@ jobs:
             git branch --show-current
 
             echo "Pulling latest changes..."
+            rm public/css/app/custom-stylesheet.css
             git pull origin main
-
             echo "Installing Composer packages..."
             $PHP /usr/local/bin/composer install \
               --no-interaction \

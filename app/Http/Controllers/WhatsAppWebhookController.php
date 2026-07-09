@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\WhatsAppWebhookEvent;
 use App\WhatsApp\Enums\WhatsAppWebhookProcessingStatus;
 use App\WhatsApp\Jobs\ProcessWhatsAppWebhookJob;
+use App\WhatsApp\Services\WhatsAppWebhookInterpreter;
 use App\WhatsApp\Services\WhatsAppWebhookRequestLogger;
 use App\WhatsApp\Services\WhatsAppWebhookSignatureVerifier;
 use Illuminate\Http\Request;
@@ -36,15 +37,20 @@ class WhatsAppWebhookController extends Controller
         Request $request,
         WhatsAppWebhookSignatureVerifier $verifier,
         WhatsAppWebhookRequestLogger $logger,
+        WhatsAppWebhookInterpreter $interpreter,
     ): Response {
         $rawBody = $request->getContent();
         $signature = $request->header('X-Hub-Signature-256');
         $secretConfigured = filled(config('whatsapp.app_secret'));
 
         if ($secretConfigured && ! $verifier->verify($rawBody, $signature)) {
+            $interpretation = $interpreter->interpret(null, 'invalid_signature', false);
+
             WhatsAppWebhookEvent::query()->create([
                 'provider' => 'meta',
                 'event_type' => 'invalid_signature',
+                'summary' => $interpretation['summary'],
+                'interpretation' => $interpretation,
                 'processing_status' => WhatsAppWebhookProcessingStatus::Rejected,
                 'signature_valid' => false,
                 'diagnostic_data' => [
@@ -68,13 +74,18 @@ class WhatsAppWebhookController extends Controller
 
         $payload = json_decode($rawBody, true) ?? [];
         $phoneNumberId = data_get($payload, 'entry.0.changes.0.value.metadata.phone_number_id');
+        $eventType = data_get($payload, 'entry.0.changes.0.field');
+        $interpretation = $interpreter->interpret($payload, is_string($eventType) ? $eventType : null, $secretConfigured ? true : null);
 
         $event = WhatsAppWebhookEvent::query()->create([
             'provider' => 'meta',
-            'event_type' => data_get($payload, 'entry.0.changes.0.field'),
+            'event_type' => $eventType,
+            'summary' => $interpretation['summary'],
+            'interpretation' => $interpretation,
             'phone_number_id' => $phoneNumberId,
             'processing_status' => WhatsAppWebhookProcessingStatus::Pending,
             'payload' => $payload,
+            'original_payload' => $payload,
             'signature_valid' => $secretConfigured ? true : null,
         ]);
 

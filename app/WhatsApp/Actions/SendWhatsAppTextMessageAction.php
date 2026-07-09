@@ -51,6 +51,8 @@ class SendWhatsAppTextMessageAction
                 $data->body,
             );
 
+            $this->cloudApi->attachLastLoggedRequestToMessage($message->id);
+
             if ($response->failed()) {
                 $this->handleApiFailure($data->whatsappNumber, $message, $response);
 

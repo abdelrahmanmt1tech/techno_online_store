@@ -3,12 +3,17 @@
 namespace App\WhatsApp\Services;
 
 use App\Models\Tenant\WhatsAppNumber;
+use App\WhatsApp\Enums\WhatsAppApiRequestOperation;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class WhatsAppCloudApiService
 {
+    public function __construct(
+        protected WhatsAppApiRequestLogger $apiRequestLogger,
+    ) {}
+
     public function sendText(WhatsAppNumber $number, string $recipientPhone, string $body): Response
     {
         return $this->post($number, [
@@ -20,7 +25,7 @@ class WhatsAppCloudApiService
                 'preview_url' => false,
                 'body' => $body,
             ],
-        ]);
+        ], WhatsAppApiRequestOperation::SendText, $recipientPhone);
     }
 
     /**
@@ -47,16 +52,27 @@ class WhatsAppCloudApiService
             $payload['template']['components'] = $components;
         }
 
-        return $this->post($number, $payload);
+        return $this->post($number, $payload, WhatsAppApiRequestOperation::SendTemplate, $recipientPhone);
     }
 
     public function healthCheck(WhatsAppNumber $number): Response
     {
         $version = config('whatsapp.graph_api_version');
+        $startedAt = microtime(true);
 
-        return Http::timeout(config('whatsapp.request_timeout'))
+        $response = Http::timeout(config('whatsapp.request_timeout'))
             ->withToken($number->access_token)
             ->get("https://graph.facebook.com/{$version}/{$number->phone_number_id}");
+
+        $this->apiRequestLogger->log(
+            $number,
+            WhatsAppApiRequestOperation::HealthCheck,
+            ['phone_number_id' => $number->phone_number_id],
+            $response,
+            durationMs: (int) round((microtime(true) - $startedAt) * 1000),
+        );
+
+        return $response;
     }
 
     public function listMessageTemplates(WhatsAppNumber $number, ?string $after = null): Response
@@ -69,12 +85,24 @@ class WhatsAppCloudApiService
             $query['after'] = $after;
         }
 
-        return Http::timeout(config('whatsapp.request_timeout'))
+        $startedAt = microtime(true);
+
+        $response = Http::timeout(config('whatsapp.request_timeout'))
             ->withToken($number->access_token)
             ->get(
                 "https://graph.facebook.com/{$version}/{$number->whatsapp_business_account_id}/message_templates",
                 $query,
             );
+
+        $this->apiRequestLogger->log(
+            $number,
+            WhatsAppApiRequestOperation::ListTemplates,
+            ['waba_id' => $number->whatsapp_business_account_id, 'query' => $query],
+            $response,
+            durationMs: (int) round((microtime(true) - $startedAt) * 1000),
+        );
+
+        return $response;
     }
 
     /**
@@ -107,13 +135,43 @@ class WhatsAppCloudApiService
     /**
      * @param  array<string, mixed>  $payload
      */
-    protected function post(WhatsAppNumber $number, array $payload): Response
-    {
+    protected function post(
+        WhatsAppNumber $number,
+        array $payload,
+        WhatsAppApiRequestOperation $operation,
+        ?string $recipientPhone = null,
+    ): Response {
         $version = config('whatsapp.graph_api_version');
+        $startedAt = microtime(true);
 
-        return Http::timeout(config('whatsapp.request_timeout'))
+        $response = Http::timeout(config('whatsapp.request_timeout'))
             ->withToken($number->access_token)
             ->post("https://graph.facebook.com/{$version}/{$number->phone_number_id}/messages", $payload);
+
+        $this->apiRequestLogger->log(
+            $number,
+            $operation,
+            $payload,
+            $response,
+            $recipientPhone,
+            (int) round((microtime(true) - $startedAt) * 1000),
+        );
+
+        return $response;
+    }
+
+    public function getLastLoggedRequestId(): ?int
+    {
+        return $this->apiRequestLogger->getLastLoggedRequestId();
+    }
+
+    public function attachLastLoggedRequestToMessage(int $messageId): void
+    {
+        $requestId = $this->getLastLoggedRequestId();
+
+        if ($requestId !== null) {
+            $this->apiRequestLogger->attachMessage($requestId, $messageId);
+        }
     }
 
     public function normalizePhone(string $phone): string

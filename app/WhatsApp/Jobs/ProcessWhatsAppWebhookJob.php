@@ -34,7 +34,7 @@ class ProcessWhatsAppWebhookJob implements ShouldQueue
             return;
         }
 
-        $payload = $event->payload ?? [];
+        $payload = $event->reprocessablePayload() ?? [];
 
         try {
             foreach ($payload['entry'] ?? [] as $entry) {
