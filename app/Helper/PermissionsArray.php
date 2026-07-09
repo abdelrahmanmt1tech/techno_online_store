@@ -54,6 +54,21 @@ function permissionsArray(): array
                 ['name' => 'dashboard.permissions.update', 'key' => 'about-settings.update'],
             ],
         ],
+        [
+            'name' => 'dashboard.permissions_groups.whatsapp_platform',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'whatsapp.platform.view_all_numbers'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'whatsapp.platform.manage_all_numbers'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'whatsapp.platform.view_all_conversations'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'whatsapp.platform.view_all_messages'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'whatsapp.platform.view_all_templates'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'whatsapp.platform.manage_all_templates'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'whatsapp.platform.view_webhook_events'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'whatsapp.platform.manage_webhook_events'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'whatsapp.platform.troubleshoot'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'whatsapp.platform.send_test_messages'],
+            ],
+        ],
 
     ];
 }

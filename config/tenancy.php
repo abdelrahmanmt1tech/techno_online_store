@@ -26,6 +26,8 @@ return [
      */
     'central_domains' => [
         // '127.0.0.1',
+         'technomasrsystems.com',
+        'localhost:8000',
         'techno_online_store.localhost',
         'online-store.technomasrsystems.com',
     ],
@@ -60,7 +62,7 @@ return [
          * Tenant database names are created like this:
          * prefix + tenant_id + suffix.
          */
-        'prefix' => 'tenant',
+        'prefix' => 'technomasrsystem_tenant',
         'suffix' => '',
 
         /**

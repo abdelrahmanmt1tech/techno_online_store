@@ -149,3 +149,4 @@ BUTTON TEXT COLOR FIX
 .fi-btn.fi-ac-btn-action:not(.fi-color-primary, .fi-color-info):hover {
 /*     color: #000000 !important; */
 }
+@import url('whatsapp-ui.css');

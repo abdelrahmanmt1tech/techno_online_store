@@ -28,9 +28,11 @@ jobs:
           script: |
             set -e
 
-            echo "========== START DEPLOY =========="
+            PHP=/opt/alt/php83/usr/bin/php
+            APP_DIR=/home/technomasrsystem/online-store.technomasrsystems.com
 
-            cd /home/technomasrsystem/online-store.technomasrsystems.com
+            echo "========== START DEPLOY =========="
+            cd "$APP_DIR"
 
             echo "Current Branch:"
             git branch --show-current
@@ -39,24 +41,36 @@ jobs:
             git pull origin main
 
             echo "Installing Composer packages..."
-            /opt/alt/php83/usr/bin/php /usr/local/bin/composer install \
+            $PHP /usr/local/bin/composer install \
               --no-interaction \
               --prefer-dist \
-              --optimize-autoloader
+              --optimize-autoloader \
+              --no-dev
 
-            echo "Running migrations..."
-            /opt/alt/php83/usr/bin/php artisan migrate --force
+            echo "Running central migrations..."
+            $PHP artisan migrate --force
 
-            echo "Running seeders..."
-            /opt/alt/php83/usr/bin/php artisan db:seed --force
+            echo "Running tenant migrations and syncing permissions..."
+            $PHP artisan tenants:sync-permissions --migrate --no-interaction
+
+            if command -v npm >/dev/null 2>&1; then
+              echo "Building frontend assets..."
+              npm ci --ignore-scripts
+              npm run build
+            else
+              echo "npm not found — skipping frontend build"
+            fi
 
             echo "Publishing Filament assets..."
-            /opt/alt/php83/usr/bin/php artisan filament:assets
+            $PHP artisan filament:assets
 
             echo "Clearing cache..."
-            /opt/alt/php83/usr/bin/php artisan optimize:clear
+            $PHP artisan optimize:clear
 
             echo "Optimizing..."
-            /opt/alt/php83/usr/bin/php artisan optimize
+            $PHP artisan optimize
+
+            echo "Restarting queue workers..."
+            $PHP artisan queue:restart
 
             echo "========== DEPLOY COMPLETED =========="

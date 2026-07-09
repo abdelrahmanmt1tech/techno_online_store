@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Database\Factories\TenantUserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class TenantUser extends Authenticatable
+class TenantUser extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<TenantUserFactory> */
     use HasFactory, HasRoles, Notifiable;
@@ -37,5 +39,10 @@ class TenantUser extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'tenant';
     }
 }

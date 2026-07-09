@@ -33,7 +33,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helper/PermissionsArray.php"
+            "app/Helper/PermissionsArray.php",
+            "app/Helper/TenantPermissionsArray.php"
         ]
     },
     "autoload-dev": {
@@ -95,3 +96,5 @@
     "minimum-stability": "stable",
     "prefer-stable": true
 }
+
+

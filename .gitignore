@@ -26,3 +26,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/database/testing.sqlite
+/database/tenant*
+/database/technomasrsystem_tenant*
