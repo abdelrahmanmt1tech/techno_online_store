@@ -1,0 +1,151 @@
+/* =========================
+LIGHT MODE
+========================= */
+
+:root:not(.dark) .fi-sidebar-nav {
+background: linear-gradient(180deg, #021816, #0C3429, #021816);
+border-right: 1px solid rgba(141, 216, 123, 0.25);
+}
+
+/* Labels */
+:root:not(.dark) span.fi-sidebar-item-label {
+color: #e9f7ec;
+font-weight: 500;
+letter-spacing: 0.3px;
+}
+
+/* Icons */
+:root:not(.dark) svg.fi-sidebar-item-icon {
+color: #e9f7ec;
+filter: drop-shadow(0 0 6px rgba(141, 216, 123, 0.5));
+}
+
+/* Hover */
+:root:not(.dark) .fi-sidebar-item-btn:hover {
+background: linear-gradient(90deg, #5FA561, #8DD87B);
+transform: translateX(4px);
+transition: all 0.25s ease;
+}
+
+:root:not(.dark) a.fi-sidebar-item-button:hover span.fi-sidebar-item-label {
+color: #021816;
+}
+
+/* Active */
+:root:not(.dark) .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+background: linear-gradient(90deg, #316C47, #8DD87B);
+box-shadow: 0 0 15px rgba(141, 216, 123, 0.5);
+border-radius: 8px;
+}
+
+:root:not(.dark) .fi-sidebar-item.fi-active span.fi-sidebar-item-label {
+color: #ffffff !important;
+font-weight: 600;
+}
+
+/* Groups */
+:root:not(.dark) .fi-sidebar-group-label {
+color: #8DD87B !important;
+font-size: 0.75rem;
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+/* =========================
+DARK MODE
+========================= */
+
+.dark .fi-sidebar-nav {
+background: linear-gradient(180deg, #010e0c, #021816, #010e0c);
+border-right: 1px solid rgba(141, 216, 123, 0.18);
+}
+
+/* Labels */
+.dark span.fi-sidebar-item-label {
+color: #d8f5de;
+font-weight: 500;
+}
+
+/* Icons */
+.dark svg.fi-sidebar-item-icon {
+color: #e9f7ec;
+filter: drop-shadow(0 0 8px rgba(141, 216, 123, 0.6));
+}
+
+/* Hover */
+.dark .fi-sidebar-item-btn:hover {
+background: linear-gradient(90deg, #316C47, #5FA561);
+transform: translateX(4px);
+transition: all 0.25s ease;
+}
+
+.dark a.fi-sidebar-item-button:hover span.fi-sidebar-item-label {
+color: #021816;
+}
+
+/* Active */
+.dark .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+background: linear-gradient(90deg, #316C47, #8DD87B);
+box-shadow: 0 0 18px rgba(141, 216, 123, 0.7);
+}
+
+.dark .fi-sidebar-item.fi-active span.fi-sidebar-item-label {
+color: #ffffff !important;
+font-weight: 600;
+}
+
+/* Groups */
+.dark .fi-sidebar-group-label {
+color: #8DD87B !important;
+}
+
+/* =========================
+SPACING
+========================= */
+
+.fi-sidebar-nav {
+padding: 6px 10px;
+}
+
+.fi-sidebar-nav-groups {
+gap: 8px !important;
+}
+
+.fi-sidebar-item a {
+padding: 8px 16px;
+border-radius: 8px;
+}
+
+/* =========================
+LOGO
+========================= */
+
+img.fi-logo {
+height: 3rem !important;
+filter: drop-shadow(0 0 10px rgba(141, 216, 123, 0.6));
+}
+
+
+/* =========================
+BUTTON TEXT COLOR FIX
+========================= */
+
+.fi-btn.fi-color-primary {
+    color: #ffffff !important;
+}
+
+/* Normal button -> black text */
+.fi-btn.fi-ac-btn-action:not(.fi-color-primary, .fi-color-info ) {
+    color: #000000 !important;
+}
+
+.fi-color.fi-color-primary {
+    /*color: #ffffff !important;*/
+}
+.fi-btn.fi-color-primary:hover {
+/*     color: #ffffff !important; */
+}
+
+.fi-btn.fi-ac-btn-action:not(.fi-color-primary, .fi-color-info):hover {
+/*     color: #000000 !important; */
+}

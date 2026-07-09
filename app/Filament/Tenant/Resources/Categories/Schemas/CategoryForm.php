@@ -26,7 +26,7 @@ class CategoryForm
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn($set, $state) => $set('slug', Str::slug($state))),
+                            ->afterStateUpdated(fn ($set, $state) => $set('slug', Str::slug($state))),
 
                         TextInput::make('slug')
                             ->label(__('dashboard.slug'))
@@ -37,7 +37,7 @@ class CategoryForm
 
                         Select::make('parent_id')
                             ->label(__('dashboard.parent_category'))
-                            ->options(fn() => self::getCategoryOptions())
+                            ->options(fn () => self::getCategoryOptions())
                             ->searchable()
                             ->preload()
                             ->native(false)
@@ -84,10 +84,10 @@ class CategoryForm
 
             if ($level > 0) {
                 $indent = str_repeat("\u{3000}\u{3000}", $level - 1);
-                $prefix = $indent . "\u{21B3} ";
+                $prefix = $indent."\u{21B3} ";
             }
 
-            $options[$category->id] = $prefix . $category->name;
+            $options[$category->id] = $prefix.$category->name;
 
             if ($category->children->isNotEmpty()) {
                 $options += self::buildCategoryTree(

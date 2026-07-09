@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources\Tenants\Schemas;
 
+use App\Models\Plan;
 use Closure;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Stancl\Tenancy\Database\Models\Domain;
 
@@ -81,6 +85,54 @@ class TenantForm
                                     }
                                 }
                             }),
+                    ])
+                    ->columnSpanFull(),
+
+                Section::make(__('dashboard.subscription_plan'))
+                    ->columns(2)
+                    ->schema([
+                        Select::make('plan_id')
+                            ->label(__('dashboard.plan'))
+                            ->options(fn () => Plan::all()->pluck('name', 'id'))
+                            ->required()
+                            ->live()
+                            ->native(false)
+                            ->afterStateUpdated(function ($state, $set) {
+                                $plan = Plan::find($state);
+                                if ($plan) {
+                                    $set('price', $plan->price);
+                                    $set('currency', $plan->currency);
+                                }
+                            }),
+
+                        TextInput::make('price')
+                            ->label(__('dashboard.price'))
+                            ->numeric()
+                            ->prefix(fn (Get $get) => $get('currency') ?? 'SAR')
+                            ->required()
+                            ->dehydrated(),
+
+                        Select::make('currency')
+                            ->label(__('dashboard.currency'))
+                            ->options([
+                                'SAR' => 'SAR',
+                                'USD' => 'USD',
+                                'EUR' => 'EUR',
+                                'GBP' => 'GBP',
+                                'EGP' => 'EGP',
+                                'AED' => 'AED',
+                            ])
+                            ->required()
+                            ->native(false),
+
+                        DateTimePicker::make('started_at')
+                            ->label(__('dashboard.started_at'))
+                            ->default(now())
+                            ->required(),
+
+                        DateTimePicker::make('expires_at')
+                            ->label(__('dashboard.expires_at'))
+                            ->nullable(),
                     ])
                     ->columnSpanFull(),
             ]);

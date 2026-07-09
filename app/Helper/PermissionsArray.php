@@ -36,6 +36,24 @@ function permissionsArray(): array
                 ['name' => 'dashboard.permissions.delete', 'key' => 'admins.delete'],
             ],
         ],
+        [
+            'name' => 'dashboard.permissions_groups.plans',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'plans.view'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'plans.create'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'plans.update'],
+                ['name' => 'dashboard.permissions.delete', 'key' => 'plans.delete'],
+            ],
+        ],
+        [
+            'name' => 'dashboard.permissions_groups.site_content',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'intro-settings.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'intro-settings.update'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'about-settings.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'about-settings.update'],
+            ],
+        ],
 
     ];
 }
