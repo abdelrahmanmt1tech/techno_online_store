@@ -2,7 +2,7 @@
 
 Developer handoff document for the **Facebook Messenger** CRM channel in the Techno Online Store multi-tenant platform.
 
-**Status:** Manual Messenger integration **ready for staging E2E testing** (Phases A–F complete). Phase G (Facebook Login / Page picker) not started.  
+**Status:** Manual Messenger integration **E2E tested successfully on staging** (Phases A–F complete). Phase G (Facebook Login / Page picker) not started.  
 **Branch:** `feature/messenger-integration`  
 **Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes.
 
@@ -12,12 +12,14 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-12 | Staging E2E confirmed: Page webhook inbound, contact profile lookup, CRM inbox customer name, CRM reply inside 24h window, admin diagnostics for processed events. Phase G still not started. |
+| 2026-07-12 | Feature: tenant Outgoing API Log for Messenger (`messenger_api_requests`) — status explanation, request payload, Meta response; inbox shows contact profile picture with initials fallback. |
 | 2026-07-12 | Bugfix: `messenger_contacts.profile_picture_url` changed to nullable TEXT (Facebook `profile_pic` CDN URLs often exceed 255 chars and caused SQLSTATE[22001]). |
 | 2026-07-12 | Enhancement: fetch Messenger user profile by PSID on inbound (`MessengerUserProfileService`); store `profile_name` / `profile_picture_url`; inbox shows name with PSID fallback. Profile failures do not block webhook processing. |
 | 2026-07-12 | Phase F: test hardening (verification edges, reprocess safety, redaction/masking, permission bypass), docs polish, staging E2E checklist, AGENTS index update. No Facebook Login / new UI features. |
 | 2026-07-12 | Phase E implemented: admin `MessengerPageResource` (registry, no tokens), admin webhook events (read-only + optional reprocess), admin `MessengerInboxPage` with tenant selector safety (`MessengerTenantContextService`). No OAuth / unified inbox. |
 | 2026-07-12 | Phase D implemented: tenant Filament `MessengerPageResource`, `MessengerInboxPage`, `MessengerWebhookEventResource` (tenant-scoped, read-only). Manual page connect with masked token; inbox reply via Phase C send + 24h policy. No Admin UI / OAuth. |
-| 2026-07-12 | Phase C implemented: `MessengerGraphApiService`, `MessengerSendingPolicyService`, `SendMessengerTextMessageAction` (text only, 24h window, auth → reconnect_required). No Filament UI / OAuth / tags / campaigns. API request DB logging skipped. |
+| 2026-07-12 | Phase C implemented: `MessengerGraphApiService`, `MessengerSendingPolicyService`, `SendMessengerTextMessageAction` (text only, 24h window, auth → reconnect_required). No Filament UI / OAuth / tags / campaigns. |
 | 2026-07-12 | Phase B implemented: Messenger webhook routes/controller, signature verify, central event store, `ProcessMessengerWebhookJob`, page_id resolver, inbound text processor (contact/conversation/message + 24h window), diagnostics statuses, Phase B tests. No send/UI/OAuth. |
 | 2026-07-12 | Phase A implemented: central/tenant migrations, models, enums, registry sync observer, permission keys, Phase A tests. No webhooks/UI/send yet. |
 | 2026-07-12 | Full Messenger implementation plan documented. No application code. Awaiting separate approval before Phase A (schema). |
@@ -93,15 +95,17 @@ Facebook Login, Page picker, Instagram, Orders, campaigns, unified inbox, WhatsA
   - Empty token on edit keeps existing encrypted token; registry sync via existing observer (no token centrally)
   - Actions: set default, disable, disconnect (keeps conversations/messages)
 - **Inbox:** `App\Filament\Tenant\Pages\MessengerInboxPage` + shared concern/view
-  - Conversation list + thread; page name; PSID/profile name; 24h open/closed badge
+  - Conversation list + thread; page name; PSID/profile name; **profile picture** (CDN URL) with initials fallback; 24h open/closed badge
   - Reply only when `MessengerSendingPolicyService` allows; uses `SendMessengerTextMessageAction`
   - Outside window: clear alert, **no Graph call**; no tags/campaigns/attachments/cold outbound
+- **Outgoing API Log:** `App\Filament\Tenant\Resources\MessengerApiRequests\MessengerApiRequestResource`
+  - Tenant table `messenger_api_requests`: outcome, status explanation, request payload, Meta response (tokens never stored)
 - **Webhooks:** `App\Filament\Tenant\Resources\MessengerWebhookEvents\MessengerWebhookEventResource`
   - Central `MessengerWebhookEvent` filtered to current `tenant_id`; read-only; filters status/page_id/event_type
 
 ### Shared / nav
 - `App\Filament\Shared\Messenger\...` (form, tables, permission + inbox concerns)
-- Navigation group `dashboard.messenger_group` (sort 50–52); WhatsApp nav untouched
+- Navigation group `dashboard.messenger_group` (sort 50–53); WhatsApp nav untouched
 - Permissions: `messenger.view_pages`, `manage_pages`, `view_inbox`, `send_messages`, `view_webhook_events` (bypass respected via `ChecksMessengerPermissions` / Gate)
 
 ### Not in Phase D
@@ -127,7 +131,7 @@ Admin Messenger UI, Facebook Login, reprocess webhook action, Instagram, Orders,
 7. Outside window / bad page → exception **before** Graph call
 
 ### Not in Phase C
-Filament inbox/UI, Facebook Login, message tags, cold outbound, attachments, Instagram, Orders, campaigns, WhatsApp changes, API request DB log table.
+Filament inbox/UI, Facebook Login, message tags, cold outbound, attachments, Instagram, Orders, campaigns, WhatsApp changes.
 
 ---
 
@@ -266,7 +270,7 @@ flowchart LR
 | `messenger_contacts` | Customers keyed by PSID |
 | `messenger_conversations` | Inbox threads + 24h window |
 | `messenger_messages` | Inbound/outbound timeline |
-| Future | Tenant Messenger settings / optional API request logs |
+| `messenger_api_requests` | Outbound Graph API request log (status, payload, response) |
 
 ### Why hybrid?
 
@@ -545,7 +549,7 @@ Do **not** create Instagram tables or routes in this initiative.
 | **G** | Facebook Login + page picker + subscribe (later) | Self-serve connect; manual remains |
 
 **Execution rule:** One phase at a time. After each phase: update this document (including Changelog) and run tests.  
-**Current gate:** Phase F complete — **manual Messenger ready for staging E2E**. **Do not start Phase G until separately approved.**
+**Current gate:** Phase F complete — **manual Messenger staging E2E passed**. **Do not start Phase G until separately approved.**
 
 ---
 
@@ -602,9 +606,9 @@ tests/Unit/Messenger/...
 
 | Item | Status |
 |---|---|
-| Messenger module | **Phases A–F complete** — ready for staging E2E |
+| Messenger module | **Phases A–F complete** — staging E2E passed (manual path) |
 | Implementation | Manual Page connect + webhooks + tenant/admin inbox + text send (24h) |
-| Phase G (Facebook Login) | **Blocked** until separate approval |
+| Phase G (Facebook Login) | **Not started** — blocked until separate approval |
 | WhatsApp module | **Unchanged** — separate channel |
 | Instagram | **Not in scope** |
 | Orders / campaigns | **Not in scope** |
@@ -682,18 +686,21 @@ tests/Unit/Messenger/...
 
 ## 23. Staging E2E checklist
 
-- [ ] Create/connect Messenger Page manually in tenant panel (`page_id` + Page access token)
+**Result (2026-07-12):** Manual path **passed** on staging for the core flow below. Items still unchecked were not part of this confirmation pass.
+
+- [x] Create/connect Messenger Page manually in tenant panel (`page_id` + Page access token)
 - [ ] Confirm token is masked/encrypted; registry has no token
-- [ ] Configure Meta webhook callback: `/webhooks/meta/messenger`
-- [ ] Verify webhook GET succeeds in Meta dashboard
-- [ ] Subscribe Page fields (`messages`)
-- [ ] Send a message to the Facebook Page from a test user
-- [ ] Verify contact / conversation / inbound message in **tenant** Messenger inbox
-- [ ] Confirm 24h window shows open
-- [ ] Reply from CRM inside 24h
-- [ ] Verify Messenger receives the reply on the customer side
+- [x] Configure Meta webhook callback: `/webhooks/meta/messenger`
+- [x] Verify webhook GET succeeds in Meta dashboard
+- [x] Subscribe Page fields (`messages`)
+- [x] Send a message to the Facebook Page from a test user
+- [x] Verify contact / conversation / inbound message in **tenant** Messenger inbox
+- [x] Contact profile lookup works; CRM displays customer name
+- [x] Confirm 24h window shows open
+- [x] Reply from CRM inside 24h
+- [x] Verify Messenger receives the reply on the customer side
 - [ ] Expire/seed window closed → reply blocked; no Graph call
-- [ ] Check admin webhook diagnostics (filters, view event, optional reprocess on failed/unresolved)
+- [x] Check admin webhook diagnostics (processed events visible)
 - [ ] Admin inbox: select tenant → see only that store’s threads; clear selection → context ends
 - [ ] WhatsApp webhooks/inbox still work independently
 
@@ -730,4 +737,4 @@ tests/Unit/Messenger/...
 
 ---
 
-*Document version: 2026-07-12 — Phase F (staging-ready manual Messenger). Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: 2026-07-12 — Phase F complete; staging E2E passed (manual Messenger). Phase G not started. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

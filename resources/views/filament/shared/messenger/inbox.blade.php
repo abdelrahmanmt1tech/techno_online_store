@@ -3,18 +3,35 @@
         <div class="wa-inbox-sidebar__title">{{ __('dashboard.messenger_inbox') }}</div>
         <div class="wa-conversation-list wa-panel">
             @forelse ($this->conversations as $conversation)
+                @php
+                    $displayName = $conversation->customer_name ?: $conversation->contact?->profile_name ?: $conversation->sender_psid;
+                    $avatarUrl = $conversation->contact?->profile_picture_url;
+                    $initialsSource = $conversation->customer_name ?: $conversation->contact?->profile_name ?: $conversation->sender_psid;
+                    $initials = mb_strtoupper(mb_substr((string) $initialsSource, 0, 1));
+                @endphp
                 <button
                     type="button"
                     wire:click="selectConversation({{ $conversation->id }})"
-                    class="wa-conversation-item {{ $selectedConversationId === $conversation->id ? 'wa-conversation-item--active' : '' }}"
+                    class="wa-conversation-item wa-conversation-item--with-avatar {{ $selectedConversationId === $conversation->id ? 'wa-conversation-item--active' : '' }}"
                 >
-                    <div class="wa-conversation-item__name">
-                        {{ $conversation->customer_name ?: $conversation->contact?->profile_name ?: $conversation->sender_psid }}
-                    </div>
-                    <div class="wa-conversation-item__preview">{{ $conversation->last_message_preview }}</div>
-                    <div class="wa-conversation-item__time">
-                        {{ $conversation->messengerPage?->page_name ?: $conversation->messengerPage?->page_id }}
-                        · {{ $conversation->last_message_at?->diffForHumans() }}
+                    @if (filled($avatarUrl))
+                        <img
+                            src="{{ $avatarUrl }}"
+                            alt=""
+                            class="wa-avatar"
+                            loading="lazy"
+                            referrerpolicy="no-referrer"
+                        >
+                    @else
+                        <span class="wa-avatar wa-avatar--fallback" aria-hidden="true">{{ $initials }}</span>
+                    @endif
+                    <div class="wa-conversation-item__body">
+                        <div class="wa-conversation-item__name">{{ $displayName }}</div>
+                        <div class="wa-conversation-item__preview">{{ $conversation->last_message_preview }}</div>
+                        <div class="wa-conversation-item__time">
+                            {{ $conversation->messengerPage?->page_name ?: $conversation->messengerPage?->page_id }}
+                            · {{ $conversation->last_message_at?->diffForHumans() }}
+                        </div>
                     </div>
                 </button>
             @empty
@@ -25,17 +42,34 @@
 
     <div class="wa-inbox-main">
         @if ($conversation = $this->selectedConversation)
+            @php
+                $headerName = $conversation->customer_name ?: $conversation->contact?->profile_name ?: $conversation->sender_psid;
+                $headerAvatarUrl = $conversation->contact?->profile_picture_url;
+                $headerInitialsSource = $conversation->customer_name ?: $conversation->contact?->profile_name ?: $conversation->sender_psid;
+                $headerInitials = mb_strtoupper(mb_substr((string) $headerInitialsSource, 0, 1));
+            @endphp
             <div class="wa-conversation-header wa-panel">
-                <div>
-                    <div class="wa-conversation-header__name">
-                        {{ $conversation->customer_name ?: $conversation->contact?->profile_name ?: $conversation->sender_psid }}
-                    </div>
-                    <div class="wa-conversation-header__phone">
-                        {{ __('dashboard.messenger_page') }}:
-                        {{ $conversation->messengerPage?->page_name ?: $conversation->messengerPage?->page_id ?: '—' }}
-                        @if (filled($conversation->customer_name ?: $conversation->contact?->profile_name))
-                            · PSID: {{ $conversation->sender_psid }}
-                        @endif
+                <div class="wa-conversation-header__identity">
+                    @if (filled($headerAvatarUrl))
+                        <img
+                            src="{{ $headerAvatarUrl }}"
+                            alt=""
+                            class="wa-avatar wa-avatar--lg"
+                            loading="lazy"
+                            referrerpolicy="no-referrer"
+                        >
+                    @else
+                        <span class="wa-avatar wa-avatar--lg wa-avatar--fallback" aria-hidden="true">{{ $headerInitials }}</span>
+                    @endif
+                    <div>
+                        <div class="wa-conversation-header__name">{{ $headerName }}</div>
+                        <div class="wa-conversation-header__phone">
+                            {{ __('dashboard.messenger_page') }}:
+                            {{ $conversation->messengerPage?->page_name ?: $conversation->messengerPage?->page_id ?: '—' }}
+                            @if (filled($conversation->customer_name ?: $conversation->contact?->profile_name))
+                                · PSID: {{ $conversation->sender_psid }}
+                            @endif
+                        </div>
                     </div>
                 </div>
                 <div class="wa-window-status">

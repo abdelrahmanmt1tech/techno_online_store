@@ -86,6 +86,11 @@ class MessengerPage extends Model
         return $this->hasMany(MessengerMessage::class);
     }
 
+    public function apiRequests(): HasMany
+    {
+        return $this->hasMany(MessengerApiRequest::class);
+    }
+
     public function getMaskedPageAccessTokenAttribute(): string
     {
         if (blank($this->page_access_token)) {
