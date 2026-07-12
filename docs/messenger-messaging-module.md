@@ -12,6 +12,7 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-12 | Enhancement: fetch Messenger user profile by PSID on inbound (`MessengerUserProfileService`); store `profile_name` / `profile_picture_url`; inbox shows name with PSID fallback. Profile failures do not block webhook processing. |
 | 2026-07-12 | Phase F: test hardening (verification edges, reprocess safety, redaction/masking, permission bypass), docs polish, staging E2E checklist, AGENTS index update. No Facebook Login / new UI features. |
 | 2026-07-12 | Phase E implemented: admin `MessengerPageResource` (registry, no tokens), admin webhook events (read-only + optional reprocess), admin `MessengerInboxPage` with tenant selector safety (`MessengerTenantContextService`). No OAuth / unified inbox. |
 | 2026-07-12 | Phase D implemented: tenant Filament `MessengerPageResource`, `MessengerInboxPage`, `MessengerWebhookEventResource` (tenant-scoped, read-only). Manual page connect with masked token; inbox reply via Phase C send + 24h policy. No Admin UI / OAuth. |
@@ -404,9 +405,15 @@ Reply-page switching remains a later enhancement; tenant inbox UX is delivered i
 
 | Do | Do not |
 |---|---|
-| Upsert contact on Messenger interactions | Import all Page followers/fans |
-| Store **PSID** as provider identifier | Assume phone/email exists |
-| Use webhook profile name when present | Call Graph profile unless permissions + product need it |
+| Upsert contact on Messenger interactions (PSID) | Import all Page followers/fans |
+| Fetch Graph user profile on inbound when possible (`GET /{PSID}?fields=first_name,last_name,name,profile_pic`) using **Page** access token | Fail webhook processing if profile lookup fails |
+| Store `profile_name` (+ `profile_picture_url` when returned) | Assume phone/email exists |
+| Fall back to PSID in CRM UI when name is unavailable | Log Page access tokens |
+
+### Profile lookup notes
+- Implemented by `MessengerUserProfileService` during `ProcessInboundMessengerMessageAction`
+- Meta may require `pages_messaging` / related permissions; some apps need **App Review** before profile fields return for users who messaged the Page
+- If Graph returns an error (permission, privacy, rate limit), inbound message/contact/conversation still persist; display uses PSID until a later successful lookup
 
 ---
 
