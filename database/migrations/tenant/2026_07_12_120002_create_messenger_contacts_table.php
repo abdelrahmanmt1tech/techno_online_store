@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('psid')->unique();
             $table->string('profile_name')->nullable();
-            $table->string('profile_picture_url')->nullable();
+            $table->text('profile_picture_url')->nullable();
             $table->timestamp('last_message_at')->nullable();
             $table->timestamps();
         });
