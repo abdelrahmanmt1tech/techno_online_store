@@ -69,6 +69,15 @@ function permissionsArray(): array
                 ['name' => 'dashboard.permissions.create', 'key' => 'whatsapp.platform.send_test_messages'],
             ],
         ],
+        [
+            'name' => 'dashboard.permissions_groups.messenger_platform',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'messenger.platform.view_all_pages'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'messenger.platform.manage_all_pages'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'messenger.platform.view_webhook_events'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'messenger.platform.troubleshoot'],
+            ],
+        ],
 
     ];
 }

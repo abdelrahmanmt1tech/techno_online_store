@@ -96,6 +96,8 @@ return [
         'site_content' => 'Site Content',
         'whatsapp' => 'WhatsApp',
         'whatsapp_platform' => 'WhatsApp Platform',
+        'messenger' => 'Messenger',
+        'messenger_platform' => 'Messenger Platform',
     ],
 
     // Permissions actions

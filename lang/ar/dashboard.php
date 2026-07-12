@@ -96,6 +96,8 @@ return [
         'site_content' => 'محتوى الموقع',
         'whatsapp' => 'واتساب',
         'whatsapp_platform' => 'منصة واتساب',
+        'messenger' => 'ماسنجر',
+        'messenger_platform' => 'منصة ماسنجر',
     ],
 
     // Permissions actions

@@ -2,7 +2,7 @@
 
 Developer handoff document for the **Facebook Messenger** CRM channel in the Techno Online Store multi-tenant platform.
 
-**Status:** Planning documented — **implementation not started.**  
+**Status:** Phase **A complete** (schema/models/registry/permissions). Phases B–G not started.  
 **Branch:** `feature/messenger-integration`  
 **Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes.
 
@@ -12,7 +12,39 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-12 | Phase A implemented: central/tenant migrations, models, enums, registry sync observer, permission keys, Phase A tests. No webhooks/UI/send yet. |
 | 2026-07-12 | Full Messenger implementation plan documented. No application code. Awaiting separate approval before Phase A (schema). |
+
+---
+
+## Phase A delivered
+
+### Central tables
+- `messenger_page_registry` — routing/metadata only (no tokens)
+- `messenger_webhook_events` — schema ready; **no processing** until Phase B
+
+### Tenant tables
+- `messenger_pages`, `messenger_contacts`, `messenger_conversations`, `messenger_messages`
+
+### Models
+- Central: `App\Models\MessengerPageRegistry`, `App\Models\MessengerWebhookEvent`
+- Tenant: `App\Models\Tenant\MessengerPage`, `MessengerContact`, `MessengerConversation`, `MessengerMessage`
+
+### Enums (`App\Messenger\Enums\`)
+- `MessengerPageStatus`, `MessengerWebhookProcessingStatus`, `MessengerTokenSource`, `MessengerConnectionMethod`
+- `MessengerMessageDirection`, `MessengerMessageStatus`, `MessengerMessageType`, `MessengerMessageSenderType`
+- `MessengerConversationStatus`
+
+### Sync
+- `App\Observers\Tenant\MessengerPageObserver`
+- `App\Messenger\Actions\SyncMessengerPageRegistryAction`
+
+### Permissions
+- Tenant: `messenger.view_pages`, `manage_pages`, `view_inbox`, `send_messages`, `view_webhook_events`
+- Admin: `messenger.platform.view_all_pages`, `manage_all_pages`, `view_webhook_events`, `troubleshoot`
+
+### Not in Phase A
+Webhooks, routes, controllers, jobs, send API, Filament UI, Facebook Login.
 
 ---
 
@@ -350,7 +382,7 @@ Do **not** create Instagram tables or routes in this initiative.
 
 | Phase | Scope | Exit criteria |
 |---|---|---|
-| **A** | Migrations, enums, models, observer + registry sync, permission keys in arrays, docs update | Manual create page → registry row; WhatsApp untouched |
+| ~~**A**~~ | ~~Migrations, enums, models, observer + registry sync, permission keys~~ | **Done** |
 | **B** | Routes, controller, signature/verify, job, inbound processor, contact upsert, window | Webhook → tenant message |
 | **C** | Graph send service, send action, 24h policy, outbound persistence | Reply inside window; outside blocked |
 | **D** | Tenant Filament Pages + Inbox + Webhook events | Merchant connect + chat |
@@ -359,7 +391,7 @@ Do **not** create Instagram tables or routes in this initiative.
 | **G** | Facebook Login + page picker + subscribe (later) | Self-serve connect; manual remains |
 
 **Execution rule:** One phase at a time. After each phase: update this document (including Changelog) and run tests.  
-**Current gate:** Documentation only. **Do not start Phase A until separately approved.**
+**Current gate:** Phase A complete. **Do not start Phase B until separately approved.**
 
 ---
 
@@ -416,13 +448,13 @@ tests/Unit/Messenger/...
 
 | Item | Status |
 |---|---|
-| Messenger module | **Planning documented** |
-| Implementation | **Not started** |
-| Phase A (schema) | **Blocked** until separate approval |
+| Messenger module | **Phase A complete** |
+| Implementation | Schema/models/registry/permissions done; no webhooks/UI yet |
+| Phase B (webhooks) | **Blocked** until separate approval |
 | WhatsApp module | **Unchanged** — separate channel |
 | Instagram | **Not in scope** |
 | Orders / campaigns | **Not in scope** |
 
 ---
 
-*Document version: 2026-07-12 — plan only. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: 2026-07-12 — Phase A. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

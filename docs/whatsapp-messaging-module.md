@@ -1018,7 +1018,7 @@ Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefi
 Messenger is a **separate CRM channel** and must not share WhatsApp tables, services, or webhook routes.
 
 - Plan and status: [`docs/messenger-messaging-module.md`](messenger-messaging-module.md)
-- Status as of 2026-07-12: **Planning documented; implementation not started**
+- Status as of 2026-07-12: **Phase A complete** (schema only); webhooks/UI not started
 - Architecture: same hybrid pattern (central registry + webhook events; tenant operational data), different `page_id` / PSID identity model
 
 This WhatsApp document remains the source of truth for WhatsApp only. Do not truncate or merge Messenger details into the sections above.

@@ -22,6 +22,16 @@ function tenantPermissionsArray(): array
                 ['name' => 'dashboard.permissions.view', 'key' => 'whatsapp.view_webhook_events'],
             ],
         ],
+        [
+            'name' => 'dashboard.permissions_groups.messenger',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'messenger.view_pages'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'messenger.manage_pages'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'messenger.view_inbox'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'messenger.send_messages'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'messenger.view_webhook_events'],
+            ],
+        ],
     ];
 }
 
