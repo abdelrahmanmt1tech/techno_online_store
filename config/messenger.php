@@ -7,7 +7,7 @@ return [
     'allow_unsigned_webhooks' => env('MESSENGER_ALLOW_UNSIGNED_WEBHOOKS', false),
     'request_timeout' => (int) env('MESSENGER_REQUEST_TIMEOUT', 30),
     'log_channel' => env('MESSENGER_LOG_CHANNEL', 'stack'),
-    'webhook_log_channel' => env('MESSENGER_WEBHOOK_LOG_CHANNEL', 'stack'),
+    'webhook_log_channel' => env('MESSENGER_WEBHOOK_LOG_CHANNEL', 'messenger-webhook'),
     'webhook_payload_retention' => env('MESSENGER_WEBHOOK_PAYLOAD_RETENTION', 'minimized'),
     'customer_service_window_hours' => 24,
 ];

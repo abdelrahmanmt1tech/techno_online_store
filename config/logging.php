@@ -135,6 +135,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'messenger-webhook' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/messenger-webhook.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('MESSENGER_WEBHOOK_LOG_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];
