@@ -38,11 +38,13 @@ class MessengerInboundWebhookTest extends MessengerTestCase
         );
 
         $response->assertForbidden();
+        $this->assertNotSame(419, $response->status(), 'Messenger webhook must not fail CSRF (419)');
 
         $event = MessengerWebhookEvent::query()->latest('id')->first();
         $this->assertNotNull($event);
         $this->assertSame(MessengerWebhookProcessingStatus::Rejected, $event->processing_status);
         $this->assertFalse($event->signature_valid);
+        $this->assertSame('invalid_signature', $event->event_type);
     }
 
     public function test_valid_inbound_message_creates_contact_conversation_message_and_window(): void
