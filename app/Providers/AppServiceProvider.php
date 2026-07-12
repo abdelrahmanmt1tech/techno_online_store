@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Http\Responses\Filament\PanelLoginResponse;
+use App\Models\Tenant\MessengerPage;
 use App\Models\Tenant\WhatsAppNumber;
+use App\Observers\Tenant\MessengerPageObserver;
 use App\Observers\Tenant\WhatsAppNumberObserver;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
@@ -37,5 +39,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         WhatsAppNumber::observe(WhatsAppNumberObserver::class);
+        MessengerPage::observe(MessengerPageObserver::class);
     }
 }
