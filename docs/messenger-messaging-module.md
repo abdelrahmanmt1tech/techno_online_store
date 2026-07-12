@@ -2,7 +2,7 @@
 
 Developer handoff document for the **Facebook Messenger** CRM channel in the Techno Online Store multi-tenant platform.
 
-**Status:** Phase **B complete** (webhook receive pipeline). Phases C–G not started.  
+**Status:** Phase **C complete** (outbound text send + 24h policy). Phases D–G not started.  
 **Branch:** `feature/messenger-integration`  
 **Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes.
 
@@ -12,9 +12,32 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-12 | Phase C implemented: `MessengerGraphApiService`, `MessengerSendingPolicyService`, `SendMessengerTextMessageAction` (text only, 24h window, auth → reconnect_required). No Filament UI / OAuth / tags / campaigns. API request DB logging skipped. |
 | 2026-07-12 | Phase B implemented: Messenger webhook routes/controller, signature verify, central event store, `ProcessMessengerWebhookJob`, page_id resolver, inbound text processor (contact/conversation/message + 24h window), diagnostics statuses, Phase B tests. No send/UI/OAuth. |
 | 2026-07-12 | Phase A implemented: central/tenant migrations, models, enums, registry sync observer, permission keys, Phase A tests. No webhooks/UI/send yet. |
 | 2026-07-12 | Full Messenger implementation plan documented. No application code. Awaiting separate approval before Phase A (schema). |
+
+---
+
+## Phase C delivered
+
+### Services / actions
+- `App\Messenger\Services\MessengerGraphApiService` — `POST /{page-id}/messages` text send; Graph version from `config/messenger.php`; never logs `page_access_token`
+- `App\Messenger\Services\MessengerSendingPolicyService` — freeform text only inside open 24h window; blocks inactive/disabled/reconnect_required/failed pages and page/conversation mismatch
+- `App\Messenger\DTOs\MessengerSendingPolicyResult`
+- `App\Messenger\Actions\SendMessengerTextMessageAction` — policy → Graph → persist outbound message → update conversation/page → registry sync
+
+### Send flow (service level)
+1. Resolve `messenger_page` from conversation (tenant DB token only)
+2. `canSendText` must allow (active page + ownership + window open)
+3. Create pending outbound `messenger_messages` row
+4. Graph send with Page access token (`messaging_type: RESPONSE`)
+5. On success: mark sent, update previews/`last_outbound_at`, sync registry metadata
+6. On Graph auth error (HTTP 401 or codes 190/102): page → `reconnect_required`, set `reconnect_required_at` + safe `last_error_message`, sync registry; message → failed
+7. Outside window / bad page → exception **before** Graph call
+
+### Not in Phase C
+Filament inbox/UI, Facebook Login, message tags, cold outbound, attachments, Instagram, Orders, campaigns, WhatsApp changes, API request DB log table.
 
 ---
 
@@ -275,13 +298,17 @@ Subscribe Page fields (Meta App Dashboard): at minimum `messages`; add deliverie
 
 ## 7. Sending flow
 
-1. Agent opens a Messenger conversation (bound to one page + PSID)
-2. Optional reply-page switch → find/create conversation for that page + same PSID
-3. `MessengerSendingPolicyService::canSendText` — permission, active page, ownership, **inside 24h window**
-4. Outside window → **block freeform**; no message tags / campaigns in this initiative
-5. `MessengerGraphApiService::sendText` → `POST /{page-id}/messages`
-6. Persist outbound message; update conversation; sync registry metadata
-7. Auth failures → `reconnect_required` (never log the token)
+**Phase C (implemented at service/action layer — no Filament UI yet):**
+
+1. Caller invokes `SendMessengerTextMessageAction` with a `MessengerConversation` + text body (+ optional acting user for sender_type)
+2. Page resolved from conversation; Page access token read from **tenant** `messenger_pages` only
+3. `MessengerSendingPolicyService::canSendText` — active page, conversation ownership, **inside 24h window**
+4. Outside window → **block freeform before Graph**; no message tags / campaigns in this initiative
+5. `MessengerGraphApiService::sendText` → `POST /{page-id}/messages` (`messaging_type: RESPONSE`)
+6. Persist outbound message; update conversation; sync registry metadata (no token centrally)
+7. Auth failures → `reconnect_required` + `reconnect_required_at` (never log the token)
+
+Reply-page switching and inbox UX land in Phase D+.
 
 ---
 
@@ -415,14 +442,14 @@ Do **not** create Instagram tables or routes in this initiative.
 |---|---|---|
 | ~~**A**~~ | ~~Migrations, enums, models, observer + registry sync, permission keys~~ | **Done** |
 | ~~**B**~~ | ~~Routes, controller, signature/verify, job, inbound processor, contact upsert, window~~ | **Done** |
-| **C** | Graph send service, send action, 24h policy, outbound persistence | Reply inside window; outside blocked |
+| ~~**C**~~ | ~~Graph send service, send action, 24h policy, outbound persistence~~ | **Done** |
 | **D** | Tenant Filament Pages + Inbox + Webhook events | Merchant connect + chat |
 | **E** | Admin registry + webhook events + inbox with tenant selector | Support without central ops inbox |
 | **F** | Full tests + doc polish + staging checklist | Green tests; docs current |
 | **G** | Facebook Login + page picker + subscribe (later) | Self-serve connect; manual remains |
 
 **Execution rule:** One phase at a time. After each phase: update this document (including Changelog) and run tests.  
-**Current gate:** Phase B complete. **Do not start Phase C until separately approved.**
+**Current gate:** Phase C complete. **Do not start Phase D until separately approved.**
 
 ---
 
@@ -479,13 +506,13 @@ tests/Unit/Messenger/...
 
 | Item | Status |
 |---|---|
-| Messenger module | **Phase B complete** |
-| Implementation | Webhook receive pipeline done; no send/UI/OAuth yet |
-| Phase C (send) | **Blocked** until separate approval |
+| Messenger module | **Phase C complete** |
+| Implementation | Inbound webhooks + outbound text send (service layer); no Filament UI/OAuth yet |
+| Phase D (Filament) | **Blocked** until separate approval |
 | WhatsApp module | **Unchanged** — separate channel |
 | Instagram | **Not in scope** |
 | Orders / campaigns | **Not in scope** |
 
 ---
 
-*Document version: 2026-07-12 — Phase B. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: 2026-07-12 — Phase C. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
