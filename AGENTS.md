@@ -20,7 +20,7 @@
 
 ## Architecture
 
-- **Two Filament panels** (separate auth guards, primary color `Amber`):
+- **Two Filament panels** (separate auth guards, primary color `Emerald`):
   - **Admin panel** (`/admin`, panel ID `admin`, `authGuard('admin')`) — central management. Discovers `app/Filament/Resources/`.
   - **Tenant panel** (`/app`, panel ID `tenant`, `authGuard('tenant')`) — per-tenant. Discovers `app/Filament/Tenant/{Resources,Pages,Widgets}/`. Uses `InitializeTenancyByDomain` + `PreventAccessFromCentralDomains` + `EnsureTenantIsInitialized` middleware; routes in `routes/tenant.php`.
 - **Central DB** tables: `admins`, `tenants`, `domains`, `permissions`, `roles`, `role_has_permissions`, `model_has_permissions`, sessions/cache/jobs.
@@ -31,12 +31,12 @@
 - **Auth providers**: `admins` → `Admin::class`, `tenant_users` → `TenantUser::class`. Admin panel uses `admin` guard → `admins` provider → central DB. Tenant panel uses `tenant` guard → `tenant_users` provider → tenant DB (after tenancy initialization).
 - **Models**: `Tenant` (stancl base, soft deletes, custom columns: name, email, phone, is_active). UUID-based id.
 - **No API routes** registered. `bootstrap/app.php` has placeholder JSON handling for `api/*` paths.
-- **Central domains** (config/tenancy.php): `techno_online_store.localhost`, `online-store.technomasrsystems.com`.
+- **Central domains** (config/tenancy.php): `technomasrsystems.com`, `localhost:8000`, `techno_online_store.localhost`, `online-store.technomasrsystems.com`.
 
 ## Filament Resources
 
-- Custom admin resources under `app/Filament/Resources/{Admins,Roles,Tenants}/`. Each has `Pages/`, `Schemas/`, `Tables/` subdirectories.
-- Tenant resources under `app/Filament/Tenant/Resources/Categories/`.
+- Custom admin resources under `app/Filament/Resources/` — `Admins/`, `Roles/`, `Tenants/`, `Plans/`, `WhatsAppNumbers/`, `WhatsAppWebhookEvents/`. Each has `Pages/`, `Schemas/`, `Tables/` subdirectories.
+- Tenant resources under `app/Filament/Tenant/Resources/` — `Categories/`, `Products/`, `WhatsAppContacts/`, `WhatsAppNumbers/`, `WhatsAppTemplates/`, `WhatsAppWebhookEvents/`, `WhatsAppApiRequests/`. Also `Pages/WhatsAppInboxPage.php`.
 - Navigation labels use `__('dashboard.*')` translations (`lang/{ar,en}/dashboard.php`).
 - Run `php artisan make:filament-resource` for new resources.
 

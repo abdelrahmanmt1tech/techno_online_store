@@ -39,11 +39,6 @@ class PlanResource extends Resource
         return __('dashboard.plan');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('dashboard.settings_group');
-    }
-
     public static function canViewAny(): bool
     {
         return Auth::user()->can('plans.view');

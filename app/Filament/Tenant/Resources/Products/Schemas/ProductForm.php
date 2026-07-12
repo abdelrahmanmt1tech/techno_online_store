@@ -87,8 +87,7 @@ class ProductForm
                     ->label(__('dashboard.slug'))
                     ->required()
                     ->unique(Product::class, 'slug', ignoreRecord: true)
-                    ->maxLength(255)
-                    ->helperText(__('dashboard.slug_helper')),
+                    ->maxLength(255),
 
                 TextInput::make('sku')
                     ->label(__('dashboard.sku'))

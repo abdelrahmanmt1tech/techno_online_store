@@ -32,8 +32,7 @@ class CategoryForm
                             ->label(__('dashboard.slug'))
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->maxLength(255)
-                            ->helperText(__('dashboard.slug_helper')),
+                            ->maxLength(255),
 
                         Select::make('parent_id')
                             ->label(__('dashboard.parent_category'))

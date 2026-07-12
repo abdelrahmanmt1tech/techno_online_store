@@ -7,6 +7,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -68,6 +69,10 @@ class IntroSettings extends Page
         return $schema
             ->components([
                 Form::make([
+                    Toggle::make('intro_section_active')
+                        ->label(__('dashboard.intro_settings.section_active'))
+                        ->default(true),
+
                     Section::make(__('dashboard.intro_content_section'))
                         ->columns(2)
                         ->schema([
@@ -151,6 +156,7 @@ class IntroSettings extends Page
     public function getRecord()
     {
         $keys = [
+            'intro_section_active',
             'intro_title_ar', 'intro_title_en',
             'intro_description_ar', 'intro_description_en',
             'intro_image', 'intro_link',
