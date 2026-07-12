@@ -34,7 +34,7 @@ class TenantPanelProvider extends PanelProvider
             ->authGuard('tenant')
             ->login(Login::class)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Emerald,
             ])
             ->discoverResources(in: app_path('Filament/Tenant/Resources'), for: 'App\Filament\Tenant\Resources')
             ->discoverPages(in: app_path('Filament/Tenant/Pages'), for: 'App\Filament\Tenant\Pages')
@@ -42,25 +42,16 @@ class TenantPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Tenant/Widgets'), for: 'App\Filament\Tenant\Widgets')
-
             ->assets([
                 Css::make('custom-stylesheet', resource_path('css/filament-custom.css')),
                 Css::make('whatsapp-ui', resource_path('css/whatsapp-ui.css')),
             ])
-
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
             ->persistentMiddleware([
                 InitializeTenancyByDomain::class,
-            ])
-            ->assets([
-                Css::make('custom-stylesheet', resource_path('css/filament-custom.css')),
-            ])
-            ->colors([
-                'primary' => Color::Emerald,
-
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -72,11 +63,9 @@ class TenantPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-
                 InitializeTenancyByDomain::class,
                 PreventAccessFromCentralDomains::class,
                 EnsureTenantIsInitialized::class,
-
             ])
             ->authMiddleware([
                 Authenticate::class,
