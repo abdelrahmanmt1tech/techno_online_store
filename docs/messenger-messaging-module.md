@@ -12,6 +12,7 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-12 | Bugfix: `messenger_contacts.profile_picture_url` changed to nullable TEXT (Facebook `profile_pic` CDN URLs often exceed 255 chars and caused SQLSTATE[22001]). |
 | 2026-07-12 | Enhancement: fetch Messenger user profile by PSID on inbound (`MessengerUserProfileService`); store `profile_name` / `profile_picture_url`; inbox shows name with PSID fallback. Profile failures do not block webhook processing. |
 | 2026-07-12 | Phase F: test hardening (verification edges, reprocess safety, redaction/masking, permission bypass), docs polish, staging E2E checklist, AGENTS index update. No Facebook Login / new UI features. |
 | 2026-07-12 | Phase E implemented: admin `MessengerPageResource` (registry, no tokens), admin webhook events (read-only + optional reprocess), admin `MessengerInboxPage` with tenant selector safety (`MessengerTenantContextService`). No OAuth / unified inbox. |
@@ -341,7 +342,7 @@ Required fields:
 ### Tenant: `messenger_contacts`
 
 - `psid` (unique), `profile_name` nullable
-- Optional profile picture URL only if Meta permissions allow and product needs it
+- `profile_picture_url` nullable **TEXT** (Facebook CDN URLs often exceed 255 characters)
 - `last_message_at`
 
 ### Tenant: `messenger_conversations`

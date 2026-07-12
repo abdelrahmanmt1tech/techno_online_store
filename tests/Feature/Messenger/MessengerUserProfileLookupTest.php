@@ -19,12 +19,16 @@ class MessengerUserProfileLookupTest extends MessengerTestCase
 {
     public function test_inbound_message_with_successful_profile_fetch_updates_contact_name(): void
     {
+        $longProfilePic = 'https://scontent.xx.fbcdn.net/v/t1.30497-1/'.str_repeat('a', 300).'/picture?stp=dst-jpg_s480x480&_nc_cat=1&ccb=1-7&_nc_sid=xyz&_nc_ohc=abc&_nc_ht=scontent.xx.fbcdn.net&oh='.str_repeat('f', 80).'&oe=ABCDEF01';
+
+        $this->assertGreaterThan(255, strlen($longProfilePic));
+
         Http::fake([
             'graph.facebook.com/*' => Http::response([
                 'first_name' => 'Ahmed',
                 'last_name' => 'Hassan',
                 'name' => 'Ahmed Hassan',
-                'profile_pic' => 'https://example.com/pic.jpg',
+                'profile_pic' => $longProfilePic,
             ], 200),
         ]);
 
@@ -46,11 +50,11 @@ class MessengerUserProfileLookupTest extends MessengerTestCase
             app(MessengerWebhookPayloadRedactor::class),
         );
 
-        $tenant->run(function () {
+        $tenant->run(function () use ($longProfilePic) {
             $contact = MessengerContact::query()->where('psid', 'psid-456')->first();
             $this->assertNotNull($contact);
             $this->assertSame('Ahmed Hassan', $contact->profile_name);
-            $this->assertSame('https://example.com/pic.jpg', $contact->profile_picture_url);
+            $this->assertSame($longProfilePic, $contact->profile_picture_url);
 
             $conversation = MessengerConversation::query()->first();
             $this->assertSame('Ahmed Hassan', $conversation->customer_name);
