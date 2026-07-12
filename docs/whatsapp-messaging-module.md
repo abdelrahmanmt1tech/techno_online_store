@@ -683,6 +683,21 @@ Configured in `config/whatsapp.php`. Also documented in `.env.example`.
 - **`WHATSAPP_WEBHOOK_VERIFY_TOKEN` must exactly match** the value in the Meta App Dashboard.
 - **Never commit real tokens or secrets** to version control.
 
+### Queue connection (staging vs production)
+
+| Environment | `QUEUE_CONNECTION` | Notes |
+|---|---|---|
+| **Local / staging (current)** | `sync` | Supported intentionally. Jobs (including `ProcessWhatsAppWebhookJob`) run inline in the HTTP request — **no queue worker required**. |
+| **Production (recommended later)** | `database` or `redis` | Run a supervised worker (`php artisan queue:work`) so webhooks return 200 quickly and heavy work is off the request. |
+
+Do **not** switch production to `sync` long-term under real Meta traffic.
+
+### Graph API version
+
+- Code/config default and `.env.example`: `WHATSAPP_GRAPH_API_VERSION=v21.0`
+- Meta’s latest Graph API as of Feb 2026 is **`v25.0`** ([changelog](https://developers.facebook.com/docs/graph-api/changelog/)). WhatsApp Cloud API docs also show `v25.0` URLs.
+- **Recommendation:** update the server `.env` to `WHATSAPP_GRAPH_API_VERSION=v25.0` when convenient (env-only; no code change required). Keep `v21.0` only if a specific Meta app constraint requires it.
+
 ---
 
 ## 15. Setup / deployment commands
@@ -756,7 +771,7 @@ This runs `tenants:migrate --force` first, then syncs permissions and Store Admi
    - **HTTPS** is valid and publicly reachable
    - Route is **not** behind admin/tenant auth
    - `META_APP_SECRET` is set in production `.env`
-   - Queue worker is running (`QUEUE_CONNECTION=database` — process with `php artisan queue:work`)
+   - Staging may use `QUEUE_CONNECTION=sync` (no worker). Production should use `database` or `redis` + supervisor (`php artisan queue:work`)
 
 4. Click **Verify and save** in Meta — Meta sends `GET` with `hub.mode=subscribe`.
 
@@ -924,12 +939,16 @@ Suggested phases for future work:
 | Manual Cloud API connection | **Implemented** |
 | Webhook verification + receiving | **Implemented** |
 | Tenant + Admin Filament UI | **Implemented** |
-| Automated tests | **32/32 passing** |
+| Automated tests | **36/36 passing** |
 | Template sync from Meta | **Implemented** |
 | Contacts management UI | **Implemented** |
 | Webhook diagnostic logging | **Implemented** |
-| Production readiness | **Ready for controlled staging test** with Meta test number or manually connected production number |
+| Outbound API request DB logging | **Implemented** |
+| Staging end-to-end (manual Cloud API) | **Working** — CRM send, inbound webhook → inbox, 24h window open/close, token refresh after expiry |
+| Staging queue | **`QUEUE_CONNECTION=sync`** (intentional; no worker) |
+| Production queue | **Recommended later:** `database` or `redis` + supervisor — not required while staging stays on `sync` |
+| Production readiness | **Stabilized for staging**; production hardening = queue worker + permissions (`BYPASS_PERMISSIONS=false`) + optional Graph API bump to `v25.0` |
 
 ---
 
-*Document version: reflects implementation through July 2026 (post-freeze enhancements: template sync, contacts, webhook logging, CWP deploy, dev permission bypass). Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: reflects implementation through July 2026 stabilization (manual Cloud API E2E working on staging with `QUEUE_CONNECTION=sync`). Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

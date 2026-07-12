@@ -49,8 +49,10 @@ PHP binary on CWP:
 - `APP_DEBUG=false`
 - `BYPASS_PERMISSIONS=true` while features are still under active development; set `false` before launch
 - `WHATSAPP_WEBHOOK_VERIFY_TOKEN`, `META_APP_SECRET`
+- `WHATSAPP_ALLOW_UNSIGNED_WEBHOOKS=false`
 - `WHATSAPP_WEBHOOK_LOG_CHANNEL=whatsapp-webhook`
-- `QUEUE_CONNECTION=database` + queue worker running
+- `WHATSAPP_GRAPH_API_VERSION` — currently often `v21.0` in `.env.example`; Meta latest is `v25.0` (env update recommended when ready)
+- Staging may use `QUEUE_CONNECTION=sync` (no worker). For production, prefer `database` or `redis` + a supervised `php artisan queue:work` process
 
 ## Post-deploy checks
 
