@@ -27,6 +27,10 @@ trait InteractsWithMessengerInbox
     #[Computed]
     public function conversations(): Collection
     {
+        if (! $this->tenantContextReady()) {
+            return collect();
+        }
+
         return MessengerConversation::query()
             ->with(['messengerPage', 'contact', 'assignedUser'])
             ->latest('last_message_at')
@@ -62,6 +66,12 @@ trait InteractsWithMessengerInbox
 
     public function sendReply(): void
     {
+        if (! $this->tenantContextReady()) {
+            Notification::make()->title(__('dashboard.messenger_select_tenant_required'))->danger()->send();
+
+            return;
+        }
+
         $conversation = $this->getSelectedConversation();
 
         if ($conversation === null) {
@@ -108,6 +118,10 @@ trait InteractsWithMessengerInbox
 
     public function toggleConversationStatus(): void
     {
+        if (! $this->tenantContextReady()) {
+            return;
+        }
+
         $conversation = $this->getSelectedConversation();
 
         if ($conversation === null) {
@@ -125,13 +139,18 @@ trait InteractsWithMessengerInbox
 
     protected function getSelectedConversation(): ?MessengerConversation
     {
-        if ($this->selectedConversationId === null) {
+        if ($this->selectedConversationId === null || ! $this->tenantContextReady()) {
             return null;
         }
 
         return MessengerConversation::query()
             ->with(['messengerPage', 'contact', 'assignedUser'])
             ->find($this->selectedConversationId);
+    }
+
+    protected function tenantContextReady(): bool
+    {
+        return tenancy()->initialized;
     }
 
     #[Computed]
@@ -166,6 +185,10 @@ trait InteractsWithMessengerInbox
 
         if ($user === null) {
             return false;
+        }
+
+        if (filament()->getCurrentPanel()?->getId() === 'admin') {
+            return $user->can('messenger.platform.troubleshoot');
         }
 
         return $user->can('messenger.send_messages');

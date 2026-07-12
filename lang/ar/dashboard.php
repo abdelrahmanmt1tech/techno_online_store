@@ -443,5 +443,16 @@ return [
     'messenger_signature_valid' => 'توقيع أمني صحيح',
     'messenger_error_details' => 'تفاصيل الخطأ',
     'messenger_diagnostic_data' => 'بيانات تشخيصية',
+    'messenger_enable' => 'تفعيل',
+    'messenger_select_tenant' => 'اختر المتجر',
+    'messenger_select_tenant_required' => 'يرجى اختيار متجر لعرض بيانات ماسنجر.',
+    'messenger_tenant_id' => 'معرف المستأجر',
+    'messenger_tenant_page_id' => 'معرف صفحة المستأجر',
+    'messenger_last_health_check' => 'آخر فحص صحة',
+    'messenger_reprocess_webhook' => 'إعادة المعالجة',
+    'messenger_reprocess_webhook_confirm' => 'إعادة محاولة معالجة هذا الحدث باستخدام الحمولة الأصلية المحفوظة.',
+    'messenger_reprocess_webhook_success' => 'تمت جدولة إعادة معالجة الويب هوك',
+    'messenger_reprocess_webhook_failed' => 'تعذرت إعادة معالجة الويب هوك',
+    'messenger_reprocess_webhook_unavailable' => 'لا يمكن إعادة معالجة هذا الحدث لأن الحمولة الأصلية مفقودة أو نوع الحدث لا يدعم إعادة المحاولة.',
 
 ];

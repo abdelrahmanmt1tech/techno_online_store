@@ -443,5 +443,16 @@ return [
     'messenger_signature_valid' => 'Valid Signature',
     'messenger_error_details' => 'Error Details',
     'messenger_diagnostic_data' => 'Diagnostic Data',
+    'messenger_enable' => 'Enable',
+    'messenger_select_tenant' => 'Select Store',
+    'messenger_select_tenant_required' => 'Please select a store to view Messenger data.',
+    'messenger_tenant_id' => 'Tenant ID',
+    'messenger_tenant_page_id' => 'Tenant Page ID',
+    'messenger_last_health_check' => 'Last Health Check',
+    'messenger_reprocess_webhook' => 'Reprocess',
+    'messenger_reprocess_webhook_confirm' => 'Retry processing this webhook using the saved original payload.',
+    'messenger_reprocess_webhook_success' => 'Webhook queued for reprocessing',
+    'messenger_reprocess_webhook_failed' => 'Could not reprocess webhook',
+    'messenger_reprocess_webhook_unavailable' => 'This webhook cannot be reprocessed because the original payload is missing or the event type does not support retry.',
 
 ];
