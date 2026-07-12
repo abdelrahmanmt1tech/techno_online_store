@@ -44,6 +44,31 @@ class MessengerWebhookEvent extends Model
         ];
     }
 
+    public function reprocessablePayload(): ?array
+    {
+        $payload = $this->original_payload ?? $this->payload;
+
+        return is_array($payload) ? $payload : null;
+    }
+
+    public function canReprocess(): bool
+    {
+        if ($this->event_type === 'invalid_signature') {
+            return false;
+        }
+
+        if (! in_array($this->processing_status, [
+            MessengerWebhookProcessingStatus::Failed,
+            MessengerWebhookProcessingStatus::Unresolved,
+        ], true)) {
+            return false;
+        }
+
+        $payload = $this->reprocessablePayload();
+
+        return is_array($payload) && ($payload['entry'] ?? []) !== [];
+    }
+
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);

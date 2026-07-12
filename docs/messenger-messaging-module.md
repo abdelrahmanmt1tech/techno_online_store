@@ -2,7 +2,7 @@
 
 Developer handoff document for the **Facebook Messenger** CRM channel in the Techno Online Store multi-tenant platform.
 
-**Status:** Phase **A complete** (schema/models/registry/permissions). Phases B–G not started.  
+**Status:** Phase **B complete** (webhook receive pipeline). Phases C–G not started.  
 **Branch:** `feature/messenger-integration`  
 **Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes.
 
@@ -12,8 +12,39 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-12 | Phase B implemented: Messenger webhook routes/controller, signature verify, central event store, `ProcessMessengerWebhookJob`, page_id resolver, inbound text processor (contact/conversation/message + 24h window), diagnostics statuses, Phase B tests. No send/UI/OAuth. |
 | 2026-07-12 | Phase A implemented: central/tenant migrations, models, enums, registry sync observer, permission keys, Phase A tests. No webhooks/UI/send yet. |
 | 2026-07-12 | Full Messenger implementation plan documented. No application code. Awaiting separate approval before Phase A (schema). |
+
+---
+
+## Phase B delivered
+
+### Routes (`routes/web.php`)
+- `GET /webhooks/meta/messenger` — Meta verification (`hub.mode` / `hub.verify_token` / `hub.challenge`, underscore fallback)
+- `POST /webhooks/meta/messenger` — receive + enqueue processing
+
+### Controller
+- `App\Http\Controllers\MessengerWebhookController`
+- Verify token from `MESSENGER_WEBHOOK_VERIFY_TOKEN` (`config/messenger.php`)
+- POST verifies `X-Hub-Signature-256` with `META_APP_SECRET`
+- Invalid signature → central event `rejected`, HTTP 403
+- Valid body → store `messenger_webhook_events` (`pending`), dispatch job, HTTP 200
+
+### Job / resolver / inbound
+- `App\Messenger\Jobs\ProcessMessengerWebhookJob`
+- `App\Messenger\Services\MessengerWebhookResolver` — resolve tenant by `page_id` from `messenger_page_registry` only (never trust payload `tenant_id`)
+- `App\Messenger\Actions\ProcessInboundMessengerMessageAction` (+ upsert contact, find/create conversation, open 24h window, registry sync)
+- Idempotent on `provider_message_id` (`message.mid`)
+- Statuses: `pending`, `processed`, `failed`, `unresolved`, `rejected`
+- Unresolved unknown `page_id`; failed stores safe `error_message`; payloads redacted per retention
+
+### Config / env
+- `config/messenger.php`
+- `MESSENGER_WEBHOOK_VERIFY_TOKEN`, `MESSENGER_ALLOW_UNSIGNED_WEBHOOKS`, shared `META_APP_SECRET`
+
+### Not in Phase B
+Send API, outbound replies, Filament inbox/pages, Facebook Login, Instagram, Orders, campaigns, WhatsApp changes.
 
 ---
 
@@ -383,7 +414,7 @@ Do **not** create Instagram tables or routes in this initiative.
 | Phase | Scope | Exit criteria |
 |---|---|---|
 | ~~**A**~~ | ~~Migrations, enums, models, observer + registry sync, permission keys~~ | **Done** |
-| **B** | Routes, controller, signature/verify, job, inbound processor, contact upsert, window | Webhook → tenant message |
+| ~~**B**~~ | ~~Routes, controller, signature/verify, job, inbound processor, contact upsert, window~~ | **Done** |
 | **C** | Graph send service, send action, 24h policy, outbound persistence | Reply inside window; outside blocked |
 | **D** | Tenant Filament Pages + Inbox + Webhook events | Merchant connect + chat |
 | **E** | Admin registry + webhook events + inbox with tenant selector | Support without central ops inbox |
@@ -391,7 +422,7 @@ Do **not** create Instagram tables or routes in this initiative.
 | **G** | Facebook Login + page picker + subscribe (later) | Self-serve connect; manual remains |
 
 **Execution rule:** One phase at a time. After each phase: update this document (including Changelog) and run tests.  
-**Current gate:** Phase A complete. **Do not start Phase B until separately approved.**
+**Current gate:** Phase B complete. **Do not start Phase C until separately approved.**
 
 ---
 
@@ -448,13 +479,13 @@ tests/Unit/Messenger/...
 
 | Item | Status |
 |---|---|
-| Messenger module | **Phase A complete** |
-| Implementation | Schema/models/registry/permissions done; no webhooks/UI yet |
-| Phase B (webhooks) | **Blocked** until separate approval |
+| Messenger module | **Phase B complete** |
+| Implementation | Webhook receive pipeline done; no send/UI/OAuth yet |
+| Phase C (send) | **Blocked** until separate approval |
 | WhatsApp module | **Unchanged** — separate channel |
 | Instagram | **Not in scope** |
 | Orders / campaigns | **Not in scope** |
 
 ---
 
-*Document version: 2026-07-12 — Phase A. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: 2026-07-12 — Phase B. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
