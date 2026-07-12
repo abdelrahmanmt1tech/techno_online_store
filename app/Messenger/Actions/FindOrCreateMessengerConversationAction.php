@@ -32,7 +32,11 @@ class FindOrCreateMessengerConversationAction
             $updates['contact_id'] = $contactId;
         }
 
-        if ($customerName && blank($conversation->customer_name)) {
+        if ($customerName && (
+            blank($conversation->customer_name)
+            || $conversation->customer_name === $senderPsid
+            || $conversation->customer_name !== $customerName
+        )) {
             $updates['customer_name'] = $customerName;
         }
 

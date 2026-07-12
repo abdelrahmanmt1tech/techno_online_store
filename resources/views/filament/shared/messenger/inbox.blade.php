@@ -33,7 +33,9 @@
                     <div class="wa-conversation-header__phone">
                         {{ __('dashboard.messenger_page') }}:
                         {{ $conversation->messengerPage?->page_name ?: $conversation->messengerPage?->page_id ?: '—' }}
-                        · PSID: {{ $conversation->sender_psid }}
+                        @if (filled($conversation->customer_name ?: $conversation->contact?->profile_name))
+                            · PSID: {{ $conversation->sender_psid }}
+                        @endif
                     </div>
                 </div>
                 <div class="wa-window-status">

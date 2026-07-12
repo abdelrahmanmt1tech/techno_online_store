@@ -7,10 +7,12 @@ use App\Messenger\Enums\MessengerMessageDirection;
 use App\Messenger\Enums\MessengerMessageSenderType;
 use App\Messenger\Enums\MessengerMessageStatus;
 use App\Messenger\Enums\MessengerMessageType;
+use App\Messenger\Services\MessengerUserProfileService;
 use App\Models\Tenant\MessengerMessage;
 use App\Models\Tenant\MessengerPage;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Throwable;
 
 class ProcessInboundMessengerMessageAction
 {
@@ -19,6 +21,7 @@ class ProcessInboundMessengerMessageAction
         protected FindOrCreateMessengerConversationAction $findOrCreateConversation,
         protected OpenMessengerServiceWindowAction $openWindow,
         protected SyncMessengerPageRegistryAction $syncRegistry,
+        protected MessengerUserProfileService $userProfile,
     ) {}
 
     /**
@@ -53,10 +56,41 @@ class ProcessInboundMessengerMessageAction
         }
 
         $receivedAt = $this->parseTimestamp($messaging['timestamp'] ?? null);
-        $profileName = Arr::get($messaging, 'sender.name');
+        $webhookName = Arr::get($messaging, 'sender.name');
+        $webhookName = is_string($webhookName) && trim($webhookName) !== '' ? trim($webhookName) : null;
 
-        $contact = $this->upsertContact->execute($senderPsid, is_string($profileName) ? $profileName : null, $receivedAt);
-        $conversation = $this->findOrCreateConversation->execute($page, $senderPsid, $contact->id, $contact->profile_name);
+        $profileName = $webhookName;
+        $profilePictureUrl = null;
+
+        try {
+            $profile = $this->userProfile->fetch($page, $senderPsid);
+
+            if ($profile !== null) {
+                if ($profile->hasDisplayName()) {
+                    $profileName = $profile->profileName;
+                }
+
+                if (filled($profile->profilePictureUrl)) {
+                    $profilePictureUrl = $profile->profilePictureUrl;
+                }
+            }
+        } catch (Throwable) {
+            // Profile lookup must never fail inbound processing.
+        }
+
+        $contact = $this->upsertContact->execute(
+            $senderPsid,
+            $profileName,
+            $receivedAt,
+            $profilePictureUrl,
+        );
+
+        $conversation = $this->findOrCreateConversation->execute(
+            $page,
+            $senderPsid,
+            $contact->id,
+            $contact->profile_name,
+        );
         $this->openWindow->execute($conversation, $receivedAt);
 
         [$type, $body, $mediaMetadata] = $this->parseMessageContent($message);
@@ -80,6 +114,7 @@ class ProcessInboundMessengerMessageAction
             'last_message_at' => $receivedAt,
             'status' => MessengerConversationStatus::Open,
             'contact_id' => $contact->id,
+            'customer_name' => $contact->profile_name ?: $conversation->customer_name,
         ]);
 
         $page->update(['last_inbound_at' => $receivedAt]);
