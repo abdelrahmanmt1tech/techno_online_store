@@ -2,7 +2,7 @@
 
 Developer handoff document for the **Facebook Messenger** CRM channel in the Techno Online Store multi-tenant platform.
 
-**Status:** Phase **C complete** (outbound text send + 24h policy). Phases D–G not started.  
+**Status:** Phase **D complete** (tenant Filament Pages + Inbox + Webhooks). Phases E–G not started.  
 **Branch:** `feature/messenger-integration`  
 **Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes.
 
@@ -12,10 +12,36 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-12 | Phase D implemented: tenant Filament `MessengerPageResource`, `MessengerInboxPage`, `MessengerWebhookEventResource` (tenant-scoped, read-only). Manual page connect with masked token; inbox reply via Phase C send + 24h policy. No Admin UI / OAuth. |
 | 2026-07-12 | Phase C implemented: `MessengerGraphApiService`, `MessengerSendingPolicyService`, `SendMessengerTextMessageAction` (text only, 24h window, auth → reconnect_required). No Filament UI / OAuth / tags / campaigns. API request DB logging skipped. |
 | 2026-07-12 | Phase B implemented: Messenger webhook routes/controller, signature verify, central event store, `ProcessMessengerWebhookJob`, page_id resolver, inbound text processor (contact/conversation/message + 24h window), diagnostics statuses, Phase B tests. No send/UI/OAuth. |
 | 2026-07-12 | Phase A implemented: central/tenant migrations, models, enums, registry sync observer, permission keys, Phase A tests. No webhooks/UI/send yet. |
 | 2026-07-12 | Full Messenger implementation plan documented. No application code. Awaiting separate approval before Phase A (schema). |
+
+---
+
+## Phase D delivered
+
+### Tenant Filament UI
+- **Pages:** `App\Filament\Tenant\Resources\MessengerPages\MessengerPageResource` (+ Create/Edit/List)
+  - Manual connect: `page_id`, `page_name`, `page_access_token` (password, never revealed full), status, webhook_status, is_default, is_active
+  - Diagnostics (edit): last inbound/outbound/error, connected/disconnected/reconnect timestamps
+  - Empty token on edit keeps existing encrypted token; registry sync via existing observer (no token centrally)
+  - Actions: set default, disable, disconnect (keeps conversations/messages)
+- **Inbox:** `App\Filament\Tenant\Pages\MessengerInboxPage` + shared concern/view
+  - Conversation list + thread; page name; PSID/profile name; 24h open/closed badge
+  - Reply only when `MessengerSendingPolicyService` allows; uses `SendMessengerTextMessageAction`
+  - Outside window: clear alert, **no Graph call**; no tags/campaigns/attachments/cold outbound
+- **Webhooks:** `App\Filament\Tenant\Resources\MessengerWebhookEvents\MessengerWebhookEventResource`
+  - Central `MessengerWebhookEvent` filtered to current `tenant_id`; read-only; filters status/page_id/event_type
+
+### Shared / nav
+- `App\Filament\Shared\Messenger\...` (form, tables, permission + inbox concerns)
+- Navigation group `dashboard.messenger_group` (sort 50–52); WhatsApp nav untouched
+- Permissions: `messenger.view_pages`, `manage_pages`, `view_inbox`, `send_messages`, `view_webhook_events` (bypass respected via `ChecksMessengerPermissions` / Gate)
+
+### Not in Phase D
+Admin Messenger UI, Facebook Login, reprocess webhook action, Instagram, Orders, campaigns, WhatsApp changes.
 
 ---
 
@@ -308,7 +334,7 @@ Subscribe Page fields (Meta App Dashboard): at minimum `messages`; add deliverie
 6. Persist outbound message; update conversation; sync registry metadata (no token centrally)
 7. Auth failures → `reconnect_required` + `reconnect_required_at` (never log the token)
 
-Reply-page switching and inbox UX land in Phase D+.
+Reply-page switching remains a later enhancement; tenant inbox UX is delivered in Phase D (text replies only).
 
 ---
 
@@ -443,13 +469,13 @@ Do **not** create Instagram tables or routes in this initiative.
 | ~~**A**~~ | ~~Migrations, enums, models, observer + registry sync, permission keys~~ | **Done** |
 | ~~**B**~~ | ~~Routes, controller, signature/verify, job, inbound processor, contact upsert, window~~ | **Done** |
 | ~~**C**~~ | ~~Graph send service, send action, 24h policy, outbound persistence~~ | **Done** |
-| **D** | Tenant Filament Pages + Inbox + Webhook events | Merchant connect + chat |
+| ~~**D**~~ | ~~Tenant Filament Pages + Inbox + Webhook events~~ | **Done** |
 | **E** | Admin registry + webhook events + inbox with tenant selector | Support without central ops inbox |
 | **F** | Full tests + doc polish + staging checklist | Green tests; docs current |
 | **G** | Facebook Login + page picker + subscribe (later) | Self-serve connect; manual remains |
 
 **Execution rule:** One phase at a time. After each phase: update this document (including Changelog) and run tests.  
-**Current gate:** Phase C complete. **Do not start Phase D until separately approved.**
+**Current gate:** Phase D complete. **Do not start Phase E until separately approved.**
 
 ---
 
@@ -506,13 +532,13 @@ tests/Unit/Messenger/...
 
 | Item | Status |
 |---|---|
-| Messenger module | **Phase C complete** |
-| Implementation | Inbound webhooks + outbound text send (service layer); no Filament UI/OAuth yet |
-| Phase D (Filament) | **Blocked** until separate approval |
+| Messenger module | **Phase D complete** |
+| Implementation | Tenant Pages + Inbox + Webhook viewer; send uses Phase C services. No Admin UI/OAuth yet |
+| Phase E (Admin UI) | **Blocked** until separate approval |
 | WhatsApp module | **Unchanged** — separate channel |
 | Instagram | **Not in scope** |
 | Orders / campaigns | **Not in scope** |
 
 ---
 
-*Document version: 2026-07-12 — Phase C. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: 2026-07-12 — Phase D. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
