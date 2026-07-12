@@ -848,7 +848,7 @@ After the full module was implemented across all planned phases, implementation 
 
 ### Final test result
 
-**32/32 tests passing**
+**32/32 tests passing** (historical post-freeze count; current suite is **36/36**)
 
 ---
 
@@ -864,6 +864,8 @@ After the full module was implemented across all planned phases, implementation 
 - **Media upload/download** beyond storing inbound metadata is not complete
 - **Campaigns / bulk sending** not implemented
 - **Opt-in / consent management** not implemented
+- **Order-status WhatsApp notifications** — **postponed** (after Onboarding + Orders); see §21
+- **Onboarding / Embedded Signup / Coexistence** — **next planned phase**; see §21
 - **Messenger** and **Instagram** messaging not implemented
 - **Central global conversation search/index** not implemented
 - **Platform billing** not implemented (billing is customer-direct to Meta)
@@ -872,22 +874,76 @@ After the full module was implemented across all planned phases, implementation 
 
 ## 21. Future roadmap
 
-Suggested phases for future work:
+### Next planned phase — WhatsApp Onboarding / Connection Methods
 
-1. **Embedded Signup / OAuth onboarding** — self-service merchant connection
-2. **Coexistence support** — WhatsApp Business app + Cloud API
-3. ~~**Template sync and submission to Meta**~~ — sync **done**; submission still TODO
-4. **Media handling** — download/store outbound media, upload attachments
-5. **Opt-in and consent management** — required before proactive/campaign template sends
-6. **Campaigns and bulk messaging** — segmented sends with policy enforcement
-7. **WhatsApp Flows** — structured interactive flows
-8. **Messenger integration**
-9. **Instagram Messaging integration**
-10. **Central reporting / optional conversation index** — if platform-wide analytics needed
-11. **Billing reports and usage ledger** — only if platform billing model changes
+**Status:** Phase **A complete** (schema + enums + docs). Phases B–F not started.
+
+**Purpose:** Finish WhatsApp as a standalone CRM + messaging module. Each tenant will choose a connection method:
+
+1. **API Only** — implement Embedded Signup **before** Coexistence
+2. **WhatsApp Business App + Cloud API Coexistence** — later phase
+
+**Manual connection remains fully supported** for admins/developers (staging and production). Existing Filament number CRUD is unchanged.
+
+#### Phase A delivered (this release)
+
+| Item | Detail |
+|---|---|
+| Enums | `WhatsAppConnectionMethod`, `WhatsAppOnboardingStatus`, `WhatsAppTokenSource` |
+| Tenant columns | `connection_method`, `onboarding_status`, `coexistence_enabled`, `business_app_number`, `token_source`, `last_onboarding_error`, `connected_at`, `disconnected_at`, `reconnect_required_at` |
+| Backfill | Existing rows → `manual_api_only` / `manual` / `completed` (or `disconnected` if inactive) / `connected_at ≈ created_at` |
+| Central registry mirror | Non-sensitive only: `connection_method`, `onboarding_status`, `coexistence_enabled` (no tokens) |
+| Defaults | New manual numbers default to completed onboarding + manual token source |
+
+#### Connection methods
+
+| Value | Meaning |
+|---|---|
+| `manual_api_only` | Current working path — paste phone_number_id, WABA ID, access token |
+| `embedded_signup_api_only` | Future — Embedded Signup, Cloud API only |
+| `embedded_signup_coexistence` | Future — Business App + Cloud API |
+
+#### Implementation order (when coding continues)
+
+| Phase | Scope |
+|---|---|
+| ~~A~~ | ~~Additive schema + enums + docs~~ **done** |
+| B | Tenant Connect WhatsApp UI skeleton (method choice); keep Create manual |
+| C | Embedded Signup **API Only** (code → token → WABA/phones) |
+| D | WABA webhook subscription + number import + registry sync |
+| E | Coexistence onboarding + flags |
+| F | Tests + docs |
+
+**Out of scope until later phases:** Embedded Signup JS/OAuth, Coexistence flow, Tech Provider, campaigns, Orders, queue architecture changes.
+
+**CRM messaging policy (unchanged; UI enforcement later):**
+
+- Cold numbers / closed 24h window → **approved templates only** (template-first UI in a later phase)
+- Freeform text only inside an open customer service window
+- Do not bypass WhatsApp policy for marketing outreach
+
+#### Staging note
+
+Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefinitely while onboarding UI is built.
+### Postponed — Order-status WhatsApp notifications
+
+**Status:** Plan approved earlier; **postponed** until after Onboarding and until Orders domain exists.
+
+**When resumed:** Utility templates only (`confirmed` / `processing` / `shipped` / `delivered` / `cancelled`). MVP = one status (e.g. shipped) + one template + idempotent log + `SendWhatsAppTemplateMessageAction`.
+
+### Longer-term roadmap (not next)
+
+1. ~~Embedded Signup / Coexistence onboarding~~ — **next phase above**
+2. ~~Template sync from Meta~~ — sync **done**; submission to Meta still TODO
+3. Media handling
+4. Opt-in / consent (before campaigns)
+5. Campaigns / bulk messaging
+6. Order-status Utility notifications — after Orders + onboarding MVP
+7. WhatsApp Flows
+8. Messenger / Instagram
+9. Central reporting / billing ledger (only if billing model changes)
 
 ---
-
 ## 22. Operational notes
 
 - The webhook endpoint is **global** — never create one webhook URL per tenant in Meta
@@ -910,11 +966,13 @@ Suggested phases for future work:
 | Feature | Suggested location |
 |---|---|
 | Embedded Signup / OAuth | New `app/WhatsApp/Onboarding/` actions + Filament connect wizard; token still saved via `WhatsAppNumber` model |
-| Template sync from Meta | New `SyncWhatsAppTemplatesFromMetaAction` + scheduled job; write to tenant `whatsapp_templates` |
+| Template sync from Meta | `SyncWhatsAppTemplatesFromMetaAction` — **implemented** |
 | Template submission | New action calling Graph API template **create** endpoints |
 | Contacts UI | `WhatsAppContactResource` + `SendWhatsAppMessageFilamentAction` — **implemented** |
 | Media download/upload | Extend `ProcessInboundMessageAction` + `WhatsAppCloudApiService` media methods |
 | Opt-in checks | Extend `WhatsAppSendingPolicyService::canSendTemplate()` before campaign sends |
+| Order-status Utility notifications | **Postponed.** After Onboarding + Orders. Thin action wrapping `SendWhatsAppTemplateMessageAction`; Utility-category guard |
+| Onboarding / Embedded Signup / Coexistence | **Next phase.** `app/WhatsApp/Onboarding/`; additive fields on `whatsapp_numbers`; keep manual CRUD |
 
 ### Rules for maintainers
 
@@ -947,8 +1005,12 @@ Suggested phases for future work:
 | Staging end-to-end (manual Cloud API) | **Working** — CRM send, inbound webhook → inbox, 24h window open/close, token refresh after expiry |
 | Staging queue | **`QUEUE_CONNECTION=sync`** (intentional; no worker) |
 | Production queue | **Recommended later:** `database` or `redis` + supervisor — not required while staging stays on `sync` |
+| Manual Cloud API integration | **Complete and stabilized on staging** |
+| Onboarding Phase A (schema/enums) | **Done** — manual connection unchanged |
+| Next WhatsApp implementation | **Phase B** — Connect WhatsApp UI skeleton (API Only before Coexistence) |
+| Order-status notifications | **Postponed** until after Onboarding and Orders domain |
 | Production readiness | **Stabilized for staging**; production hardening = queue worker + permissions (`BYPASS_PERMISSIONS=false`) + optional Graph API bump to `v25.0` |
 
 ---
 
-*Document version: reflects implementation through July 2026 stabilization (manual Cloud API E2E working on staging with `QUEUE_CONNECTION=sync`). Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: reflects WhatsApp manual Cloud API completion on staging (July 2026). Next WhatsApp work waits for Orders. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

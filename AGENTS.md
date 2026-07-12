@@ -75,7 +75,7 @@
 
 | Document | Purpose |
 |---|---|
-| [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md) | WhatsApp module — architecture, webhooks, sending, Filament UI, setup |
+| [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md) | WhatsApp module. Manual Cloud API **complete**. Onboarding **Phase A** (schema/enums) done; Phase B+ not started. Orders notifications postponed — see §21 |
 | [`docs/deployment-cwp.md`](deployment-cwp.md) | GitHub Actions deploy to CWP production server |
 
 ## Tenancy — tenant database naming

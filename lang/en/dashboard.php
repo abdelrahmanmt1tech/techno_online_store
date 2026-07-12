@@ -299,6 +299,22 @@ return [
     'whatsapp_conversation_pending' => 'Pending',
     'whatsapp_conversation_closed' => 'Closed',
 
+    // WhatsApp onboarding (Phase A schema — UI later)
+    'whatsapp_connection_method_manual_api_only' => 'Manual API only',
+    'whatsapp_connection_method_embedded_signup_api_only' => 'Embedded Signup (API only)',
+    'whatsapp_connection_method_embedded_signup_coexistence' => 'WhatsApp Business App + Cloud API',
+    'whatsapp_onboarding_status_not_started' => 'Not started',
+    'whatsapp_onboarding_status_in_progress' => 'In progress',
+    'whatsapp_onboarding_status_awaiting_phone_selection' => 'Awaiting phone selection',
+    'whatsapp_onboarding_status_subscribing_webhooks' => 'Subscribing webhooks',
+    'whatsapp_onboarding_status_completed' => 'Completed',
+    'whatsapp_onboarding_status_failed' => 'Failed',
+    'whatsapp_onboarding_status_disconnected' => 'Disconnected',
+    'whatsapp_token_source_manual' => 'Manual',
+    'whatsapp_token_source_embedded_signup' => 'Embedded Signup',
+    'whatsapp_token_source_system_user' => 'System user',
+    'whatsapp_token_source_unknown' => 'Unknown',
+
     // WhatsApp logs & interpretation
     'whatsapp_api_requests' => 'Outgoing API Log',
     'whatsapp_api_request' => 'Outgoing API Request',

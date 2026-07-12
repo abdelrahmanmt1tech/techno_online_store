@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\WhatsApp\Enums\WhatsAppConnectionMethod;
 use App\WhatsApp\Enums\WhatsAppConnectionStatus;
+use App\WhatsApp\Enums\WhatsAppOnboardingStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
@@ -20,6 +22,9 @@ class WhatsAppNumberRegistry extends Model
         'phone_number_id',
         'whatsapp_business_account_id',
         'business_name',
+        'connection_method',
+        'onboarding_status',
+        'coexistence_enabled',
         'status',
         'webhook_status',
         'is_default',
@@ -33,7 +38,10 @@ class WhatsAppNumberRegistry extends Model
     protected function casts(): array
     {
         return [
+            'connection_method' => WhatsAppConnectionMethod::class,
+            'onboarding_status' => WhatsAppOnboardingStatus::class,
             'status' => WhatsAppConnectionStatus::class,
+            'coexistence_enabled' => 'boolean',
             'is_default' => 'boolean',
             'is_active' => 'boolean',
             'last_inbound_at' => 'datetime',

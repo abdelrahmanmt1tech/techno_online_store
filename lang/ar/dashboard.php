@@ -299,6 +299,22 @@ return [
     'whatsapp_conversation_pending' => 'قيد الانتظار',
     'whatsapp_conversation_closed' => 'مغلقة',
 
+    // WhatsApp onboarding (Phase A schema — UI later)
+    'whatsapp_connection_method_manual_api_only' => 'API يدوي فقط',
+    'whatsapp_connection_method_embedded_signup_api_only' => 'Embedded Signup (API فقط)',
+    'whatsapp_connection_method_embedded_signup_coexistence' => 'تطبيق واتساب للأعمال + Cloud API',
+    'whatsapp_onboarding_status_not_started' => 'لم يبدأ',
+    'whatsapp_onboarding_status_in_progress' => 'قيد التنفيذ',
+    'whatsapp_onboarding_status_awaiting_phone_selection' => 'بانتظار اختيار الرقم',
+    'whatsapp_onboarding_status_subscribing_webhooks' => 'جارٍ الاشتراك في الويب هوك',
+    'whatsapp_onboarding_status_completed' => 'مكتمل',
+    'whatsapp_onboarding_status_failed' => 'فشل',
+    'whatsapp_onboarding_status_disconnected' => 'مفصول',
+    'whatsapp_token_source_manual' => 'يدوي',
+    'whatsapp_token_source_embedded_signup' => 'Embedded Signup',
+    'whatsapp_token_source_system_user' => 'مستخدم نظام',
+    'whatsapp_token_source_unknown' => 'غير معروف',
+
     // WhatsApp logs & interpretation
     'whatsapp_api_requests' => 'سجل الطلبات الصادرة',
     'whatsapp_api_request' => 'طلب صادر',
