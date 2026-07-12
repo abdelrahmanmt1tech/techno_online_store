@@ -51,6 +51,7 @@ class SendMessengerTextMessageAction
         ]);
 
         $response = $this->graphApi->sendText($page, $conversation->sender_psid, $body);
+        $this->graphApi->attachLastLoggedRequestToMessage($message->id);
 
         if ($response->failed()) {
             $this->handleApiFailure($page, $message, $response);
