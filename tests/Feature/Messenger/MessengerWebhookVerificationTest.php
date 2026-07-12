@@ -26,4 +26,30 @@ class MessengerWebhookVerificationTest extends MessengerTestCase
         $response->assertOk();
         $response->assertSee('54321');
     }
+
+    public function test_webhook_verification_trims_configured_and_received_tokens(): void
+    {
+        config(['messenger.webhook_verify_token' => ' messenger-test-verify-token ']);
+
+        $response = $this->get('/webhooks/meta/messenger?hub.mode=subscribe&hub.verify_token=messenger-test-verify-token&hub.challenge=99999');
+
+        $response->assertOk();
+        $response->assertSee('99999');
+    }
+
+    public function test_webhook_verification_fails_when_configured_token_is_empty(): void
+    {
+        config(['messenger.webhook_verify_token' => '']);
+
+        $response = $this->get('/webhooks/meta/messenger?hub.mode=subscribe&hub.verify_token=anything&hub.challenge=12345');
+
+        $response->assertForbidden();
+    }
+
+    public function test_webhook_verification_fails_when_mode_is_not_subscribe(): void
+    {
+        $response = $this->get('/webhooks/meta/messenger?hub.mode=unsubscribe&hub.verify_token=messenger-test-verify-token&hub.challenge=12345');
+
+        $response->assertForbidden();
+    }
 }

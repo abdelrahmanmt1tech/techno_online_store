@@ -76,7 +76,7 @@
 | Document | Purpose |
 |---|---|
 | [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md) | WhatsApp module. Manual Cloud API **complete**. Onboarding **Phase A** (schema/enums) done; Phase B+ blocked on Meta verification. Orders notifications postponed — see §21 |
-| [`docs/messenger-messaging-module.md`](messenger-messaging-module.md) | Messenger module. **Phase A complete** (schema/registry/permissions). Phases B+ not started. Separate channel from WhatsApp |
+| [`docs/messenger-messaging-module.md`](messenger-messaging-module.md) | Messenger module. **Phases A–F complete** — manual integration ready for staging E2E. Phase G (Facebook Login) blocked. Separate channel from WhatsApp |
 | [`docs/deployment-cwp.md`](deployment-cwp.md) | GitHub Actions deploy to CWP production server |
 
 ## Tenancy — tenant database naming
