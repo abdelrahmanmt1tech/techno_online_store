@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Support / legal contact email
+    |--------------------------------------------------------------------------
+    |
+    | Used on public Privacy Policy, Terms of Service, and Data Deletion pages
+    | (Meta App Dashboard URLs). Override with SUPPORT_EMAIL when available.
+    |
+    */
+
+    'support_email' => env('SUPPORT_EMAIL', 'support@technowebmasr.com'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

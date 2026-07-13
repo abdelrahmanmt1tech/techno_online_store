@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LegalPageController;
 use App\Http\Controllers\MessengerOnboardingController;
 use App\Http\Controllers\MessengerWebhookController;
 use App\Http\Controllers\WhatsAppOnboardingController;
@@ -7,6 +8,14 @@ use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Middleware\EnsureMessengerOnboardingCentralDomain;
 use App\Http\Middleware\EnsureWhatsAppOnboardingCentralDomain;
 use Illuminate\Support\Facades\Route;
+
+/*
+| Public legal pages (central domain — no tenant middleware / no auth).
+| Required for Meta App Dashboard: Privacy Policy, Terms, Data Deletion.
+*/
+Route::get('/privacy-policy', [LegalPageController::class, 'privacyPolicy'])->name('legal.privacy');
+Route::get('/terms-of-service', [LegalPageController::class, 'termsOfService'])->name('legal.terms');
+Route::get('/data-deletion', [LegalPageController::class, 'dataDeletion'])->name('legal.data-deletion');
 
 Route::get('/webhooks/meta/whatsapp', [WhatsAppWebhookController::class, 'verify']);
 Route::post('/webhooks/meta/whatsapp', [WhatsAppWebhookController::class, 'receive']);
