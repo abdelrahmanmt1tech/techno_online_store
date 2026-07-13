@@ -48,7 +48,7 @@
         dt { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
         dd { margin: 0.15rem 0 0; font-weight: 600; word-break: break-all; }
         .actions { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
-        a.button {
+        a.button, button.button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -58,11 +58,18 @@
             font-weight: 600;
             background: var(--accent);
             color: white;
+            border: 0;
+            cursor: pointer;
+            font-size: 1rem;
         }
-        a.button.secondary {
+        a.button.secondary, button.button.secondary {
             background: transparent;
             color: var(--text);
             border: 1px solid var(--border);
+        }
+        button.button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         code { font-size: 0.875rem; background: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 0.25rem; }
     </style>

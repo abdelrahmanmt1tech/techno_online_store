@@ -18,4 +18,6 @@ Route::prefix('whatsapp/onboarding')
         Route::get('start', [WhatsAppOnboardingController::class, 'start'])->name('whatsapp.onboarding.start');
         Route::get('callback', [WhatsAppOnboardingController::class, 'callback'])->name('whatsapp.onboarding.callback');
         Route::get('status', [WhatsAppOnboardingController::class, 'status'])->name('whatsapp.onboarding.status');
+        Route::post('complete', [WhatsAppOnboardingController::class, 'complete'])->name('whatsapp.onboarding.complete');
+        Route::post('finalize', [WhatsAppOnboardingController::class, 'finalize'])->name('whatsapp.onboarding.finalize');
     });

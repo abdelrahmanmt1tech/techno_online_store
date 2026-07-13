@@ -18,6 +18,10 @@
                 <dd>{{ $state->connectionMethod->label() }}</dd>
             </div>
             <div>
+                <dt>{{ __('dashboard.whatsapp_onboarding_status_value') }}</dt>
+                <dd>{{ $session?->status ?: __('dashboard.whatsapp_onboarding_result_not_started') }}</dd>
+            </div>
+            <div>
                 <dt>{{ __('dashboard.whatsapp_onboarding_received_query_keys') }}</dt>
                 <dd>
                     @forelse ($receivedKeys as $key)
@@ -30,7 +34,10 @@
         </dl>
 
         <div class="actions">
-            <a class="button" href="{{ $state->returnUrl }}">{{ __('dashboard.whatsapp_onboarding_return_tenant') }}</a>
+            <a class="button" href="{{ route('whatsapp.onboarding.status', ['state' => request('state')]) }}">
+                {{ __('dashboard.whatsapp_onboarding_status_title') }}
+            </a>
+            <a class="button secondary" href="{{ $state->returnUrl }}">{{ __('dashboard.whatsapp_onboarding_return_tenant') }}</a>
         </div>
     </div>
 @endsection
