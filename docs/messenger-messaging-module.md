@@ -12,6 +12,7 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-13 | Meta App readiness: public central-domain Privacy Policy, Terms of Service, and Data Deletion pages (`/privacy-policy`, `/terms-of-service`, `/data-deletion`) + App Domains / OAuth / legal URL checklist. No Messenger onboarding logic changes. |
 | 2026-07-13 | Phase G implemented: Facebook Login for Business + Page picker + automatic Page `subscribed_apps`; Connect Messenger tenant UI (manual remains); central onboarding routes; encrypted onboarding sessions; docs + Phase G tests. Instagram/Orders/campaigns still out of scope. |
 | 2026-07-12 | Staging E2E confirmed: Page webhook inbound, contact profile lookup, CRM inbox customer name, CRM reply inside 24h window, admin diagnostics for processed events. Phase G still not started. |
 | 2026-07-12 | Feature: tenant Outgoing API Log for Messenger (`messenger_api_requests`) — status explanation, request payload, Meta response; inbox shows contact profile picture with initials fallback. |
@@ -714,6 +715,20 @@ tests/Unit/Messenger/...
 3. Verify token: same value as `MESSENGER_WEBHOOK_VERIFY_TOKEN`
 4. Subscribe webhook fields: at minimum `messages`
 5. Complete GET verification (Meta “Verify and save”)
+
+### Meta App Dashboard readiness (Facebook Login / App settings)
+
+Use the **central domain** for App Domains, OAuth redirect, and legal URLs:
+
+| Setting | Value |
+|---|---|
+| **App Domains** | `online-store.technomasrsystems.com` |
+| **Valid OAuth Redirect URI** | `https://online-store.technomasrsystems.com/messenger/onboarding/callback` |
+| **Privacy Policy URL** | `https://online-store.technomasrsystems.com/privacy-policy` |
+| **Terms of Service URL** | `https://online-store.technomasrsystems.com/terms-of-service` |
+| **Data Deletion URL** | `https://online-store.technomasrsystems.com/data-deletion` |
+
+Public legal pages are served from central `routes/web.php` (no tenant middleware, no auth). Contact email defaults to `support@technowebmasr.com` (`SUPPORT_EMAIL` / `config('app.support_email')`).
 
 ### Connect a Facebook Page (manual MVP)
 1. In Meta: create/own a Facebook Page; generate a **long-lived Page access token** with messaging permissions.
