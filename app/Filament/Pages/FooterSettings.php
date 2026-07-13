@@ -71,16 +71,19 @@ class FooterSettings extends Page
                     Section::make(__('dashboard.footer_content_section'))
                         ->columns(2)
                         ->schema([
-                            FileUpload::make('footer_logo')
-                                ->label(__('dashboard.footer_settings.logo'))
-                                ->image()
-                                ->directory('footer'),
 
                             RichEditor::make('footer_description_ar')
                                 ->label(__('dashboard.footer_settings.description_ar')),
 
                             RichEditor::make('footer_description_en')
                                 ->label(__('dashboard.footer_settings.description_en')),
+                                
+                            FileUpload::make('footer_logo')
+                                ->label(__('dashboard.footer_settings.logo'))
+                                ->image()
+                                ->directory('footer')
+                                ->columnSpanFull(),
+
                         ])
                         ->icon(Heroicon::Photo)
                         ->columnSpanFull(),
@@ -134,7 +137,7 @@ class FooterSettings extends Page
                                 ->submit('save')
                                 ->label(__('dashboard.save'))
                                 ->keyBindings(['mod+s'])
-                                ->visible(fn () => Auth::user()->can('footer-settings.update')),
+                                ->visible(fn() => Auth::user()->can('footer-settings.update')),
                         ]),
                     ]),
             ])
@@ -180,9 +183,14 @@ class FooterSettings extends Page
     {
         $keys = [
             'footer_logo',
-            'footer_description_ar', 'footer_description_en',
-            'footer_facebook', 'footer_instagram', 'footer_tiktok',
-            'footer_youtube', 'footer_x', 'footer_linkedin',
+            'footer_description_ar',
+            'footer_description_en',
+            'footer_facebook',
+            'footer_instagram',
+            'footer_tiktok',
+            'footer_youtube',
+            'footer_x',
+            'footer_linkedin',
         ];
 
         $richEditorKeys = ['footer_description_ar', 'footer_description_en'];

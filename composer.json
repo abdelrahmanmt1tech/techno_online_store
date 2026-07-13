@@ -34,7 +34,8 @@
         },
         "files": [
             "app/Helper/PermissionsArray.php",
-            "app/Helper/TenantPermissionsArray.php"
+            "app/Helper/TenantPermissionsArray.php",
+            "app/Helper/SeoHelper.php"
         ]
     },
     "autoload-dev": {

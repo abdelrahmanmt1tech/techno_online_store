@@ -1,0 +1,241 @@
+{
+  "info": {
+    "name": "Techno Online Store - Frontend API",
+    "description": "Public API endpoints for the frontend (home page, themes, categories).\n\nBase URL: {{base_url}}/api\n\nSet `base_url` variable in Postman, e.g. `http://localhost:8000`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Home",
+      "item": [
+        {
+          "name": "Get Home Data",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/home",
+              "host": ["{{base_url}}"],
+              "path": ["api", "home"]
+            },
+            "description": "Returns all home page sections (intro, about, statistics, ai_services, plans, payment_gateways, shipping_companies, marketing_channels, training_support, faqs, have_question, contact_us, seo).\n\nRespects Accept-Language header for localization (ar/en).\n\nInactive sections return null."
+          },
+          "response": [
+            {
+              "name": "Example Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": {\n    \"intro\": {\n      \"title\": \"...\",\n      \"description\": \"...\",\n      \"image\": \"https://...\",\n      \"link\": \"https://...\"\n    },\n    \"about\": {\n      \"small_title\": \"...\",\n      \"main_title\": \"...\",\n      \"description\": \"...\",\n      \"features\": [\n        {\n          \"title\": \"...\",\n          \"description\": \"...\",\n          \"image\": \"https://...\"\n        }\n      ]\n    },\n    \"statistics\": { \"...\" },\n    \"ai_services\": { \"...\" },\n    \"plans\": { \"...\" },\n    \"payment_gateways\": { \"...\" },\n    \"shipping_companies\": { \"...\" },\n    \"marketing_channels\": { \"...\" },\n    \"training_support\": { \"...\" },\n    \"faqs\": { \"...\" },\n    \"have_question\": { \"...\" },\n    \"contact_us\": { \"...\" },\n    \"seo\": { \"...\" }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Themes",
+      "item": [
+        {
+          "name": "List Themes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/themes?category_id=&category_slug=&featured=&per_page=12&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "themes"],
+              "query": [
+                { "key": "category_id", "value": "", "description": "Filter by category ID" },
+                { "key": "category_slug", "value": "", "description": "Filter by category slug" },
+                { "key": "featured", "value": "", "description": "Filter featured only (1/0/true/false)" },
+                { "key": "per_page", "value": "12", "description": "Items per page (max 50)" },
+                { "key": "page", "value": "1", "description": "Page number" }
+              ]
+            },
+            "description": "Paginated themes list. Filterable by category_id, category_slug, featured."
+          },
+          "response": [
+            {
+              "name": "Example Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"...\",\n      \"description\": \"...\",\n      \"image\": \"https://...\",\n      \"price\": 199.99,\n      \"featured\": true,\n      \"categories\": [\n        { \"id\": 1, \"name\": \"...\", \"slug\": \"...\" }\n      ]\n    }\n  ],\n  \"extra\": {\n    \"section_title\": \"...\",\n    \"section_description\": \"...\"\n  },\n  \"meta\": {\n    \"current_page\": 1,\n    \"last_page\": 5,\n    \"per_page\": 12,\n    \"total\": 60\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            },
+            "description": "Returns all active categories (no pagination)."
+          },
+          "response": [
+            {
+              "name": "Example Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"...\",\n      \"slug\": \"...\",\n      \"image\": \"https://...\",\n      \"order\": 0\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Footer",
+      "item": [
+        {
+          "name": "Get Footer Data",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/footer",
+              "host": ["{{base_url}}"],
+              "path": ["api", "footer"]
+            },
+            "description": "Returns footer data (logo, description, social links). Respects Accept-Language header."
+          },
+          "response": [
+            {
+              "name": "Example Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": {\n    \"logo\": \"https://...\",\n    \"description\": \"...\",\n    \"social\": {\n      \"facebook\": \"https://facebook.com/...\",\n      \"instagram\": \"https://instagram.com/...\",\n      \"tiktok\": \"https://tiktok.com/...\",\n      \"youtube\": \"https://youtube.com/...\",\n      \"x\": \"https://x.com/...\",\n      \"linkedin\": \"https://linkedin.com/...\"\n    }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "item": [
+        {
+          "name": "Submit Contact Form",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/contact",
+              "host": ["{{base_url}}"],
+              "path": ["api", "contact"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"123456789\",\n  \"message\": \"Hello, I have a question.\"\n}"
+            },
+            "description": "Submit a contact message. No auth required."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Legal",
+      "item": [
+        {
+          "name": "Terms & Conditions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/terms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "terms"]
+            },
+            "description": "Returns terms & conditions content (localized via Accept-Language)."
+          },
+          "response": [
+            {
+              "name": "Example Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": {\n    \"content\": \"<p>Terms and conditions content...</p>\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Privacy Policy",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/privacy",
+              "host": ["{{base_url}}"],
+              "path": ["api", "privacy"]
+            },
+            "description": "Returns privacy policy content (localized via Accept-Language)."
+          },
+          "response": [
+            {
+              "name": "Example Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": {\n    \"content\": \"<p>Privacy policy content...</p>\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blog",
+      "item": [
+        {
+          "name": "List Blogs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/blogs?category_slug=&tag_slug=&search=&sort=published_at&direction=desc&per_page=12&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "blogs"],
+              "query": [
+                { "key": "category_slug", "value": "", "description": "Filter by category slug" },
+                { "key": "category_id", "value": "", "description": "Filter by category ID" },
+                { "key": "tag_slug", "value": "", "description": "Filter by tag slug" },
+                { "key": "tag_id", "value": "", "description": "Filter by tag ID" },
+                { "key": "search", "value": "", "description": "Search in title/description" },
+                { "key": "sort", "value": "published_at", "description": "published_at, views, or title" },
+                { "key": "direction", "value": "desc", "description": "asc or desc" },
+                { "key": "per_page", "value": "12", "description": "Items per page (max 50)" },
+                { "key": "page", "value": "1", "description": "Page number" }
+              ]
+            },
+            "description": "Paginated blog list with filtering and search."
+          },
+          "response": [
+            {
+              "name": "Example Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"extra\": [],\n  \"items\": [\n    {\n      \"id\": 1,\n      \"title\": \"...\",\n      \"slug\": \"...\",\n      \"description\": \"...\",\n      \"image\": null,\n      \"published_at\": \"2026-07-13T12:00:00+00:00\",\n      \"views_count\": 0,\n      \"categories\": [\n        { \"id\": 1, \"name\": \"...\", \"slug\": \"...\" }\n      ],\n      \"tags\": [\n        { \"id\": 1, \"name\": \"...\", \"slug\": \"...\" }\n      ]\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"last_page\": 1,\n    \"per_page\": 12,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Blog Detail",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/blogs/{slug}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "blogs", "{slug}"],
+              "variable": [
+                { "key": "slug", "value": "blog-slug" }
+              ]
+            },
+            "description": "Returns single blog with content, seo, faqs, and suggested blogs based on shared tags."
+          },
+          "response": [
+            {
+              "name": "Example Response",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": {\n    \"blog\": {\n      \"id\": 1,\n      \"title\": \"...\",\n      \"slug\": \"...\",\n      \"description\": \"...\",\n      \"image\": null,\n      \"published_at\": \"2026-07-13T12:00:00+00:00\",\n      \"views_count\": 0,\n      \"categories\": [],\n      \"tags\": [],\n      \"content\": \"<p>Full content...</p>\",\n      \"seo\": {\n        \"meta_title\": \"...\",\n        \"meta_description\": \"...\",\n        \"keywords\": [],\n        \"canonical_url\": null,\n        \"og_image\": null\n      },\n      \"faqs\": []\n    },\n    \"suggested\": []\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

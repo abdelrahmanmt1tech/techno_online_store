@@ -367,6 +367,7 @@ return [
         'item_icons' => 'الأيقونات',
         'item_icon' => 'الأيقونة',
         'add_icon' => 'إضافة أيقونة',
+        'link' => 'الرابط',
     ],
     // Have Question
     'nav_have_question' => 'لديك استفسار؟',
@@ -662,6 +663,7 @@ return [
     'suggestion' => 'اقتراح',
     'partnership' => 'شراكة',
     'subject' => 'الموضوع',
+    'message' => 'الرسالة',
     'attachment' => 'المرفق',
     'sender_name' => 'اسم المرسل',
     'sender_phone' => 'هاتف المرسل',

@@ -102,6 +102,14 @@ class TenantForm
                                 if ($plan) {
                                     $set('price', $plan->price);
                                     $set('currency', $plan->currency);
+
+                                    if ($plan->type === 'subscription' && $plan->subscription_period === 'monthly') {
+                                        $set('expires_at', now()->addMonth());
+                                    } elseif ($plan->type === 'subscription' && $plan->subscription_period === 'yearly') {
+                                        $set('expires_at', now()->addYear());
+                                    } elseif ($plan->type === 'commission') {
+                                        $set('expires_at', null);
+                                    }
                                 }
                             }),
 
@@ -132,7 +140,8 @@ class TenantForm
 
                         DateTimePicker::make('expires_at')
                             ->label(__('dashboard.expires_at'))
-                            ->nullable(),
+                            ->nullable()
+                            ->hidden(fn (Get $get) => Plan::find($get('plan_id'))?->type === 'commission'),
                     ])
                     ->columnSpanFull(),
             ]);

@@ -367,6 +367,7 @@ return [
         'item_icons' => 'Icons',
         'item_icon' => 'Icon',
         'add_icon' => 'Add Icon',
+        'link' => 'Link',
     ],
     // Have Question
     'nav_have_question' => 'Have a Question?',
@@ -662,6 +663,7 @@ return [
     'suggestion' => 'Suggestion',
     'partnership' => 'Partnership',
     'subject' => 'Subject',
+    'message' => 'Message',
     'attachment' => 'Attachment',
     'sender_name' => 'Sender Name',
     'sender_phone' => 'Sender Phone',

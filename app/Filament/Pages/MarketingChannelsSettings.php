@@ -96,6 +96,10 @@ class MarketingChannelsSettings extends Page
 
                             RichEditor::make('marketing_channels_description_en')
                                 ->label(__('dashboard.marketing_channels_settings.description_en')),
+
+                            TextInput::make('marketing_channels_link')
+                                ->label(__('dashboard.marketing_channels_settings.link'))
+                                ->url(),
                         ])
                         ->icon(Heroicon::Photo)
                         ->columnSpanFull(),
@@ -210,6 +214,7 @@ class MarketingChannelsSettings extends Page
             'marketing_channels_small_title_ar', 'marketing_channels_small_title_en',
             'marketing_channels_main_title_ar', 'marketing_channels_main_title_en',
             'marketing_channels_description_ar', 'marketing_channels_description_en',
+            'marketing_channels_link',
             'marketing_channels_items',
         ];
 
