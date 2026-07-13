@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\WhatsAppOnboardingSession;
 use App\WhatsApp\Enums\WhatsAppConnectionMethod;
+use App\WhatsApp\Enums\WhatsAppOnboardingStatus;
 use App\WhatsApp\Onboarding\CompleteWhatsAppEmbeddedSignupAction;
+use App\WhatsApp\Onboarding\FinalizeWhatsAppEmbeddedSignupAction;
 use App\WhatsApp\Onboarding\InvalidWhatsAppOnboardingStateException;
 use App\WhatsApp\Onboarding\WhatsAppOnboardingState;
 use App\WhatsApp\Onboarding\WhatsAppOnboardingStateService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
@@ -18,6 +21,7 @@ class WhatsAppOnboardingController extends Controller
     public function __construct(
         protected WhatsAppOnboardingStateService $stateService,
         protected CompleteWhatsAppEmbeddedSignupAction $completeAction,
+        protected FinalizeWhatsAppEmbeddedSignupAction $finalizeAction,
     ) {}
 
     public function start(Request $request): View
@@ -63,12 +67,24 @@ class WhatsAppOnboardingController extends Controller
     {
         $state = $this->requireValidState($request);
         $session = WhatsAppOnboardingSession::query()->where('nonce', $state->nonce)->first();
+        $status = $session?->status;
+
+        $canRetryFinalize = $session !== null && in_array($status, [
+            WhatsAppOnboardingStatus::SubscribingWebhooks->value,
+            WhatsAppOnboardingStatus::Failed->value,
+            WhatsAppOnboardingStatus::AwaitingPhoneSelection->value,
+        ], true);
 
         return view('whatsapp.onboarding.status', [
             'state' => $state,
             'session' => $session,
-            'statusLabel' => $this->statusLabel($session?->status),
-            'phaseNote' => __('dashboard.whatsapp_onboarding_status_phase_c_note'),
+            'statusLabel' => $this->statusLabel($status),
+            'phaseNote' => __('dashboard.whatsapp_onboarding_status_phase_d_note'),
+            'canRetryFinalize' => $canRetryFinalize,
+            'isSuccess' => $status === WhatsAppOnboardingStatus::Completed->value,
+            'availablePhones' => is_array($session?->session_payload['available_phones'] ?? null)
+                ? $session->session_payload['available_phones']
+                : [],
         ]);
     }
 
@@ -134,6 +150,29 @@ class WhatsAppOnboardingController extends Controller
         ]);
     }
 
+    public function finalize(Request $request): RedirectResponse
+    {
+        if ($request->filled('tenant_id') && ! $request->filled('state')) {
+            abort(403, __('dashboard.whatsapp_onboarding_raw_tenant_rejected'));
+        }
+
+        try {
+            $state = $this->stateService->parse((string) $request->input('state', ''));
+            $this->requireApiOnly($state);
+            $this->finalizeAction->execute($state);
+        } catch (InvalidWhatsAppOnboardingStateException $exception) {
+            abort(403, $exception->getMessage());
+        } catch (Throwable $exception) {
+            return redirect()
+                ->route('whatsapp.onboarding.status', ['state' => $request->input('state')])
+                ->with('error', $exception->getMessage());
+        }
+
+        return redirect()->route('whatsapp.onboarding.status', [
+            'state' => $request->input('state'),
+        ]);
+    }
+
     protected function requireValidState(Request $request): WhatsAppOnboardingState
     {
         try {
@@ -153,7 +192,7 @@ class WhatsAppOnboardingController extends Controller
     protected function statusLabel(?string $status): string
     {
         return match ($status) {
-            'subscribing_webhooks' => __('dashboard.whatsapp_onboarding_result_success_pending_phase_d'),
+            'subscribing_webhooks' => __('dashboard.whatsapp_onboarding_result_subscribing_webhooks'),
             'awaiting_phone_selection' => __('dashboard.whatsapp_onboarding_result_awaiting_phone'),
             'in_progress' => __('dashboard.whatsapp_onboarding_result_in_progress'),
             'failed' => __('dashboard.whatsapp_onboarding_result_failed'),

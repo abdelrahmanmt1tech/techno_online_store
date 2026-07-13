@@ -29,12 +29,36 @@ class WhatsAppOnboardingSessionLifecycleTest extends WhatsAppTestCase
 
     public function test_successful_completion_sets_completed_at(): void
     {
-        Http::fake([
-            'graph.facebook.com/*' => Http::response([
-                'access_token' => 'business-token-secret',
-                'token_type' => 'bearer',
-            ], 200),
-        ]);
+        Http::fake(function ($request) {
+            $url = $request->url();
+
+            if (str_contains($url, 'oauth/access_token')) {
+                return Http::response([
+                    'access_token' => 'business-token-secret',
+                    'token_type' => 'bearer',
+                ], 200);
+            }
+
+            if (str_contains($url, 'subscribed_apps')) {
+                return Http::response(['success' => true], 200);
+            }
+
+            if (str_contains($url, 'phone_numbers')) {
+                return Http::response([
+                    'data' => [[
+                        'id' => 'phone-life-1',
+                        'display_phone_number' => '+201000000000',
+                        'verified_name' => 'Life Biz',
+                    ]],
+                ], 200);
+            }
+
+            return Http::response([
+                'id' => 'phone-life-1',
+                'display_phone_number' => '+201000000000',
+                'verified_name' => 'Life Biz',
+            ], 200);
+        });
 
         $tenant = $this->createTenantWithDatabase();
         $token = $this->issueState((string) $tenant->getTenantKey());
@@ -55,7 +79,7 @@ class WhatsAppOnboardingSessionLifecycleTest extends WhatsAppTestCase
 
         $this->assertNotNull($session->completed_at);
         $this->assertNull($session->failed_at);
-        $this->assertSame(WhatsAppOnboardingStatus::SubscribingWebhooks->value, $session->status);
+        $this->assertSame(WhatsAppOnboardingStatus::Completed->value, $session->status);
         $this->assertSame('********', $session->masked_access_token);
         $this->assertArrayNotHasKey('access_token', $session->toArray());
     }

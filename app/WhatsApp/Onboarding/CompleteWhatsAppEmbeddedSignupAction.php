@@ -19,6 +19,7 @@ class CompleteWhatsAppEmbeddedSignupAction
     public function __construct(
         protected WhatsAppEmbeddedSignupTokenExchanger $tokenExchanger,
         protected WhatsAppTenantContextService $tenantContext,
+        protected FinalizeWhatsAppEmbeddedSignupAction $finalizeAction,
     ) {}
 
     /**
@@ -109,7 +110,7 @@ class CompleteWhatsAppEmbeddedSignupAction
             $numberId = $this->persistTenantNumber($tenant, $session, $accessToken);
             $session->tenant_whatsapp_number_id = $numberId;
         } elseif ($hasWaba) {
-            $session->status = WhatsAppOnboardingStatus::AwaitingPhoneSelection->value;
+            $session->status = WhatsAppOnboardingStatus::SubscribingWebhooks->value;
         } else {
             $session->status = WhatsAppOnboardingStatus::InProgress->value;
         }
@@ -124,6 +125,11 @@ class CompleteWhatsAppEmbeddedSignupAction
             'has_phone' => $hasPhone,
             'tenant_whatsapp_number_id' => $session->tenant_whatsapp_number_id,
         ]);
+
+        // Phase D: subscribe WABA + confirm phone metadata when a WABA is available.
+        if ($hasWaba) {
+            return $this->finalizeAction->execute($state);
+        }
 
         return $session->fresh();
     }

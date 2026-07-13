@@ -9,6 +9,7 @@ use App\WhatsApp\Enums\WhatsAppConnectionMethod;
 use App\WhatsApp\Enums\WhatsAppOnboardingStatus;
 use App\WhatsApp\Enums\WhatsAppTokenSource;
 use App\WhatsApp\Onboarding\WhatsAppOnboardingStateService;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
 class WhatsAppOnboardingPhaseCTest extends WhatsAppTestCase
@@ -59,12 +60,36 @@ class WhatsAppOnboardingPhaseCTest extends WhatsAppTestCase
 
     public function test_successful_token_exchange_stores_encrypted_token_on_tenant_number_not_registry(): void
     {
-        Http::fake([
-            'graph.facebook.com/*' => Http::response([
-                'access_token' => 'business-token-secret',
-                'token_type' => 'bearer',
-            ], 200),
-        ]);
+        Http::fake(function (Request $request) {
+            $url = $request->url();
+
+            if (str_contains($url, 'oauth/access_token')) {
+                return Http::response([
+                    'access_token' => 'business-token-secret',
+                    'token_type' => 'bearer',
+                ], 200);
+            }
+
+            if (str_contains($url, 'subscribed_apps')) {
+                return Http::response(['success' => true], 200);
+            }
+
+            if (str_contains($url, 'phone_numbers')) {
+                return Http::response([
+                    'data' => [[
+                        'id' => 'phone-100',
+                        'display_phone_number' => '+201000000000',
+                        'verified_name' => 'Test Biz',
+                    ]],
+                ], 200);
+            }
+
+            return Http::response([
+                'id' => 'phone-100',
+                'display_phone_number' => '+201000000000',
+                'verified_name' => 'Test Biz',
+            ], 200);
+        });
 
         $tenant = $this->createTenantWithDatabase();
         $token = $this->issueState((string) $tenant->getTenantKey());
@@ -82,7 +107,7 @@ class WhatsAppOnboardingPhaseCTest extends WhatsAppTestCase
         ]);
 
         $response->assertOk()
-            ->assertJsonPath('status', WhatsAppOnboardingStatus::SubscribingWebhooks->value);
+            ->assertJsonPath('status', WhatsAppOnboardingStatus::Completed->value);
 
         $state = app(WhatsAppOnboardingStateService::class)->parse($token);
         $session = WhatsAppOnboardingSession::query()->where('nonce', $state->nonce)->first();
@@ -97,7 +122,10 @@ class WhatsAppOnboardingPhaseCTest extends WhatsAppTestCase
             $this->assertSame('business-token-secret', $number->access_token);
             $this->assertSame(WhatsAppConnectionMethod::EmbeddedSignupApiOnly, $number->connection_method);
             $this->assertSame(WhatsAppTokenSource::EmbeddedSignup, $number->token_source);
-            $this->assertSame(WhatsAppOnboardingStatus::SubscribingWebhooks, $number->onboarding_status);
+            $this->assertSame(WhatsAppOnboardingStatus::Completed, $number->onboarding_status);
+            $this->assertSame('subscribed', $number->webhook_status);
+            $this->assertSame('+201000000000', $number->display_phone_number);
+            $this->assertSame('Test Biz', $number->business_name);
             $this->assertArrayNotHasKey('access_token', $number->toArray());
         });
 
@@ -113,6 +141,9 @@ class WhatsAppOnboardingPhaseCTest extends WhatsAppTestCase
                 && $request['code'] === 'exchange-code-1'
                 && ! str_contains(json_encode($request->data()), 'business-token-secret');
         });
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/waba-100/subscribed_apps')
+            && $request->method() === 'POST');
     }
 
     public function test_failed_token_exchange_marks_session_failed_without_storing_token(): void

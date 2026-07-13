@@ -75,6 +75,119 @@ class WhatsAppCloudApiService
         return $response;
     }
 
+    /**
+     * Subscribe this app to WABA webhooks: POST /{waba-id}/subscribed_apps
+     */
+    public function subscribeWabaApps(WhatsAppNumber $number): Response
+    {
+        $version = config('whatsapp.graph_api_version');
+        $wabaId = $number->whatsapp_business_account_id;
+        $startedAt = microtime(true);
+
+        $response = Http::timeout(config('whatsapp.request_timeout'))
+            ->withToken($number->access_token)
+            ->post("https://graph.facebook.com/{$version}/{$wabaId}/subscribed_apps");
+
+        $this->apiRequestLogger->log(
+            $number,
+            WhatsAppApiRequestOperation::SubscribeWabaApps,
+            ['waba_id' => $wabaId],
+            $response,
+            durationMs: (int) round((microtime(true) - $startedAt) * 1000),
+        );
+
+        return $response;
+    }
+
+    /**
+     * List phone numbers on a WABA: GET /{waba-id}/phone_numbers
+     *
+     * @param  list<string>  $fields
+     */
+    public function listWabaPhoneNumbers(
+        WhatsAppNumber $number,
+        array $fields = ['id', 'display_phone_number', 'verified_name'],
+    ): Response {
+        $version = config('whatsapp.graph_api_version');
+        $wabaId = $number->whatsapp_business_account_id;
+        $query = ['fields' => implode(',', $fields)];
+        $startedAt = microtime(true);
+
+        $response = Http::timeout(config('whatsapp.request_timeout'))
+            ->withToken($number->access_token)
+            ->get("https://graph.facebook.com/{$version}/{$wabaId}/phone_numbers", $query);
+
+        $this->apiRequestLogger->log(
+            $number,
+            WhatsAppApiRequestOperation::ListWabaPhoneNumbers,
+            ['waba_id' => $wabaId, 'fields' => $fields],
+            $response,
+            durationMs: (int) round((microtime(true) - $startedAt) * 1000),
+        );
+
+        return $response;
+    }
+
+    /**
+     * Fetch a single phone number node for metadata polish.
+     *
+     * @param  list<string>  $fields
+     */
+    public function getPhoneNumber(
+        WhatsAppNumber $number,
+        ?string $phoneNumberId = null,
+        array $fields = ['id', 'display_phone_number', 'verified_name'],
+    ): Response {
+        $version = config('whatsapp.graph_api_version');
+        $phoneId = $phoneNumberId ?: $number->phone_number_id;
+        $query = ['fields' => implode(',', $fields)];
+        $startedAt = microtime(true);
+
+        $response = Http::timeout(config('whatsapp.request_timeout'))
+            ->withToken($number->access_token)
+            ->get("https://graph.facebook.com/{$version}/{$phoneId}", $query);
+
+        $this->apiRequestLogger->log(
+            $number,
+            WhatsAppApiRequestOperation::GetPhoneNumber,
+            ['phone_number_id' => $phoneId, 'fields' => $fields],
+            $response,
+            durationMs: (int) round((microtime(true) - $startedAt) * 1000),
+        );
+
+        return $response;
+    }
+
+    /**
+     * Onboarding helper when a tenant WhatsAppNumber row may not exist yet.
+     * Does not log to tenant API request table (no number id). Never logs the token.
+     */
+    public function subscribeWabaAppsWithToken(string $accessToken, string $wabaId): Response
+    {
+        $version = config('whatsapp.graph_api_version');
+
+        return Http::timeout(config('whatsapp.request_timeout'))
+            ->withToken($accessToken)
+            ->post("https://graph.facebook.com/{$version}/{$wabaId}/subscribed_apps");
+    }
+
+    /**
+     * @param  list<string>  $fields
+     */
+    public function listWabaPhoneNumbersWithToken(
+        string $accessToken,
+        string $wabaId,
+        array $fields = ['id', 'display_phone_number', 'verified_name'],
+    ): Response {
+        $version = config('whatsapp.graph_api_version');
+
+        return Http::timeout(config('whatsapp.request_timeout'))
+            ->withToken($accessToken)
+            ->get("https://graph.facebook.com/{$version}/{$wabaId}/phone_numbers", [
+                'fields' => implode(',', $fields),
+            ]);
+    }
+
     public function listMessageTemplates(WhatsAppNumber $number, ?string $after = null): Response
     {
         $version = config('whatsapp.graph_api_version');
