@@ -16,7 +16,7 @@ This module was built for a **multi-tenant ecommerce + CRM platform** where each
 
 The implementation uses the **official WhatsApp Cloud API** only. There is no unofficial QR / WhatsApp Web integration.
 
-**Current scope:** **manual number connection** — merchants paste `phone_number_id`, WABA ID, and a long-lived access token. **Meta Embedded Signup / OAuth onboarding is deferred** to a future phase.
+**Current scope:** Manual Cloud API connection is **complete and stable** (staging E2E passed). WhatsApp **API Only Embedded Signup (Phases A–D)** and **Coexistence (Phase E)** are **code-complete** — automated tests pass — but **real-number staging E2E is postponed** until suitable numbers are available. Orders notifications remain postponed. Messenger is a separate channel.
 
 ---
 
@@ -854,19 +854,19 @@ After the full module was implemented across all planned phases, implementation 
 
 ## 20. Current limitations / not implemented yet
 
-- Meta **Embedded Signup** not implemented
-- **OAuth** token exchange not implemented
-- **Coexistence** onboarding not implemented
+- **API Only Embedded Signup** — **code-complete (Phases A–D)**; **real-number staging E2E postponed**
+- **Coexistence Embedded Signup** — **code-complete (Phase E)**; **real WhatsApp Business App number E2E postponed**
 - Template **creation/submission to Meta** not implemented
 - Template **sync from Meta** — **implemented** (list/upsert only; no create via API)
 - **Meta contacts book sync** not possible — no Graph API; contacts built from inbound + manual entry
-- `webhook_status` on numbers — schema only; not auto-populated from Meta
+- `webhook_status` on numbers — set to `subscribed` after `subscribed_apps` success; not a live Meta health stream
+- **Coexistence offboarding webhooks** — status/copy prepared (`reconnect_required`); full automated offboarding handler not implemented
 - **Media upload/download** beyond storing inbound metadata is not complete
 - **Campaigns / bulk sending** not implemented
 - **Opt-in / consent management** not implemented
 - **Order-status WhatsApp notifications** — **postponed** (after Onboarding + Orders); see §21
-- **Onboarding / Embedded Signup / Coexistence** — **next planned phase**; see §21
-- **Messenger** and **Instagram** messaging not implemented
+- **Messenger** — separate channel (see `docs/messenger-messaging-module.md`); out of scope for WhatsApp onboarding
+- **Instagram** messaging not implemented
 - **Central global conversation search/index** not implemented
 - **Platform billing** not implemented (billing is customer-direct to Meta)
 
@@ -874,18 +874,57 @@ After the full module was implemented across all planned phases, implementation 
 
 ## 21. Future roadmap
 
-### Next planned phase — WhatsApp Onboarding / Connection Methods
+### WhatsApp Onboarding / Connection Methods
 
-**Status:** Phase **A complete** (schema + enums + docs). Phases B–F not started.
+**Status:** Phases **A–E** are **code-complete** (API Only + Coexistence). Automated tests pass. **Real-number staging E2E is postponed** for both paths until suitable numbers are available.
 
-**Purpose:** Finish WhatsApp as a standalone CRM + messaging module. Each tenant will choose a connection method:
+**Meta gates (external):**
+- Business Verification: **approved**
+- API Only Embedded Signup Configuration ID: `1760158035346145` (`WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID`)
+- Coexistence Embedded Signup Configuration ID: `WHATSAPP_EMBEDDED_SIGNUP_COEXISTENCE_CONFIG_ID` (**separate**; do **not** reuse the API Only config unless Meta confirms coexistence is enabled on that configuration)
 
-1. **API Only** — implement Embedded Signup **before** Coexistence
-2. **WhatsApp Business App + Cloud API Coexistence** — later phase
+**Architectural rule — central domain only:**
+- Embedded Signup JavaScript / Meta Allowed Domains must use the **central** host only: `online-store.technomasrsystems.com`
+- Do **not** require every tenant subdomain (`store1…`, `client1…`) in Meta Allowed Domains
+- Tenant panel starts onboarding → redirects to central `/whatsapp/onboarding/*` with a **signed** state containing `tenant_id` + `connection_method`
+- After the Meta flow, return the merchant to the tenant URL from signed `return_url`
+- Never trust raw `tenant_id` from query/body without signed state validation
+
+**Purpose:** Finish WhatsApp as a standalone CRM + messaging module. Each tenant chooses a connection method:
+
+1. **API Only** — Cloud API-only numbers via Embedded Signup (**Phases A–D code-complete; real E2E postponed**)
+2. **Coexistence** — existing WhatsApp Business App numbers via Embedded Signup with `featureType: whatsapp_business_app_onboarding` (**Phase E code-complete; real E2E postponed**)
 
 **Manual connection remains fully supported** for admins/developers (staging and production). Existing Filament number CRUD is unchanged.
 
-#### Phase A delivered (this release)
+#### API Only vs Coexistence
+
+| Topic | API Only | Coexistence |
+|---|---|---|
+| Audience | Cloud API-only numbers | Existing WhatsApp Business App numbers |
+| Config env | `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID` | `WHATSAPP_EMBEDDED_SIGNUP_COEXISTENCE_CONFIG_ID` |
+| Launch extras | default Embedded Signup | `featureType: whatsapp_business_app_onboarding` |
+| Tenant flags | `connection_method=embedded_signup_api_only`, `coexistence_enabled=false` | `connection_method=embedded_signup_coexistence`, `coexistence_enabled=true`, `business_app_number` when known |
+| Warning | Do not use an important Business App number here if Coexistence is intended later | Merchant can keep using WhatsApp Business App alongside Cloud API / CRM |
+
+#### Real-number E2E — important warnings
+
+- Real Embedded Signup E2E requires a **spare** number suitable for the chosen path (Cloud API for API Only; WhatsApp Business App for Coexistence).
+- **Do not** run API Only Embedded Signup on an important WhatsApp Business App number that you intend to keep for **Coexistence**.
+- Prefer disposable / staging-only numbers for the first live validation of either path.
+- Until E2E passes, treat both Embedded Signup paths as **code-complete pending real-number validation** — not production-certified.
+
+#### Coexistence reconnect / offboarding readiness
+
+Meta may require reconnect when a merchant re-registers WhatsApp Business App on a new device or when auth is revoked. Operational fields already support:
+
+- `status=reconnect_required` (`WhatsAppConnectionStatus`)
+- `reconnect_required_at`
+- Status page copy for Coexistence reconnect guidance
+
+Full automated offboarding webhook handling is **not** implemented in Phase E; mark reconnect manually / via future webhook work when Meta signals offboarding.
+
+#### Phase A delivered
 
 | Item | Detail |
 |---|---|
@@ -895,26 +934,94 @@ After the full module was implemented across all planned phases, implementation 
 | Central registry mirror | Non-sensitive only: `connection_method`, `onboarding_status`, `coexistence_enabled` (no tokens) |
 | Defaults | New manual numbers default to completed onboarding + manual token source |
 
+#### Phase B delivered
+
+| Item | Detail |
+|---|---|
+| Tenant entry | Filament page `ConnectWhatsAppPage` + header action on WhatsApp Numbers |
+| Method UX | Manual (existing create) · API Only Embedded Signup (central) · Coexistence (gated / coming soon) |
+| Central routes | `GET /whatsapp/onboarding/{start,callback,status}` on central domain middleware |
+| Signed state | Encrypted payload: `tenant_id`, `user_id`, `connection_method`, `nonce`, issued/expiry, `return_url` |
+| Config | `META_APP_ID`, `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID`, `WHATSAPP_EMBEDDED_SIGNUP_CENTRAL_DOMAIN` |
+
+#### Phase C delivered
+
+| Item | Detail |
+|---|---|
+| Launch UI | Central start page loads Facebook JS SDK + Embedded Signup button (`config_id` + `META_APP_ID`) |
+| Capture | Browser posts `code` + session asset IDs to `POST /whatsapp/onboarding/complete` with signed `state` |
+| Token exchange | Server-side `GET /{version}/oauth/access_token` using `META_APP_ID` + `META_APP_SECRET` (secret never in browser) |
+| Persistence | Central `whatsapp_onboarding_sessions` (encrypted token + metadata). When `phone_number_id` + `waba_id` present → upsert tenant `WhatsAppNumber` (`connection_method=embedded_signup_api_only`, `token_source=embedded_signup`, `onboarding_status=subscribing_webhooks`) |
+| Why a session table | `whatsapp_numbers.phone_number_id` / `access_token` / WABA are NOT NULL — mid-flow without a phone cannot create a number row safely |
+| Security | Signed state required; raw `tenant_id` rejected; tokens encrypted + hidden; registry never stores tokens; Graph errors logged without secrets |
+| Status UI | Success / failed / cancelled / awaiting phone / pending Phase D |
+| Explicitly not in C | `subscribed_apps`, full phone listing/import polish, template sync, test send, Coexistence |
+
+#### Phase C.1 delivered (session lifecycle hardening)
+
+| Item | Detail |
+|---|---|
+| Lifecycle columns | `completed_at`, `failed_at` on `whatsapp_onboarding_sessions` |
+| Success | Token exchange success → `completed_at` set (`failed_at` cleared) |
+| Failure | Token exchange / client failure → `failed_at` set, token cleared |
+| Cancelled | Terminal `status=cancelled` with **`failed_at`** as the terminal timestamp (documented convention) |
+| Temporary only | Central sessions are **not** used for operational messaging; sends use tenant `WhatsAppNumber` |
+| Cleanup | `php artisan whatsapp:onboarding-sessions:cleanup` deletes completed/failed/cancelled/expired sessions older than retention |
+| Retention | `WHATSAPP_ONBOARDING_SESSION_RETENTION_DAYS` (default **7**); `--days=` / `--dry-run` supported |
+| Safety | Active non-expired sessions without terminal stamps are **not** deleted |
+
+#### Phase D delivered (WABA subscribe + phone import / activation)
+
+| Item | Detail |
+|---|---|
+| WABA subscribe | `POST /{version}/{waba_id}/subscribed_apps` via `WhatsAppCloudApiService` + `SubscribeWhatsAppWabaWebhooksAction` |
+| Phone import | `GET /{waba_id}/phone_numbers` (+ optional `GET /{phone_number_id}`) via `ConfirmWhatsAppPhoneMetadataAction` |
+| Orchestration | `FinalizeWhatsAppEmbeddedSignupAction` runs automatically after Phase C token success when a WABA is present; retry via `POST /whatsapp/onboarding/finalize` |
+| Status transitions | `subscribing_webhooks` → `completed` \| `awaiting_phone_selection` \| `failed` |
+| Phone selection rules | Prefer Embedded Signup `phone_number_id`; single listed phone auto-select; **multiple without clear selection → `awaiting_phone_selection` (never guess)** |
+| Tenant number | Upsert with metadata, `connection_method=embedded_signup_api_only`, `token_source=embedded_signup`, `onboarding_status=completed`, `status=active`, `webhook_status=subscribed`, `connected_at` |
+| Registry | Observer sync after number update — **no tokens** |
+| Retry | Signed state required; uses session token or tenant number token; subscribe + upsert are idempotent; no duplicate `phone_number_id` rows |
+| Failure | Safe `last_error` / `last_onboarding_error`; session token cleared; tenant number token kept for retry; manual numbers untouched |
+| Status UX | pending / subscribing webhooks / awaiting phone / completed (with next-step copy) / failed / cancelled + retry button |
+| Explicitly not in D | Coexistence, template sync, automated test send, campaigns, Orders, Instagram, Messenger, unified inbox, queue changes |
+| Live validation | **Real-number staging E2E still postponed** (spare Cloud API number required) |
+
+#### Phase E delivered (Coexistence Embedded Signup)
+
+| Item | Detail |
+|---|---|
+| Config | Separate `WHATSAPP_EMBEDDED_SIGNUP_COEXISTENCE_CONFIG_ID` — UI unavailable until set |
+| Connect UI | Coexistence card available when config present; otherwise configuration-required message |
+| Launch | Central start uses coexistence config ID + `featureType: whatsapp_business_app_onboarding` |
+| Signed state | `connection_method=embedded_signup_coexistence`; raw `tenant_id` rejected |
+| Complete / finalize | Same token exchange + WABA subscribe + phone metadata pipeline; method-aware persistence |
+| Tenant number | `coexistence_enabled=true`, `token_source=embedded_signup`, `business_app_number` when known |
+| Incomplete assets | Prefer `in_progress` / `awaiting_phone_selection` over incorrect hard-fail |
+| Reconnect readiness | Docs + status copy for `reconnect_required`; no complex offboarding webhook yet |
+| Live validation | **Real WhatsApp Business App number E2E postponed** |
+
 #### Connection methods
 
 | Value | Meaning |
 |---|---|
 | `manual_api_only` | Current working path — paste phone_number_id, WABA ID, access token |
-| `embedded_signup_api_only` | Future — Embedded Signup, Cloud API only |
-| `embedded_signup_coexistence` | Future — Business App + Cloud API |
+| `embedded_signup_api_only` | Embedded Signup, Cloud API only (**Phases C–D**) |
+| `embedded_signup_coexistence` | Business App + Cloud API coexistence (**Phase E**) |
 
-#### Implementation order (when coding continues)
+#### Implementation order
 
 | Phase | Scope |
 |---|---|
 | ~~A~~ | ~~Additive schema + enums + docs~~ **done** |
-| B | Tenant Connect WhatsApp UI skeleton (method choice); keep Create manual |
-| C | Embedded Signup **API Only** (code → token → WABA/phones) |
-| D | WABA webhook subscription + number import + registry sync |
-| E | Coexistence onboarding + flags |
-| F | Tests + docs |
+| ~~B~~ | ~~Tenant Connect WhatsApp UI + central onboarding skeleton + signed state~~ **done** |
+| ~~C~~ | ~~Embedded Signup API Only (JS SDK + code → token + minimal persistence)~~ **done** |
+| ~~C.1~~ | ~~Onboarding session lifecycle timestamps + cleanup command~~ **done** |
+| ~~D~~ | ~~WABA webhook subscription (`subscribed_apps`) + number import polish + registry sync~~ **done** |
+| ~~E~~ | ~~Coexistence onboarding + flags~~ **code-complete; real E2E postponed** |
+| F | Real-number E2E + docs polish when numbers are available |
 
-**Out of scope until later phases:** Embedded Signup JS/OAuth, Coexistence flow, Tech Provider, campaigns, Orders, queue architecture changes.
+**Out of scope until later:** production rollout certification, campaigns, Orders, Messenger/Instagram changes, queue architecture changes, full coexistence offboarding automation.
 
 **CRM messaging policy (unchanged; UI enforcement later):**
 
@@ -924,7 +1031,23 @@ After the full module was implemented across all planned phases, implementation 
 
 #### Staging note
 
-Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefinitely while onboarding UI is built.
+Staging may keep `QUEUE_CONNECTION=sync`. Meta Allowed Domains should list the **central** host only (`online-store.technomasrsystems.com`). Set `META_APP_ID`, `META_APP_SECRET`, and `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID` for live Embedded Signup.
+
+#### Checklist — when a spare test number becomes available
+
+Use this before calling API Only Embedded Signup “staging E2E passed”:
+
+1. Confirm the number is a **spare / disposable** number suitable for Cloud API (not a production Business App number reserved for Coexistence).
+2. Confirm staging env: `META_APP_ID`, `META_APP_SECRET`, `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID`, webhook verify token + app secret, central domain allowlisted in Meta.
+3. From a tenant panel → Connect WhatsApp → **API Only** → complete Embedded Signup on the **central** host.
+4. Confirm status page reaches **completed** (or document `awaiting_phone_selection` / `failed` clearly).
+5. Confirm tenant `WhatsAppNumber` exists with `connection_method=embedded_signup_api_only`, token present, `onboarding_status=completed`, `webhook_status=subscribed`.
+6. Confirm central `whatsapp_number_registry` row exists for that `phone_number_id` and **contains no access token**.
+7. Send a **manual** outbound test from the tenant UI (existing CRM send — not automated).
+8. Receive an **inbound** customer message and confirm webhook → inbox for that number.
+9. Confirm the 24h customer service window opens/closes as expected for that conversation.
+10. Only then mark API Only Embedded Signup as **staging E2E passed** in this doc. Keep Coexistence unstarted until intentionally scheduled.
+
 ### Postponed — Order-status WhatsApp notifications
 
 **Status:** Plan approved earlier; **postponed** until after Onboarding and until Orders domain exists.
@@ -933,7 +1056,7 @@ Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefi
 
 ### Longer-term roadmap (not next)
 
-1. ~~Embedded Signup / Coexistence onboarding~~ — **next phase above**
+1. ~~Embedded Signup / Coexistence onboarding~~ — **Phases A–E code-complete; real-number E2E postponed**
 2. ~~Template sync from Meta~~ — sync **done**; submission to Meta still TODO
 3. Media handling
 4. Opt-in / consent (before campaigns)
@@ -942,6 +1065,7 @@ Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefi
 7. WhatsApp Flows
 8. Messenger / Instagram
 9. Central reporting / billing ledger (only if billing model changes)
+10. Coexistence offboarding webhook automation (reconnect already prepared)
 
 ---
 ## 22. Operational notes
@@ -972,7 +1096,7 @@ Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefi
 | Media download/upload | Extend `ProcessInboundMessageAction` + `WhatsAppCloudApiService` media methods |
 | Opt-in checks | Extend `WhatsAppSendingPolicyService::canSendTemplate()` before campaign sends |
 | Order-status Utility notifications | **Postponed.** After Onboarding + Orders. Thin action wrapping `SendWhatsAppTemplateMessageAction`; Utility-category guard |
-| Onboarding / Embedded Signup / Coexistence | **Next phase.** `app/WhatsApp/Onboarding/`; additive fields on `whatsapp_numbers`; keep manual CRUD |
+| Onboarding / Embedded Signup / Coexistence | **Phases A–E code-complete; real-number E2E postponed.** `app/WhatsApp/Onboarding/`; keep manual CRUD |
 
 ### Rules for maintainers
 
@@ -997,7 +1121,7 @@ Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefi
 | Manual Cloud API connection | **Implemented** |
 | Webhook verification + receiving | **Implemented** |
 | Tenant + Admin Filament UI | **Implemented** |
-| Automated tests | **36/36 passing** |
+| Automated tests | **Passing** (full suite; re-run before staging E2E) |
 | Template sync from Meta | **Implemented** |
 | Contacts management UI | **Implemented** |
 | Webhook diagnostic logging | **Implemented** |
@@ -1007,9 +1131,17 @@ Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefi
 | Production queue | **Recommended later:** `database` or `redis` + supervisor — not required while staging stays on `sync` |
 | Manual Cloud API integration | **Complete and stabilized on staging** |
 | Onboarding Phase A (schema/enums) | **Done** — manual connection unchanged |
-| Next WhatsApp implementation | **Phase B** — Connect WhatsApp UI skeleton (API Only before Coexistence) |
+| Onboarding Phase B (connect UI + central skeleton) | **Done** — signed state; central-domain-only |
+| Onboarding Phase C (Embedded Signup API Only) | **Done** — JS SDK launch, code→token exchange, encrypted persistence |
+| Onboarding Phase C.1 (session lifecycle) | **Done** — `completed_at` / `failed_at` + `whatsapp:onboarding-sessions:cleanup` |
+| Onboarding Phase D (WABA subscribe + phone activation) | **Code-complete** — `subscribed_apps`, phone metadata import, finalize/retry, status UX |
+| Onboarding Phase E (Coexistence) | **Code-complete** — separate config ID, launch extras, coexistence flags, status/reconnect copy |
+| API Only Embedded Signup live E2E | **Postponed** — needs spare Cloud API–suitable number |
+| Coexistence live E2E | **Postponed** — needs suitable WhatsApp Business App number |
+| Next WhatsApp implementation | Real-number E2E when numbers are available; optional offboarding webhook automation |
 | Order-status notifications | **Postponed** until after Onboarding and Orders domain |
-| Production readiness | **Stabilized for staging**; production hardening = queue worker + permissions (`BYPASS_PERMISSIONS=false`) + optional Graph API bump to `v25.0` |
+| Messenger | **Separate channel** — out of scope for WhatsApp onboarding work |
+| Production readiness | Manual path stabilized on staging. Embedded Signup (API Only + Coexistence) = **code-complete pending real-number validation**. Production hardening = queue worker + permissions (`BYPASS_PERMISSIONS=false`) + optional Graph API bump to `v25.0` |
 
 ---
 
@@ -1018,11 +1150,12 @@ Staging may keep `QUEUE_CONNECTION=sync` and **manual** number connection indefi
 Messenger is a **separate CRM channel** and must not share WhatsApp tables, services, or webhook routes.
 
 - Plan and status: [`docs/messenger-messaging-module.md`](messenger-messaging-module.md)
-- Status as of 2026-07-12: **Phase A complete** (schema only); webhooks/UI not started
+- Status as of 2026-07-12: Manual Messenger **staging E2E passed** (Phases A–F). Phase G (Facebook Login) not started.
 - Architecture: same hybrid pattern (central registry + webhook events; tenant operational data), different `page_id` / PSID identity model
+- WhatsApp onboarding work must **not** change Messenger code
 
 This WhatsApp document remains the source of truth for WhatsApp only. Do not truncate or merge Messenger details into the sections above.
 
 ---
 
-*Document version: reflects WhatsApp manual Cloud API completion on staging (July 2026). Next WhatsApp work waits for Meta onboarding gates / Orders as noted in §21. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: reflects WhatsApp Onboarding Phases A–E **code-complete** on 2026-07-13, with **real-number staging E2E postponed**. Orders postponed. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

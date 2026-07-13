@@ -121,6 +121,33 @@ class WhatsAppApiRequestLogger
             ]);
         }
 
+        if ($operation === WhatsAppApiRequestOperation::SubscribeWabaApps) {
+            return __('dashboard.whatsapp_api_summary_subscribe_waba_apps', [
+                'waba' => (string) ($requestPayload['waba_id'] ?? '—'),
+                'status' => $response->successful()
+                    ? __('dashboard.whatsapp_api_outcome_success')
+                    : __('dashboard.whatsapp_api_outcome_failed'),
+            ]);
+        }
+
+        if ($operation === WhatsAppApiRequestOperation::ListWabaPhoneNumbers) {
+            return __('dashboard.whatsapp_api_summary_list_waba_phone_numbers', [
+                'waba' => (string) ($requestPayload['waba_id'] ?? '—'),
+                'status' => $response->successful()
+                    ? __('dashboard.whatsapp_api_outcome_success')
+                    : __('dashboard.whatsapp_api_outcome_failed'),
+            ]);
+        }
+
+        if ($operation === WhatsAppApiRequestOperation::GetPhoneNumber) {
+            return __('dashboard.whatsapp_api_summary_get_phone_number', [
+                'phone' => (string) ($requestPayload['phone_number_id'] ?? '—'),
+                'status' => $response->successful()
+                    ? __('dashboard.whatsapp_api_outcome_success')
+                    : __('dashboard.whatsapp_api_outcome_failed'),
+            ]);
+        }
+
         return __('dashboard.whatsapp_api_summary_list_templates', [
             'status' => $response->successful()
                 ? __('dashboard.whatsapp_api_outcome_success')
