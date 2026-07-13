@@ -75,7 +75,7 @@
 
 | Document | Purpose |
 |---|---|
-| [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md) | WhatsApp module. Manual Cloud API **complete**. Onboarding **Phase A+B** done (connect UI + central Embedded Signup skeleton); Phase C+ next. Orders notifications postponed — see §21 |
+| [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md) | WhatsApp module. Manual Cloud API **complete**. Onboarding **Phases A–C** done (Embedded Signup API Only); Phase D next. Orders notifications postponed — see §21 |
 | [`docs/messenger-messaging-module.md`](messenger-messaging-module.md) | Messenger module. **Phases A–F complete** — manual path **staging E2E passed**. Phase G (Facebook Login) not started. Separate channel from WhatsApp |
 | [`docs/deployment-cwp.md`](deployment-cwp.md) | GitHub Actions deploy to CWP production server |
 
