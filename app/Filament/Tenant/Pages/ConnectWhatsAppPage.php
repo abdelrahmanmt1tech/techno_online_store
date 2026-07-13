@@ -10,6 +10,7 @@ use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 
 class ConnectWhatsAppPage extends Page
@@ -32,7 +33,7 @@ class ConnectWhatsAppPage extends Page
         return __('dashboard.whatsapp_connect');
     }
 
-    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    public function getTitle(): string|Htmlable
     {
         return __('dashboard.whatsapp_connect');
     }
@@ -42,12 +43,37 @@ class ConnectWhatsAppPage extends Page
         return static::canWhatsAppPermission('whatsapp.manage_numbers');
     }
 
+    public function isCoexistenceConfigured(): bool
+    {
+        return filled(config('whatsapp.embedded_signup.coexistence_config_id'));
+    }
+
     public function chooseManual(): void
     {
         $this->redirect(WhatsAppNumberResource::getUrl('create'));
     }
 
     public function chooseApiOnly(): void
+    {
+        $this->startEmbeddedSignup(WhatsAppConnectionMethod::EmbeddedSignupApiOnly);
+    }
+
+    public function chooseCoexistence(): void
+    {
+        if (! $this->isCoexistenceConfigured()) {
+            Notification::make()
+                ->title(__('dashboard.whatsapp_onboarding_coexistence_config_required_title'))
+                ->body(__('dashboard.whatsapp_onboarding_coexistence_config_required_body'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $this->startEmbeddedSignup(WhatsAppConnectionMethod::EmbeddedSignupCoexistence);
+    }
+
+    protected function startEmbeddedSignup(WhatsAppConnectionMethod $method): void
     {
         $tenant = tenant();
 
@@ -64,7 +90,7 @@ class ConnectWhatsAppPage extends Page
 
         $token = app(WhatsAppOnboardingStateService::class)->issue(
             tenantId: (string) $tenant->getTenantKey(),
-            connectionMethod: WhatsAppConnectionMethod::EmbeddedSignupApiOnly,
+            connectionMethod: $method,
             returnUrl: $returnUrl,
             userId: Auth::guard('tenant')->id(),
         );
@@ -72,14 +98,5 @@ class ConnectWhatsAppPage extends Page
         $url = app(WhatsAppOnboardingStateService::class)->centralUrl('start', $token);
 
         $this->redirect($url);
-    }
-
-    public function chooseCoexistence(): void
-    {
-        Notification::make()
-            ->title(__('dashboard.whatsapp_onboarding_coexistence_coming_soon'))
-            ->body(__('dashboard.whatsapp_onboarding_coexistence_coming_soon_body'))
-            ->warning()
-            ->send();
     }
 }

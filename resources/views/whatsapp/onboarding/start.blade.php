@@ -35,7 +35,7 @@
                     {{ __('dashboard.whatsapp_onboarding_launch_cta') }}
                 </button>
             @else
-                <p class="muted">{{ __('dashboard.whatsapp_onboarding_missing_meta_config') }}</p>
+                <p class="muted">{{ $missingConfigMessage }}</p>
             @endif
             <a class="button secondary" href="{{ $state->returnUrl }}">{{ __('dashboard.whatsapp_onboarding_cancel_return') }}</a>
             <a class="button secondary" href="{{ $statusUrl }}">{{ __('dashboard.whatsapp_onboarding_status_title') }}</a>
@@ -53,6 +53,7 @@
                 const stateToken = @json($stateToken);
                 const completeUrl = @json($completeUrl);
                 const statusUrl = @json($statusUrl);
+                const isCoexistence = @json($isCoexistence);
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
                 let sessionInfo = {};
@@ -164,13 +165,20 @@
                         return;
                     }
 
+                    const extras = {
+                        setup: {},
+                        sessionInfoVersion: '3'
+                    };
+
+                    if (isCoexistence) {
+                        extras.featureType = 'whatsapp_business_app_onboarding';
+                    }
+
                     FB.login(fbLoginCallback, {
                         config_id: configId,
                         response_type: 'code',
                         override_default_response_type: true,
-                        extras: {
-                            setup: {}
-                        }
+                        extras: extras
                     });
                 }
 

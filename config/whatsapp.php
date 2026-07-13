@@ -19,7 +19,11 @@ return [
     | do not need to be listed in Meta Allowed Domains.
     */
     'embedded_signup' => [
+        // API Only Embedded Signup configuration (Cloud API-only numbers).
         'config_id' => env('WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID'),
+        // Separate Meta configuration for WhatsApp Business App coexistence.
+        // Do not reuse config_id unless Meta confirms the same configuration supports coexistence.
+        'coexistence_config_id' => env('WHATSAPP_EMBEDDED_SIGNUP_COEXISTENCE_CONFIG_ID'),
         'central_domain' => env('WHATSAPP_EMBEDDED_SIGNUP_CENTRAL_DOMAIN', 'online-store.technomasrsystems.com'),
         'enforce_central_domain' => env('WHATSAPP_EMBEDDED_SIGNUP_ENFORCE_DOMAIN', true),
         'state_ttl_seconds' => (int) env('WHATSAPP_ONBOARDING_STATE_TTL', 900),

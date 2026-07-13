@@ -45,7 +45,7 @@ class WhatsAppOnboardingPhaseBTest extends WhatsAppTestCase
                 ->assertSee(__('dashboard.whatsapp_connect_manual_title'))
                 ->assertSee(__('dashboard.whatsapp_connect_api_only_title'))
                 ->assertSee(__('dashboard.whatsapp_connect_coexistence_title'))
-                ->assertSee(__('dashboard.whatsapp_connect_coming_soon'));
+                ->assertSee(__('dashboard.whatsapp_connect_config_required'));
         });
     }
 
@@ -100,8 +100,10 @@ class WhatsAppOnboardingPhaseBTest extends WhatsAppTestCase
         });
     }
 
-    public function test_coexistence_option_is_gated_and_does_not_redirect(): void
+    public function test_coexistence_option_is_unavailable_without_config_and_does_not_redirect(): void
     {
+        config(['whatsapp.embedded_signup.coexistence_config_id' => null]);
+
         $tenant = $this->createTenantWithDatabase();
 
         $tenant->run(function () {
@@ -116,9 +118,40 @@ class WhatsAppOnboardingPhaseBTest extends WhatsAppTestCase
 
             $component = Livewire::test(ConnectWhatsAppPage::class)
                 ->call('chooseCoexistence')
-                ->assertNotified(__('dashboard.whatsapp_onboarding_coexistence_coming_soon'));
+                ->assertNotified(__('dashboard.whatsapp_onboarding_coexistence_config_required_title'));
 
             $this->assertArrayNotHasKey('redirect', $component->effects);
+        });
+    }
+
+    public function test_coexistence_option_redirects_when_config_is_set(): void
+    {
+        config(['whatsapp.embedded_signup.coexistence_config_id' => 'coexist-config-999']);
+
+        $tenant = $this->createTenantWithDatabase();
+
+        $tenant->run(function () use ($tenant) {
+            $user = TenantUser::query()->create([
+                'name' => 'Agent',
+                'email' => 'coexist-ok@wa-onboard.test',
+                'password' => 'password',
+            ]);
+
+            $this->actingAs($user, 'tenant');
+            Filament::setCurrentPanel(Filament::getPanel('tenant'));
+
+            $component = Livewire::test(ConnectWhatsAppPage::class)
+                ->call('chooseCoexistence');
+
+            $redirect = $component->effects['redirect'] ?? null;
+            $this->assertIsString($redirect);
+            $this->assertStringContainsString('/whatsapp/onboarding/start?state=', $redirect);
+
+            $query = parse_url($redirect, PHP_URL_QUERY);
+            parse_str((string) $query, $params);
+            $state = app(WhatsAppOnboardingStateService::class)->parse($params['state']);
+            $this->assertSame((string) $tenant->getTenantKey(), $state->tenantId);
+            $this->assertSame(WhatsAppConnectionMethod::EmbeddedSignupCoexistence, $state->connectionMethod);
         });
     }
 
