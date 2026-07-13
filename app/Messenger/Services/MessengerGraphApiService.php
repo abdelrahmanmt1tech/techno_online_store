@@ -57,6 +57,103 @@ class MessengerGraphApiService
         return $response;
     }
 
+    /**
+     * List Pages the user manages: GET /me/accounts
+     *
+     * @return list<array{page_id: string, page_name: ?string, page_access_token: string}>
+     */
+    public function listManagedPages(string $userAccessToken): array
+    {
+        $version = config('messenger.graph_api_version');
+        $timeout = (int) config('messenger.request_timeout', 30);
+        $pages = [];
+        $url = "https://graph.facebook.com/{$version}/me/accounts";
+        $query = [
+            'fields' => 'id,name,access_token',
+            'limit' => 100,
+        ];
+
+        do {
+            $response = Http::timeout($timeout)
+                ->withToken($userAccessToken)
+                ->get($url, $query);
+
+            if (! $response->successful()) {
+                throw new \RuntimeException($this->safeErrorMessage($response));
+            }
+
+            $batch = $response->json('data', []);
+
+            if (is_array($batch)) {
+                foreach ($batch as $row) {
+                    if (! is_array($row) || blank($row['id'] ?? null) || blank($row['access_token'] ?? null)) {
+                        continue;
+                    }
+
+                    $pages[] = [
+                        'page_id' => (string) $row['id'],
+                        'page_name' => isset($row['name']) ? (string) $row['name'] : null,
+                        'page_access_token' => (string) $row['access_token'],
+                    ];
+                }
+            }
+
+            $next = $response->json('paging.next');
+            $url = is_string($next) && $next !== '' ? $next : null;
+            $query = [];
+        } while (filled($url));
+
+        Log::channel(config('messenger.log_channel'))->info('Messenger managed pages listed', [
+            'count' => count($pages),
+        ]);
+
+        return $pages;
+    }
+
+    /**
+     * Subscribe this app to Page webhooks: POST /{page-id}/subscribed_apps
+     *
+     * @param  list<string>|null  $fields
+     */
+    public function subscribePageApps(MessengerPage $page, ?array $fields = null): Response
+    {
+        $version = config('messenger.graph_api_version');
+        $timeout = (int) config('messenger.request_timeout', 30);
+        $fields ??= config('messenger.facebook_login.subscribed_fields', [
+            'messages',
+            'messaging_postbacks',
+            'message_deliveries',
+            'message_reads',
+            'messaging_seen',
+        ]);
+
+        $payload = [
+            'subscribed_fields' => array_values($fields),
+        ];
+
+        $startedAt = microtime(true);
+
+        $response = Http::timeout($timeout)
+            ->withToken($page->page_access_token)
+            ->post("https://graph.facebook.com/{$version}/{$page->page_id}/subscribed_apps", $payload);
+
+        $this->apiRequestLogger->log(
+            $page,
+            MessengerApiRequestOperation::SubscribePageApps,
+            ['page_id' => $page->page_id, 'subscribed_fields' => $fields],
+            $response,
+            durationMs: (int) round((microtime(true) - $startedAt) * 1000),
+        );
+
+        Log::channel(config('messenger.log_channel'))->info('Messenger Page subscribed_apps attempted', [
+            'page_id' => $page->page_id,
+            'http_status' => $response->status(),
+            'success' => $response->successful(),
+        ]);
+
+        return $response;
+    }
+
     public function getLastLoggedRequestId(): ?int
     {
         return $this->apiRequestLogger->getLastLoggedRequestId();
