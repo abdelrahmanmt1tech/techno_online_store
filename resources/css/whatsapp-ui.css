@@ -484,87 +484,188 @@
     color: var(--danger-300);
 }
 
+.wa-connect {
+    gap: 1.5rem;
+}
+
+.wa-connect__header {
+    max-width: 52rem;
+}
+
 .wa-connect__intro {
-    margin: 0 0 1.25rem;
-    color: var(--gray-600);
-    max-width: 48rem;
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--gray-600, #4b5563);
 }
 
 .dark .wa-connect__intro {
-    color: var(--gray-300);
+    color: var(--gray-300, #d1d5db);
 }
 
 .wa-connect__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.25rem;
+    align-items: stretch;
+}
+
+@media (min-width: 768px) {
+    .wa-connect__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .wa-connect__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 .wa-connect-card {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding: 1.25rem;
-    border: 1px solid var(--gray-200);
-    border-radius: 0.75rem;
-    background: color-mix(in srgb, var(--white) 100%, transparent);
+    justify-content: space-between;
+    gap: 1.25rem;
+    min-height: 100%;
+    padding: 1.35rem 1.35rem 1.25rem;
+    border: 1px solid var(--gray-200, #e5e7eb);
+    border-radius: 1rem;
+    background: var(--white, #ffffff);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.wa-connect-card:hover {
+    box-shadow: 0 8px 24px rgb(15 23 42 / 0.08);
 }
 
 .dark .wa-connect-card {
-    border-color: var(--gray-700);
-    background: color-mix(in srgb, var(--gray-900) 80%, transparent);
+    border-color: var(--gray-700, #374151);
+    background: color-mix(in srgb, var(--gray-900, #111827) 92%, transparent);
+    box-shadow: none;
+}
+
+.dark .wa-connect-card:hover {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-500, #10b981) 25%, transparent);
 }
 
 .wa-connect-card--recommended {
-    border-color: color-mix(in srgb, var(--primary-500) 45%, var(--gray-200));
+    border-color: color-mix(in srgb, var(--primary-500, #10b981) 55%, var(--gray-200, #e5e7eb));
+    background:
+        linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--primary-500, #10b981) 8%, transparent),
+            transparent 42%
+        ),
+        var(--white, #ffffff);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-500, #10b981) 18%, transparent);
+}
+
+.dark .wa-connect-card--recommended {
+    background:
+        linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--primary-500, #10b981) 14%, transparent),
+            transparent 48%
+        ),
+        color-mix(in srgb, var(--gray-900, #111827) 92%, transparent);
+}
+
+.wa-connect-card--coexistence {
+    border-color: color-mix(in srgb, var(--info-500, #3b82f6) 40%, var(--gray-200, #e5e7eb));
+}
+
+.wa-connect-card--gated {
+    opacity: 0.78;
+    border-style: dashed;
+    background: color-mix(in srgb, var(--gray-50, #f9fafb) 90%, transparent);
+}
+
+.dark .wa-connect-card--gated {
+    background: color-mix(in srgb, var(--gray-800, #1f2937) 55%, transparent);
+}
+
+.wa-connect-card__top {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1 1 auto;
 }
 
 .wa-connect-card__badge {
     align-self: flex-start;
-    font-size: 0.7rem;
+    font-size: 0.6875rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.2rem 0.55rem;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.65rem;
     border-radius: 9999px;
-    background: color-mix(in srgb, var(--primary-500) 14%, transparent);
-    color: var(--primary-700);
+    background: color-mix(in srgb, var(--primary-500, #10b981) 16%, transparent);
+    color: var(--primary-700, #047857);
+}
+
+.dark .wa-connect-card__badge {
+    color: var(--primary-300, #6ee7b7);
 }
 
 .wa-connect-card__badge--muted {
-    background: color-mix(in srgb, var(--gray-500) 14%, transparent);
-    color: var(--gray-600);
+    background: color-mix(in srgb, var(--gray-500, #6b7280) 16%, transparent);
+    color: var(--gray-600, #4b5563);
+}
+
+.dark .wa-connect-card__badge--muted {
+    color: var(--gray-300, #d1d5db);
 }
 
 .wa-connect-card__title {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 1.125rem;
+    line-height: 1.35;
     font-weight: 700;
+    color: var(--gray-950, #030712);
+}
+
+.dark .wa-connect-card__title {
+    color: var(--gray-50, #f9fafb);
 }
 
 .wa-connect-card__body {
     margin: 0;
     font-size: 0.875rem;
-    color: var(--gray-600);
+    line-height: 1.55;
+    color: var(--gray-600, #4b5563);
 }
 
 .dark .wa-connect-card__body {
-    color: var(--gray-300);
+    color: var(--gray-300, #d1d5db);
 }
 
 .wa-connect-card__list {
-    margin: 0 0 0.5rem;
-    padding-inline-start: 1.1rem;
+    margin: 0.15rem 0 0;
+    padding-inline-start: 1.15rem;
     font-size: 0.8125rem;
-    color: var(--gray-500);
+    line-height: 1.45;
+    color: var(--gray-500, #6b7280);
+}
+
+.dark .wa-connect-card__list {
+    color: var(--gray-400, #9ca3af);
 }
 
 .wa-connect-card__list li + li {
-    margin-top: 0.25rem;
+    margin-top: 0.4rem;
 }
 
-.wa-connect-card .fi-btn {
+.wa-connect-card__actions {
     margin-top: auto;
-    align-self: flex-start;
+    padding-top: 0.25rem;
+}
+
+.wa-connect-card__actions .fi-btn,
+.wa-connect-card .fi-btn {
+    width: 100%;
+    justify-content: center;
 }
 

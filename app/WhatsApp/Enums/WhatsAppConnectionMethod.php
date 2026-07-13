@@ -16,4 +16,15 @@ enum WhatsAppConnectionMethod: string
             self::EmbeddedSignupCoexistence => __('dashboard.whatsapp_connection_method_embedded_signup_coexistence'),
         };
     }
+
+    public function isEmbeddedSignup(): bool
+    {
+        return $this === self::EmbeddedSignupApiOnly
+            || $this === self::EmbeddedSignupCoexistence;
+    }
+
+    public function isCoexistence(): bool
+    {
+        return $this === self::EmbeddedSignupCoexistence;
+    }
 }

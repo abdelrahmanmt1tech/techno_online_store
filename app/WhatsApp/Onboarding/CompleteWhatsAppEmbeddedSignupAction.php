@@ -32,8 +32,8 @@ class CompleteWhatsAppEmbeddedSignupAction
         array $sessionData = [],
         ?string $clientError = null,
     ): WhatsAppOnboardingSession {
-        if ($state->connectionMethod !== WhatsAppConnectionMethod::EmbeddedSignupApiOnly) {
-            throw new RuntimeException('Only API Only Embedded Signup can complete this flow.');
+        if (! $state->connectionMethod->isEmbeddedSignup()) {
+            throw new RuntimeException('Only Embedded Signup connection methods can complete this flow.');
         }
 
         $session = WhatsAppOnboardingSession::query()->firstOrNew(['nonce' => $state->nonce]);
@@ -92,6 +92,7 @@ class CompleteWhatsAppEmbeddedSignupAction
             Log::channel(config('whatsapp.log_channel'))->warning('WhatsApp Embedded Signup completion failed during token exchange', [
                 'tenant_id' => $state->tenantId,
                 'nonce' => $state->nonce,
+                'connection_method' => $state->connectionMethod->value,
                 'message' => $exception->getMessage(),
             ]);
 
@@ -107,11 +108,12 @@ class CompleteWhatsAppEmbeddedSignupAction
 
         if ($hasPhone && $hasWaba) {
             $session->status = WhatsAppOnboardingStatus::SubscribingWebhooks->value;
-            $numberId = $this->persistTenantNumber($tenant, $session, $accessToken);
+            $numberId = $this->persistTenantNumber($tenant, $session, $accessToken, $state->connectionMethod);
             $session->tenant_whatsapp_number_id = $numberId;
         } elseif ($hasWaba) {
             $session->status = WhatsAppOnboardingStatus::SubscribingWebhooks->value;
         } else {
+            // Coexistence may return partial assets; keep pending validation instead of failing.
             $session->status = WhatsAppOnboardingStatus::InProgress->value;
         }
 
@@ -120,13 +122,14 @@ class CompleteWhatsAppEmbeddedSignupAction
         Log::channel(config('whatsapp.log_channel'))->info('WhatsApp Embedded Signup completion stored', [
             'tenant_id' => $state->tenantId,
             'nonce' => $state->nonce,
+            'connection_method' => $state->connectionMethod->value,
             'status' => $session->status,
             'has_waba' => $hasWaba,
             'has_phone' => $hasPhone,
             'tenant_whatsapp_number_id' => $session->tenant_whatsapp_number_id,
         ]);
 
-        // Phase D: subscribe WABA + confirm phone metadata when a WABA is available.
+        // Subscribe WABA + confirm phone metadata when a WABA is available.
         if ($hasWaba) {
             return $this->finalizeAction->execute($state);
         }
@@ -138,8 +141,9 @@ class CompleteWhatsAppEmbeddedSignupAction
         Tenant $tenant,
         WhatsAppOnboardingSession $session,
         string $accessToken,
+        WhatsAppConnectionMethod $method,
     ): int {
-        return (int) $this->tenantContext->runForTenant($tenant, function () use ($session, $accessToken) {
+        return (int) $this->tenantContext->runForTenant($tenant, function () use ($session, $accessToken, $method) {
             $display = $session->display_phone_number
                 ?: ('+'.$session->phone_number_id);
 
@@ -151,7 +155,9 @@ class CompleteWhatsAppEmbeddedSignupAction
                     'access_token' => $accessToken,
                     'token_type' => 'embedded_signup',
                     'token_source' => WhatsAppTokenSource::EmbeddedSignup,
-                    'connection_method' => WhatsAppConnectionMethod::EmbeddedSignupApiOnly,
+                    'connection_method' => $method,
+                    'coexistence_enabled' => $method->isCoexistence(),
+                    'business_app_number' => $method->isCoexistence() ? $display : null,
                     'onboarding_status' => WhatsAppOnboardingStatus::SubscribingWebhooks,
                     'status' => WhatsAppConnectionStatus::Active,
                     'is_active' => true,

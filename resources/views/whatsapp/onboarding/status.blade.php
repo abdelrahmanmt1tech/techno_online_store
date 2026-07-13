@@ -45,7 +45,25 @@
                 @if ($isSuccess)
                     <div>
                         <dt>{{ __('dashboard.whatsapp_onboarding_next_step') }}</dt>
-                        <dd>{{ __('dashboard.whatsapp_onboarding_next_step_test_messages') }}</dd>
+                        <dd>
+                            @if ($isCoexistence)
+                                {{ __('dashboard.whatsapp_onboarding_next_step_coexistence') }}
+                            @else
+                                {{ __('dashboard.whatsapp_onboarding_next_step_test_messages') }}
+                            @endif
+                        </dd>
+                    </div>
+                @endif
+                @if ($isCoexistence && in_array($session->status, ['in_progress', 'awaiting_phone_selection'], true))
+                    <div>
+                        <dt>{{ __('dashboard.whatsapp_onboarding_next_step') }}</dt>
+                        <dd>{{ __('dashboard.whatsapp_onboarding_coexistence_pending_help') }}</dd>
+                    </div>
+                @endif
+                @if ($isCoexistence)
+                    <div>
+                        <dt>{{ __('dashboard.whatsapp_onboarding_reconnect_note_label') }}</dt>
+                        <dd>{{ __('dashboard.whatsapp_onboarding_coexistence_reconnect_note') }}</dd>
                     </div>
                 @endif
                 @if (filled($session->last_error))

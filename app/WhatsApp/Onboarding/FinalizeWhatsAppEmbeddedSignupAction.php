@@ -28,8 +28,8 @@ class FinalizeWhatsAppEmbeddedSignupAction
      */
     public function execute(WhatsAppOnboardingState $state): WhatsAppOnboardingSession
     {
-        if ($state->connectionMethod !== WhatsAppConnectionMethod::EmbeddedSignupApiOnly) {
-            throw new RuntimeException('Only API Only Embedded Signup can finalize this flow.');
+        if (! $state->connectionMethod->isEmbeddedSignup()) {
+            throw new RuntimeException('Only Embedded Signup connection methods can finalize this flow.');
         }
 
         $session = WhatsAppOnboardingSession::query()->where('nonce', $state->nonce)->first();
@@ -78,8 +78,8 @@ class FinalizeWhatsAppEmbeddedSignupAction
         $session->save();
 
         try {
-            $result = $this->tenantContext->runForTenant($tenant, function () use ($session, $accessToken) {
-                return $this->runPhaseDInsideTenant($session, $accessToken);
+            $result = $this->tenantContext->runForTenant($tenant, function () use ($session, $accessToken, $state) {
+                return $this->runPhaseDInsideTenant($session, $accessToken, $state->connectionMethod);
             });
 
             $session->refresh();
@@ -97,7 +97,26 @@ class FinalizeWhatsAppEmbeddedSignupAction
                 Log::channel(config('whatsapp.log_channel'))->info('WhatsApp onboarding awaiting phone selection', [
                     'tenant_id' => $session->tenant_id,
                     'nonce' => $session->nonce,
+                    'connection_method' => $state->connectionMethod->value,
                     'available_count' => count($result['available_phones']),
+                ]);
+
+                return $session->fresh();
+            }
+
+            if ($result['outcome'] === 'pending_validation') {
+                $session->status = WhatsAppOnboardingStatus::InProgress->value;
+                $session->last_error = $result['error'];
+                $session->session_payload = $this->mergePayload($session, [
+                    'subscribed_apps' => $result['subscription'],
+                    'available_phones' => $result['available_phones'],
+                    'phase_d' => 'pending_validation',
+                ]);
+                $session->save();
+
+                Log::channel(config('whatsapp.log_channel'))->info('WhatsApp coexistence onboarding pending validation', [
+                    'tenant_id' => $session->tenant_id,
+                    'nonce' => $session->nonce,
                 ]);
 
                 return $session->fresh();
@@ -143,7 +162,7 @@ class FinalizeWhatsAppEmbeddedSignupAction
     /**
      * @return array{
      *     outcome: string,
-     *     subscription: array{success: bool, http_status: int, success_flag: bool|null, message: string|null},
+     *     subscription: array{success: bool, http_status: int, success_flag: bool|null, message: string|null}|null,
      *     phone_number_id: ?string,
      *     display_phone_number: ?string,
      *     number_id: ?int,
@@ -151,8 +170,11 @@ class FinalizeWhatsAppEmbeddedSignupAction
      *     error: ?string
      * }
      */
-    protected function runPhaseDInsideTenant(WhatsAppOnboardingSession $session, string $accessToken): array
-    {
+    protected function runPhaseDInsideTenant(
+        WhatsAppOnboardingSession $session,
+        string $accessToken,
+        WhatsAppConnectionMethod $method,
+    ): array {
         $existing = $this->findNumberInCurrentTenant($session);
 
         $subscription = $existing !== null
@@ -179,6 +201,19 @@ class FinalizeWhatsAppEmbeddedSignupAction
         }
 
         if (! $phoneResult->isConfirmed() || blank($phoneResult->phoneNumberId)) {
+            // Coexistence can return incomplete phone assets — keep pending, do not hard-fail.
+            if ($method->isCoexistence()) {
+                return [
+                    'outcome' => 'pending_validation',
+                    'subscription' => $subscription,
+                    'phone_number_id' => null,
+                    'display_phone_number' => null,
+                    'number_id' => $existing?->id,
+                    'available_phones' => $phoneResult->availablePhones,
+                    'error' => $phoneResult->error ?: 'Coexistence phone metadata is incomplete; awaiting real-number validation.',
+                ];
+            }
+
             throw new RuntimeException($phoneResult->error ?: 'Phone number metadata could not be confirmed.');
         }
 
@@ -194,6 +229,10 @@ class FinalizeWhatsAppEmbeddedSignupAction
             'business_name' => $phoneResult->verifiedName ?: $number->business_name,
             'display_phone_number' => $phoneResult->displayPhoneNumber
                 ?: $number->display_phone_number,
+            'coexistence_enabled' => $method->isCoexistence() ? true : (bool) $number->coexistence_enabled,
+            'business_app_number' => $method->isCoexistence()
+                ? ($phoneResult->displayPhoneNumber ?: $number->display_phone_number ?: $number->business_app_number)
+                : $number->business_app_number,
         ])->save();
 
         return [
@@ -242,6 +281,10 @@ class FinalizeWhatsAppEmbeddedSignupAction
             ?: $session->display_phone_number
             ?: ('+'.$phoneResult->phoneNumberId);
 
+        $method = WhatsAppConnectionMethod::tryFrom((string) $session->connection_method)
+            ?? WhatsAppConnectionMethod::EmbeddedSignupApiOnly;
+        $isCoexistence = $method->isCoexistence();
+
         return WhatsAppNumber::query()->updateOrCreate(
             ['phone_number_id' => $phoneResult->phoneNumberId],
             [
@@ -251,7 +294,9 @@ class FinalizeWhatsAppEmbeddedSignupAction
                 'access_token' => $accessToken,
                 'token_type' => 'embedded_signup',
                 'token_source' => WhatsAppTokenSource::EmbeddedSignup,
-                'connection_method' => WhatsAppConnectionMethod::EmbeddedSignupApiOnly,
+                'connection_method' => $method,
+                'coexistence_enabled' => $isCoexistence,
+                'business_app_number' => $isCoexistence ? $display : null,
                 'onboarding_status' => WhatsAppOnboardingStatus::SubscribingWebhooks,
                 'status' => WhatsAppConnectionStatus::Active,
                 'is_active' => true,
