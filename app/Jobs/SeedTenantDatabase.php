@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Tenant;
+use App\Models\TenantUserCredential;
 
 class SeedTenantDatabase
 {
@@ -13,7 +14,9 @@ class SeedTenantDatabase
 
     public function handle(): void
     {
-        $this->tenant->run(function () {
+        $email = null;
+
+        $this->tenant->run(function () use (&$email) {
             $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
             $subdomain = str_replace('.'.$centralDomain, '', $this->tenant->domains()->first()?->domain ?? '');
 
@@ -36,5 +39,12 @@ class SeedTenantDatabase
             $role = setupStoreAdminRole();
             $user->assignRole($role);
         });
+
+        if ($email) {
+            TenantUserCredential::updateOrCreate(
+                ['email' => $email],
+                ['tenant_id' => $this->tenant->id]
+            );
+        }
     }
 }

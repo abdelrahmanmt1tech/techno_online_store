@@ -31,7 +31,7 @@ class SettingsController extends Controller
             'courses_link' => $settings->get('courses_link')?->value ?? null,
             'header_color' => $settings->get('header_color')?->value ?? null,
             'footer_color' => $settings->get('footer_color')?->value ?? null,
-            'whatsapp' => $settings->get('contact_us_whatsapp')?->value ?? null,
+            'contact_us_whatsapp' => $settings->get('contact_us_whatsapp')?->value ?? null,
         ]);
     }
 }

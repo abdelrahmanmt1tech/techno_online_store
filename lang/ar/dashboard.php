@@ -7,6 +7,7 @@ return [
     'admin' => 'مشرف',
     'users_group' => 'المستخدمين',
     'roles_and_permissions' => 'الأدوار والصلاحيات',
+    'login' => 'تسجيل الدخول',
     'roles' => 'الأدوار',
     'role' => 'دور',
 

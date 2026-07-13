@@ -7,6 +7,7 @@ return [
     'admin' => 'Admin',
     'users_group' => 'Users',
     'roles_and_permissions' => 'Roles & Permissions',
+    'login' => 'Login',
     'roles' => 'Roles',
     'role' => 'Role',
 
