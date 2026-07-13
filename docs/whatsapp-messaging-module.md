@@ -929,6 +929,19 @@ After the full module was implemented across all planned phases, implementation 
 | Status UI | Success / failed / cancelled / awaiting phone / pending Phase D |
 | Explicitly not in C | `subscribed_apps`, full phone listing/import polish, template sync, test send, Coexistence |
 
+#### Phase C.1 delivered (session lifecycle hardening)
+
+| Item | Detail |
+|---|---|
+| Lifecycle columns | `completed_at`, `failed_at` on `whatsapp_onboarding_sessions` |
+| Success | Token exchange success → `completed_at` set (`failed_at` cleared) |
+| Failure | Token exchange / client failure → `failed_at` set, token cleared |
+| Cancelled | Terminal `status=cancelled` with **`failed_at`** as the terminal timestamp (documented convention) |
+| Temporary only | Central sessions are **not** used for operational messaging; sends use tenant `WhatsAppNumber` |
+| Cleanup | `php artisan whatsapp:onboarding-sessions:cleanup` deletes completed/failed/cancelled/expired sessions older than retention |
+| Retention | `WHATSAPP_ONBOARDING_SESSION_RETENTION_DAYS` (default **7**); `--days=` / `--dry-run` supported |
+| Safety | Active non-expired sessions without terminal stamps are **not** deleted |
+
 #### Connection methods
 
 | Value | Meaning |
@@ -944,6 +957,7 @@ After the full module was implemented across all planned phases, implementation 
 | ~~A~~ | ~~Additive schema + enums + docs~~ **done** |
 | ~~B~~ | ~~Tenant Connect WhatsApp UI + central onboarding skeleton + signed state~~ **done** |
 | ~~C~~ | ~~Embedded Signup API Only (JS SDK + code → token + minimal persistence)~~ **done** |
+| ~~C.1~~ | ~~Onboarding session lifecycle timestamps + cleanup command~~ **done** |
 | D | WABA webhook subscription (`subscribed_apps`) + number import polish + registry sync |
 | E | Coexistence onboarding + flags |
 | F | Tests + docs polish |
@@ -1043,6 +1057,7 @@ Staging may keep `QUEUE_CONNECTION=sync`. Meta Allowed Domains should list the *
 | Onboarding Phase A (schema/enums) | **Done** — manual connection unchanged |
 | Onboarding Phase B (connect UI + central skeleton) | **Done** — signed state; central-domain-only |
 | Onboarding Phase C (Embedded Signup API Only) | **Done** — JS SDK launch, code→token exchange, encrypted persistence |
+| Onboarding Phase C.1 (session lifecycle) | **Done** — `completed_at` / `failed_at` + `whatsapp:onboarding-sessions:cleanup` |
 | Next WhatsApp implementation | **Phase D** — WABA `subscribed_apps` + number import polish |
 | Order-status notifications | **Postponed** until after Onboarding and Orders domain |
 | Messenger | **Separate channel** — out of scope for WhatsApp onboarding work |
@@ -1063,4 +1078,4 @@ This WhatsApp document remains the source of truth for WhatsApp only. Do not tru
 
 ---
 
-*Document version: reflects WhatsApp Onboarding Phase C (Embedded Signup API Only) on 2026-07-13. Phase D not started. Orders postponed. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: reflects WhatsApp Onboarding Phase C.1 (session lifecycle hardening) on 2026-07-13. Phase D not started. Orders postponed. Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

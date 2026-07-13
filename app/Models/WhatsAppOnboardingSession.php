@@ -25,6 +25,8 @@ class WhatsAppOnboardingSession extends Model
         'last_error',
         'return_url',
         'expires_at',
+        'completed_at',
+        'failed_at',
     ];
 
     protected $hidden = [
@@ -37,11 +39,26 @@ class WhatsAppOnboardingSession extends Model
             'access_token' => 'encrypted',
             'session_payload' => 'array',
             'expires_at' => 'datetime',
+            'completed_at' => 'datetime',
+            'failed_at' => 'datetime',
         ];
     }
 
     public function getMaskedAccessTokenAttribute(): string
     {
         return filled($this->access_token) ? '********' : '';
+    }
+
+    public function markCompleted(): void
+    {
+        $this->completed_at = now();
+        $this->failed_at = null;
+    }
+
+    public function markFailed(): void
+    {
+        $this->failed_at = now();
+        $this->completed_at = null;
+        $this->access_token = null;
     }
 }

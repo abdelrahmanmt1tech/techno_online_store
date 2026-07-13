@@ -51,9 +51,10 @@ class CompleteWhatsAppEmbeddedSignupAction
         ]);
 
         if ($outcome === 'cancelled') {
+            // Cancelled is terminal; use failed_at as the terminal timestamp (status remains cancelled).
             $session->status = 'cancelled';
             $session->last_error = $clientError ?: 'Embedded Signup was cancelled.';
-            $session->access_token = null;
+            $session->markFailed();
             $session->save();
 
             return $session->fresh();
@@ -62,7 +63,7 @@ class CompleteWhatsAppEmbeddedSignupAction
         if ($outcome === 'failed') {
             $session->status = WhatsAppOnboardingStatus::Failed->value;
             $session->last_error = $clientError ?: 'Embedded Signup failed.';
-            $session->access_token = null;
+            $session->markFailed();
             $session->save();
 
             return $session->fresh();
@@ -73,19 +74,18 @@ class CompleteWhatsAppEmbeddedSignupAction
         if ($tenant === null) {
             $session->status = WhatsAppOnboardingStatus::Failed->value;
             $session->last_error = 'Onboarding tenant was not found.';
-            $session->access_token = null;
+            $session->markFailed();
             $session->save();
 
             return $session->fresh();
         }
 
-        // success path — exchange code
         try {
             $accessToken = $this->tokenExchanger->exchange((string) $code);
         } catch (Throwable $exception) {
             $session->status = WhatsAppOnboardingStatus::Failed->value;
             $session->last_error = $exception->getMessage();
-            $session->access_token = null;
+            $session->markFailed();
             $session->save();
 
             Log::channel(config('whatsapp.log_channel'))->warning('WhatsApp Embedded Signup completion failed during token exchange', [
@@ -99,6 +99,7 @@ class CompleteWhatsAppEmbeddedSignupAction
 
         $session->access_token = $accessToken;
         $session->last_error = null;
+        $session->markCompleted();
 
         $hasPhone = filled($session->phone_number_id);
         $hasWaba = filled($session->waba_id);

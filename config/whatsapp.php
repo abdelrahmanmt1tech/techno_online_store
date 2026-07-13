@@ -24,4 +24,12 @@ return [
         'enforce_central_domain' => env('WHATSAPP_EMBEDDED_SIGNUP_ENFORCE_DOMAIN', true),
         'state_ttl_seconds' => (int) env('WHATSAPP_ONBOARDING_STATE_TTL', 900),
     ],
+
+    /*
+    | Temporary central onboarding sessions (not used for operational messaging).
+    | Cleanup: php artisan whatsapp:onboarding-sessions:cleanup
+    */
+    'onboarding' => [
+        'session_retention_days' => (int) env('WHATSAPP_ONBOARDING_SESSION_RETENTION_DAYS', 7),
+    ],
 ];

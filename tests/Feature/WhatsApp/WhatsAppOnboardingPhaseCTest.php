@@ -145,6 +145,8 @@ class WhatsAppOnboardingPhaseCTest extends WhatsAppTestCase
         $session = WhatsAppOnboardingSession::query()->where('nonce', $state->nonce)->first();
         $this->assertSame('failed', $session->status);
         $this->assertNull($session->access_token);
+        $this->assertNotNull($session->failed_at);
+        $this->assertNull($session->completed_at);
         $this->assertStringContainsString('Invalid verification code', (string) $session->last_error);
 
         $tenant->run(function () {
