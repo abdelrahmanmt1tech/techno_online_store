@@ -6,7 +6,7 @@ use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -90,11 +90,13 @@ class PaymentGatewaysSettings extends Page
                             TextInput::make('payment_gateways_main_title_en')
                                 ->label(__('dashboard.payment_gateways_settings.main_title_en')),
 
-                            RichEditor::make('payment_gateways_description_ar')
-                                ->label(__('dashboard.payment_gateways_settings.description_ar')),
+                            Textarea::make('payment_gateways_description_ar')
+                                ->label(__('dashboard.payment_gateways_settings.description_ar'))
+                                ->rows(5),
 
-                            RichEditor::make('payment_gateways_description_en')
-                                ->label(__('dashboard.payment_gateways_settings.description_en')),
+                            Textarea::make('payment_gateways_description_en')
+                                ->label(__('dashboard.payment_gateways_settings.description_en'))
+                                ->rows(5),
 
                             FileUpload::make('payment_gateways_image')
                                 ->label(__('dashboard.payment_gateways_settings.image'))

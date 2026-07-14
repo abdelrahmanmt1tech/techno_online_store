@@ -55,13 +55,13 @@ class Product extends Model
         return $this->hasMany(ProductCode::class);
     }
 
-    public function attributes(): HasMany
+    public function variations(): HasMany
     {
-        return $this->hasMany(ProductAttribute::class);
+        return $this->hasMany(ProductVariation::class);
     }
 
-    public function attributeValues(): HasMany
+    public function variants(): HasMany
     {
-        return $this->hasMany(ProductAttributeValue::class);
+        return $this->hasMany(ProductVariant::class);
     }
 }

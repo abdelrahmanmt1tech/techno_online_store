@@ -242,9 +242,12 @@ return [
 
     // Variants
     'variants' => 'المتغيرات',
+    'variants_description' => 'الكود، السعر، الكمية، والصورة لكل تركيبة من التوقيعات.',
     'variants_matrix' => 'مصفوفة المتغيرات',
     'variants_no_attributes' => 'أضف خصائص للمنتج لإنشاء المتغيرات.',
     'variants_no_values' => 'أضف قيم للخصائص لعرض المتغيرات.',
+    'variant_options' => 'خيارات المتغير',
+    'new_variant' => 'متغير جديد',
 
     // Categories
     'categories' => 'التصنيفات',

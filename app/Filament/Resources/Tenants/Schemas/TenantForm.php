@@ -116,7 +116,7 @@ class TenantForm
                         TextInput::make('price')
                             ->label(__('dashboard.price'))
                             ->numeric()
-                            ->prefix(fn (Get $get) => $get('currency') ?? 'SAR')
+                            // ->prefix(fn (Get $get) => $get('currency') ?? 'SAR')
                             ->required()
                             ->dehydrated(),
 

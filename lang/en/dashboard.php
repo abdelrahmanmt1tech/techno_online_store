@@ -242,9 +242,12 @@ return [
 
     // Variants
     'variants' => 'Variants',
+    'variants_description' => 'SKU, price, quantity, and image for each combination of options.',
     'variants_matrix' => 'Variants Matrix',
     'variants_no_attributes' => 'Add product attributes to create variants.',
     'variants_no_values' => 'Add attribute values to display variants.',
+    'variant_options' => 'Variant Options',
+    'new_variant' => 'New Variant',
 
     // Categories
     'categories' => 'Categories',

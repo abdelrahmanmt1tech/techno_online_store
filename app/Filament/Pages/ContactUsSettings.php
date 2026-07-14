@@ -5,7 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -88,11 +88,13 @@ class ContactUsSettings extends Page
                             TextInput::make('contact_us_main_title_en')
                                 ->label(__('dashboard.contact_us_settings.main_title_en')),
 
-                            RichEditor::make('contact_us_description_ar')
-                                ->label(__('dashboard.contact_us_settings.description_ar')),
+                            Textarea::make('contact_us_description_ar')
+                                ->label(__('dashboard.contact_us_settings.description_ar'))
+                                ->rows(5),
 
-                            RichEditor::make('contact_us_description_en')
-                                ->label(__('dashboard.contact_us_settings.description_en')),
+                            Textarea::make('contact_us_description_en')
+                                ->label(__('dashboard.contact_us_settings.description_en'))
+                                ->rows(5),
 
                             FileUpload::make('contact_us_image')
                                 ->label(__('dashboard.contact_us_settings.image'))

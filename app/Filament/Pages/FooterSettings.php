@@ -5,7 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -72,11 +72,13 @@ class FooterSettings extends Page
                         ->columns(2)
                         ->schema([
 
-                            RichEditor::make('footer_description_ar')
-                                ->label(__('dashboard.footer_settings.description_ar')),
+                            Textarea::make('footer_description_ar')
+                                ->label(__('dashboard.footer_settings.description_ar'))
+                                ->rows(5),
 
-                            RichEditor::make('footer_description_en')
-                                ->label(__('dashboard.footer_settings.description_en')),
+                            Textarea::make('footer_description_en')
+                                ->label(__('dashboard.footer_settings.description_en'))
+                                ->rows(5),
                                 
                             FileUpload::make('footer_logo')
                                 ->label(__('dashboard.footer_settings.logo'))

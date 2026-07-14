@@ -104,13 +104,6 @@ class GeneralSettings extends Page
                                 ->url()
                                 ->maxLength(255)
                                 ->columnSpan(1),
-
-                            ColorPicker::make('header_color')
-                                ->label(__('dashboard.general_settings.header_color')),
-
-                            ColorPicker::make('footer_color')
-                                ->label(__('dashboard.general_settings.footer_color')),
-
                         ])
                         ->icon(Heroicon::Cog6Tooth)
                         ->columnSpanFull(),

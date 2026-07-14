@@ -5,7 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -82,11 +82,13 @@ class IntroSettings extends Page
                             TextInput::make('intro_title_en')
                                 ->label(__('dashboard.intro_settings.title_en')),
 
-                            RichEditor::make('intro_description_ar')
-                                ->label(__('dashboard.intro_settings.description_ar')),
+                            Textarea::make('intro_description_ar')
+                                ->label(__('dashboard.intro_settings.description_ar'))
+                                ->rows(5),
 
-                            RichEditor::make('intro_description_en')
-                                ->label(__('dashboard.intro_settings.description_en')),
+                            Textarea::make('intro_description_en')
+                                ->label(__('dashboard.intro_settings.description_en'))
+                                ->rows(5),
 
                             FileUpload::make('intro_image')
                                 ->label(__('dashboard.intro_settings.image'))
@@ -95,11 +97,11 @@ class IntroSettings extends Page
                                 ->optimize('webp')
                                 ->columnSpan(2),
 
-                            TextInput::make('intro_link')
-                                ->label(__('dashboard.intro_settings.link'))
-                                ->url()
-                                ->maxLength(255)
-                                ->columnSpan(1),
+                            // TextInput::make('intro_link')
+                            //     ->label(__('dashboard.intro_settings.link'))
+                            //     ->url()
+                            //     ->maxLength(255)
+                            //     ->columnSpan(1),
                         ])
                         ->icon(Heroicon::Photo)
                         ->columnSpanFull(),
@@ -159,7 +161,7 @@ class IntroSettings extends Page
             'intro_section_active',
             'intro_title_ar', 'intro_title_en',
             'intro_description_ar', 'intro_description_en',
-            'intro_image', 'intro_link',
+            'intro_image', // 'intro_link',
         ];
 
         $richEditorKeys = ['intro_description_ar', 'intro_description_en'];

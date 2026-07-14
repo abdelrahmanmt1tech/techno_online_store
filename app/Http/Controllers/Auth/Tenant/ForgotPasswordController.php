@@ -34,9 +34,7 @@ class ForgotPasswordController extends Controller
             return back()->withErrors(['email' => __('dashboard.forgot_password_email_not_found')]);
         }
 
-        $otp = Str::random(6);
-        $otp = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $otp));
-        $otp = substr($otp, 0, 6);
+        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         PasswordOtp::where('email', $request->email)->update(['used' => true]);
 

@@ -73,6 +73,7 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 
 ## Gotchas
 
+- **NEVER run `migrate:fresh`, `db:wipe`, `migrate:refresh`, or any destructive database command without explicitly asking the user first.** These commands destroy all data. Always ask for confirmation before running them.
 - **Do not set** `SESSION_DOMAIN` to a value with a port (e.g., `localhost:8000`).
 - `composer run dev` uses `npx concurrently` — requires Node.js available.
 - `.env.example` defaults to SQLite but actual `.env` uses MySQL. Always check `.env` not `.env.example` for truth.

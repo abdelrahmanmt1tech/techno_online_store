@@ -15,9 +15,11 @@ class SettingsControllerTest extends TestCase
         Setting::create(['key' => 'site_logo', 'value' => 'general/logo.png']);
         Setting::create(['key' => 'web_favicon', 'value' => 'general/favicon.ico']);
         Setting::create(['key' => 'courses_link', 'value' => 'https://example.com/courses']);
-        Setting::create(['key' => 'header_color', 'value' => '#1a1a2e']);
-        Setting::create(['key' => 'footer_color', 'value' => '#0f3460']);
         Setting::create(['key' => 'contact_us_whatsapp', 'value' => '966500000000']);
+        Setting::create(['key' => 'contact_us_email', 'value' => 'info@example.com']);
+        Setting::create(['key' => 'contact_us_phone', 'value' => '+966500000000']);
+        Setting::create(['key' => 'terms_and_conditions_ar', 'string_value' => '<p>الشروط العربية</p>']);
+        Setting::create(['key' => 'terms_and_conditions_en', 'string_value' => '<p>English terms</p>']);
 
         $response = $this->getJson('/api/settings');
 
@@ -28,15 +30,19 @@ class SettingsControllerTest extends TestCase
                 'site_logo',
                 'web_favicon',
                 'courses_link',
-                'header_color',
-                'footer_color',
                 'contact_us_whatsapp',
+                'contact_us_email',
+                'contact_us_phone',
+                'terms_and_conditions',
+                'app_domain',
+                'login_link',
             ],
         ]);
         $response->assertJsonPath('data.courses_link', 'https://example.com/courses');
-        $response->assertJsonPath('data.header_color', '#1a1a2e');
-        $response->assertJsonPath('data.footer_color', '#0f3460');
         $response->assertJsonPath('data.contact_us_whatsapp', '966500000000');
+        $response->assertJsonPath('data.contact_us_email', 'info@example.com');
+        $response->assertJsonPath('data.contact_us_phone', '+966500000000');
+        $response->assertJsonPath('data.terms_and_conditions', '<p>الشروط العربية</p>');
         $this->assertStringContainsString('/storage/general/logo.png', $response->json('data.site_logo'));
         $this->assertStringContainsString('/storage/general/favicon.ico', $response->json('data.web_favicon'));
     }
@@ -49,8 +55,9 @@ class SettingsControllerTest extends TestCase
         $response->assertJsonPath('data.site_logo', null);
         $response->assertJsonPath('data.web_favicon', null);
         $response->assertJsonPath('data.courses_link', null);
-        $response->assertJsonPath('data.header_color', null);
-        $response->assertJsonPath('data.footer_color', null);
         $response->assertJsonPath('data.contact_us_whatsapp', null);
+        $response->assertJsonPath('data.contact_us_email', null);
+        $response->assertJsonPath('data.contact_us_phone', null);
+        $response->assertJsonPath('data.terms_and_conditions', '');
     }
 }

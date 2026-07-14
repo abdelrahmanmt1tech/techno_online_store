@@ -27,7 +27,7 @@ class HomeController extends Controller
             'intro_section_active',
             'intro_title_ar', 'intro_title_en',
             'intro_description_ar', 'intro_description_en',
-            'intro_image', 'intro_link',
+            'intro_image', // 'intro_link',
 
             'about_section_active',
             'about_small_title_ar', 'about_small_title_en',
@@ -67,7 +67,7 @@ class HomeController extends Controller
             'marketing_channels_small_title_ar', 'marketing_channels_small_title_en',
             'marketing_channels_main_title_ar', 'marketing_channels_main_title_en',
             'marketing_channels_description_ar', 'marketing_channels_description_en',
-            'marketing_channels_link',
+            // 'marketing_channels_link',
             'marketing_channels_items',
 
             'training_support_section_active',
@@ -83,7 +83,7 @@ class HomeController extends Controller
             'have_question_section_active',
             'have_question_title_ar', 'have_question_title_en',
             'have_question_description_ar', 'have_question_description_en',
-            'have_question_link',
+            // 'have_question_link',
 
             'contact_us_section_active',
             'contact_us_small_title_ar', 'contact_us_small_title_en',
@@ -171,7 +171,7 @@ class HomeController extends Controller
                 'title' => $getLocaleValue('intro_title'),
                 'description' => $getLocaleValue('intro_description'),
                 'image' => $imageUrl($getValue('intro_image')),
-                'link' => $getValue('intro_link'),
+                // 'link' => $getValue('intro_link'),
             ]),
             'about' => $whenActive('about_section_active', fn () => [
                 'small_title' => $getLocaleValue('about_small_title'),
@@ -228,7 +228,7 @@ class HomeController extends Controller
                 'small_title' => $getLocaleValue('marketing_channels_small_title'),
                 'main_title' => $getLocaleValue('marketing_channels_main_title'),
                 'description' => $getLocaleValue('marketing_channels_description'),
-                'link' => $getValue('marketing_channels_link'),
+                // 'link' => $getValue('marketing_channels_link'),
                 'items' => collect($getJsonArray('marketing_channels_items'))->map(fn ($item) => [
                     'title' => $item['title_'.$locale] ?? $item['title_ar'] ?? '',
                     'description' => $item['description_'.$locale] ?? $item['description_ar'] ?? '',
@@ -256,7 +256,7 @@ class HomeController extends Controller
             'have_question' => $whenActive('have_question_section_active', fn () => [
                 'title' => $getLocaleValue('have_question_title'),
                 'description' => $getLocaleValue('have_question_description'),
-                'link' => $getValue('have_question_link'),
+                // 'link' => $getValue('have_question_link'),
             ]),
             'contact_us' => $whenActive('contact_us_section_active', fn () => [
                 'small_title' => $getLocaleValue('contact_us_small_title'),

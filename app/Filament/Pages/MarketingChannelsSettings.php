@@ -6,7 +6,6 @@ use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -91,15 +90,17 @@ class MarketingChannelsSettings extends Page
                             TextInput::make('marketing_channels_main_title_en')
                                 ->label(__('dashboard.marketing_channels_settings.main_title_en')),
 
-                            RichEditor::make('marketing_channels_description_ar')
-                                ->label(__('dashboard.marketing_channels_settings.description_ar')),
+                            Textarea::make('marketing_channels_description_ar')
+                                ->label(__('dashboard.marketing_channels_settings.description_ar'))
+                                ->rows(5),
 
-                            RichEditor::make('marketing_channels_description_en')
-                                ->label(__('dashboard.marketing_channels_settings.description_en')),
+                            Textarea::make('marketing_channels_description_en')
+                                ->label(__('dashboard.marketing_channels_settings.description_en'))
+                                ->rows(5),
 
-                            TextInput::make('marketing_channels_link')
-                                ->label(__('dashboard.marketing_channels_settings.link'))
-                                ->url(),
+                            // TextInput::make('marketing_channels_link')
+                            //     ->label(__('dashboard.marketing_channels_settings.link'))
+                            //     ->url(),
                         ])
                         ->icon(Heroicon::Photo)
                         ->columnSpanFull(),
@@ -214,7 +215,7 @@ class MarketingChannelsSettings extends Page
             'marketing_channels_small_title_ar', 'marketing_channels_small_title_en',
             'marketing_channels_main_title_ar', 'marketing_channels_main_title_en',
             'marketing_channels_description_ar', 'marketing_channels_description_en',
-            'marketing_channels_link',
+            // 'marketing_channels_link',
             'marketing_channels_items',
         ];
 

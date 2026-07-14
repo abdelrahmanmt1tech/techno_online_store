@@ -6,7 +6,6 @@ use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -91,11 +90,13 @@ class TrainingSupportSettings extends Page
                             TextInput::make('training_support_main_title_en')
                                 ->label(__('dashboard.training_support_settings.main_title_en')),
 
-                            RichEditor::make('training_support_description_ar')
-                                ->label(__('dashboard.training_support_settings.description_ar')),
+                            Textarea::make('training_support_description_ar')
+                                ->label(__('dashboard.training_support_settings.description_ar'))
+                                ->rows(5),
 
-                            RichEditor::make('training_support_description_en')
-                                ->label(__('dashboard.training_support_settings.description_en')),
+                            Textarea::make('training_support_description_en')
+                                ->label(__('dashboard.training_support_settings.description_en'))
+                                ->rows(5),
                         ])
                         ->icon(Heroicon::Photo)
                         ->columnSpanFull(),

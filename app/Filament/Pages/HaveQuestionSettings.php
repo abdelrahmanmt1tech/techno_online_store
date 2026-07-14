@@ -4,7 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Setting;
 use Filament\Actions\Action;
-use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -81,17 +81,19 @@ class HaveQuestionSettings extends Page
                             TextInput::make('have_question_title_en')
                                 ->label(__('dashboard.have_question_settings.title_en')),
 
-                            RichEditor::make('have_question_description_ar')
-                                ->label(__('dashboard.have_question_settings.description_ar')),
+                            Textarea::make('have_question_description_ar')
+                                ->label(__('dashboard.have_question_settings.description_ar'))
+                                ->rows(5),
 
-                            RichEditor::make('have_question_description_en')
-                                ->label(__('dashboard.have_question_settings.description_en')),
+                            Textarea::make('have_question_description_en')
+                                ->label(__('dashboard.have_question_settings.description_en'))
+                                ->rows(5),
 
-                            TextInput::make('have_question_link')
-                                ->label(__('dashboard.have_question_settings.link'))
-                                ->url()
-                                ->maxLength(255)
-                                ->columnSpan(2),
+                            // TextInput::make('have_question_link')
+                            //     ->label(__('dashboard.have_question_settings.link'))
+                            //     ->url()
+                            //     ->maxLength(255)
+                            //     ->columnSpan(2),
                         ])
                         ->icon(Heroicon::Photo)
                         ->columnSpanFull(),
@@ -151,7 +153,7 @@ class HaveQuestionSettings extends Page
             'have_question_section_active',
             'have_question_title_ar', 'have_question_title_en',
             'have_question_description_ar', 'have_question_description_en',
-            'have_question_link',
+            // 'have_question_link',
         ];
 
         $richEditorKeys = ['have_question_description_ar', 'have_question_description_en'];
