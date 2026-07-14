@@ -933,4 +933,28 @@ return [
     'messenger_api_request_payload' => 'Request Sent to Meta',
     'messenger_api_response_body' => 'Meta Response',
 
+    // Forgot Password
+    'forgot_password' => 'Forgot Password?',
+    'forgot_password_email_heading' => 'We received a request to reset your password.',
+    'forgot_password_otp_label' => 'Verification Code',
+    'forgot_password_email_expires' => 'This code expires in 10 minutes.',
+    'forgot_password_email_subject' => 'Password Reset Code',
+    'forgot_password_send_otp' => 'Send Verification Code',
+    'forgot_password_sending' => 'Sending...',
+    'forgot_password_email_not_found' => 'This email is not registered.',
+    'forgot_password_otp_sent' => 'A verification code has been sent to your email.',
+    'forgot_password_verify_otp' => 'Verify Code',
+    'forgot_password_verify_otp_description' => 'Enter the 6-character code sent to',
+    'forgot_password_verify_otp_button' => 'Verify',
+    'forgot_password_verifying' => 'Verifying...',
+    'forgot_password_otp_invalid' => 'Invalid or expired code.',
+    'forgot_password_resend_otp' => 'Resend Code',
+    'forgot_password_reset' => 'Reset Password',
+    'forgot_password_confirm_password' => 'Confirm Password',
+    'forgot_password_reset_button' => 'Save New Password',
+    'forgot_password_resetting' => 'Saving...',
+    'forgot_password_reset_success' => 'Password has been reset successfully. You can now log in.',
+    'forgot_password_reset_failed' => 'Something went wrong. Please try again.',
+    'back_to_login' => 'Back to Login',
+
 ];

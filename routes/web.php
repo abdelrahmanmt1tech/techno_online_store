@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Auth\TenantLoginController;
+use App\Http\Controllers\Auth\Tenant\ForgotPasswordController;
+use App\Http\Controllers\Auth\Tenant\TenantLoginController;
 use App\Http\Controllers\LegalPageController;
 use App\Http\Controllers\MessengerOnboardingController;
 use App\Http\Controllers\MessengerWebhookController;
@@ -27,6 +28,15 @@ Route::post('/webhooks/meta/messenger', [MessengerWebhookController::class, 'rec
 Route::prefix('tenant-login')->group(function () {
     Route::get('/', [TenantLoginController::class, 'showLoginForm'])->name('tenant-login.form');
     Route::post('/', [TenantLoginController::class, 'login'])->name('tenant-login.login');
+});
+
+Route::prefix('tenant/forgot-password')->group(function () {
+    Route::get('/', [ForgotPasswordController::class, 'showForm'])->name('tenant.forgot-password.form');
+    Route::post('/send', [ForgotPasswordController::class, 'sendOtp'])->name('tenant.forgot-password.send');
+    Route::get('/verify', [ForgotPasswordController::class, 'showVerifyForm'])->name('tenant.forgot-password.verify-form');
+    Route::post('/verify', [ForgotPasswordController::class, 'verifyOtp'])->name('tenant.forgot-password.verify');
+    Route::get('/reset', [ForgotPasswordController::class, 'showResetForm'])->name('tenant.forgot-password.reset-form');
+    Route::post('/reset', [ForgotPasswordController::class, 'resetPassword'])->name('tenant.forgot-password.reset');
 });
 Route::prefix('whatsapp/onboarding')
     ->middleware([EnsureWhatsAppOnboardingCentralDomain::class])

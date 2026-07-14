@@ -213,6 +213,12 @@
                                     </span>
                                 </x-filament::button>
                             </div>
+
+                            <div style="text-align: center; margin-top: 0.5rem;">
+                                <a href="{{ route('tenant.forgot-password.form') }}" style="font-size: 0.875rem; color: #166534; text-decoration: none; font-weight: 500;">
+                                    {{ __('dashboard.forgot_password') }}
+                                </a>
+                            </div>
                         </form>
                     </div>
                 </div>

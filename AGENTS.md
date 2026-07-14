@@ -54,7 +54,7 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 ## Testing
 
 - **PHPUnit** (not Pest) — `tests/Unit/` and `tests/Feature/`.
-- Uses file-based SQLite (`database/testing.sqlite`) with `QUEUE_CONNECTION=sync`, `CACHE_STORE=array`, `SESSION_DRIVER=array`.
+- Uses MySQL (`techno_online_store` DB) with `QUEUE_CONNECTION=sync`, `CACHE_STORE=array`, `SESSION_DRIVER=array`.
 - `tests/TestCase.php` extends `Illuminate\Foundation\Testing\TestCase` (no `RefreshDatabase` by default — add trait when needed).
 - Unit tests extend `PHPUnit\Framework\TestCase` directly (no Laravel app boot).
 

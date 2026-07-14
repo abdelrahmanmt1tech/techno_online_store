@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api\Front;
+namespace App\Http\Controllers\Api\Central;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BlogCategoryResource;
 use App\Http\Resources\BlogDetailResource;
 use App\Http\Resources\BlogListResource;
 use App\Models\Blog;
+use App\Models\BlogCategory;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 
@@ -59,6 +61,17 @@ class BlogController extends Controller
             $blogs,
             BlogListResource::collection($blogs),
             ['seo' => buildSeo('blogs')]
+        );
+    }
+
+    public function getCategories()
+    {
+        $categories = BlogCategory::where('is_active', true)
+            ->get();
+
+        return $this->successResponse(
+            BlogCategoryResource::collection($categories),
+            __('messages.fetched_successfully'),
         );
     }
 

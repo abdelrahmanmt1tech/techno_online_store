@@ -933,4 +933,28 @@ return [
     'messenger_api_request_payload' => 'الطلب المُرسل إلى Meta',
     'messenger_api_response_body' => 'رد Meta',
 
+    // Forgot Password
+    'forgot_password' => 'نسيت كلمة المرور؟',
+    'forgot_password_email_heading' => 'لقد تلقينا طلبًا لإعادة تعيين كلمة المرور.',
+    'forgot_password_otp_label' => 'رمز التحقق',
+    'forgot_password_email_expires' => 'هذا الرمز ينتهي صلاحيته خلال 10 دقائق.',
+    'forgot_password_email_subject' => 'رمز إعادة تعيين كلمة المرور',
+    'forgot_password_send_otp' => 'إرسال رمز التحقق',
+    'forgot_password_sending' => 'جاري الإرسال...',
+    'forgot_password_email_not_found' => 'البريد الإلكتروني غير مسجل.',
+    'forgot_password_otp_sent' => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.',
+    'forgot_password_verify_otp' => 'التحقق من الرمز',
+    'forgot_password_verify_otp_description' => 'أدخل الرمز المكون من 6 أحرف المرسل إلى',
+    'forgot_password_verify_otp_button' => 'تحقق',
+    'forgot_password_verifying' => 'جاري التحقق...',
+    'forgot_password_otp_invalid' => 'الرمز غير صحيح أو منتهي الصلاحية.',
+    'forgot_password_resend_otp' => 'إعادة إرسال الرمز',
+    'forgot_password_reset' => 'إعادة تعيين كلمة المرور',
+    'forgot_password_confirm_password' => 'تأكيد كلمة المرور',
+    'forgot_password_reset_button' => 'حفظ كلمة المرور الجديدة',
+    'forgot_password_resetting' => 'جاري الحفظ...',
+    'forgot_password_reset_success' => 'تمت إعادة تعيين كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.',
+    'forgot_password_reset_failed' => 'حدث خطأ. يرجى المحاولة مرة أخرى.',
+    'back_to_login' => 'العودة لتسجيل الدخول',
+
 ];

@@ -195,47 +195,47 @@ class BlogForm
                     ])
                     ->columnSpanFull(),
 
-                Section::make(__('dashboard.faqs'))
-                    ->schema([
-                        Repeater::make('faqs')
-                            ->label(__('dashboard.faqs'))
-                            ->relationship()
-                            ->schema([
-                                TextInput::make('question.ar')
-                                    ->label(__('dashboard.question_ar'))
-                                    ->required()
-                                    ->maxLength(255),
+                // Section::make(__('dashboard.faqs'))
+                //     ->schema([
+                //         Repeater::make('faqs')
+                //             ->label(__('dashboard.faqs'))
+                //             ->relationship()
+                //             ->schema([
+                //                 TextInput::make('question.ar')
+                //                     ->label(__('dashboard.question_ar'))
+                //                     ->required()
+                //                     ->maxLength(255),
 
-                                TextInput::make('question.en')
-                                    ->label(__('dashboard.question_en'))
-                                    ->required()
-                                    ->maxLength(255),
+                //                 TextInput::make('question.en')
+                //                     ->label(__('dashboard.question_en'))
+                //                     ->required()
+                //                     ->maxLength(255),
 
-                                Textarea::make('answer.ar')
-                                    ->label(__('dashboard.answer_ar'))
-                                    ->required()
-                                    ->rows(3),
+                //                 Textarea::make('answer.ar')
+                //                     ->label(__('dashboard.answer_ar'))
+                //                     ->required()
+                //                     ->rows(3),
 
-                                Textarea::make('answer.en')
-                                    ->label(__('dashboard.answer_en'))
-                                    ->required()
-                                    ->rows(3),
+                //                 Textarea::make('answer.en')
+                //                     ->label(__('dashboard.answer_en'))
+                //                     ->required()
+                //                     ->rows(3),
 
-                                TextInput::make('order')
-                                    ->label(__('dashboard.order'))
-                                    ->numeric()
-                                    ->default(0),
+                //                 TextInput::make('order')
+                //                     ->label(__('dashboard.order'))
+                //                     ->numeric()
+                //                     ->default(0),
 
-                                Toggle::make('is_active')
-                                    ->label(__('dashboard.active'))
-                                    ->default(true),
-                            ])
-                            ->columns(2)
-                            ->defaultItems(1)
-                            ->addActionLabel(__('dashboard.add_faq'))
-                            ->itemLabel(fn (array $state): ?string => $state['question']['en'] ?? $state['question']['ar'] ?? null),
-                    ])
-                    ->columnSpanFull(),
+                //                 Toggle::make('is_active')
+                //                     ->label(__('dashboard.active'))
+                //                     ->default(true),
+                //             ])
+                //             ->columns(2)
+                //             ->defaultItems(1)
+                //             ->addActionLabel(__('dashboard.add_faq'))
+                //             ->itemLabel(fn (array $state): ?string => $state['question']['en'] ?? $state['question']['ar'] ?? null),
+                //     ])
+                //     ->columnSpanFull(),
 
                 SeoFormSection::make()->columnSpanFull(),
 

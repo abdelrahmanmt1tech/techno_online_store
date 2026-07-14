@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Front;
+namespace App\Http\Controllers\Api\Central;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
