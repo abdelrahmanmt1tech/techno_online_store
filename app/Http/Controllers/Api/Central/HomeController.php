@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api\Central;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CategoryResource;
-use App\Http\Resources\FaqResource;
-use App\Http\Resources\PlanResource;
-use App\Http\Resources\ThemeResource;
+use App\Http\Resources\Central\CategoryResource;
+use App\Http\Resources\Central\FaqResource;
+use App\Http\Resources\Central\PlanResource;
+use App\Http\Resources\Central\ThemeResource;
 use App\Models\Category;
 use App\Models\Faq;
 use App\Models\Plan;
@@ -111,7 +111,6 @@ class HomeController extends Controller
             'contact_us_description_ar', 'contact_us_description_en',
             'footer_description_ar', 'footer_description_en',
         ];
-
 
         $settings = Setting::whereIn('key', $settingKeys)->get()->keyBy('key');
 
@@ -373,5 +372,3 @@ class HomeController extends Controller
         return $this->successResponse(['content' => $content], __('messages.fetched_successfully'));
     }
 }
-
-

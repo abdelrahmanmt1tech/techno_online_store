@@ -40,7 +40,6 @@ class ThemesTable
 
                 TextColumn::make('price')
                     ->label(__('dashboard.price'))
-                    ->money('SAR')
                     ->sortable()
                     ->toggleable(),
 

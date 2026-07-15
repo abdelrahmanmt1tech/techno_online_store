@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Central;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,7 +17,7 @@ class BlogListResource extends JsonResource
             'image' => $this->image ? asset('storage/'.$this->image) : null,
             'published_at' => $this->published_at?->toIso8601String(),
             'views_count' => $this->views_count,
-            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'categories' => BlogCategoryResource::collection($this->whenLoaded('categories')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
         ];
     }

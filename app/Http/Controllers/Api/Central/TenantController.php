@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Central;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreTenantRequest;
+use App\Http\Requests\Central\StoreTenantRequest;
 use App\Jobs\SeedTenantDatabase;
 use App\Models\Tenant;
 use App\Traits\ApiResponse;

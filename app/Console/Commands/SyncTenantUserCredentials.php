@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class SyncTenantUserCredentials extends Command
 {
     protected $signature = 'tenants:sync-credentials';
+
     protected $description = 'Sync tenant user credentials for all existing tenants';
 
     public function handle(): int

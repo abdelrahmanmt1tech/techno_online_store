@@ -42,7 +42,6 @@ class ProductsTable
 
                 TextColumn::make('price')
                     ->label(__('dashboard.price'))
-                    ->money('SAR')
                     ->sortable(),
 
                 TextColumn::make('quantity')

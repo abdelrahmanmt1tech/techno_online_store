@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Central;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -27,8 +27,6 @@ class PlanResource extends JsonResource
             'is_active' => $this->type === 'commission',
             'price' => $this->price,
             'currency' => $this->currency,
-            // 'commission_per_order' => $this->commission_per_order,
-            // 'subscription_period' => $this->subscription_period,
             'features' => $this->features
                 ->sortBy('order')
                 ->map(fn ($feature) => [

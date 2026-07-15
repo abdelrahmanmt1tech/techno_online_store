@@ -79,7 +79,7 @@ class FooterSettings extends Page
                             Textarea::make('footer_description_en')
                                 ->label(__('dashboard.footer_settings.description_en'))
                                 ->rows(5),
-                                
+
                             FileUpload::make('footer_logo')
                                 ->label(__('dashboard.footer_settings.logo'))
                                 ->image()
@@ -139,7 +139,7 @@ class FooterSettings extends Page
                                 ->submit('save')
                                 ->label(__('dashboard.save'))
                                 ->keyBindings(['mod+s'])
-                                ->visible(fn() => Auth::user()->can('footer-settings.update')),
+                                ->visible(fn () => Auth::user()->can('footer-settings.update')),
                         ]),
                     ]),
             ])

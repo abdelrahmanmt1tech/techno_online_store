@@ -2,6 +2,7 @@
 
 namespace App\Filament\Tenant\Resources\Products\Schemas;
 
+use App\Models\Tenant\Category;
 use App\Models\Tenant\Product;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
@@ -104,10 +105,45 @@ class ProductForm
                     ->searchable()
                     ->preload()
                     ->native(false)
-                    ->columnSpan(2),
+                    ->columnSpan(2)
+                    ->suffixAction(
+                        Action::make('createCategory')
+                            ->label(__('dashboard.add_category'))
+                            ->icon('heroicon-m-plus')
+                            ->color('primary')
+                            ->modalHeading(__('dashboard.add_category'))
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label(__('dashboard.name'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                Textarea::make('description')
+                                    ->label(__('dashboard.description'))
+                                    ->rows(3),
+                                Select::make('parent_id')
+                                    ->label(__('dashboard.parent_category'))
+                                    ->options(fn () => Category::whereNull('parent_id')
+                                        ->orderBy('name')
+                                        ->pluck('name', 'id'))
+                                    ->searchable()
+                                    ->preload()
+                                    ->native(false)
+                                    ->nullable(),
+
+                                Toggle::make('is_active')
+                                    ->label(__('dashboard.active'))
+                                    ->default(true),
+                            ])
+                            ->action(function (array $data, $get, $set) {
+                                $category = Category::create($data);
+                                $current = $get('categories') ?? [];
+                                $set('categories', array_merge($current, [$category->id]));
+                            }),
+                    ),
 
                 TextInput::make('order')
-                    ->label(__('dashboard.order'))
+                    ->label(__('dashboard.sort_order'))
                     ->numeric()
                     ->default(0)
                     ->helperText(__('dashboard.order_helper')),
@@ -402,20 +438,20 @@ class ProductForm
                                     ->label(__('dashboard.price'))
                                     ->required()
                                     ->numeric()
-                
+
                                     ->minValue(0),
 
                                 TextInput::make('sale_price')
                                     ->label(__('dashboard.sale_price'))
                                     ->numeric()
-                
+
                                     ->minValue(0)
                                     ->nullable(),
 
                                 TextInput::make('expense')
                                     ->label(__('dashboard.expense'))
                                     ->numeric()
-                
+
                                     ->minValue(0)
                                     ->nullable(),
 

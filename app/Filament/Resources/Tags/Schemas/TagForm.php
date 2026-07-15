@@ -28,7 +28,7 @@ class TagForm
                         TextInput::make('slug')
                             ->label(__('dashboard.slug'))
                             ->maxLength(255)
-                            ->unique(ignoreRecord: true) 
+                            ->unique(ignoreRecord: true)
                             ->required(),
                     ])
                     ->columnSpanFull(),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\WhatsApp\Onboarding\WhatsAppOnboardingStateService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,7 @@ class EnsureWhatsAppOnboardingCentralDomain
             return $next($request);
         }
 
-        $service = app(\App\WhatsApp\Onboarding\WhatsAppOnboardingStateService::class);
+        $service = app(WhatsAppOnboardingStateService::class);
         $host = $request->getHttpHost();
 
         if (! $service->isAllowedCentralHost($host) && ! $service->isAllowedCentralHost($request->getHost())) {

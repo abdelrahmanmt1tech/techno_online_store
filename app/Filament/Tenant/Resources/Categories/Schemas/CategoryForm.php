@@ -60,6 +60,18 @@ class CategoryForm
                         Toggle::make('is_active')
                             ->label(__('dashboard.active')),
 
+                        Select::make('products')
+                            ->label(__('dashboard.products'))
+                            ->relationship(
+                                name: 'products',
+                                titleAttribute: 'name'
+                            )
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->native(false)
+                            ->columnSpanFull(),
+
                     ])
                     ->columnSpanFull(),
             ]);

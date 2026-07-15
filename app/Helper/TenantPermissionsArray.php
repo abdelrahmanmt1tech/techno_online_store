@@ -32,6 +32,21 @@ function tenantPermissionsArray(): array
                 ['name' => 'dashboard.permissions.view', 'key' => 'messenger.view_webhook_events'],
             ],
         ],
+        [
+            'name' => 'dashboard.permissions_groups.store',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'governorates.view'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'governorates.create'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'governorates.update'],
+                ['name' => 'dashboard.permissions.delete', 'key' => 'governorates.delete'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'orders.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'orders.update'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'coupons.view'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'coupons.create'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'coupons.update'],
+                ['name' => 'dashboard.permissions.delete', 'key' => 'coupons.delete'],
+            ],
+        ],
     ];
 }
 

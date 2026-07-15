@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\Central;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\BlogCategoryResource;
-use App\Http\Resources\BlogDetailResource;
-use App\Http\Resources\BlogListResource;
+use App\Http\Resources\Central\BlogCategoryResource;
+use App\Http\Resources\Central\BlogDetailResource;
+use App\Http\Resources\Central\BlogListResource;
 use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Traits\ApiResponse;
@@ -25,7 +25,6 @@ class BlogController extends Controller
             $query->whereHas('categories', fn ($q) => $q->where('blog_categories.id', $request->category_id));
         }
 
-
         if ($request->filled('tag_id')) {
             $query->whereHas('tags', fn ($q) => $q->where('tags.id', $request->tag_id));
         }
@@ -43,6 +42,17 @@ class BlogController extends Controller
                         );
                     }
                 }
+
+                $q->orWhereHas('tags', function ($tagQ) use ($search, $locales) {
+                    $tagQ->where(function ($tq) use ($search, $locales) {
+                        foreach ($locales as $locale) {
+                            $tq->orWhereRaw(
+                                'LOWER(JSON_EXTRACT(name, \'$."'.$locale.'"\')) LIKE ?',
+                                ['%'.$search.'%']
+                            );
+                        }
+                    });
+                });
             });
         }
 

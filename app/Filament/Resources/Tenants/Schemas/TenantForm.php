@@ -19,7 +19,7 @@ class TenantForm
         return $schema
             ->components([
                 Section::make(__('dashboard.tenant_details'))
-                    ->columns(2)
+                    ->columns(3)
                     ->schema([
                         TextInput::make('name')
                             ->label(__('dashboard.tenant_name'))
@@ -55,7 +55,7 @@ class TenantForm
                                 return collect(self::getCountryCurrencies())
                                     ->unique()
                                     ->sort()
-                                    ->mapWithKeys(fn($currency) => [
+                                    ->mapWithKeys(fn ($currency) => [
                                         $currency => $currency,
                                     ])
                                     ->toArray();
@@ -63,21 +63,6 @@ class TenantForm
                             ->searchable()
                             ->native(false)
                             ->required(),
-
-                        TextInput::make('password')
-                            ->label(__('dashboard.password'))
-                            ->password()
-                            ->revealable()
-                            ->required(fn($record) => $record === null)
-                            ->dehydrated(fn($state) => filled($state)),
-
-                        TextInput::make('password_confirmation')
-                            ->label(__('dashboard.password_confirmation'))
-                            ->password()
-                            ->revealable()
-                            ->required(fn($record) => $record === null)
-                            ->dehydrated(false),
-
                         TextInput::make('subdomain')
                             ->label(__('dashboard.subdomain'))
                             ->maxLength(63)
@@ -85,9 +70,9 @@ class TenantForm
                             ->regex('/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/')
                             ->helperText(__('dashboard.subdomain_help'))
                             ->rules([
-                                fn(TextInput $component): Closure => function (string $attribute, mixed $value, Closure $fail) use ($component): void {
+                                fn (TextInput $component): Closure => function (string $attribute, mixed $value, Closure $fail) use ($component): void {
                                     $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
-                                    $fullDomain = $value . '.' . $centralDomain;
+                                    $fullDomain = $value.'.'.$centralDomain;
 
                                     $query = Domain::where('domain', $fullDomain);
 
@@ -109,19 +94,34 @@ class TenantForm
                                     $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
                                     $domain = $record->domains()->first()?->domain;
                                     if ($domain) {
-                                        $component->state(str_replace('.' . $centralDomain, '', $domain));
+                                        $component->state(str_replace('.'.$centralDomain, '', $domain));
                                     }
                                 }
                             }),
+
+                        TextInput::make('password')
+                            ->label(__('dashboard.password'))
+                            ->password()
+                            ->revealable()
+                            ->required(fn ($record) => $record === null)
+                            ->dehydrated(fn ($state) => filled($state)),
+
+                        TextInput::make('password_confirmation')
+                            ->label(__('dashboard.password_confirmation'))
+                            ->password()
+                            ->revealable()
+                            ->required(fn ($record) => $record === null)
+                            ->dehydrated(false),
+
                     ])
                     ->columnSpanFull(),
 
                 Section::make(__('dashboard.subscription_plan'))
-                    ->columns(2)
+                    ->columns(3)
                     ->schema([
                         Select::make('plan_id')
                             ->label(__('dashboard.plan'))
-                            ->options(fn() => Plan::all()->pluck('name', 'id'))
+                            ->options(fn () => Plan::all()->pluck('name', 'id'))
                             ->required()
                             ->live()
                             ->native(false)
@@ -154,7 +154,7 @@ class TenantForm
                                 return collect(self::getCountryCurrencies())
                                     ->unique()
                                     ->sort()
-                                    ->mapWithKeys(fn($currency) => [
+                                    ->mapWithKeys(fn ($currency) => [
                                         $currency => $currency,
                                     ])
                                     ->toArray();
@@ -171,7 +171,7 @@ class TenantForm
                         DateTimePicker::make('expires_at')
                             ->label(__('dashboard.expires_at'))
                             ->nullable()
-                            ->hidden(fn(Get $get) => Plan::find($get('plan_id'))?->type === 'commission'),
+                            ->hidden(fn (Get $get) => Plan::find($get('plan_id'))?->type === 'commission'),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -186,10 +186,10 @@ class TenantForm
 
         return collect($countries)
             ->filter(
-                fn($country) => ! empty($country['cca2'])
+                fn ($country) => ! empty($country['cca2'])
                     && ! empty($country['name']['common'])
             )
-            ->mapWithKeys(fn($country) => [
+            ->mapWithKeys(fn ($country) => [
                 $country['cca2'] => $country['name']['common'],
             ])
             ->sort()
@@ -205,7 +205,7 @@ class TenantForm
 
         return collect($countries)
             ->filter(
-                fn($country) => ! empty($country['cca2'])
+                fn ($country) => ! empty($country['cca2'])
                     && ! empty($country['currencies'])
             )
             ->mapWithKeys(function ($country) {

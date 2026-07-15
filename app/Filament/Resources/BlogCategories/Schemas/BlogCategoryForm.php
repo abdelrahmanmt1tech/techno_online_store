@@ -29,7 +29,7 @@ class BlogCategoryForm
                         TextInput::make('slug')
                             ->label(__('dashboard.slug'))
                             ->maxLength(255)
-                            ->unique(ignoreRecord: true) 
+                            ->unique(ignoreRecord: true)
                             ->required(),
 
                         Toggle::make('is_active')

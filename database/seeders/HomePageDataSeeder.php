@@ -7,7 +7,6 @@ use App\Models\BlogCategory;
 use App\Models\Category;
 use App\Models\Faq;
 use App\Models\Plan;
-use App\Models\PlanFeature;
 use App\Models\Setting;
 use App\Models\Tag;
 use App\Models\Theme;

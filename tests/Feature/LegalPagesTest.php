@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class LegalPagesTest extends TestCase
@@ -59,19 +60,19 @@ class LegalPagesTest extends TestCase
     public function test_messenger_onboarding_routes_still_exist(): void
     {
         $this->assertTrue(
-            \Illuminate\Support\Facades\Route::has('messenger.onboarding.start')
+            Route::has('messenger.onboarding.start')
         );
         $this->assertTrue(
-            \Illuminate\Support\Facades\Route::has('messenger.onboarding.callback')
+            Route::has('messenger.onboarding.callback')
         );
         $this->assertTrue(
-            \Illuminate\Support\Facades\Route::has('messenger.onboarding.pages')
+            Route::has('messenger.onboarding.pages')
         );
         $this->assertTrue(
-            \Illuminate\Support\Facades\Route::has('messenger.onboarding.connect')
+            Route::has('messenger.onboarding.connect')
         );
         $this->assertTrue(
-            \Illuminate\Support\Facades\Route::has('messenger.onboarding.status')
+            Route::has('messenger.onboarding.status')
         );
     }
 }

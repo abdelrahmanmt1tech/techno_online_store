@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Central;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ContactRequest;
+use App\Http\Requests\Central\ContactRequest;
 use App\Models\Contact;
 use App\Traits\ApiResponse;
 

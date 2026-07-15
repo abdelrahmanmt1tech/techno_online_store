@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api\Front;
 
-use App\Models\Contact;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

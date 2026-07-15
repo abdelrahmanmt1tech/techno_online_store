@@ -12,7 +12,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Grid;
-use Illuminate\Support\Facades\Auth;
 
 class ListBlogs extends ListRecords
 {
@@ -51,6 +50,7 @@ class ListBlogs extends ListRecords
                                 ->separator(' ')
                                 ->default(function () {
                                     $v = Setting::where('key', 'blogs_keywords_ar')->first()?->value;
+
                                     return $v !== null && $v !== '' ? explode(' ', $v) : [];
                                 }),
 
@@ -60,6 +60,7 @@ class ListBlogs extends ListRecords
                                 ->separator(' ')
                                 ->default(function () {
                                     $v = Setting::where('key', 'blogs_keywords_en')->first()?->value;
+
                                     return $v !== null && $v !== '' ? explode(' ', $v) : [];
                                 }),
 

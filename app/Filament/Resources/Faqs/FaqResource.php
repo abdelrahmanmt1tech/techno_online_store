@@ -88,6 +88,3 @@ class FaqResource extends Resource
         ];
     }
 }
-
-
-
