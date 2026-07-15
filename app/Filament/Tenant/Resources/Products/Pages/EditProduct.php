@@ -32,13 +32,11 @@ class EditProduct extends EditRecord
             ->map(fn ($variation) => [
                 'name' => $variation->name,
                 'type' => $variation->type,
-                'sort_order' => $variation->sort_order,
                 'options' => $variation->options
                     ->sortBy('order')
                     ->map(fn ($option) => [
                         'value' => $option->value,
                         'color_code' => $option->color_code,
-                        'order' => $option->order,
                     ])
                     ->values()
                     ->toArray(),
@@ -93,7 +91,7 @@ class EditProduct extends EditRecord
     {
         $this->record->variations()->delete();
 
-        foreach ($data['variations'] as $variationData) {
+        foreach (array_values($data['variations']) as $sortOrder => $variationData) {
             if (empty($variationData['name'])) {
                 continue;
             }
@@ -101,10 +99,10 @@ class EditProduct extends EditRecord
             $variation = $this->record->variations()->create([
                 'name' => $variationData['name'],
                 'type' => $variationData['type'] ?? 'button',
-                'sort_order' => $variationData['sort_order'] ?? 0,
+                'sort_order' => $sortOrder,
             ]);
 
-            foreach ($variationData['options'] ?? [] as $optionData) {
+            foreach (array_values($variationData['options'] ?? []) as $order => $optionData) {
                 if (empty($optionData['value'])) {
                     continue;
                 }
@@ -112,7 +110,7 @@ class EditProduct extends EditRecord
                 $variation->options()->create([
                     'value' => $optionData['value'],
                     'color_code' => $optionData['color_code'] ?? null,
-                    'order' => $optionData['order'] ?? 0,
+                    'order' => $order,
                 ]);
             }
         }

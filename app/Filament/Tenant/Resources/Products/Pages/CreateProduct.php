@@ -34,7 +34,7 @@ class CreateProduct extends CreateRecord
     {
         $this->record->variations()->delete();
 
-        foreach ($data['variations'] as $variationData) {
+        foreach (array_values($data['variations']) as $sortOrder => $variationData) {
             if (empty($variationData['name'])) {
                 continue;
             }
@@ -42,10 +42,10 @@ class CreateProduct extends CreateRecord
             $variation = $this->record->variations()->create([
                 'name' => $variationData['name'],
                 'type' => $variationData['type'] ?? 'button',
-                'sort_order' => $variationData['sort_order'] ?? 0,
+                'sort_order' => $sortOrder,
             ]);
 
-            foreach ($variationData['options'] ?? [] as $optionData) {
+            foreach (array_values($variationData['options'] ?? []) as $order => $optionData) {
                 if (empty($optionData['value'])) {
                     continue;
                 }
@@ -53,7 +53,7 @@ class CreateProduct extends CreateRecord
                 $variation->options()->create([
                     'value' => $optionData['value'],
                     'color_code' => $optionData['color_code'] ?? null,
-                    'order' => $optionData['order'] ?? 0,
+                    'order' => $order,
                 ]);
             }
         }

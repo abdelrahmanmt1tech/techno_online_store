@@ -229,6 +229,7 @@ return [
     'attributes' => 'Attributes',
     'product_attributes' => 'Product Attributes',
     'attribute_name' => 'Attribute Name',
+    'attribute_name_placeholder' => 'e.g. Color, Size, Material',
     'attribute_type' => 'Attribute Type',
     'color' => 'Color',
     'button' => 'Button',
@@ -239,6 +240,7 @@ return [
     'available' => 'Available',
     'attribute_values' => 'Attribute Values',
     'value' => 'Value',
+    'value_placeholder' => 'e.g. Red, Large, Cotton',
     'new_attribute' => 'New Attribute',
 
     // Variants

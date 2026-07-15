@@ -133,7 +133,7 @@ class ProductForm
                     ->label(__('dashboard.price'))
                     ->required()
                     ->numeric()
-                    ->prefix('SAR')
+
                     ->minValue(0)
                     ->live()
                     ->afterStateUpdated(fn (Set $set, Get $get, ?string $state) => self::updateProfitMargin($set, $get)),
@@ -141,7 +141,7 @@ class ProductForm
                 TextInput::make('sale_price')
                     ->label(__('dashboard.sale_price'))
                     ->numeric()
-                    ->prefix('SAR')
+
                     ->minValue(0)
                     ->nullable()
                     ->helperText(__('dashboard.sale_price_helper'))
@@ -151,7 +151,7 @@ class ProductForm
                 TextInput::make('expense')
                     ->label(__('dashboard.expense'))
                     ->numeric()
-                    ->prefix('SAR')
+
                     ->minValue(0)
                     ->nullable()
                     ->live()
@@ -323,60 +323,55 @@ class ProductForm
                 Repeater::make('variations')
                     ->label(__('dashboard.variants'))
                     ->schema([
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
-                                TextInput::make('name')
-                                    ->label(__('dashboard.attribute_name'))
-                                    ->required()
-                                    ->maxLength(255),
-
-                                Select::make('type')
-                                    ->label(__('dashboard.attribute_type'))
-                                    ->options([
-                                        'color' => __('dashboard.color'),
-                                        'button' => __('dashboard.button'),
-                                        'dropdown' => __('dashboard.dropdown'),
-                                        'user_text' => __('dashboard.user_text'),
-                                        'user_image' => __('dashboard.user_image'),
-                                        'image' => __('dashboard.image'),
-                                    ])
-                                    ->default('button')
-                                    ->required()
-                                    ->native(false),
-
-                                TextInput::make('sort_order')
-                                    ->label(__('dashboard.order'))
-                                    ->numeric()
-                                    ->default(0),
-                            ]),
-
-                        Repeater::make('options')
-                            ->label(__('dashboard.attribute_values'))
-                            ->schema([
-                                Grid::make(3)
+                                Grid::make()
                                     ->schema([
-                                        TextInput::make('value')
-                                            ->label(__('dashboard.value'))
+                                        TextInput::make('name')
+                                            ->label(__('dashboard.attribute_name'))
+                                            ->placeholder(__('dashboard.attribute_name_placeholder'))
                                             ->required()
                                             ->maxLength(255),
 
-                                        ColorPicker::make('color_code')
-                                            ->label(__('dashboard.color_code'))
-                                            ->visible(fn (Get $get) => $get('../../type') === 'color'),
-
-                                        TextInput::make('order')
-                                            ->label(__('dashboard.order'))
-                                            ->numeric()
-                                            ->default(0),
+                                        Select::make('type')
+                                            ->label(__('dashboard.attribute_type'))
+                                            ->options([
+                                                'color' => __('dashboard.color'),
+                                                'button' => __('dashboard.button'),
+                                                'dropdown' => __('dashboard.dropdown'),
+                                                'user_text' => __('dashboard.user_text'),
+                                                'user_image' => __('dashboard.user_image'),
+                                                'image' => __('dashboard.image'),
+                                            ])
+                                            ->default('button')
+                                            ->required()
+                                            ->native(false),
                                     ]),
-                            ])
-                            ->defaultItems(1)
-                            ->addActionLabel(__('dashboard.add_value'))
-                            ->reorderable(false),
+
+                                Repeater::make('options')
+                                    ->label(__('dashboard.attribute_values'))
+                                    ->schema([
+                                        Grid::make(2)
+                                            ->schema([
+                                                TextInput::make('value')
+                                                    ->label(__('dashboard.value'))
+                                                    ->placeholder(__('dashboard.value_placeholder'))
+                                                    ->required()
+                                                    ->maxLength(255),
+
+                                                ColorPicker::make('color_code')
+                                                    ->label(__('dashboard.color_code'))
+                                                    ->visible(fn (Get $get) => $get('../../type') === 'color'),
+                                            ]),
+                                    ])
+                                    ->defaultItems(1)
+                                    ->addActionLabel(__('dashboard.add_value'))
+                                    ->reorderable(),
+                            ]),
                     ])
                     ->defaultItems(0)
                     ->addActionLabel(__('dashboard.add_variation'))
-                    ->reorderable(false)
+                    ->reorderable()
                     ->collapsible()
                     ->live()
                     ->afterStateUpdated(function (Set $set, Get $get, ?array $state) {
@@ -407,20 +402,20 @@ class ProductForm
                                     ->label(__('dashboard.price'))
                                     ->required()
                                     ->numeric()
-                                    ->prefix('SAR')
+                
                                     ->minValue(0),
 
                                 TextInput::make('sale_price')
                                     ->label(__('dashboard.sale_price'))
                                     ->numeric()
-                                    ->prefix('SAR')
+                
                                     ->minValue(0)
                                     ->nullable(),
 
                                 TextInput::make('expense')
                                     ->label(__('dashboard.expense'))
                                     ->numeric()
-                                    ->prefix('SAR')
+                
                                     ->minValue(0)
                                     ->nullable(),
 

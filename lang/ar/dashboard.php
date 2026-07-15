@@ -229,6 +229,7 @@ return [
     'attributes' => 'الخصائص',
     'product_attributes' => 'خصائص المنتج',
     'attribute_name' => 'اسم الخاصية',
+    'attribute_name_placeholder' => 'مثال: اللون، الحجم، المادة',
     'attribute_type' => 'نوع الخاصية',
     'color' => 'لون',
     'button' => 'زر',
@@ -239,6 +240,7 @@ return [
     'available' => 'متاح',
     'attribute_values' => 'قيم الخاصية',
     'value' => 'القيمة',
+    'value_placeholder' => 'مثال: احمر، كبير، قطن',
     'new_attribute' => 'خاصية جديدة',
 
     // Variants
