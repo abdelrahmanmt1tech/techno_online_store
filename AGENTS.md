@@ -28,8 +28,10 @@
 - **Per-tenant DBs** — created synchronously. Tenancy event pipeline (`TenancyServiceProvider`) fires `CreateDatabase` → `MigrateDatabase`. `SeedTenantDatabase` called synchronously after pipeline completes.
 - **Tenant DB naming**: `technomasrsystem_tenant{tenant_uuid}` (prefix in `config/tenancy.php`).
 - **Auth models**: `App\Models\Admin` (`$guard_name = 'admin'`, central DB) and `App\Models\TenantUser` (`$guard_name = 'tenant'`, per-tenant DB). Both use spatie `HasRoles`.
+- **Shared Login component**: Both panels use `App\Filament\Auth\Login` (custom panel resolver logic in `app/Support/FilamentPanelResolver.php`).
 - **No API routes**. `bootstrap/app.php` has placeholder JSON handling for `api/*`.
-- **GitHub Actions**: `.github/workflows/deploy.yml` — deploys on push to `main` via SSH to CWP. Runs central migrations, `tenants:sync-permissions --migrate`, builds assets, publishes Filament assets, clears cache, restarts queue workers.
+- **GitHub Actions**: `.github/workflows/deploy.yml` — deploys on push to `main` via SSH to CWP. Sequence: `composer install --no-dev` → central `migrate` → `tenants:sync-permissions --migrate` → `npm ci && npm run build` → `filament:assets` → `optimize:clear` → `optimize` → `queue:restart`.
+- **CSRF exemptions** in `bootstrap/app.php`: `webhooks/meta/whatsapp` and `webhooks/meta/messenger` are excluded from CSRF verification.
 
 ## Filament Resources
 
@@ -49,12 +51,12 @@ Navigation labels use `__('dashboard.*')` translations (`lang/{ar,en}/dashboard.
 
 Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) and `app/Helper/TenantPermissionsArray.php` (tenant, guard `tenant`). Auto-loaded via `composer.json` `files` array (also loads `app/Helper/SeoHelper.php`). Permission keys follow pattern `{group}.{action}` (e.g., `tenants.view`, `roles-and-permission.destroy`).
 
-**Development mode**: `BYPASS_PERMISSIONS=true` (or any non-`production` `APP_ENV`) bypasses all `Gate`/`$user->can()` checks. Do **not** add new permission keys or `can*()` checks on new features until pre-production.
+**Development mode**: `BYPASS_PERMISSIONS=true` (or any non-`production` `APP_ENV`) bypasses all `Gate`/`$user->can()` checks. The config in `config/app.php` defaults to `true` unless `APP_ENV=production`. Do **not** add new permission keys or `can*()` checks on new features until pre-production.
 
 ## Testing
 
 - **PHPUnit** (not Pest) — `tests/Unit/` and `tests/Feature/`.
-- Uses MySQL (`techno_online_store` DB) with `QUEUE_CONNECTION=sync`, `CACHE_STORE=array`, `SESSION_DRIVER=array`.
+- Uses **SQLite** (`database/testing.sqlite`) with `QUEUE_CONNECTION=sync`, `CACHE_STORE=array`, `SESSION_DRIVER=array` (see `phpunit.xml`).
 - `tests/TestCase.php` extends `Illuminate\Foundation\Testing\TestCase` (no `RefreshDatabase` by default — add trait when needed).
 - Unit tests extend `PHPUnit\Framework\TestCase` directly (no Laravel app boot).
 

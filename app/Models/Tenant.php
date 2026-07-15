@@ -20,6 +20,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'name',
         'email',
         'phone',
+        'country_name',
+        'currency_code',
         'is_active',
     ];
 
@@ -37,6 +39,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'name',
             'email',
             'phone',
+            'country_name',
+            'currency_code',
             'is_active',
         ];
     }

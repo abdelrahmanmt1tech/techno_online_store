@@ -36,18 +36,46 @@ class TenantForm
                             ->tel()
                             ->maxLength(50),
 
+                        Select::make('country_name')
+                            ->label(__('dashboard.country'))
+                            ->options(self::getCountries())
+                            ->searchable()
+                            ->live()
+                            ->native(false)
+                            ->afterStateUpdated(function ($state, $set) {
+                                $currencies = self::getCountryCurrencies();
+
+                                $set('currency_code', $currencies[$state] ?? null);
+                            })
+                            ->required(),
+
+                        Select::make('currency_code')
+                            ->label(__('dashboard.currency'))
+                            ->options(function () {
+                                return collect(self::getCountryCurrencies())
+                                    ->unique()
+                                    ->sort()
+                                    ->mapWithKeys(fn($currency) => [
+                                        $currency => $currency,
+                                    ])
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->native(false)
+                            ->required(),
+
                         TextInput::make('password')
                             ->label(__('dashboard.password'))
                             ->password()
                             ->revealable()
-                            ->required(fn ($record) => $record === null)
-                            ->dehydrated(fn ($state) => filled($state)),
+                            ->required(fn($record) => $record === null)
+                            ->dehydrated(fn($state) => filled($state)),
 
                         TextInput::make('password_confirmation')
                             ->label(__('dashboard.password_confirmation'))
                             ->password()
                             ->revealable()
-                            ->required(fn ($record) => $record === null)
+                            ->required(fn($record) => $record === null)
                             ->dehydrated(false),
 
                         TextInput::make('subdomain')
@@ -57,9 +85,9 @@ class TenantForm
                             ->regex('/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/')
                             ->helperText(__('dashboard.subdomain_help'))
                             ->rules([
-                                fn (TextInput $component): Closure => function (string $attribute, mixed $value, Closure $fail) use ($component): void {
+                                fn(TextInput $component): Closure => function (string $attribute, mixed $value, Closure $fail) use ($component): void {
                                     $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
-                                    $fullDomain = $value.'.'.$centralDomain;
+                                    $fullDomain = $value . '.' . $centralDomain;
 
                                     $query = Domain::where('domain', $fullDomain);
 
@@ -81,7 +109,7 @@ class TenantForm
                                     $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
                                     $domain = $record->domains()->first()?->domain;
                                     if ($domain) {
-                                        $component->state(str_replace('.'.$centralDomain, '', $domain));
+                                        $component->state(str_replace('.' . $centralDomain, '', $domain));
                                     }
                                 }
                             }),
@@ -93,7 +121,7 @@ class TenantForm
                     ->schema([
                         Select::make('plan_id')
                             ->label(__('dashboard.plan'))
-                            ->options(fn () => Plan::all()->pluck('name', 'id'))
+                            ->options(fn() => Plan::all()->pluck('name', 'id'))
                             ->required()
                             ->live()
                             ->native(false)
@@ -122,14 +150,16 @@ class TenantForm
 
                         Select::make('currency')
                             ->label(__('dashboard.currency'))
-                            ->options([
-                                'SAR' => 'SAR',
-                                'USD' => 'USD',
-                                'EUR' => 'EUR',
-                                'GBP' => 'GBP',
-                                'EGP' => 'EGP',
-                                'AED' => 'AED',
-                            ])
+                            ->options(function () {
+                                return collect(self::getCountryCurrencies())
+                                    ->unique()
+                                    ->sort()
+                                    ->mapWithKeys(fn($currency) => [
+                                        $currency => $currency,
+                                    ])
+                                    ->toArray();
+                            })
+                            ->searchable()
                             ->required()
                             ->native(false),
 
@@ -141,9 +171,50 @@ class TenantForm
                         DateTimePicker::make('expires_at')
                             ->label(__('dashboard.expires_at'))
                             ->nullable()
-                            ->hidden(fn (Get $get) => Plan::find($get('plan_id'))?->type === 'commission'),
+                            ->hidden(fn(Get $get) => Plan::find($get('plan_id'))?->type === 'commission'),
                     ])
                     ->columnSpanFull(),
             ]);
+    }
+
+    protected static function getCountries(): array
+    {
+        $countries = json_decode(
+            file_get_contents(storage_path('app/countries.json')),
+            true
+        );
+
+        return collect($countries)
+            ->filter(
+                fn($country) => ! empty($country['cca2'])
+                    && ! empty($country['name']['common'])
+            )
+            ->mapWithKeys(fn($country) => [
+                $country['cca2'] => $country['name']['common'],
+            ])
+            ->sort()
+            ->toArray();
+    }
+
+    protected static function getCountryCurrencies(): array
+    {
+        $countries = json_decode(
+            file_get_contents(storage_path('app/countries.json')),
+            true
+        );
+
+        return collect($countries)
+            ->filter(
+                fn($country) => ! empty($country['cca2'])
+                    && ! empty($country['currencies'])
+            )
+            ->mapWithKeys(function ($country) {
+                $currency = array_key_first($country['currencies']);
+
+                return $currency
+                    ? [$country['cca2'] => $currency]
+                    : [];
+            })
+            ->toArray();
     }
 }

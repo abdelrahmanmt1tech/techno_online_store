@@ -58,10 +58,11 @@ class ProductForm
                                 self::gallerySection(),
                             ]),
 
-                        Tab::make(__('dashboard.attributes'))
-                            ->icon('heroicon-o-adjustments-horizontal')
+                        Tab::make(__('dashboard.variants'))
+                            ->icon('heroicon-o-squares-2x2')
                             ->schema([
-                                self::attributesSection(),
+                                self::variationsSection(),
+                                self::variantsSection(),
                             ]),
 
                     ])
@@ -246,7 +247,7 @@ class ProductForm
                                 Action::make('bulk_paste')
                                     ->label(__('dashboard.bulk_paste'))
                                     ->icon('heroicon-o-clipboard-document-list')
-                                    ->form([
+                                    ->schema([
                                         Textarea::make('codes')
                                             ->label(__('dashboard.bulk_paste'))
                                             ->rows(10)
@@ -314,91 +315,33 @@ class ProductForm
             ]);
     }
 
-    private static function attributesSection(): Section
+    private static function variationsSection(): Section
     {
-        return Section::make(__('dashboard.product_attributes'))
+        return Section::make(__('dashboard.product_variations'))
+            ->description(__('dashboard.product_variations_description'))
             ->schema([
                 Repeater::make('variations')
-                    ->label(__('dashboard.attributes'))
-                    ->relationship('variations')
-                    ->reorderable('sort_order')
-                    ->collapsible()
-                    ->collapsed(false)
-                    ->itemLabel(fn (array $state) => $state['name'] ?? __('dashboard.new_attribute'))
-                    ->saveRelationshipsUsing(function ($component, ?array $state, $record): void {
-                        if (! $record) {
-                            return;
-                        }
-
-                        $variationIds = [];
-
-                        foreach ($state ?? [] as $variationData) {
-                            $options = $variationData['options'] ?? [];
-                            unset($variationData['options']);
-
-                            $data = collect($variationData)
-                                ->except(['id'])
-                                ->reject(fn ($value) => is_array($value))
-                                ->toArray();
-
-                            $variation = $record->variations()->updateOrCreate(
-                                ['id' => $variationData['id'] ?? null],
-                                $data,
-                            );
-
-                            $variationIds[] = $variation->id;
-
-                            $optionIds = [];
-
-                            foreach ($options as $optionData) {
-                                $option = $variation->options()->updateOrCreate(
-                                    ['id' => $optionData['id'] ?? null],
-                                    collect($optionData)
-                                        ->except(['id'])
-                                        ->reject(fn ($value) => is_array($value))
-                                        ->toArray(),
-                                );
-
-                                $optionIds[] = $option->id;
-                            }
-
-                            $variation->options()
-                                ->whereNotIn('id', $optionIds)
-                                ->delete();
-                        }
-
-                        $record->variations()
-                            ->whereNotIn('id', $variationIds)
-                            ->each(function ($variation) {
-                                $variation->options()->delete();
-                                $variation->delete();
-                            });
-
-                        self::syncVariants($record);
-                    })
+                    ->label(__('dashboard.variants'))
                     ->schema([
-                        Grid::make()
-                            ->columns(4)
+                        Grid::make(3)
                             ->schema([
                                 TextInput::make('name')
                                     ->label(__('dashboard.attribute_name'))
                                     ->required()
-                                    ->maxLength(255)
-                                    ->live(onBlur: true)
-                                    ->columnSpan(2),
+                                    ->maxLength(255),
 
                                 Select::make('type')
                                     ->label(__('dashboard.attribute_type'))
                                     ->options([
                                         'color' => __('dashboard.color'),
                                         'button' => __('dashboard.button'),
-                                        'image' => __('dashboard.image'),
+                                        'dropdown' => __('dashboard.dropdown'),
                                         'user_text' => __('dashboard.user_text'),
                                         'user_image' => __('dashboard.user_image'),
-                                        'dropdown' => __('dashboard.dropdown'),
+                                        'image' => __('dashboard.image'),
                                     ])
+                                    ->default('button')
                                     ->required()
-                                    ->live()
                                     ->native(false),
 
                                 TextInput::make('sort_order')
@@ -407,30 +350,10 @@ class ProductForm
                                     ->default(0),
                             ]),
 
-                        Grid::make()
-                            ->columns(2)
-                            ->schema([
-                                ColorPicker::make('color_code')
-                                    ->label(__('dashboard.color_code'))
-                                    ->visible(fn (Get $get) => $get('type') === 'color'),
-
-                                FileUpload::make('image')
-                                    ->label(__('dashboard.image'))
-                                    ->image()
-                                    ->directory('products/attributes')
-                                    ->visible(fn (Get $get) => $get('type') === 'image')
-                                    ->maxSize(1024),
-                            ]),
-
                         Repeater::make('options')
                             ->label(__('dashboard.attribute_values'))
-                            ->relationship('options')
-                            ->reorderable('order')
-                            ->collapsible()
-                            ->defaultItems(0)
                             ->schema([
-                                Grid::make()
-                                    ->columns(2)
+                                Grid::make(3)
                                     ->schema([
                                         TextInput::make('value')
                                             ->label(__('dashboard.value'))
@@ -440,12 +363,25 @@ class ProductForm
                                         ColorPicker::make('color_code')
                                             ->label(__('dashboard.color_code'))
                                             ->visible(fn (Get $get) => $get('../../type') === 'color'),
-                                    ]),
-                            ]),
-                    ])
-                    ->defaultItems(0),
 
-                self::variantsSection(),
+                                        TextInput::make('order')
+                                            ->label(__('dashboard.order'))
+                                            ->numeric()
+                                            ->default(0),
+                                    ]),
+                            ])
+                            ->defaultItems(1)
+                            ->addActionLabel(__('dashboard.add_value'))
+                            ->reorderable(false),
+                    ])
+                    ->defaultItems(0)
+                    ->addActionLabel(__('dashboard.add_variation'))
+                    ->reorderable(false)
+                    ->collapsible()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, Get $get, ?array $state) {
+                        self::syncVariants($set, $get);
+                    }),
             ]);
     }
 
@@ -455,58 +391,23 @@ class ProductForm
             ->description(__('dashboard.variants_description'))
             ->schema([
                 Repeater::make('variants')
-                    ->label(__('dashboard.variants'))
-                    ->relationship('variants')
-                    ->reorderable(false)
-                    ->collapsible()
-                    ->collapsed(false)
-                    ->itemLabel(fn (array $state) => $state['sku'] ?? $state['price'] ?? __('dashboard.new_variant'))
-                    ->saveRelationshipsUsing(function ($component, ?array $state, $record): void {
-                        if (! $record) {
-                            return;
-                        }
-
-                        foreach ($state ?? [] as $variantData) {
-                            $optionIds = $variantData['option_ids'] ?? [];
-                            unset($variantData['option_ids']);
-
-                            $data = collect($variantData)
-                                ->except(['id', 'option_ids'])
-                                ->reject(fn ($value) => is_array($value))
-                                ->toArray();
-
-                            $variant = $record->variants()->updateOrCreate(
-                                ['id' => $variantData['id'] ?? null],
-                                $data,
-                            );
-
-                            $variant->options()->sync($optionIds);
-                        }
-
-                        $variantIds = collect($state ?? [])->pluck('id')->filter()->toArray();
-                        $record->variants()
-                            ->whereNotIn('id', $variantIds)
-                            ->each(function ($variant) {
-                                $variant->options()->detach();
-                                $variant->delete();
-                            });
-                    })
+                    ->label(__('dashboard.variants_matrix'))
                     ->schema([
-                        Hidden::make('id'),
-
-                        Grid::make()
-                            ->columns(6)
+                        Grid::make(7)
                             ->schema([
-                                TextInput::make('sku')
-                                    ->label(__('dashboard.sku'))
-                                    ->maxLength(255),
+                                Hidden::make('combination')
+                                    ->dehydrated(),
+
+                                TextInput::make('combination_label')
+                                    ->label(__('dashboard.variant_options'))
+                                    ->disabled()
+                                    ->dehydrated(false),
 
                                 TextInput::make('price')
                                     ->label(__('dashboard.price'))
                                     ->required()
                                     ->numeric()
                                     ->prefix('SAR')
-                                    ->default(0)
                                     ->minValue(0),
 
                                 TextInput::make('sale_price')
@@ -529,102 +430,100 @@ class ProductForm
                                     ->default(0)
                                     ->minValue(0),
 
-                                Toggle::make('is_active')
-                                    ->label(__('dashboard.active'))
-                                    ->default(true),
-                            ]),
-
-                        Grid::make()
-                            ->columns(2)
-                            ->schema([
+                                TextInput::make('sku')
+                                    ->label(__('dashboard.sku'))
+                                    ->maxLength(255),
                                 FileUpload::make('image')
                                     ->label(__('dashboard.image'))
                                     ->image()
+                                    ->disk('public')
                                     ->directory('products/variants')
-                                    ->maxSize(1024),
+                                    ->maxSize(2048)
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp']),
 
-                                Select::make('option_ids')
-                                    ->label(__('dashboard.variant_options'))
-                                    ->multiple()
-                                    ->relationship(
-                                        name: 'options',
-                                        titleAttribute: 'value',
-                                        modifyQueryUsing: fn ($query, Get $get) => $query->whereHas('variation', fn ($q) => $q->where('product_id', $get('product_id') ?? request()->route('record'))),
-                                    )
-                                    ->native(false)
-                                    ->searchable()
-                                    ->preload(),
+                                Toggle::make('is_active')
+                                    ->label(__('dashboard.active'))
+                                    ->default(true),
+
                             ]),
                     ])
-                    ->defaultItems(0),
+                    ->defaultItems(0)
+                    ->reorderable(false)
+                    ->live(),
             ]);
     }
 
-    private static function syncVariants(Product $record): void
+    private static function syncVariants(Set $set, Get $get): void
     {
-        $variations = $record->variations()->with('options')->get();
+        $variations = collect($get('variations') ?? [])
+            ->filter(fn ($v) => ! empty($v['name']) && ! empty($v['options']))
+            ->values();
 
-        if ($variations->isEmpty() || $variations->every(fn ($v) => $v->options->isEmpty())) {
+        if ($variations->isEmpty()) {
+            $set('variants', []);
+
             return;
         }
 
-        $optionSets = $variations
-            ->filter(fn ($v) => $v->options->isNotEmpty())
-            ->map(fn ($v) => $v->options->pluck('id')->toArray())
-            ->values()
-            ->toArray();
+        $optionArrays = $variations->mapWithKeys(fn ($v) => [
+            $v['name'] => collect($v['options'] ?? [])
+                ->filter(fn ($o) => ! empty($o['value']))
+                ->pluck('value', 'value')
+                ->toArray(),
+        ])->toArray();
 
-        $combinations = self::generateCombinations($optionSets);
+        $combinations = self::cartesian($optionArrays);
 
-        $existingOptionKeyMap = [];
-        foreach ($record->variants()->with('options')->get() as $variant) {
-            $key = collect($variant->options->pluck('id')->sort()->values()->toArray())->implode(',');
-            $existingOptionKeyMap[$key] = $variant;
-        }
+        $existingVariants = collect($get('variants') ?? [])
+            ->keyBy(fn ($v) => $v['combination_label'] ?? '');
 
-        $existingVariantIds = [];
+        $productPrice = (float) ($get('price') ?? 0);
+        $productSalePrice = $get('sale_price') ? (float) $get('sale_price') : null;
+        $productExpense = $get('expense') ? (float) $get('expense') : null;
 
-        foreach ($combinations as $optionIds) {
-            $key = collect($optionIds)->sort()->values()->implode(',');
+        $newVariants = [];
 
-            if (isset($existingOptionKeyMap[$key])) {
-                $existingVariantIds[] = $existingOptionKeyMap[$key]->id;
+        foreach ($combinations as $combo) {
+            $sorted = collect($combo)->sort()->values()->toArray();
+            $label = implode(' - ', $sorted);
 
-                continue;
+            if ($existingVariants->has($label)) {
+                $existing = $existingVariants->get($label);
+                $existing['combination_label'] = $label;
+                $existing['combination'] = $combo;
+                $newVariants[] = $existing;
+            } else {
+                $newVariants[] = [
+                    'combination_label' => $label,
+                    'combination' => $combo,
+                    'price' => $productPrice,
+                    'sale_price' => $productSalePrice,
+                    'expense' => $productExpense,
+                    'quantity' => 0,
+                    'sku' => null,
+                    'image' => null,
+                    'is_active' => true,
+                ];
             }
-
-            $variant = $record->variants()->create([
-                'price' => $record->price ?? 0,
-                'sale_price' => $record->sale_price,
-                'expense' => $record->expense,
-                'quantity' => 0,
-                'is_active' => true,
-            ]);
-
-            $variant->options()->sync($optionIds);
-            $existingVariantIds[] = $variant->id;
         }
 
-        $record->variants()
-            ->whereNotIn('id', $existingVariantIds)
-            ->each(function ($variant) {
-                $variant->options()->detach();
-                $variant->delete();
-            });
+        $set('variants', $newVariants);
     }
 
-    private static function generateCombinations(array $arrays): array
+    private static function cartesian(array $arrays): array
     {
         $result = [[]];
 
-        foreach ($arrays as $array) {
-            $new = [];
-            foreach ($result as $combination) {
-                foreach ($array as $item) {
-                    $new[] = array_merge($combination, [$item]);
+        foreach ($arrays as $key => $values) {
+            $newResult = [];
+
+            foreach ($result as $existing) {
+                foreach ($values as $value) {
+                    $newResult[] = array_merge($existing, [$key => $value]);
                 }
             }
-            $result = $new;
+
+            $result = $newResult;
         }
 
         return $result;

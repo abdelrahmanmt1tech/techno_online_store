@@ -37,6 +37,9 @@ class StoreTenantRequest extends FormRequest
                 },
             ],
 
+            'country_name' => 'nullable|string|max:255',
+            'currency_code' => 'nullable|string|max:10',
+
             'plan_id' => 'nullable|exists:plans,id',
             'price' => 'nullable|numeric|min:0',
             'currency' => 'nullable|string|size:3',

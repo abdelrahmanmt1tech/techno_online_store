@@ -47,8 +47,8 @@ class TenantPanelProvider extends PanelProvider
                 Css::make('whatsapp-ui', resource_path('css/whatsapp-ui.css')),
             ])
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                // AccountWidget::class,
+                // FilamentInfoWidget::class,
             ])
             ->persistentMiddleware([
                 InitializeTenancyByDomain::class,
