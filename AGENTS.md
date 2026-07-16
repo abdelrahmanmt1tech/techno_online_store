@@ -39,7 +39,7 @@ Admin resources under `app/Filament/Resources/`, tenant resources under `app/Fil
 
 Current resources:
 - **Admin**: Admins, Roles, Tenants, Plans, Categories, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
-- **Tenant**: Categories, Products, WhatsAppContacts, WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, MessengerPages, MessengerWebhookEvents, MessengerApiRequests
+- **Tenant**: Categories, Products, Orders, Coupons, Governorates, WhatsAppContacts, WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, MessengerPages, MessengerWebhookEvents, MessengerApiRequests
 
 Tenant pages (`app/Filament/Tenant/Pages/`): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage
 

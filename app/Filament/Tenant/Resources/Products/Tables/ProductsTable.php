@@ -22,7 +22,7 @@ class ProductsTable
             ->columns([
                 ImageColumn::make('media')
                     ->label(__('dashboard.image'))
-                    ->getStateUsing(fn ($record) => $record->media->first()?->file)
+                    ->getStateUsing(fn($record) => $record->media->first()?->file)
                     ->circular()
                     ->square()
                     ->defaultImageUrl(url('/images/placeholder.png')),
@@ -35,6 +35,7 @@ class ProductsTable
                 TextColumn::make('type')
                     ->label(__('dashboard.type'))
                     ->badge()
+                    ->formatStateUsing(fn(string $state): string => __('dashboard.' . $state))
                     ->colors([
                         'success' => 'physical',
                         'warning' => 'digital',
@@ -42,16 +43,29 @@ class ProductsTable
 
                 TextColumn::make('price')
                     ->label(__('dashboard.price'))
+                    ->getStateUsing(fn($record) => $record->variants->first()?->price ?? $record->price)
                     ->sortable(),
+
+                TextColumn::make('sale_price')
+                    ->label(__('dashboard.sale_price'))
+                    ->getStateUsing(fn($record) => $record->variants->first()?->sale_price ?? $record->sale_price),
+
+                TextColumn::make('expense')
+                    ->label(__('dashboard.expense'))
+                    ->getStateUsing(fn($record) => $record->variants->first()?->expense ?? $record->expense),
 
                 TextColumn::make('quantity')
                     ->label(__('dashboard.quantity'))
+                    ->getStateUsing(fn($record) => $record->variants->first()?->quantity ?? $record->quantity)
                     ->sortable(),
 
                 TextColumn::make('sku')
                     ->label(__('dashboard.sku'))
+                    ->getStateUsing(fn($record) => $record->variants->first()?->sku ?? $record->sku)
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+
 
                 ToggleColumn::make('is_active')
                     ->label(__('dashboard.active')),

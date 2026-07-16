@@ -2,7 +2,10 @@
 
 namespace App\Filament\Tenant\Resources\Orders\Tables;
 
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
@@ -24,18 +27,18 @@ class OrdersTable
                     ->label(__('dashboard.customer_name'))
                     ->searchable(),
 
-                TextColumn::make('status')
+                SelectColumn::make('status')
                     ->label(__('dashboard.status'))
-                    ->badge()
-                    ->colors([
-                        'gray' => 'pending',
-                        'info' => 'confirmed',
-                        'primary' => 'processing',
-                        'warning' => 'shipped',
-                        'success' => 'delivered',
-                        'danger' => 'cancelled',
-                        'danger' => 'returned',
-                    ]),
+                    ->options([
+                        'pending' => __('dashboard.pending'),
+                        'confirmed' => __('dashboard.confirmed'),
+                        'processing' => __('dashboard.processing'),
+                        'shipped' => __('dashboard.shipped'),
+                        'delivered' => __('dashboard.delivered'),
+                        'cancelled' => __('dashboard.cancelled'),
+                        'returned' => __('dashboard.returned'),
+                    ])
+                    ->selectablePlaceholder(false),
 
                 TextColumn::make('governorate_name')
                     ->label(__('dashboard.governorate'))
@@ -75,6 +78,8 @@ class OrdersTable
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
                 ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->emptyStateHeading(__('dashboard.no_orders'))
             ->emptyStateDescription(__('dashboard.no_orders_desc'))

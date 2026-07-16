@@ -1064,4 +1064,8 @@ return [
     'add_item' => 'إضافة عنصر',
     'add_category' => 'إضافة قسم',
     'sort_order' => 'ترتيب العرض',
+    'items_count' => 'عدد العناصر',
+    'total_quantity' => 'الكمية الإجمالية',
+    'pricing_summary' => 'ملخص الأسعار',
+    'no_items' => 'لا توجد عناصر',
 ];

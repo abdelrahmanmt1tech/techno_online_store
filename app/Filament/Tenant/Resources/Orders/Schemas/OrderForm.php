@@ -46,40 +46,42 @@ class OrderForm
 
                         Select::make('governorate_id')
                             ->label(__('dashboard.governorate'))
-                            ->options(fn () => Governorate::where('is_active', true)
+                            ->required()
+                            ->options(fn() => Governorate::where('is_active', true)
                                 ->orderBy('name')
                                 ->pluck('name', 'id'))
                             ->searchable()
                             ->preload()
                             ->native(false)
-                            ->reactive()
+                            ->live()
                             ->afterStateUpdated(function ($state, $set, $get) {
                                 $set('shipping_cost', Governorate::find($state)?->shipping_cost ?? 0);
-                                self::recalculateTotals($get, $set);
+                                self::recalculate($get, $set);
                             }),
 
                         TextInput::make('shipping_cost')
                             ->label(__('dashboard.shipping_cost'))
                             ->numeric()
                             ->default(0)
+                            ->required()
                             ->minValue(0)
-                            ->reactive()
-                            ->afterStateUpdated(fn ($get, $set) => self::recalculateTotals($get, $set)),
+                            ->live()
+                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set)),
 
                         Select::make('coupon_id')
                             ->label(__('dashboard.coupon'))
-                            ->options(fn () => Coupon::where('is_active', true)
+                            ->options(fn() => Coupon::where('is_active', true)
                                 ->orderBy('code')
                                 ->get()
-                                ->mapWithKeys(fn ($c) => [
-                                    $c->id => $c->code.' — '.($c->type === 'percentage' ? $c->value.'%' : number_format($c->value, 2).' SAR'),
+                                ->mapWithKeys(fn($c) => [
+                                    $c->id => $c->code . ' — ' . ($c->type === 'percentage' ? $c->value . '%' : number_format($c->value, 2) . ' SAR'),
                                 ]))
                             ->searchable()
                             ->preload()
                             ->native(false)
                             ->nullable()
-                            ->reactive()
-                            ->afterStateUpdated(fn ($get, $set) => self::recalculateTotals($get, $set)),
+                            ->live()
+                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set)),
 
                         Select::make('status')
                             ->label(__('dashboard.status'))
@@ -117,8 +119,8 @@ class OrderForm
                                             ->searchable()
                                             ->preload()
                                             ->required()
-                                            ->reactive()
-                                            ->afterStateUpdated(function ($state, $set) {
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, $set, $get) {
                                                 $set('product_variant_id', null);
                                                 $variant = ProductVariant::where('product_id', $state)
                                                     ->where('is_active', true)
@@ -129,30 +131,45 @@ class OrderForm
                                                     $product = Product::find($state);
                                                     $set('unit_price', $product?->sale_price ?? $product?->price ?? 0);
                                                 }
+
+                                                self::recalculate($get, $set, nested: true);
                                             }),
 
                                         Select::make('product_variant_id')
                                             ->label(__('dashboard.variant'))
-                                            ->options(fn ($get) => ProductVariant::where('product_id', $get('product_id'))
-                                                ->where('is_active', true)
-                                                ->get()
-                                                ->map(fn ($v) => [
-                                                    'label' => $v->sku
-                                                        ? $v->sku.' — '.$v->options->pluck('value')->implode(', ')
-                                                        : $v->options->pluck('value')->implode(', '),
-                                                    'value' => $v->id,
-                                                ])
-                                                ->pluck('label', 'value'))
+                                            
+                                            ->options(function ($get) {
+                                                $currentVariantId = $get('product_variant_id');
+
+                                                $selectedVariantIds = collect($get('../../items_data') ?? [])
+                                                    ->pluck('product_variant_id')
+                                                    ->filter(fn($id) => filled($id) && $id != $currentVariantId)
+                                                    ->values()
+                                                    ->all();
+
+                                                return ProductVariant::where('product_id', $get('product_id'))
+                                                    ->where('is_active', true)
+                                                    ->whereNotIn('id', $selectedVariantIds)
+                                                    ->get()
+                                                    ->map(fn($v) => [
+                                                        'label' => $v->sku
+                                                            ? $v->sku . ' — ' . $v->options->pluck('value')->implode(', ')
+                                                            : $v->options->pluck('value')->implode(', '),
+                                                        'value' => $v->id,
+                                                    ])
+                                                    ->pluck('label', 'value');
+                                            })
                                             ->searchable()
                                             ->preload()
-                                            ->nullable()
-                                            ->reactive()
-                                            ->visible(fn ($get) => filled($get('product_id')))
-                                            ->afterStateUpdated(function ($state, $set) {
+                                            ->required()
+                                            ->live()
+                                            ->visible(fn($get) => filled($get('product_id')))
+                                            ->afterStateUpdated(function ($state, $set, $get) {
                                                 if ($state) {
                                                     $variant = ProductVariant::find($state);
                                                     $set('unit_price', $variant?->sale_price ?? $variant?->price ?? 0);
                                                 }
+                                                self::recalculate($get, $set, nested: true);
                                             }),
 
                                         TextInput::make('quantity')
@@ -161,16 +178,16 @@ class OrderForm
                                             ->default(1)
                                             ->minValue(1)
                                             ->required()
-                                            ->reactive(),
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set, nested: true)),
 
                                         TextInput::make('unit_price')
                                             ->label(__('dashboard.unit_price'))
                                             ->numeric()
                                             ->default(0)
-                                            ->minValue(0)
                                             ->required()
-                                            ->reactive()
-                                            ->disabled(fn ($get) => filled($get('product_variant_id'))),
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set, nested: true)),
                                     ]),
                             ])
                             ->columns(1)
@@ -178,7 +195,7 @@ class OrderForm
                             ->addActionLabel(__('dashboard.add_item'))
                             ->reorderable(false)
                             ->live()
-                            ->afterStateUpdated(fn ($state, $get, $set) => self::recalculateFromItems($state, $get, $set)),
+                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set)),
                     ])
                     ->columnSpanFull(),
 
@@ -189,63 +206,57 @@ class OrderForm
                             ->label(__('dashboard.subtotal'))
                             ->numeric()
                             ->default(0)
-                            ->disabled(),
+                            ->disabled()
+                            ->dehydrated(),
 
                         TextInput::make('discount')
                             ->label(__('dashboard.discount'))
                             ->numeric()
                             ->default(0)
-                            ->minValue(0)
-                            ->reactive()
-                            ->afterStateUpdated(fn ($get, $set) => self::recalculateTotals($get, $set)),
+                            ->disabled()
+                            ->dehydrated(),
 
                         TextInput::make('total')
                             ->label(__('dashboard.total'))
                             ->numeric()
                             ->default(0)
-                            ->disabled(),
+                            ->disabled()
+                            ->dehydrated(),
                     ])
                     ->columnSpanFull(),
             ]);
     }
 
-    private static function recalculateFromItems($items, $get, $set): void
+    /**
+     * دالة الحساب الموحدة. لو الاستدعاء جاي من جوه عنصر في الـ Repeater
+     * (يعني من quantity/unit_price/product_id/product_variant_id) لازم
+     * تبعت $nested = true عشان تطلع مستويين للبرة (../../) وتوصل
+     * لحقول items_data / coupon_id / shipping_cost / subtotal / total
+     * اللي عايشة برة الـ Repeater.
+     */
+    private static function recalculate($get, $set, bool $nested = false): void
     {
+        $prefix = $nested ? '../../' : '';
+
+        $items = $get($prefix . 'items_data') ?? [];
+        $couponId = $get($prefix . 'coupon_id');
+        $shippingCost = (float) ($get($prefix . 'shipping_cost') ?? 0);
+
         $subtotal = 0;
         foreach ($items as $item) {
             $subtotal += (float) ($item['quantity'] ?? 0) * (float) ($item['unit_price'] ?? 0);
         }
 
-        $discount = self::calculateDiscount($subtotal, $get);
-        $shippingCost = (float) ($get('shipping_cost') ?? 0);
+        $discount = self::calculateDiscount($subtotal, $couponId);
         $total = max(0, $subtotal - $discount + $shippingCost);
 
-        $set('subtotal', round($subtotal, 2));
-        $set('discount', $discount);
-        $set('total', round($total, 2));
+        $set($prefix . 'subtotal', round($subtotal, 2));
+        $set($prefix . 'discount', $discount);
+        $set($prefix . 'total', round($total, 2));
     }
 
-    private static function recalculateTotals($get, $set): void
+    private static function calculateDiscount(float $subtotal, $couponId): float
     {
-        $items = $get('items_data') ?? [];
-
-        $subtotal = 0;
-        foreach ($items as $item) {
-            $subtotal += (float) ($item['quantity'] ?? 0) * (float) ($item['unit_price'] ?? 0);
-        }
-
-        $discount = self::calculateDiscount($subtotal, $get);
-        $shippingCost = (float) ($get('shipping_cost') ?? 0);
-        $total = max(0, $subtotal - $discount + $shippingCost);
-
-        $set('subtotal', round($subtotal, 2));
-        $set('discount', $discount);
-        $set('total', round($total, 2));
-    }
-
-    private static function calculateDiscount(float $subtotal, $get): float
-    {
-        $couponId = $get('coupon_id');
         if (! $couponId) {
             return 0;
         }

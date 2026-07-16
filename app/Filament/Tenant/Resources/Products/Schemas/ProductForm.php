@@ -38,7 +38,7 @@ class ProductForm
                             ->icon('heroicon-o-information-circle')
                             ->schema([
                                 self::generalSection(),
-                                self::pricingSection(),
+                                // self::pricingSection(),
                             ]),
 
                         Tab::make(__('dashboard.inventory'))
@@ -160,59 +160,59 @@ class ProductForm
             ]);
     }
 
-    private static function pricingSection(): Section
-    {
-        return Section::make(__('dashboard.pricing'))
-            ->columns(3)
-            ->schema([
-                TextInput::make('price')
-                    ->label(__('dashboard.price'))
-                    ->required()
-                    ->numeric()
+    // private static function pricingSection(): Section
+    // {
+    //     return Section::make(__('dashboard.pricing'))
+    //         ->columns(3)
+    //         ->schema([
+    //             TextInput::make('price')
+    //                 ->label(__('dashboard.price'))
+    //                 ->required()
+    //                 ->numeric()
 
-                    ->minValue(0)
-                    ->live()
-                    ->afterStateUpdated(fn (Set $set, Get $get, ?string $state) => self::updateProfitMargin($set, $get)),
+    //                 ->minValue(0)
+    //                 ->live()
+    //                 ->afterStateUpdated(fn (Set $set, Get $get, ?string $state) => self::updateProfitMargin($set, $get)),
 
-                TextInput::make('sale_price')
-                    ->label(__('dashboard.sale_price'))
-                    ->numeric()
+    //             TextInput::make('sale_price')
+    //                 ->label(__('dashboard.sale_price'))
+    //                 ->numeric()
 
-                    ->minValue(0)
-                    ->nullable()
-                    ->helperText(__('dashboard.sale_price_helper'))
-                    ->live()
-                    ->afterStateUpdated(fn (Set $set, Get $get, ?string $state) => self::updateProfitMargin($set, $get)),
+    //                 ->minValue(0)
+    //                 ->nullable()
+    //                 ->helperText(__('dashboard.sale_price_helper'))
+    //                 ->live()
+    //                 ->afterStateUpdated(fn (Set $set, Get $get, ?string $state) => self::updateProfitMargin($set, $get)),
 
-                TextInput::make('expense')
-                    ->label(__('dashboard.expense'))
-                    ->numeric()
+    //             TextInput::make('expense')
+    //                 ->label(__('dashboard.expense'))
+    //                 ->numeric()
 
-                    ->minValue(0)
-                    ->nullable()
-                    ->live()
-                    ->afterStateUpdated(fn (Set $set, Get $get, ?string $state) => self::updateProfitMargin($set, $get)),
+    //                 ->minValue(0)
+    //                 ->nullable()
+    //                 ->live()
+    //                 ->afterStateUpdated(fn (Set $set, Get $get, ?string $state) => self::updateProfitMargin($set, $get)),
 
-                TextEntry::make('profit_margin')
-                    ->label(__('dashboard.profit_margin'))
-                    ->state(fn (Get $get) => new HtmlString(self::calculateProfitMargin($get)))
-                    ->html()
-                    ->columnSpanFull(),
-            ]);
-    }
+    //             TextEntry::make('profit_margin')
+    //                 ->label(__('dashboard.profit_margin'))
+    //                 ->state(fn (Get $get) => new HtmlString(self::calculateProfitMargin($get)))
+    //                 ->html()
+    //                 ->columnSpanFull(),
+    //         ]);
+    // }
 
     private static function inventorySection(): Section
     {
         return Section::make(__('dashboard.stock_management'))
             ->columns(2)
             ->schema([
-                TextInput::make('quantity')
-                    ->label(__('dashboard.quantity'))
-                    ->numeric()
-                    ->default(0)
-                    ->minValue(0)
-                    ->live()
-                    ->visible(fn (Get $get) => (bool) $get('track_stock')),
+                // TextInput::make('quantity')
+                //     ->label(__('dashboard.quantity'))
+                //     ->numeric()
+                //     ->default(0)
+                //     ->minValue(0)
+                //     ->live()
+                //     ->visible(fn (Get $get) => (bool) $get('track_stock')),
 
                 Toggle::make('track_stock')
                     ->label(__('dashboard.track_stock'))
