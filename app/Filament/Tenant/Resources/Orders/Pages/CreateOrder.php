@@ -77,11 +77,17 @@ class CreateOrder extends CreateRecord
             ]);
 
             if ($item['product_variant_id']) {
-                ProductVariant::where('id', $item['product_variant_id'])
-                    ->decrement('quantity', $item['quantity']);
+                $product = Product::find($item['product_id']);
+                if ($product?->track_stock) {
+                    ProductVariant::where('id', $item['product_variant_id'])
+                        ->decrement('quantity', $item['quantity']);
+                }
             } else {
-                Product::where('id', $item['product_id'])
-                    ->decrement('quantity', $item['quantity']);
+                $product = Product::find($item['product_id']);
+                if ($product?->track_stock) {
+                    Product::where('id', $item['product_id'])
+                        ->decrement('quantity', $item['quantity']);
+                }
             }
         }
 

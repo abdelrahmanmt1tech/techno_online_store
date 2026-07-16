@@ -47,12 +47,15 @@ class EditOrder extends EditRecord
         $oldItems = $this->record->items()->get();
 
         foreach ($oldItems as $oldItem) {
-            if ($oldItem->product_variant_id) {
-                ProductVariant::where('id', $oldItem->product_variant_id)
-                    ->increment('quantity', $oldItem->quantity);
-            } else {
-                Product::where('id', $oldItem->product_id)
-                    ->increment('quantity', $oldItem->quantity);
+            $oldProduct = Product::find($oldItem->product_id);
+            if ($oldProduct?->track_stock) {
+                if ($oldItem->product_variant_id) {
+                    ProductVariant::where('id', $oldItem->product_variant_id)
+                        ->increment('quantity', $oldItem->quantity);
+                } else {
+                    Product::where('id', $oldItem->product_id)
+                        ->increment('quantity', $oldItem->quantity);
+                }
             }
         }
 
@@ -83,12 +86,14 @@ class EditOrder extends EditRecord
                 'unit_price' => $item['unit_price'],
             ]);
 
-            if ($item['product_variant_id']) {
-                ProductVariant::where('id', $item['product_variant_id'])
-                    ->decrement('quantity', $item['quantity']);
-            } else {
-                Product::where('id', $item['product_id'])
-                    ->decrement('quantity', $item['quantity']);
+            if ($product->track_stock) {
+                if ($item['product_variant_id']) {
+                    ProductVariant::where('id', $item['product_variant_id'])
+                        ->decrement('quantity', $item['quantity']);
+                } else {
+                    Product::where('id', $item['product_id'])
+                        ->decrement('quantity', $item['quantity']);
+                }
             }
         }
 

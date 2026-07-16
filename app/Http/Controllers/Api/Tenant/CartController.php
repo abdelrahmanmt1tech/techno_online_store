@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\Api\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Tenant\AddCartItemRequest;
+use App\Http\Requests\Api\Tenant\ApplyCouponRequest;
+use App\Http\Requests\Api\Tenant\SetGovernorateRequest;
+use App\Http\Requests\Api\Tenant\UpdateCartItemRequest;
+use App\Http\Resources\Tenant\CartResource;
 use App\Models\Tenant\Cart;
 use App\Models\Tenant\CartItem;
 use App\Models\Tenant\Coupon;
@@ -44,70 +49,25 @@ class CartController extends Controller
             return $this->notFoundResponse(__('messages.resource_not_found'));
         }
 
-        return $this->successResponse([
-            'token' => $cart->token,
-            'subtotal' => $cart->subtotal,
-            'discount' => $cart->discount,
-            'shipping_cost' => $cart->shipping_cost,
-            'total' => $cart->total,
-            'status' => $cart->status,
-            'governorate' => $cart->governorate ? [
-                'id' => $cart->governorate->id,
-                'name' => $cart->governorate->name,
-                'shipping_cost' => $cart->governorate->shipping_cost,
-            ] : null,
-            'coupon' => $cart->coupon ? [
-                'code' => $cart->coupon->code,
-                'type' => $cart->coupon->type,
-                'value' => $cart->coupon->value,
-            ] : null,
-            'items' => $cart->items->map(fn ($item) => [
-                'id' => $item->id,
-                'quantity' => $item->quantity,
-                'unit_price' => $item->unit_price,
-                'total_price' => $item->total_price,
-                'product' => [
-                    'id' => $item->product->id,
-                    'name' => $item->product->name,
-                    'slug' => $item->product->slug,
-                    'price' => $item->product->price,
-                    'sale_price' => $item->product->sale_price,
-                    'media' => $item->product->media->map(fn ($m) => [
-                        'file' => asset('storage/'.$m->file),
-                        'type' => $m->type,
-                    ]),
-                ],
-                'variant' => $item->variant ? [
-                    'id' => $item->variant->id,
-                    'price' => $item->variant->price,
-                    'sale_price' => $item->variant->sale_price,
-                    'sku' => $item->variant->sku,
-                    'options' => $item->variant->options->map(fn ($o) => [
-                        'value' => $o->value,
-                        'variation_name' => $o->variation->name ?? null,
-                    ]),
-                ] : null,
-            ]),
-        ]);
+        return $this->successResponse(new CartResource($cart));
     }
 
-    public function addItem(Request $request, string $token)
+    public function addItem(AddCartItemRequest $request, string $token)
     {
         $cart = Cart::where('token', $token)->first();
 
         if (! $cart) {
-            return $this->notFoundResponse(__('messages.resource_not_found'));
+            $cart = Cart::create([
+                'token' => $token,
+                'session_id' => $request->input('session_id'),
+            ]);
         }
 
         if ($cart->status !== 'active') {
             return $this->errorResponse('Cart is no longer active', 422);
         }
 
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'product_variant_id' => 'nullable|exists:product_variants,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
+        $validated = $request->validated();
 
         $product = Product::findOrFail($validated['product_id']);
 
@@ -166,7 +126,7 @@ class CartController extends Controller
         return $this->successResponse(null, __('messages.resource_created_successfully'));
     }
 
-    public function updateItem(Request $request, string $token, string $item)
+    public function updateItem(UpdateCartItemRequest $request, string $token, string $item)
     {
         $cart = Cart::where('token', $token)->first();
 
@@ -184,9 +144,7 @@ class CartController extends Controller
             return $this->notFoundResponse(__('messages.resource_not_found'));
         }
 
-        $validated = $request->validate([
-            'quantity' => 'required|integer|min:1',
-        ]);
+        $validated = $request->validated();
 
         if ($cartItem->product->track_stock) {
             $available = $cartItem->variant
@@ -227,7 +185,7 @@ class CartController extends Controller
         return $this->successResponse(null, __('messages.success'));
     }
 
-    public function setGovernorate(Request $request, string $token)
+    public function setGovernorate(SetGovernorateRequest $request, string $token)
     {
         $cart = Cart::where('token', $token)->first();
 
@@ -239,9 +197,7 @@ class CartController extends Controller
             return $this->errorResponse('Cart is no longer active', 422);
         }
 
-        $validated = $request->validate([
-            'governorate_id' => 'required|exists:governorates,id',
-        ]);
+        $validated = $request->validated();
 
         $governorate = Governorate::findOrFail($validated['governorate_id']);
 
@@ -259,7 +215,7 @@ class CartController extends Controller
         return $this->successResponse(null, __('messages.success'));
     }
 
-    public function applyCoupon(Request $request, string $token)
+    public function applyCoupon(ApplyCouponRequest $request, string $token)
     {
         $cart = Cart::where('token', $token)->first();
 
@@ -275,9 +231,7 @@ class CartController extends Controller
             return $this->errorResponse('Cart is empty', 422);
         }
 
-        $validated = $request->validate([
-            'code' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
         $coupon = Coupon::where('code', strtoupper($validated['code']))->first();
 

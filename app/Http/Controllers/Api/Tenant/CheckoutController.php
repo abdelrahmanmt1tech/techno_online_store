@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Tenant\CheckoutRequest;
+use App\Http\Resources\Tenant\CheckoutResource;
 use App\Models\Tenant\Cart;
 use App\Models\Tenant\CouponUsage;
 use App\Models\Tenant\Governorate;
 use App\Models\Tenant\Order;
 use App\Models\Tenant\OrderItem;
 use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -17,7 +18,7 @@ class CheckoutController extends Controller
 {
     use ApiResponse;
 
-    public function store(Request $request, string $token)
+    public function store(CheckoutRequest $request, string $token)
     {
         $cart = Cart::where('token', $token)
             ->with(['items.product', 'items.variant', 'governorate', 'coupon'])
@@ -35,18 +36,15 @@ class CheckoutController extends Controller
             return $this->errorResponse('Cart is empty', 422);
         }
 
-        $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_phone' => 'required|string|max:255',
-            'customer_email' => 'nullable|email|max:255',
-            'customer_address' => 'required|string',
-            'governorate_id' => 'nullable|exists:governorates,id',
-            'notes' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         $governorate = isset($validated['governorate_id'])
-            ? Governorate::find($validated['governorate_id'])
+            ? $cart->governorate
             : $cart->governorate;
+
+        if (isset($validated['governorate_id'])) {
+            $governorate = Governorate::find($validated['governorate_id']);
+        }
 
         $subtotal = $cart->items->sum(fn ($item) => $item->unit_price * $item->quantity);
 
@@ -67,7 +65,7 @@ class CheckoutController extends Controller
         $shippingCost = $governorate?->shipping_cost ?? 0;
         $total = max(0, $subtotal - $discount + $shippingCost);
 
-        return DB::transaction(function () use (
+        $result = DB::transaction(function () use (
             $cart,
             $validated,
             $governorate,
@@ -75,6 +73,7 @@ class CheckoutController extends Controller
             $discount,
             $shippingCost,
             $total,
+            $request,
         ) {
             $order = Order::create([
                 'order_number' => Order::generateOrderNumber(),
@@ -136,11 +135,13 @@ class CheckoutController extends Controller
 
             $cart->update(['status' => 'converted']);
 
-            return $this->createdResponse([
+            return [
                 'token' => $order->token,
                 'order_number' => $order->order_number,
                 'total' => $order->total,
-            ], 'Order placed successfully');
+            ];
         });
+
+        return $this->createdResponse(new CheckoutResource($result), 'Order placed successfully');
     }
 }

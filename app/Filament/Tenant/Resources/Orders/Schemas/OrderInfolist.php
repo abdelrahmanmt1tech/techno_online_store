@@ -24,6 +24,7 @@ class OrderInfolist
                         TextEntry::make('status')
                             ->label(__('dashboard.status'))
                             ->badge()
+                            ->formatStateUsing(fn (string $state): string => __('dashboard.'.$state))
                             ->color(fn (string $state): string => match ($state) {
                                 'pending' => 'gray',
                                 'confirmed' => 'info',
@@ -60,7 +61,7 @@ class OrderInfolist
 
                         TextEntry::make('shipping_cost')
                             ->label(__('dashboard.shipping_cost'))
-                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2).' SAR'),
+                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2)),
 
                         TextEntry::make('notes')
                             ->label(__('dashboard.notes'))
@@ -108,24 +109,24 @@ class OrderInfolist
 
                         TextEntry::make('subtotal')
                             ->label(__('dashboard.subtotal'))
-                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2).' SAR'),
+                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2)),
 
                         TextEntry::make('discount')
                             ->label(__('dashboard.discount'))
-                            ->formatStateUsing(fn ($state) => ($state > 0 ? '-' : '').number_format((float) $state, 2).' SAR')
+                            ->formatStateUsing(fn ($state) => ($state > 0 ? '-' : '').number_format((float) $state, 2))
                             ->color(fn ($state) => (float) $state > 0 ? 'danger' : null),
 
                         TextEntry::make('shipping_cost_summary')
                             ->label(__('dashboard.shipping_cost'))
                             ->state(fn ($record) => $record->shipping_cost)
-                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2).' SAR')
+                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2))
                             ->color(fn ($state) => (float) $state > 0 ? 'warning' : null),
 
                         TextEntry::make('total')
                             ->label(__('dashboard.total'))
                             ->weight('bold')
                             ->size(TextSize::Large)
-                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2).' SAR')
+                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2))
                             ->color('success'),
                     ])->columns(3),
             ]);

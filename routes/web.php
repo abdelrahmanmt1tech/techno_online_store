@@ -9,6 +9,8 @@ use App\Http\Controllers\WhatsAppOnboardingController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Middleware\EnsureMessengerOnboardingCentralDomain;
 use App\Http\Middleware\EnsureWhatsAppOnboardingCentralDomain;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,3 +59,22 @@ Route::prefix('messenger/onboarding')
         Route::post('connect', [MessengerOnboardingController::class, 'connect'])->name('messenger.onboarding.connect');
         Route::get('status', [MessengerOnboardingController::class, 'status'])->name('messenger.onboarding.status');
     });
+
+
+
+
+//     Route::get('/smtp-test', function () {
+//     Mail::raw('hello', function ($message) {
+//         $message->to('mohamed.sala71996@gmail.com')
+//                 ->subject('test');
+//     });
+
+//     return 'sent';
+// });
+
+
+//  Route::get('/clear-config', function () {
+//     Artisan::call('optimize:clear');
+
+//     return nl2br(Artisan::output());
+//  });
