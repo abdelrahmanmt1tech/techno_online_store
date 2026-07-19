@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 | Public legal pages (central domain — no tenant middleware / no auth).
 | Required for Meta App Dashboard: Privacy Policy, Terms, Data Deletion.
 */
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
 Route::get('/privacy-policy', [LegalPageController::class, 'privacyPolicy'])->name('legal.privacy');
 Route::get('/terms-of-service', [LegalPageController::class, 'termsOfService'])->name('legal.terms');
 Route::get('/data-deletion', [LegalPageController::class, 'dataDeletion'])->name('legal.data-deletion');
