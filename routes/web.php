@@ -5,9 +5,11 @@ use App\Http\Controllers\Auth\Tenant\TenantLoginController;
 use App\Http\Controllers\LegalPageController;
 use App\Http\Controllers\MessengerOnboardingController;
 use App\Http\Controllers\MessengerWebhookController;
+use App\Http\Controllers\PlatformLandingController;
 use App\Http\Controllers\WhatsAppOnboardingController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Middleware\EnsureMessengerOnboardingCentralDomain;
+use App\Http\Middleware\EnsurePublicCentralDomain;
 use App\Http\Middleware\EnsureWhatsAppOnboardingCentralDomain;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
@@ -20,6 +22,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('/platform', PlatformLandingController::class)
+    ->middleware([EnsurePublicCentralDomain::class])
+    ->name('platform.landing');
 
 Route::get('/privacy-policy', [LegalPageController::class, 'privacyPolicy'])->name('legal.privacy');
 Route::get('/terms-of-service', [LegalPageController::class, 'termsOfService'])->name('legal.terms');

@@ -29,6 +29,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Public platform landing (/platform)
+    |--------------------------------------------------------------------------
+    |
+    | When true, GET /platform is limited to config('tenancy.central_domains').
+    | Does not initialize tenancy. Disable only for local debugging if needed.
+    |
+    */
+
+    'public_platform_enforce_central_domain' => env('PUBLIC_PLATFORM_ENFORCE_CENTRAL_DOMAIN', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

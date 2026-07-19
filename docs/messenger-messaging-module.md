@@ -12,6 +12,7 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-19 | Meta Access Verification landing pages: SaaS `/platform` (central domain) + standalone company site pack in `public-delivery/techno-online-store/`. Cross-links to contact, privacy, terms, data deletion. No messaging logic changes. |
 | 2026-07-13 | Meta App readiness: public central-domain Privacy Policy, Terms of Service, and Data Deletion pages (`/privacy-policy`, `/terms-of-service`, `/data-deletion`) + App Domains / OAuth / legal URL checklist. No Messenger onboarding logic changes. |
 | 2026-07-13 | Phase G implemented: Facebook Login for Business + Page picker + automatic Page `subscribed_apps`; Connect Messenger tenant UI (manual remains); central onboarding routes; encrypted onboarding sessions; docs + Phase G tests. Instagram/Orders/campaigns still out of scope. |
 | 2026-07-12 | Staging E2E confirmed: Page webhook inbound, contact profile lookup, CRM inbox customer name, CRM reply inside 24h window, admin diagnostics for processed events. Phase G still not started. |
@@ -729,6 +730,21 @@ Use the **central domain** for App Domains, OAuth redirect, and legal URLs:
 | **Data Deletion URL** | `https://online-store.technomasrsystems.com/data-deletion` |
 
 Public legal pages are served from central `routes/web.php` (no tenant middleware, no auth). Contact email defaults to `support@technowebmasr.com` (`SUPPORT_EMAIL` / `config('app.support_email')`).
+
+### Meta Access Verification (App Review / Tech Provider relationship)
+
+Use these cross-linked public pages to document the relationship between Techno Web Masr (software company / Tech Provider), Techno Online Store (SaaS product), and the production app:
+
+| Item | URL |
+|---|---|
+| **Company product page** (recommended Access Verification website) | `https://technomasr.com/techno-online-store.html` |
+| **Application product page** | `https://online-store.technomasrsystems.com/platform` |
+| **Contact** | `https://technomasr.com/en/contact/product-1773666026-noxmd` |
+| **Privacy** | `https://online-store.technomasrsystems.com/privacy-policy` |
+| **Terms** | `https://online-store.technomasrsystems.com/terms-of-service` |
+| **Data deletion** | `https://online-store.technomasrsystems.com/data-deletion` |
+
+Standalone static files for the company site upload are in `public-delivery/techno-online-store/` (`index.html`, `styles.css`, `script.js`). Upload/rename as needed so the live path is `https://technomasr.com/techno-online-store.html`.
 
 ### Connect a Facebook Page (manual MVP)
 1. In Meta: create/own a Facebook Page; generate a **long-lived Page access token** with messaging permissions.

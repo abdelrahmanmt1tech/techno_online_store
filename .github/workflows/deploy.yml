@@ -37,8 +37,14 @@ jobs:
             echo "Current Branch:"
             git branch --show-current
 
+            echo "Removing conflicting local CSS files..."
+            rm -f public/css/app/custom-stylesheet.css
+            rm -f public/css/app/whatsapp-ui.css
+
             echo "Pulling latest changes..."
-            rm public/css/app/custom-stylesheet.css
+            git pull --ff-only origin main
+
+
             git pull origin main
             echo "Installing Composer packages..."
             $PHP /usr/local/bin/composer install \
