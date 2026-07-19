@@ -737,14 +737,14 @@ Use these cross-linked public pages to document the relationship between Techno 
 
 | Item | URL |
 |---|---|
-| **Company product page** (recommended Access Verification website) | `https://technomasr.com/techno-online-store.html` |
+| **Company product page** (recommended Access Verification website) | `https://technomasr.com/techno-online-store` |
 | **Application product page** | `https://online-store.technomasrsystems.com/platform` |
 | **Contact** | `https://technomasr.com/en/contact/product-1773666026-noxmd` |
 | **Privacy** | `https://online-store.technomasrsystems.com/privacy-policy` |
 | **Terms** | `https://online-store.technomasrsystems.com/terms-of-service` |
 | **Data deletion** | `https://online-store.technomasrsystems.com/data-deletion` |
 
-Standalone static files for the company site upload are in `public-delivery/techno-online-store/` (`index.html`, `styles.css`, `script.js`). Upload/rename as needed so the live path is `https://technomasr.com/techno-online-store.html`.
+Standalone static files for the company site upload are in `public-delivery/techno-online-store/` (`index.html`, `styles.css`, `script.js`). Upload/rename as needed so the live path is `https://technomasr.com/techno-online-store`.
 
 ### Connect a Facebook Page (manual MVP)
 1. In Meta: create/own a Facebook Page; generate a **long-lived Page access token** with messaging permissions.

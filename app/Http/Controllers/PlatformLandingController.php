@@ -17,7 +17,7 @@ class PlatformLandingController extends Controller
             'privacyUrl' => 'https://online-store.technomasrsystems.com/privacy-policy',
             'termsUrl' => 'https://online-store.technomasrsystems.com/terms-of-service',
             'deletionUrl' => 'https://online-store.technomasrsystems.com/data-deletion',
-            'companyProductUrl' => 'https://technomasr.com/techno-online-store.html',
+            'companyProductUrl' => 'https://technomasr.com/techno-online-store',
         ]);
     }
 }
