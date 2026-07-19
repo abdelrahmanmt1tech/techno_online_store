@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\Auth\ResetPasswordRequest;
+use App\Http\Requests\Tenant\Auth\SendOtpRequest;
+use App\Http\Requests\Tenant\Auth\VerifyOtpRequest;
 use App\Mail\PasswordResetOtp;
 use App\Models\PasswordOtp;
 use App\Models\Tenant;
 use App\Models\TenantUserCredential;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -20,12 +22,8 @@ class ForgotPasswordController extends Controller
         return view('auth.forgot-password');
     }
 
-    public function sendOtp(Request $request)
+    public function sendOtp(SendOtpRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
         $credential = TenantUserCredential::where('email', $request->email)->first();
 
         if (! $credential) {
@@ -60,13 +58,8 @@ class ForgotPasswordController extends Controller
         return view('auth.verify-otp', ['email' => $email]);
     }
 
-    public function verifyOtp(Request $request)
+    public function verifyOtp(VerifyOtpRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|string|size:6',
-        ]);
-
         $otpRecord = PasswordOtp::where('email', $request->email)
             ->where('otp', $request->otp)
             ->where('used', false)
@@ -101,14 +94,8 @@ class ForgotPasswordController extends Controller
         return view('auth.reset-password', ['email' => $email, 'token' => $token]);
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
         $email = session('reset_email');
         $token = session('reset_token');
 

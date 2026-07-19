@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Tenant;
 use App\Models\TenantUserCredential;
+use Database\Seeders\TenantDataSeeder;
 
 class SeedTenantDatabase
 {
@@ -38,6 +39,8 @@ class SeedTenantDatabase
             StoreTenantPermissionsArray();
             $role = setupStoreAdminRole();
             $user->assignRole($role);
+
+            (new TenantDataSeeder)->run();
         });
 
         if ($email) {

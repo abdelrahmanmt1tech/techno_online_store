@@ -9,23 +9,24 @@ class ProductListResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $discountPercent = $this->price > 0 && $this->sale_price !== null && $this->sale_price < $this->price
-            ? round((($this->price - $this->sale_price) / $this->price) * 100)
+        $firstVariant = $this->variants?->first();
+
+        $price = $firstVariant?->price ?? $this->price;
+        $salePrice = $firstVariant?->sale_price ?? $firstVariant?->price  ?? $this->sale_price;
+
+        $discountPercent = $price > 0 && $salePrice !== null && $salePrice < $price
+            ? round((($price - $salePrice) / $price) * 100)
             : 0;
 
         return [
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'price' => $this->price,
-            'sale_price' => $this->sale_price,
+            'price' => $price,
+            'sale_price' => $salePrice,
             'discount_percent' => $discountPercent,
             'image' => $this->whenLoaded('media', fn () => $this->media->first() ? asset('storage/tenant'.tenant('id').'/'.$this->media->first()->file) : null),
-            'categories' => $this->whenLoaded('categories', fn () => $this->categories->map(fn ($c) => [
-                'id' => $c->id,
-                'name' => $c->name,
-                'slug' => $c->slug,
-            ])),
+            'categories' => CategoryResource::collection($this->whenLoaded('categories')),
         ];
     }
 }
