@@ -39,6 +39,18 @@ class PlatformLandingPageTest extends TestCase
         $this->assertFalse(tenancy()->initialized);
     }
 
+    public function test_home_route_serves_platform_landing(): void
+    {
+        $this->assertFalse(tenancy()->initialized);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Techno Online Store', false)
+            ->assertSee('Techno Web Masr', false);
+
+        $this->assertFalse(tenancy()->initialized);
+    }
+
     public function test_platform_landing_does_not_initialize_tenant_context(): void
     {
         $this->assertFalse(tenancy()->initialized);

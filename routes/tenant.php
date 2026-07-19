@@ -19,9 +19,8 @@ Route::middleware([
 ])->group(function () {
     Route::get('/app/login/{token}', TenantTokenLoginController::class)->name('tenant.token-login');
 
-    Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
-    });
+    // Do not register GET / here — it overwrites the central home landing in routes/web.php
+    // and PreventAccessFromCentralDomains then returns 404 on central domains.
 
     Route::prefix('api')->group(function () {
         // المنتجات (عام)

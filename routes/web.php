@@ -16,22 +16,10 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
-| Public legal pages (central domain — no tenant middleware / no auth).
-| Required for Meta App Dashboard: Privacy Policy, Terms, Data Deletion.
+| Public marketing / legal pages (central domain — no tenant middleware / no auth).
+| Required for Meta App Dashboard and Access Verification.
 */
-Route::get('/', function () {
-    return view('platform.index', [
-        'supportEmail' => config('app.support_email', 'support@technomasr.com'),
-        'companyUrl' => 'https://technomasr.com',
-        'contactUrl' => 'https://technomasr.com/en/contact/product-1773666026-noxmd',
-        'platformUrl' => 'https://online-store.technomasrsystems.com',
-        'canonicalUrl' => 'https://online-store.technomasrsystems.com/platform',
-        'privacyUrl' => 'https://online-store.technomasrsystems.com/privacy-policy',
-        'termsUrl' => 'https://online-store.technomasrsystems.com/terms-of-service',
-        'deletionUrl' => 'https://online-store.technomasrsystems.com/data-deletion',
-        'companyProductUrl' => 'https://technomasr.com/techno-online-store.html',
-    ]);
-})->name('home');
+Route::get('/', PlatformLandingController::class)->name('home');
 
 Route::get('/platform', PlatformLandingController::class)
     ->middleware([EnsurePublicCentralDomain::class])
