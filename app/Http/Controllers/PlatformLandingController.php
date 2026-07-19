@@ -9,7 +9,7 @@ class PlatformLandingController extends Controller
     public function __invoke(): View
     {
         return view('platform.index', [
-            'supportEmail' => config('app.support_email', 'support@technowebmasr.com'),
+            'supportEmail' => config('app.support_email', 'support@technomasr.com'),
             'companyUrl' => 'https://technomasr.com',
             'contactUrl' => 'https://technomasr.com/en/contact/product-1773666026-noxmd',
             'platformUrl' => 'https://online-store.technomasrsystems.com',

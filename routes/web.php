@@ -20,7 +20,17 @@ use Illuminate\Support\Facades\Route;
 | Required for Meta App Dashboard: Privacy Policy, Terms, Data Deletion.
 */
 Route::get('/', function () {
-    return view('welcome');
+    return view('platform.index', [
+        'supportEmail' => config('app.support_email', 'support@technomasr.com'),
+        'companyUrl' => 'https://technomasr.com',
+        'contactUrl' => 'https://technomasr.com/en/contact/product-1773666026-noxmd',
+        'platformUrl' => 'https://online-store.technomasrsystems.com',
+        'canonicalUrl' => 'https://online-store.technomasrsystems.com/platform',
+        'privacyUrl' => 'https://online-store.technomasrsystems.com/privacy-policy',
+        'termsUrl' => 'https://online-store.technomasrsystems.com/terms-of-service',
+        'deletionUrl' => 'https://online-store.technomasrsystems.com/data-deletion',
+        'companyProductUrl' => 'https://technomasr.com/techno-online-store.html',
+    ]);
 })->name('home');
 
 Route::get('/platform', PlatformLandingController::class)
