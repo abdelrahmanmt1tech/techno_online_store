@@ -1,0 +1,459 @@
+{
+  "info": {
+    "name": "Techno Online Store - Tenant Auth API",
+    "description": "Authentication API for tenant store customers.\n\nBase URL: {{tenant_url}}/api\n\nSet `tenant_url` to the tenant subdomain, e.g. `https://store1.example.com`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "tenant_url",
+      "value": "http://store1.localhost",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cart_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/register",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"+1234567890\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"accept_terms\": true\n}"
+            },
+            "description": "Register a new account. A verification code will be sent to the email. User cannot login until verified."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"A verification code has been sent to your email.\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Verify Account",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/verify",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "verify"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"code\": \"123456\"\n}"
+            },
+            "description": "Verify account with the 6-digit code sent to email. Returns Sanctum token on success. Also links any Customer with matching email to this user."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Account verified successfully.\",\n  \"data\": {\n    \"user\": {\n      \"id\": 1,\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"phone\": \"+1234567890\",\n      \"is_verified\": true,\n      \"is_admin\": false,\n      \"created_at\": \"2026-07-20T00:00:00.000000Z\"\n    },\n    \"token\": \"1|abc...xyz\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Resend Verification Code",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/resend-code",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "resend-code"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}"
+            },
+            "description": "Resend verification code to the user's email. Fails if account is already verified."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"A verification code has been sent to your email.\",\n  \"data\": {\n    \"expires_in\": \"10 minutes\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/login",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "description": "Login with email and password. Returns 403 if email is not verified."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Success.\",\n  \"data\": {\n    \"user\": {\n      \"id\": 1,\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"phone\": \"+1234567890\",\n      \"is_verified\": true,\n      \"is_admin\": false,\n      \"created_at\": \"2026-07-20T00:00:00.000000Z\"\n    },\n    \"token\": \"1|abc...xyz\"\n  }\n}"
+            },
+            {
+              "name": "Email Not Verified",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Please verify your email before logging in.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/logout",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "description": "Logout current session. Requires Sanctum token."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Logged out successfully.\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout All Devices",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/logout-all",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "logout-all"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "description": "Revoke all tokens (logout from all devices). Requires Sanctum token."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Logged out successfully.\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/forgot-password",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "forgot-password"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}"
+            },
+            "description": "Send password reset code to email. Returns 404 if user not found."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"A verification code has been sent to your email.\",\n  \"data\": {\n    \"expires_in\": \"10 minutes\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Verify Reset Code",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/verify-reset-code",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "verify-reset-code"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"code\": \"123456\"\n}"
+            },
+            "description": "Verify the password reset code. Returns a reset_token (valid 10 min) to be used with reset-password endpoint."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Success.\",\n  \"data\": {\n    \"reset_token\": \"abc...xyz\",\n    \"expires_in\": 600\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/auth/reset-password",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "auth", "reset-password"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"reset_token\": \"abc...xyz\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}"
+            },
+            "description": "Reset password using the reset_token from verify-reset-code endpoint."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Password has been reset successfully.\",\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}"],
+              "variable": [
+                { "key": "cart_token", "value": "" }
+              ]
+            },
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "description": "Get cart details with items, products, variants, governorate, and coupon."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Success.\",\n  \"data\": {\n    \"id\": 1,\n    \"token\": \"550e8400-...\",\n    \"status\": \"active\",\n    \"subtotal\": 100.00,\n    \"shipping_cost\": 5.00,\n    \"discount\": 0.00,\n    \"total\": 105.00,\n    \"items\": [],\n    \"governorate\": null,\n    \"coupon\": null\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add Item",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/items",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "items"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_token\": null,\n  \"session_id\": \"abc-123\",\n  \"product_id\": 1,\n  \"product_variant_id\": 1,\n  \"quantity\": 2\n}"
+            },
+            "description": "Add a product variant to the cart. Pass `cart_token` to add to an existing cart, or omit/null it to create a new cart. The response always includes the `token` — save it for all subsequent cart operations."
+          },
+          "response": [
+            {
+              "name": "Success (New Cart)",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"token\": \"550e8400-e29b-41d4-a716-446655440000\"\n  }\n}"
+            },
+            {
+              "name": "Success (Existing Cart)",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"token\": \"550e8400-e29b-41d4-a716-446655440000\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}/items/{{cart_item_id}}",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}", "items", "{{cart_item_id}}"],
+              "variable": [
+                { "key": "cart_token", "value": "" },
+                { "key": "cart_item_id", "value": "" }
+              ]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}"
+            },
+            "description": "Update the quantity of a cart item."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Success.\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove Item",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}/items/{{cart_item_id}}",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}", "items", "{{cart_item_id}}"],
+              "variable": [
+                { "key": "cart_token", "value": "" },
+                { "key": "cart_item_id", "value": "" }
+              ]
+            },
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "description": "Remove an item from the cart."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Success.\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Set Governorate",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}/governorate",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}", "governorate"],
+              "variable": [
+                { "key": "cart_token", "value": "" }
+              ]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"governorate_id\": 1\n}"
+            },
+            "description": "Set the shipping governorate. Updates shipping cost from the governorate record."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Success.\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Apply Coupon",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}/coupon",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}", "coupon"],
+              "variable": [
+                { "key": "cart_token", "value": "" }
+              ]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"SAVE10\"\n}"
+            },
+            "description": "Apply a coupon code to the cart. Validates coupon rules, minimum order amount, and usage limits."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Coupon applied successfully\",\n  \"data\": {\n    \"code\": \"SAVE10\",\n    \"type\": \"percentage\",\n    \"value\": 10,\n    \"discount\": 10.00,\n    \"total\": 95.00\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove Coupon",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}/coupon",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}", "coupon"],
+              "variable": [
+                { "key": "cart_token", "value": "" }
+              ]
+            },
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "description": "Remove the coupon from the cart."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Coupon removed successfully\",\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

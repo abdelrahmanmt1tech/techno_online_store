@@ -3,33 +3,55 @@
 namespace App\Http\Controllers\Api\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Tenant\ProductIndexRequest;
 use App\Http\Resources\Tenant\ProductDetailResource;
 use App\Http\Resources\Tenant\ProductListResource;
 use App\Models\Tenant\Product;
 use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     use ApiResponse;
 
-    public function index(Request $request)
+    public function index(ProductIndexRequest $request)
     {
         $query = Product::where('is_active', true)
             ->with(['categories', 'media', 'variants']);
 
         if ($request->filled('category_id')) {
-            $query->whereHas('categories', fn ($q) => $q->where('categories.id', $request->category_id));
+            $query->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $request->category_id));
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
-                ->orWhere('sku', 'like', "%{$search}%"));
+            $terms = array_filter(explode(' ', $request->search));
+            foreach ($terms as $term) {
+                $term = trim($term);
+                $query->where(fn ($q) => $q
+                    ->where('name', 'like', "%{$term}%")
+                    ->orWhere('sku', 'like', "%{$term}%")
+                    ->orWhere('description', 'like', "%{$term}%")
+                );
+            }
         }
 
         $perPage = min((int) ($request->per_page ?? 12), 50);
-        $products = $query->orderBy('order')->paginate($perPage);
+
+        $sort = $request->input('sort', 'popular');
+
+        if ($sort === 'popular') {
+            $query->withCount(['orderItems as total_sold' => fn ($q) => $q->join('orders', 'orders.id', '=', 'order_items.order_id')
+                ->whereIn('orders.status', ['pending', 'confirmed', 'processing', 'shipped', 'delivered'])])
+                ->orderBy('total_sold', 'desc');
+        } else {
+            $query->orderBy(match ($sort) {
+                'newest' => 'created_at',
+                'price_high' => 'price',
+                'price_low' => 'price',
+                default => 'order',
+            }, $sort === 'price_high' ? 'desc' : 'asc');
+        }
+
+        $products = $query->paginate($perPage);
 
         return $this->paginatedResponse(
             $products,

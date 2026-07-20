@@ -9,22 +9,26 @@ class ProductDetailResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $firstVariant = $this->variants?->first();
+
+        $price = $firstVariant?->price ?? $this->price;
+        $salePrice = $firstVariant?->sale_price ?? $firstVariant?->price ?? $this->sale_price;
+        $quantity = $firstVariant?->quantity ?? $this->quantity;
+
+        $discountPercent = $price > 0 && $salePrice !== null && $salePrice < $price
+            ? round((($price - $salePrice) / $price) * 100)
+            : 0;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'sku' => $this->sku,
-            'price' => $this->price,
-            'sale_price' => $this->sale_price,
+            'price' => $price,
+            'sale_price' => $salePrice,
+            'discount_percent' => $discountPercent,
             'description' => $this->description,
-            'type' => $this->type,
-            'track_stock' => $this->track_stock,
-            'quantity' => $this->quantity,
-            'media' => $this->whenLoaded('media', fn () => $this->media->map(fn ($m) => [
-                'id' => $m->id,
-                'file' => asset('storage/'.$m->file),
-                'type' => $m->type,
-            ])),
+            'quantity' => $quantity,
+            'media' => $this->whenLoaded('media', fn () => $this->media->map(fn ($m) => asset('storage/tenant'.tenant('id').'/'.$m->file))->values()),
             'categories' => $this->whenLoaded('categories', fn () => $this->categories->map(fn ($c) => [
                 'id' => $c->id,
                 'name' => $c->name,
@@ -43,10 +47,12 @@ class ProductDetailResource extends JsonResource
             'variants' => $this->whenLoaded('variants', fn () => $this->variants->map(fn ($v) => [
                 'id' => $v->id,
                 'price' => $v->price,
-                'sale_price' => $v->sale_price,
+                'sale_price' => $v->sale_price ?? $v->price,
+                'discount_percent' => $v->price > 0 && $v->sale_price !== null && $v->sale_price < $v->price
+                    ? round((($v->price - $v->sale_price) / $v->price) * 100)
+                    : 0,
                 'quantity' => $v->quantity,
-                'sku' => $v->sku,
-                'image' => $v->image ? asset('storage/'.$v->image) : null,
+                'image' => $v->image ? asset('storage/tenant'.tenant('id').'/'.$v->image) : null,
                 'options' => $v->options->map(fn ($o) => [
                     'id' => $o->id,
                     'value' => $o->value,

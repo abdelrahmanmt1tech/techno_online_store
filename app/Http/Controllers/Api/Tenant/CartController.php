@@ -15,23 +15,27 @@ use App\Models\Tenant\Governorate;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\ProductVariant;
 use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CartController extends Controller
 {
     use ApiResponse;
 
-    public function store(Request $request)
+    public function addItem(AddCartItemRequest $request)
     {
-        $cart = Cart::create([
-            'token' => Str::uuid()->toString(),
-            'session_id' => $request->input('session_id'),
-        ]);
+        $token = $request->input('cart_token');
+        $cart = $token ? Cart::where('token', $token)->first() : null;
 
-        return $this->createdResponse([
-            'token' => $cart->token,
-        ]);
+        if (! $cart) {
+            $token = Str::uuid()->toString();
+            $cart = Cart::create([
+                'token' => $token,
+                'session_id' => session()->getId(),
+                'status' => 'active',
+            ]);
+        }
+
+        return $this->handleAddItem($request, $cart, $token);
     }
 
     public function show(string $token)
@@ -52,17 +56,8 @@ class CartController extends Controller
         return $this->successResponse(new CartResource($cart));
     }
 
-    public function addItem(AddCartItemRequest $request, string $token)
+    private function handleAddItem(AddCartItemRequest $request, Cart $cart, string $token)
     {
-        $cart = Cart::where('token', $token)->first();
-
-        if (! $cart) {
-            $cart = Cart::create([
-                'token' => $token,
-                'session_id' => $request->input('session_id'),
-            ]);
-        }
-
         if ($cart->status !== 'active') {
             return $this->errorResponse('Cart is no longer active', 422);
         }
@@ -75,34 +70,27 @@ class CartController extends Controller
             return $this->errorResponse('Product is not available', 422);
         }
 
-        $variant = null;
-        if (isset($validated['product_variant_id'])) {
-            $variant = ProductVariant::where('id', $validated['product_variant_id'])
-                ->where('product_id', $product->id)
-                ->first();
+        $variant = ProductVariant::where('id', $validated['product_variant_id'])
+            ->where('product_id', $product->id)
+            ->first();
 
-            if (! $variant) {
-                return $this->errorResponse('Variant not found for this product', 422);
-            }
-
-            if ($variant->is_active === false) {
-                return $this->errorResponse('Variant is not available', 422);
-            }
-
-            if ($product->track_stock && $variant->quantity < $validated['quantity']) {
-                return $this->errorResponse('Insufficient stock', 422);
-            }
-        } else {
-            if ($product->track_stock && $product->quantity < $validated['quantity']) {
-                return $this->errorResponse('Insufficient stock', 422);
-            }
+        if (! $variant) {
+            return $this->errorResponse('Variant not found for this product', 422);
         }
 
-        $unitPrice = $variant ? ($variant->sale_price ?? $variant->price) : ($product->sale_price ?? $product->price);
+        if ($variant->is_active === false) {
+            return $this->errorResponse('Variant is not available', 422);
+        }
+
+        if ($product->track_stock && $variant->quantity < $validated['quantity']) {
+            return $this->errorResponse('Insufficient stock', 422);
+        }
+
+        $unitPrice = $variant->sale_price ?? $variant->price;
 
         $existingItem = CartItem::where('cart_id', $cart->id)
             ->where('product_id', $product->id)
-            ->where('product_variant_id', $validated['product_variant_id'] ?? null)
+            ->where('product_variant_id', $validated['product_variant_id'])
             ->first();
 
         if ($existingItem) {
@@ -114,7 +102,7 @@ class CartController extends Controller
             CartItem::create([
                 'cart_id' => $cart->id,
                 'product_id' => $product->id,
-                'product_variant_id' => $validated['product_variant_id'] ?? null,
+                'product_variant_id' => $validated['product_variant_id'],
                 'quantity' => $validated['quantity'],
                 'unit_price' => $unitPrice,
                 'total_price' => $unitPrice * $validated['quantity'],
@@ -123,7 +111,17 @@ class CartController extends Controller
 
         $cart->recalculate();
 
-        return $this->successResponse(null, __('messages.resource_created_successfully'));
+        $cart->load([
+            'items.product' => fn ($q) => $q->with('media'),
+            'items.variant',
+            'governorate',
+            'coupon',
+        ]);
+
+        return $this->successResponse(
+            new CartResource($cart->append('token')),
+            __('messages.resource_created_successfully'),
+        );
     }
 
     public function updateItem(UpdateCartItemRequest $request, string $token, string $item)

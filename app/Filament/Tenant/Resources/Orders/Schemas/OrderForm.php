@@ -3,6 +3,7 @@
 namespace App\Filament\Tenant\Resources\Orders\Schemas;
 
 use App\Models\Tenant\Coupon;
+use App\Models\Tenant\Customer;
 use App\Models\Tenant\Governorate;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\ProductVariant;
@@ -23,6 +24,77 @@ class OrderForm
                 Section::make(__('dashboard.customer_info'))
                     ->columns(3)
                     ->schema([
+                        Select::make('customer_id')
+                            ->label(__('dashboard.customer'))
+                            ->options(fn () => Customer::orderBy('name')->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set) {
+                                if (! $state) {
+                                    $set('customer_name', null);
+                                    $set('customer_phone', null);
+                                    $set('customer_email', null);
+                                    return;
+                                }
+                                $customer = Customer::with('contacts')->find($state);
+                                if (! $customer) return;
+
+                                $set('customer_name', $customer->name);
+                                $set('customer_phone', $customer->primaryPhone());
+                                $set('customer_email', $customer->primaryEmail());
+                            })
+                            ->suffixAction(
+                                \Filament\Actions\Action::make('createCustomer')
+                                    ->icon('heroicon-o-plus')
+                                    ->modalHeading(__('dashboard.create_customer'))
+                                    ->schema([
+                                        Grid::make(3)->schema([
+                                            TextInput::make('name')
+                                                ->label(__('dashboard.customer_name'))
+                                                ->required()
+                                                ->maxLength(255),
+                                            TextInput::make('phone')
+                                                ->label(__('dashboard.customer_phone'))
+                                                ->required()
+                                                ->maxLength(255),
+                                            TextInput::make('email')
+                                                ->label(__('dashboard.customer_email'))
+                                                ->email()
+                                                ->maxLength(255),
+                                        ]),
+                                    ])
+                                    ->action(function (array $data, $set) {
+                                        $customer = Customer::create(['name' => $data['name']]);
+
+                                        $customer->contacts()->create([
+                                            'type' => 'phone',
+                                            'value' => $data['phone'],
+                                            'is_primary' => true,
+                                        ]);
+
+                                        if (! empty($data['email'])) {
+                                            $customer->contacts()->create([
+                                                'type' => 'email',
+                                                'value' => $data['email'],
+                                                'is_primary' => true,
+                                            ]);
+
+                                            $customer->contacts()->create([
+                                                'type' => 'whatsapp',
+                                                'value' => $data['phone'],
+                                                'is_primary' => true,
+                                            ]);
+                                        }
+
+                                        $set('customer_id', $customer->id);
+                                        $set('customer_name', $customer->name);
+                                        $set('customer_phone', $data['phone']);
+                                        $set('customer_email', $data['email'] ?? null);
+                                    })
+                            ),
+
                         TextInput::make('customer_name')
                             ->label(__('dashboard.customer_name'))
                             ->required()
