@@ -286,7 +286,6 @@ class HomeControllerTest extends TestCase
         app()->setLocale('en');
 
         Setting::create(['key' => 'marketing_channels_section_active', 'value' => '1']);
-        Setting::create(['key' => 'marketing_channels_link', 'value' => 'https://example.com']);
         Setting::create([
             'key' => 'marketing_channels_items',
             'value' => json_encode([
@@ -306,7 +305,8 @@ class HomeControllerTest extends TestCase
         $response = $this->getJson('/api/home');
 
         $response->assertOk();
-        $response->assertJsonPath('data.marketing_channels.link', 'https://example.com');
+        // Section-level link was intentionally removed from the home API / Filament settings.
+        $this->assertArrayNotHasKey('link', $response->json('data.marketing_channels'));
         $this->assertArrayNotHasKey('link', $response->json('data.marketing_channels.items.0'));
         $this->assertCount(2, $response->json('data.marketing_channels.items.0.icons'));
         $this->assertStringContainsString(

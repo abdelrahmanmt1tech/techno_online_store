@@ -25,6 +25,10 @@ class BlogController extends Controller
             $query->whereHas('categories', fn ($q) => $q->where('blog_categories.id', $request->category_id));
         }
 
+        if ($request->filled('category_slug')) {
+            $query->whereHas('categories', fn ($q) => $q->where('blog_categories.slug', $request->category_slug));
+        }
+
         if ($request->filled('tag_id')) {
             $query->whereHas('tags', fn ($q) => $q->where('tags.id', $request->tag_id));
         }

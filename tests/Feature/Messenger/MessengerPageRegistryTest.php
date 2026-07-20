@@ -8,15 +8,9 @@ use App\Messenger\Enums\MessengerTokenSource;
 use App\Models\MessengerPageRegistry;
 use App\Models\Tenant;
 use App\Models\Tenant\MessengerPage;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class MessengerPageRegistryTest extends TestCase
+class MessengerPageRegistryTest extends MessengerTestCase
 {
-    use RefreshDatabase;
-
-    protected $connectionsToTransact = [];
-
     protected function createTenantWithDatabase(): Tenant
     {
         $tenant = Tenant::query()->create([
