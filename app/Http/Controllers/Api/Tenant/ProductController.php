@@ -16,7 +16,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::where('is_active', true)
-            ->with(['categories', 'media']);
+            ->with(['categories', 'media', 'variants']);
 
         if ($request->filled('category_id')) {
             $query->whereHas('categories', fn ($q) => $q->where('categories.id', $request->category_id));
