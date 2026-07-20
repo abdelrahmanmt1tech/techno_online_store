@@ -59,7 +59,9 @@ Navigation labels use `__('dashboard.*')` translations (`lang/{ar,en}/dashboard.
 
 Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) and `app/Helper/TenantPermissionsArray.php` (tenant, guard `tenant`). Auto-loaded via `composer.json` `files` array (also loads `app/Helper/SeoHelper.php`). Permission keys follow pattern `{group}.{action}` (e.g., `tenants.view`, `roles-and-permission.destroy`).
 
-**Development mode**: `BYPASS_PERMISSIONS=true` (or any non-`production` `APP_ENV`) bypasses all `Gate`/`$user->can()` checks. The config in `config/app.php` defaults to `true` unless `APP_ENV=production`. Do **not** add new permission keys or `can*()` checks on new features until pre-production.
+**Development mode**: `BYPASS_PERMISSIONS=true` (or any non-`production` `APP_ENV`) bypasses all `Gate`/`$user->can()` checks. The config in `config/app.php` defaults to `true` unless `APP_ENV=production`. Do **not** add new permission keys or `can*()` checks on new features until pre-production (exception: explicit Meta Integration Reset permission `meta.integrations.reset`).
+
+**Meta Integration Reset rule**: Any new table that stores Meta integration state must explicitly declare whether it participates in `MetaIntegrationResetRegistry`. A migration is not considered complete until the registry decision, tests, and [`docs/meta-integrations-reset.md`](docs/meta-integrations-reset.md) are updated.
 
 ## Testing
 
@@ -80,6 +82,7 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module. Manual integration complete; onboarding Phase A done; Phase B+ blocked on Meta verification |
 | [`docs/messenger-messaging-module.md`](docs/messenger-messaging-module.md) | Messenger module. **Phases A–G code-complete** (manual staging E2E passed; Phase G Facebook Login staging E2E pending). Also documents Meta App legal URLs + Access Verification public pages (`/`, `/platform`, company static pack) |
 | [`docs/messaging-health-dashboard.md`](docs/messaging-health-dashboard.md) | Admin Messaging Health Dashboard (Phase H) — central registry/webhook diagnostics; no tokens; no cross-tenant inbox |
+| [`docs/meta-integrations-reset.md`](docs/meta-integrations-reset.md) | Destructive Admin tool to wipe local WhatsApp/Messenger integration rows (central + all tenants) before Meta App Review; gated by `META_INTEGRATION_RESET_ENABLED` |
 | [`docs/deployment-cwp.md`](docs/deployment-cwp.md) | CWP production deploy sequence and required secrets |
 | [`docs/tenancy-summary.md`](docs/tenancy-summary.md) | Tenancy architecture summary |
 | [`public-delivery/techno-online-store/`](public-delivery/techno-online-store/) | Standalone company Access Verification landing (upload to technomasr.com) |

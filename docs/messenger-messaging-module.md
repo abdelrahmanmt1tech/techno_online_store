@@ -3,7 +3,7 @@
 Developer handoff document for the **Facebook Messenger** CRM channel in the Techno Online Store multi-tenant platform.
 
 **Status:** Phases A–F complete (manual Messenger **staging E2E passed**). **Phase G code-complete** (Facebook Login for Business + Page picker + auto Page webhook subscription). Phase G staging E2E pending. **Meta App / Access Verification public pages delivered** (legal URLs + SaaS `/` + `/platform` + company static pack).  
-**Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes. Platform ops dashboard: [`docs/messaging-health-dashboard.md`](messaging-health-dashboard.md).
+**Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes. Platform ops dashboard: [`docs/messaging-health-dashboard.md`](messaging-health-dashboard.md). Local Meta wipe: [`docs/meta-integrations-reset.md`](meta-integrations-reset.md).
 
 ---
 

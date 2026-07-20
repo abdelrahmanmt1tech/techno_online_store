@@ -94,3 +94,4 @@ No new permission keys in Phase H (development bypass still applies).
 
 - [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md)
 - [`docs/messenger-messaging-module.md`](messenger-messaging-module.md)
+- [`docs/meta-integrations-reset.md`](meta-integrations-reset.md) — destructive local wipe of integration tables (not health diagnostics)
