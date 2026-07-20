@@ -52,7 +52,8 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 - **Signed state** (`MessengerOnboardingStateService`): `tenant_id`, `tenant_user_id`, `nonce`, `issued_at` / `expires_at`, `return_url` — encrypted; raw `tenant_id` rejected
 - **Callback:** server-side code → user token exchange (secret never in browser); list `/me/accounts`; discard user token; keep Page tokens encrypted in short-lived `messenger_onboarding_sessions` until connect
 - **Connect:** upsert tenant `MessengerPage` (`connection_method=facebook_login`, `token_source=facebook_login`, encrypted `page_access_token`); sync central registry metadata **without** tokens; `POST /{page-id}/subscribed_apps`
-- **Subscribed fields** (configurable): `messages`, `messaging_postbacks`, `message_deliveries`, `message_reads`, `messaging_seen`
+- **Subscribed fields** (configurable): `messages`, `messaging_postbacks`, `message_deliveries`, `message_reads`  
+  (`messaging_seen` is **not** a valid Meta `subscribed_apps` field — rejected by Graph; use `message_reads` for read receipts.)
 - **Failure:** webhook not marked `subscribed`; page `reconnect_required` + safe error; retry subscription action on edit; reconnect via Connect page
 - **Manual path:** unchanged and still available
 

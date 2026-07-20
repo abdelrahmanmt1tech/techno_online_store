@@ -124,7 +124,6 @@ class MessengerGraphApiService
             'messaging_postbacks',
             'message_deliveries',
             'message_reads',
-            'messaging_seen',
         ]);
 
         $payload = [
