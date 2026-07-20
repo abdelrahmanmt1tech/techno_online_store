@@ -2,6 +2,9 @@
 
 Developer handoff document for the WhatsApp Business Cloud API messaging module in the Techno Online Store multi-tenant platform.
 
+Platform operations dashboard (central registry/webhook health): see [`docs/messaging-health-dashboard.md`](messaging-health-dashboard.md).  
+Local Meta integration wipe (App Review prep): see [`docs/meta-integrations-reset.md`](meta-integrations-reset.md).
+
 ---
 
 ## 1. Purpose

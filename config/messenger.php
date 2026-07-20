@@ -25,8 +25,8 @@ return [
         'state_ttl_seconds' => (int) env('MESSENGER_ONBOARDING_STATE_TTL', 900),
         'subscribed_fields' => array_values(array_filter(array_map(
             'trim',
-            explode(',', (string) env('MESSENGER_PAGE_SUBSCRIBED_FIELDS', 'messages,messaging_postbacks,message_deliveries,message_reads,messaging_seen')),
-        ))),
+            explode(',', (string) env('MESSENGER_PAGE_SUBSCRIBED_FIELDS', 'messages,messaging_postbacks,message_deliveries,message_reads')),
+        ), fn (string $field) => $field !== '' && $field !== 'messaging_seen')),
     ],
 
     'onboarding' => [

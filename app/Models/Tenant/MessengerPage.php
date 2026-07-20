@@ -8,6 +8,7 @@ use App\Messenger\Enums\MessengerTokenSource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class MessengerPage extends Model
 {
@@ -74,6 +75,13 @@ class MessengerPage extends Model
                 $page->connected_at = now();
             }
         });
+    }
+
+    public function setLastErrorMessageAttribute(?string $value): void
+    {
+        $this->attributes['last_error_message'] = $value === null
+            ? null
+            : Str::limit($value, 2000, '…');
     }
 
     public function conversations(): HasMany

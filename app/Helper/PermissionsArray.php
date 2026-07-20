@@ -78,6 +78,12 @@ function permissionsArray(): array
                 ['name' => 'dashboard.permissions.view', 'key' => 'messenger.platform.troubleshoot'],
             ],
         ],
+        [
+            'name' => 'dashboard.permissions_groups.meta_platform_ops',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.delete', 'key' => 'meta.integrations.reset'],
+            ],
+        ],
 
     ];
 }

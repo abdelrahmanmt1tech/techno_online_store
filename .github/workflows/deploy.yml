@@ -40,6 +40,8 @@ jobs:
             echo "Removing conflicting local CSS files..."
             rm -f public/css/app/custom-stylesheet.css
             rm -f public/css/app/whatsapp-ui.css
+            rm -f public/css/app/messaging-health-dashboard.css
+            rm -f public/css/app/meta-integrations-reset.css
 
             echo "Pulling latest changes..."
             git pull --ff-only origin main
