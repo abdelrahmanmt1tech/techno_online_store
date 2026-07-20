@@ -69,9 +69,11 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 | Document | Purpose |
 |---|---|
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module. Manual integration complete; onboarding Phase A done; Phase B+ blocked on Meta verification |
-| [`docs/messenger-messaging-module.md`](docs/messenger-messaging-module.md) | Messenger module. Phases A–F complete; Phase G (Facebook Login) blocked |
+| [`docs/messenger-messaging-module.md`](docs/messenger-messaging-module.md) | Messenger module. **Phases A–G code-complete** (manual staging E2E passed; Phase G Facebook Login staging E2E pending). Also documents Meta App legal URLs + Access Verification public pages (`/`, `/platform`, company static pack) |
+| [`docs/messaging-health-dashboard.md`](docs/messaging-health-dashboard.md) | Admin Messaging Health Dashboard (Phase H) — central registry/webhook diagnostics; no tokens; no cross-tenant inbox |
 | [`docs/deployment-cwp.md`](docs/deployment-cwp.md) | CWP production deploy sequence and required secrets |
 | [`docs/tenancy-summary.md`](docs/tenancy-summary.md) | Tenancy architecture summary |
+| [`public-delivery/techno-online-store/`](public-delivery/techno-online-store/) | Standalone company Access Verification landing (upload to technomasr.com) |
 
 ## Gotchas
 

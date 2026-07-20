@@ -2,9 +2,8 @@
 
 Developer handoff document for the **Facebook Messenger** CRM channel in the Techno Online Store multi-tenant platform.
 
-**Status:** Phases A–F complete (manual Messenger **staging E2E passed**). **Phase G code-complete** (Facebook Login for Business + Page picker + auto Page webhook subscription). Phase G staging E2E pending.  
-**Branch:** `feature/messenger-facebook-login`  
-**Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes.
+**Status:** Phases A–F complete (manual Messenger **staging E2E passed**). **Phase G code-complete** (Facebook Login for Business + Page picker + auto Page webhook subscription). Phase G staging E2E pending. **Meta App / Access Verification public pages delivered** (legal URLs + SaaS `/` + `/platform` + company static pack).  
+**Related:** WhatsApp is a separate channel — see [`docs/whatsapp-messaging-module.md`](whatsapp-messaging-module.md). Do not mix tables, services, or routes. Platform ops dashboard: [`docs/messaging-health-dashboard.md`](messaging-health-dashboard.md).
 
 ---
 
@@ -12,6 +11,9 @@ Developer handoff document for the **Facebook Messenger** CRM channel in the Tec
 
 | Date | Change |
 |---|---|
+| 2026-07-20 | Docs completeness: inventory for public legal + Access Verification pages; document central `GET /` home landing; tenant `GET /` conflict → 404 gotcha; company pack logo/animations; `AGENTS.md` index update. |
+| 2026-07-20 | Fix: central home `GET /` returned 404 because tenant `routes/tenant.php` overwrote it and `PreventAccessFromCentralDomains` aborted on central domains. Home now uses `PlatformLandingController`; tenant placeholder `/` removed. |
+| 2026-07-19 | Company static landing polish: Techno Web Masr logo (`logo.png`), dark brand theme, scroll/logo motion (`public-delivery/techno-online-store/`). |
 | 2026-07-19 | Meta Access Verification landing pages: SaaS `/platform` (central domain) + standalone company site pack in `public-delivery/techno-online-store/`. Cross-links to contact, privacy, terms, data deletion. No messaging logic changes. |
 | 2026-07-13 | Meta App readiness: public central-domain Privacy Policy, Terms of Service, and Data Deletion pages (`/privacy-policy`, `/terms-of-service`, `/data-deletion`) + App Domains / OAuth / legal URL checklist. No Messenger onboarding logic changes. |
 | 2026-07-13 | Phase G implemented: Facebook Login for Business + Page picker + automatic Page `subscribed_apps`; Connect Messenger tenant UI (manual remains); central onboarding routes; encrypted onboarding sessions; docs + Phase G tests. Instagram/Orders/campaigns still out of scope. |
@@ -659,15 +661,19 @@ tests/Unit/Messenger/...
 | Messenger module | **Phases A–G code-complete** — manual path staging E2E passed; Phase G staging E2E pending |
 | Implementation | Manual + Facebook Login Page connect; webhooks; tenant/admin inbox; text send (24h) |
 | Phase G (Facebook Login) | **Delivered (code)** — config, Connect UI, OAuth, picker, `subscribed_apps`, tests |
+| Meta App / Access Verification pages | **Delivered** — legal URLs, SaaS `/` + `/platform`, company static pack |
 | WhatsApp module | **Unchanged** — separate channel |
 | Instagram | **Not in scope** |
 | Orders / campaigns | **Not in scope** |
 
 ---
 
-## 21. Delivered inventory (A–G)
+## 21. Delivered inventory (A–G + Meta public readiness)
 
 ### Routes
+- `GET /` — central home / Access Verification product landing (`PlatformLandingController`)
+- `GET /platform` — same landing; central-domain middleware
+- `GET /privacy-policy`, `/terms-of-service`, `/data-deletion` — public legal pages
 - `GET /webhooks/meta/messenger` — Meta verification
 - `POST /webhooks/meta/messenger` — receive (+ WhatsApp routes unchanged)
 - `GET /messenger/onboarding/{start,callback,pages,status}` + `POST /messenger/onboarding/connect` (central domain)
@@ -681,6 +687,8 @@ tests/Unit/Messenger/...
 - `MESSENGER_GRAPH_API_VERSION` (default falls back to WhatsApp Graph version / `v21.0`)
 - `MESSENGER_REQUEST_TIMEOUT`, `MESSENGER_LOG_CHANNEL`, `MESSENGER_WEBHOOK_LOG_CHANNEL`, `MESSENGER_WEBHOOK_PAYLOAD_RETENTION`
 - Phase G: `MESSENGER_FACEBOOK_LOGIN_CONFIG_ID`, `MESSENGER_OAUTH_REDIRECT_URI`, `MESSENGER_OAUTH_SCOPES`, `MESSENGER_ONBOARDING_CENTRAL_DOMAIN`, `MESSENGER_PAGE_SUBSCRIBED_FIELDS`
+- Public readiness: `SUPPORT_EMAIL`, `PUBLIC_PLATFORM_ENFORCE_CENTRAL_DOMAIN`
+- Central hosts in `config/tenancy.php` → `central_domains` (includes `online-store.technomasrsystems.com`, `localhost`, …)
 
 ### Central tables
 - `messenger_page_registry` (metadata only — **no tokens**)
@@ -691,13 +699,15 @@ tests/Unit/Messenger/...
 - `messenger_pages` (encrypted `page_access_token`), `messenger_contacts`, `messenger_conversations`, `messenger_messages`
 
 ### Core classes
-- Controller: `MessengerWebhookController`, `MessengerOnboardingController`
+- Controller: `MessengerWebhookController`, `MessengerOnboardingController`, `PlatformLandingController`, `LegalPageController`
+- Middleware: `EnsureMessengerOnboardingCentralDomain`, `EnsurePublicCentralDomain`
 - Job: `ProcessMessengerWebhookJob`
 - Services: resolver, signature verifier, redactor, request logger, interpreter, Graph API, sending policy, tenant context
 - Onboarding: state service, token exchanger, complete login, connect selected pages, subscribe page webhooks
 - Actions: inbound process, upsert contact, find/create conversation, open window, send text, sync registry, sync status, reprocess webhook
 - Filament tenant: Connect Messenger page, Pages resource, Inbox page, Webhook events resource
 - Filament admin: Registry resource, Webhook events resource, Inbox page (tenant selector)
+- Delivery pack: `public-delivery/techno-online-store/` (company Access Verification HTML/CSS/JS + logo)
 
 ---
 
@@ -729,7 +739,7 @@ Use the **central domain** for App Domains, OAuth redirect, and legal URLs:
 | **Terms of Service URL** | `https://online-store.technomasrsystems.com/terms-of-service` |
 | **Data Deletion URL** | `https://online-store.technomasrsystems.com/data-deletion` |
 
-Public legal pages are served from central `routes/web.php` (no tenant middleware, no auth). Contact email defaults to `support@technowebmasr.com` (`SUPPORT_EMAIL` / `config('app.support_email')`).
+Public legal pages are served from central `routes/web.php` (no tenant middleware, no auth). Contact email from `SUPPORT_EMAIL` / `config('app.support_email')` (default `support@technowebmasr.com`).
 
 ### Meta Access Verification (App Review / Tech Provider relationship)
 
@@ -738,13 +748,47 @@ Use these cross-linked public pages to document the relationship between Techno 
 | Item | URL |
 |---|---|
 | **Company product page** (recommended Access Verification website) | `https://technomasr.com/techno-online-store` |
-| **Application product page** | `https://online-store.technomasrsystems.com/platform` |
+| **Application home / product page** | `https://online-store.technomasrsystems.com/` **and** `/platform` |
 | **Contact** | `https://technomasr.com/en/contact/product-1773666026-noxmd` |
 | **Privacy** | `https://online-store.technomasrsystems.com/privacy-policy` |
 | **Terms** | `https://online-store.technomasrsystems.com/terms-of-service` |
 | **Data deletion** | `https://online-store.technomasrsystems.com/data-deletion` |
 
-Standalone static files for the company site upload are in `public-delivery/techno-online-store/` (`index.html`, `styles.css`, `script.js`). Upload/rename as needed so the live path is `https://technomasr.com/techno-online-store`.
+#### SaaS public routes (central `routes/web.php`)
+
+| Method | Path | Name | Handler |
+|---|---|---|---|
+| GET | `/` | `home` | `PlatformLandingController` (same Blade as `/platform`) |
+| GET | `/platform` | `platform.landing` | `PlatformLandingController` + `EnsurePublicCentralDomain` |
+| GET | `/privacy-policy` | `legal.privacy` | `LegalPageController` |
+| GET | `/terms-of-service` | `legal.terms` | `LegalPageController` |
+| GET | `/data-deletion` | `legal.data-deletion` | `LegalPageController` |
+
+**Rules**
+- Public, no auth, no tenant middleware, no tenant data exposure.
+- `/platform` optionally enforces `config('tenancy.central_domains')` via `EnsurePublicCentralDomain` (`PUBLIC_PLATFORM_ENFORCE_CENTRAL_DOMAIN`, default `true`).
+- **Gotcha:** never register `GET /` again in `routes/tenant.php`. A later tenant `/` overwrites the central home route; on central domains `PreventAccessFromCentralDomains` then returns **404**.
+
+**Code map**
+- Controllers: `App\Http\Controllers\PlatformLandingController`, `LegalPageController`
+- Middleware: `App\Http\Middleware\EnsurePublicCentralDomain`
+- Views: `resources/views/platform/index.blade.php`, `resources/views/legal/*`
+- Config: `config/app.php` → `support_email`, `public_platform_enforce_central_domain`
+- Env: `SUPPORT_EMAIL`, `PUBLIC_PLATFORM_ENFORCE_CENTRAL_DOMAIN`
+- Tests: `tests/Feature/PlatformLandingPageTest.php`, `tests/Feature/LegalPagesTest.php`
+
+#### Company website static pack
+
+Folder: `public-delivery/techno-online-store/`
+
+| File | Purpose |
+|---|---|
+| `index.html` | Standalone company product landing (no Laravel) |
+| `styles.css` | Dark brand theme + motion |
+| `script.js` | Year + scroll reveal (`prefers-reduced-motion` respected) |
+| `logo.png` | Techno Web Masr logo (also keep source PNG if present) |
+
+Upload to company hosting so the live path matches the Access Verification URL (`https://technomasr.com/techno-online-store`). Pack includes logo usage, CTAs to SaaS `/platform`, contact, privacy, terms, and data deletion. No Meta endorsement claims.
 
 ### Connect a Facebook Page (manual MVP)
 1. In Meta: create/own a Facebook Page; generate a **long-lived Page access token** with messaging permissions.
@@ -836,4 +880,4 @@ Standalone static files for the company site upload are in `public-delivery/tech
 
 ---
 
-*Document version: 2026-07-13 — Phase G code-complete (Facebook Login). Manual Messenger staging E2E passed (A–F). Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*
+*Document version: 2026-07-20 — Phase G code-complete; Meta Access Verification / legal public pages documented; central home `/` landing fixed. Manual Messenger staging E2E passed (A–F). Stack: Laravel 13, Filament ~5, stancl/tenancy, spatie/laravel-permission.*

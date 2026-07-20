@@ -12,6 +12,8 @@ class SettingsControllerTest extends TestCase
 
     public function test_it_returns_all_settings(): void
     {
+        app()->setLocale('ar');
+
         Setting::create(['key' => 'site_logo', 'value' => 'general/logo.png']);
         Setting::create(['key' => 'web_favicon', 'value' => 'general/favicon.ico']);
         Setting::create(['key' => 'courses_link', 'value' => 'https://example.com/courses']);
