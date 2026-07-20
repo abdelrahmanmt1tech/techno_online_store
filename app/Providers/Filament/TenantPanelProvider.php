@@ -45,6 +45,7 @@ class TenantPanelProvider extends PanelProvider
             ->assets([
                 Css::make('custom-stylesheet', resource_path('css/filament-custom.css')),
                 Css::make('whatsapp-ui', resource_path('css/whatsapp-ui.css')),
+                Css::make('messaging-health-dashboard', resource_path('css/messaging-health-dashboard.css')),
             ])
             ->widgets([
                 // AccountWidget::class,
