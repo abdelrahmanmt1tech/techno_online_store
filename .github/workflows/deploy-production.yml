@@ -140,8 +140,21 @@ jobs:
                 rm -f public/css/app/messaging-health-dashboard.css
                 rm -f public/css/app/meta-integrations-reset.css
 
+                # حماية ملف .htaccess الخاص بإعدادات السيرفر (غير متتبَّع في Git)
+                HTACCESS_BACKUP=""
+                if [ -f public/.htaccess ]; then
+                  HTACCESS_BACKUP="$(mktemp)"
+                  cp -f public/.htaccess "${HTACCESS_BACKUP}"
+                fi
+
                 git checkout main
                 git reset --hard "${DEPLOY_SHA}"
+
+                # استرجاع نسخة السيرفر من .htaccess بعد إعادة الضبط
+                if [ -n "${HTACCESS_BACKUP}" ] && [ -f "${HTACCESS_BACKUP}" ]; then
+                  cp -f "${HTACCESS_BACKUP}" public/.htaccess
+                  rm -f "${HTACCESS_BACKUP}"
+                fi
 
                 echo "Branch: $(git branch --show-current)"
                 echo "Commit: $(git rev-parse --short HEAD)"
