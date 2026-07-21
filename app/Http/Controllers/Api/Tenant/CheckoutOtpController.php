@@ -3,23 +3,60 @@
 namespace App\Http\Controllers\Api\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Tenant\CheckoutRequest;
+use App\Http\Requests\Api\Tenant\SendCheckoutOtpRequest;
+use App\Http\Requests\Api\Tenant\VerifyCheckoutOtpRequest;
 use App\Http\Resources\Tenant\CheckoutResource;
+use App\Mail\CheckoutOtpMail;
 use App\Models\Tenant\Cart;
 use App\Models\Tenant\Coupon;
 use App\Models\Tenant\CouponUsage;
+use App\Models\Tenant\Customer;
+use App\Models\Tenant\CustomerContact;
 use App\Models\Tenant\Governorate;
 use App\Models\Tenant\Order;
 use App\Models\Tenant\OrderItem;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
-class CheckoutController extends Controller
+class CheckoutOtpController extends Controller
 {
     use ApiResponse;
 
-    public function store(CheckoutRequest $request, string $token)
+    private const OTP_TTL_MINUTES = 10;
+
+    public function sendOtp(SendCheckoutOtpRequest $request, string $token)
+    {
+        $cart = Cart::where('token', $token)
+            ->with(['items'])
+            ->first();
+
+        if (! $cart) {
+            return $this->notFoundResponse(__('messages.resource_not_found'));
+        }
+
+        if ($cart->status !== 'active') {
+            return $this->errorResponse('Cart is no longer active', 422);
+        }
+
+        if ($cart->items->isEmpty()) {
+            return $this->errorResponse('Cart is empty', 422);
+        }
+
+        $validated = $request->validated();
+        $code = (string) random_int(100000, 999999);
+        $cacheKey = $this->otpCacheKey($token, $validated['email']);
+
+        Cache::put($cacheKey, $code, now()->addMinutes(self::OTP_TTL_MINUTES));
+
+        Mail::to($validated['email'])->send(new CheckoutOtpMail($code, self::OTP_TTL_MINUTES));
+
+        return $this->successResponse(null, __('auth.verification_code_sent'));
+    }
+
+    public function verifyAndCheckout(VerifyCheckoutOtpRequest $request, string $token)
     {
         $cart = Cart::where('token', $token)
             ->with(['items.product', 'items.variant.options.variation', 'governorate'])
@@ -38,6 +75,14 @@ class CheckoutController extends Controller
         }
 
         $validated = $request->validated();
+        $cacheKey = $this->otpCacheKey($token, $validated['email']);
+        $storedCode = Cache::get($cacheKey);
+
+        if (! $storedCode || $storedCode !== $validated['code']) {
+            return $this->errorResponse(__('auth.invalid_or_expired_code'), 422);
+        }
+
+        Cache::forget($cacheKey);
 
         $governorate = isset($validated['governorate_id'])
             ? Governorate::find($validated['governorate_id'])
@@ -67,8 +112,8 @@ class CheckoutController extends Controller
                 return $this->errorResponse('Coupon minimum order amount not met', 422);
             }
 
-            $customerIdentifier = $cart->session_id ?? $request->input('customer_identifier');
-            if ($customerIdentifier && ! $coupon->isUsableBy($customerIdentifier)) {
+            $customerIdentifier = $cart->session_id ?? $validated['email'];
+            if (! $coupon->isUsableBy($customerIdentifier)) {
                 return $this->errorResponse('Coupon is no longer valid', 422);
             }
 
@@ -89,16 +134,26 @@ class CheckoutController extends Controller
             $coupon,
             $request,
         ) {
+            $customer = $this->findOrCreateCustomer(
+                $validated['email'],
+                $validated['customer_name'],
+                $validated['customer_phone'],
+            );
+
+            $userId = $request->user()?->id;
+
             $order = Order::create([
                 'order_number' => Order::generateOrderNumber(),
                 'token' => Str::uuid()->toString(),
                 'cart_id' => $cart->id,
+                'customer_id' => $customer?->id,
+                'user_id' => $userId,
                 'status' => 'pending',
                 'payment_method' => $validated['payment_method'],
                 'payment_status' => $validated['payment_method'] === 'online' ? 'paid' : 'unpaid',
                 'customer_name' => $validated['customer_name'],
                 'customer_phone' => $validated['customer_phone'],
-                'customer_email' => $validated['customer_email'] ?? null,
+                'customer_email' => $validated['email'],
                 'customer_address' => $validated['customer_address'],
                 'governorate_id' => $governorate?->id,
                 'governorate_name' => $governorate?->name ?? '',
@@ -139,7 +194,7 @@ class CheckoutController extends Controller
             }
 
             if ($coupon) {
-                $customerIdentifier = $cart->session_id ?? $request->input('customer_identifier');
+                $customerIdentifier = $cart->session_id ?? $validated['email'];
 
                 CouponUsage::create([
                     'coupon_id' => $coupon->id,
@@ -161,5 +216,38 @@ class CheckoutController extends Controller
         });
 
         return $this->createdResponse(new CheckoutResource($result), 'Order placed successfully');
+    }
+
+    private function findOrCreateCustomer(string $email, string $name, string $phone): ?Customer
+    {
+        $contact = CustomerContact::where('type', 'email')
+            ->where('value', $email)
+            ->first();
+
+        if ($contact) {
+            return $contact->customer;
+        }
+
+        $customer = Customer::create(['name' => $name]);
+
+        $customer->contacts()->create([
+            'type' => 'email',
+            'value' => $email,
+            'verified_at' => now(),
+            'is_primary' => true,
+        ]);
+
+        $customer->contacts()->create([
+            'type' => 'phone',
+            'value' => $phone,
+            'is_primary' => true,
+        ]);
+
+        return $customer;
+    }
+
+    private function otpCacheKey(string $token, string $email): string
+    {
+        return 'checkout_otp:'.hash('sha256', $token.$email);
     }
 }

@@ -36,10 +36,30 @@ class OrderInfolist
                                 default => 'gray',
                             }),
 
+                        TextEntry::make('payment_method')
+                            ->label(__('dashboard.payment_method'))
+                            ->badge()
+                            ->formatStateUsing(fn (string $state): string => __('dashboard.'.$state))
+                            ->color(fn (string $state): string => match ($state) {
+                                'cash' => 'warning',
+                                'online' => 'success',
+                                default => 'gray',
+                            }),
+
+                        TextEntry::make('payment_status')
+                            ->label(__('dashboard.payment_status'))
+                            ->badge()
+                            ->formatStateUsing(fn (string $state): string => __('dashboard.'.$state))
+                            ->color(fn (string $state): string => match ($state) {
+                                'paid' => 'success',
+                                'unpaid' => 'danger',
+                                default => 'gray',
+                            }),
+
                         TextEntry::make('created_at')
                             ->label(__('dashboard.created_at'))
                             ->dateTime('Y-m-d H:i'),
-                    ])->columns(3),
+                    ])->columns(4),
 
                 Section::make(__('dashboard.customer_info'))
                     ->schema([

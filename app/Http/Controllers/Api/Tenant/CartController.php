@@ -43,9 +43,8 @@ class CartController extends Controller
         $cart = Cart::where('token', $token)
             ->with([
                 'items.product' => fn ($q) => $q->with('media'),
-                'items.variant',
+                'items.variant.options.variation',
                 'governorate',
-                'coupon',
             ])
             ->first();
 
@@ -86,8 +85,6 @@ class CartController extends Controller
             return $this->errorResponse('Insufficient stock', 422);
         }
 
-        $unitPrice = $variant->sale_price ?? $variant->price;
-
         $existingItem = CartItem::where('cart_id', $cart->id)
             ->where('product_id', $product->id)
             ->where('product_variant_id', $validated['product_variant_id'])
@@ -96,7 +93,6 @@ class CartController extends Controller
         if ($existingItem) {
             $existingItem->update([
                 'quantity' => $existingItem->quantity + $validated['quantity'],
-                'unit_price' => $unitPrice,
             ]);
         } else {
             CartItem::create([
@@ -104,18 +100,13 @@ class CartController extends Controller
                 'product_id' => $product->id,
                 'product_variant_id' => $validated['product_variant_id'],
                 'quantity' => $validated['quantity'],
-                'unit_price' => $unitPrice,
-                'total_price' => $unitPrice * $validated['quantity'],
             ]);
         }
 
-        $cart->recalculate();
-
         $cart->load([
             'items.product' => fn ($q) => $q->with('media'),
-            'items.variant',
+            'items.variant.options.variation',
             'governorate',
-            'coupon',
         ]);
 
         return $this->successResponse(
@@ -158,8 +149,6 @@ class CartController extends Controller
             'quantity' => $validated['quantity'],
         ]);
 
-        $cart->recalculate();
-
         return $this->successResponse(null, __('messages.success'));
     }
 
@@ -178,7 +167,10 @@ class CartController extends Controller
         }
 
         $cartItem->delete();
-        $cart->recalculate();
+
+        if ($cart->items()->count() === 0) {
+            $cart->delete();
+        }
 
         return $this->successResponse(null, __('messages.success'));
     }
@@ -205,17 +197,16 @@ class CartController extends Controller
 
         $cart->update([
             'governorate_id' => $governorate->id,
-            'shipping_cost' => $governorate->shipping_cost,
         ]);
-
-        $cart->recalculate();
 
         return $this->successResponse(null, __('messages.success'));
     }
 
     public function applyCoupon(ApplyCouponRequest $request, string $token)
     {
-        $cart = Cart::where('token', $token)->first();
+        $cart = Cart::where('token', $token)
+            ->with(['items.variant', 'items.product'])
+            ->first();
 
         if (! $cart) {
             return $this->notFoundResponse(__('messages.resource_not_found'));
@@ -237,17 +228,11 @@ class CartController extends Controller
             return $this->errorResponse('Invalid coupon code', 422);
         }
 
-        $customerIdentifier = $cart->session_id ?? $request->input('customer_identifier');
-
-        if ($customerIdentifier && ! $coupon->isUsableBy($customerIdentifier)) {
-            return $this->errorResponse('Coupon is not valid or has reached its usage limit', 422);
-        }
-
         if (! $coupon->isValid()) {
             return $this->errorResponse('Coupon is not valid or has expired', 422);
         }
 
-        $subtotal = $cart->items->sum(fn ($item) => $item->unit_price * $item->quantity);
+        $subtotal = $cart->items->sum(fn ($item) => $item->unitPrice() * $item->quantity);
 
         if ($subtotal < $coupon->minimum_order_amount) {
             return $this->errorResponse(
@@ -256,36 +241,15 @@ class CartController extends Controller
             );
         }
 
-        $cart->update([
-            'coupon_id' => $coupon->id,
-        ]);
-
-        $cart->recalculate();
+        $discount = $coupon->calculateDiscount($subtotal);
 
         return $this->successResponse([
             'code' => $coupon->code,
             'type' => $coupon->type,
             'value' => $coupon->value,
-            'discount' => $cart->discount,
-            'total' => $cart->total,
+            'discount' => $discount,
+            'subtotal' => $subtotal,
+            'total' => max(0, $subtotal - $discount),
         ], 'Coupon applied successfully');
-    }
-
-    public function removeCoupon(string $token)
-    {
-        $cart = Cart::where('token', $token)->first();
-
-        if (! $cart) {
-            return $this->notFoundResponse(__('messages.resource_not_found'));
-        }
-
-        $cart->update([
-            'coupon_id' => null,
-            'discount' => 0,
-        ]);
-
-        $cart->recalculate();
-
-        return $this->successResponse(null, 'Coupon removed successfully');
     }
 }

@@ -146,7 +146,7 @@ class OrderForm
                                 ->orderBy('code')
                                 ->get()
                                 ->mapWithKeys(fn($c) => [
-                                    $c->id => $c->code . ' — ' . ($c->type === 'percentage' ? $c->value . '%' : number_format($c->value, 2) . ' SAR'),
+                                    $c->id => $c->code . ' — ' . ($c->type === 'percentage' ? $c->value . '%' : number_format($c->value, 2) ),
                                 ]))
                             ->searchable()
                             ->preload()
@@ -166,6 +166,28 @@ class OrderForm
                                 'cancelled' => __('dashboard.cancelled'),
                             ])
                             ->default('pending')
+                            ->required()
+                            ->native(false),
+
+                        Select::make('payment_method')
+                            ->label(__('dashboard.payment_method'))
+                            ->options([
+                                'cash' => __('dashboard.cash'),
+                                'online' => __('dashboard.online'),
+                            ])
+                            ->default('cash')
+                            ->required()
+                            ->native(false)
+                            ->live()
+                            ->afterStateUpdated(fn ($state, $set) => $set('payment_status', $state === 'online' ? 'paid' : 'unpaid')),
+
+                        Select::make('payment_status')
+                            ->label(__('dashboard.payment_status'))
+                            ->options([
+                                'unpaid' => __('dashboard.unpaid'),
+                                'paid' => __('dashboard.paid'),
+                            ])
+                            ->default('unpaid')
                             ->required()
                             ->native(false),
 

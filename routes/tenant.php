@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\Tenant\CartController;
 use App\Http\Controllers\Api\Tenant\CategoryController;
 use App\Http\Controllers\Api\Tenant\CheckoutController;
+use App\Http\Controllers\Api\Tenant\CheckoutOtpController;
 use App\Http\Controllers\Api\Tenant\ContactController;
 use App\Http\Controllers\Api\Tenant\GovernorateController;
 use App\Http\Controllers\Api\Tenant\OrderController;
@@ -46,7 +47,7 @@ Route::middleware([
         Route::get('products/{slug}', [ProductController::class, 'show']);
 
         // التصنيفات (عام)
-        Route::get('categories', [CategoryController::class, 'index']);
+        Route::get('tenant/categories', [CategoryController::class, 'index']);
 
         // المحافظات (عام)
         Route::get('governorates', [GovernorateController::class, 'index']);
@@ -57,15 +58,16 @@ Route::middleware([
         // السلة
         Route::post('cart/items', [CartController::class, 'addItem']);
         Route::get('cart/{token}', [CartController::class, 'show']);
-        Route::put('cart/{token}/items/{item}', [CartController::class, 'updateItem']);
+        Route::post('cart/{token}/items/{item}', [CartController::class, 'updateItem']);
         Route::delete('cart/{token}/items/{item}', [CartController::class, 'removeItem']);
-        Route::put('cart/{token}/governorate', [CartController::class, 'setGovernorate']);
+        Route::post('cart/{token}/governorate', [CartController::class, 'setGovernorate']);
 
         // الكوبونات
         Route::post('cart/{token}/coupon', [CartController::class, 'applyCoupon']);
-        Route::delete('cart/{token}/coupon', [CartController::class, 'removeCoupon']);
 
         // إتمام الطلب والتتبع
+        Route::post('cart/{token}/checkout/send-otp', [CheckoutOtpController::class, 'sendOtp']);
+        Route::post('cart/{token}/checkout/verify', [CheckoutOtpController::class, 'verifyAndCheckout']);
         Route::post('checkout/{token}', [CheckoutController::class, 'store']);
         Route::get('orders/{token}', [OrderController::class, 'show']);
     });

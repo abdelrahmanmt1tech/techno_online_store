@@ -9,23 +9,16 @@ class CartResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $subtotal = $this->items->sum(fn ($item) => $item->unitPrice() * $item->quantity);
+        $shippingCost = (float) ($this->governorate?->shipping_cost ?? 0);
+
         return [
             'token' => $this->token,
-            'subtotal' => $this->subtotal,
-            'discount' => $this->discount,
-            'shipping_cost' => $this->shipping_cost,
-            'total' => $this->total,
-            'status' => $this->status,
-            'governorate' => $this->whenLoaded('governorate', fn () => [
-                'id' => $this->governorate->id,
-                'name' => $this->governorate->name,
-                'shipping_cost' => $this->governorate->shipping_cost,
-            ]),
-            'coupon' => $this->whenLoaded('coupon', fn () => [
-                'code' => $this->coupon->code,
-                'type' => $this->coupon->type,
-                'value' => $this->coupon->value,
-            ]),
+            'subtotal' => $subtotal,
+            'discount' => 0,
+            'shipping_cost' => $shippingCost,
+            'total' => max(0, $subtotal + $shippingCost),
+            'governorate' => GovernorateResource::make($this->whenLoaded('governorate')),
             'items' => CartItemResource::collection($this->whenLoaded('items')),
         ];
     }

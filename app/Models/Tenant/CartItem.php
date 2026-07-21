@@ -14,22 +14,11 @@ class CartItem extends Model
         'product_id',
         'product_variant_id',
         'quantity',
-        'unit_price',
-        'total_price',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
-        'unit_price' => 'decimal:2',
-        'total_price' => 'decimal:2',
     ];
-
-    protected static function booted(): void
-    {
-        static::saving(function (CartItem $item) {
-            $item->total_price = $item->unit_price * $item->quantity;
-        });
-    }
 
     public function cart(): BelongsTo
     {
@@ -44,5 +33,15 @@ class CartItem extends Model
     public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function unitPrice(): float
+    {
+        return (float) ($this->variant?->sale_price ?? $this->variant?->price ?? $this->product->price ?? 0);
+    }
+
+    public function totalPrice(): float
+    {
+        return $this->unitPrice() * $this->quantity;
     }
 }

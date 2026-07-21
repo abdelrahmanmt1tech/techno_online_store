@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Techno Online Store - Tenant Auth API",
-    "description": "Authentication API for tenant store customers.\n\nBase URL: {{tenant_url}}/api\n\nSet `tenant_url` to the tenant subdomain, e.g. `https://store1.example.com`",
+    "description": "Authentication & Cart API for tenant store customers.\n\nBase URL: {{tenant_url}}/api\n\nSet `tenant_url` to the tenant subdomain, e.g. `https://store1.example.com`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -17,6 +17,11 @@
     },
     {
       "key": "cart_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cart_item_id",
       "value": "",
       "type": "string"
     }
@@ -263,30 +268,6 @@
       "name": "Cart",
       "item": [
         {
-          "name": "Get Cart",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{tenant_url}}/api/cart/{{cart_token}}",
-              "host": ["{{tenant_url}}"],
-              "path": ["api", "cart", "{{cart_token}}"],
-              "variable": [
-                { "key": "cart_token", "value": "" }
-              ]
-            },
-            "header": [
-              { "key": "Accept", "value": "application/json" }
-            ],
-            "description": "Get cart details with items, products, variants, governorate, and coupon."
-          },
-          "response": [
-            {
-              "name": "Success",
-              "body": "{\n  \"success\": true,\n  \"message\": \"Success.\",\n  \"data\": {\n    \"id\": 1,\n    \"token\": \"550e8400-...\",\n    \"status\": \"active\",\n    \"subtotal\": 100.00,\n    \"shipping_cost\": 5.00,\n    \"discount\": 0.00,\n    \"total\": 105.00,\n    \"items\": [],\n    \"governorate\": null,\n    \"coupon\": null\n  }\n}"
-            }
-          ]
-        },
-        {
           "name": "Add Item",
           "request": {
             "method": "POST",
@@ -301,18 +282,38 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cart_token\": null,\n  \"session_id\": \"abc-123\",\n  \"product_id\": 1,\n  \"product_variant_id\": 1,\n  \"quantity\": 2\n}"
+              "raw": "{\n  \"cart_token\": null,\n  \"product_id\": 1,\n  \"product_variant_id\": 1,\n  \"quantity\": 2\n}"
             },
-            "description": "Add a product variant to the cart. Pass `cart_token` to add to an existing cart, or omit/null it to create a new cart. The response always includes the `token` — save it for all subsequent cart operations."
+            "description": "Add a product variant to the cart. Pass `cart_token` to add to an existing cart, or omit/null it to create a new cart. The response always includes the full cart with computed prices from live product data."
           },
           "response": [
             {
-              "name": "Success (New Cart)",
-              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"token\": \"550e8400-e29b-41d4-a716-446655440000\"\n  }\n}"
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"token\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"subtotal\": 299.98,\n    \"discount\": 0,\n    \"shipping_cost\": 0,\n    \"total\": 299.98,\n    \"governorate\": null,\n    \"items\": [\n      {\n        \"id\": 1,\n        \"quantity\": 2,\n        \"unit_price\": 149.99,\n        \"total_price\": 299.98,\n        \"product\": {\n          \"name\": \"سماعة بلوتوث\",\n          \"image\": \"https://example.com/storage/products/abc.jpg\"\n        },\n        \"variant\": {\n          \"price\": 179.99,\n          \"sale_price\": 149.99,\n          \"options\": [\n            { \"name\": \"اللون\", \"value\": \"أسود\" }\n          ]\n        }\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}"],
+              "variable": [
+                { "key": "cart_token", "value": "" }
+              ]
             },
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "description": "Get cart details with items. All prices are computed live from product/variant data."
+          },
+          "response": [
             {
-              "name": "Success (Existing Cart)",
-              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"token\": \"550e8400-e29b-41d4-a716-446655440000\"\n  }\n}"
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Success.\",\n  \"data\": {\n    \"token\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"subtotal\": 299.98,\n    \"discount\": 0,\n    \"shipping_cost\": 30.00,\n    \"total\": 329.98,\n    \"governorate\": {\n      \"id\": 1,\n      \"name\": \"القاهرة\",\n      \"shipping_cost\": 30.00\n    },\n    \"items\": [\n      {\n        \"id\": 1,\n        \"quantity\": 2,\n        \"unit_price\": 149.99,\n        \"total_price\": 299.98,\n        \"product\": {\n          \"name\": \"سماعة بلوتوث\",\n          \"image\": \"https://example.com/storage/products/abc.jpg\"\n        },\n        \"variant\": {\n          \"price\": 179.99,\n          \"sale_price\": 149.99,\n          \"options\": [\n            { \"name\": \"اللون\", \"value\": \"أسود\" }\n          ]\n        }\n      }\n    ]\n  }\n}"
             }
           ]
         },
@@ -391,7 +392,7 @@
               "mode": "raw",
               "raw": "{\n  \"governorate_id\": 1\n}"
             },
-            "description": "Set the shipping governorate. Updates shipping cost from the governorate record."
+            "description": "Set the shipping governorate. Shipping cost is computed from the governorate record at read time."
           },
           "response": [
             {
@@ -401,7 +402,7 @@
           ]
         },
         {
-          "name": "Apply Coupon",
+          "name": "Apply Coupon (Preview)",
           "request": {
             "method": "POST",
             "url": {
@@ -420,36 +421,104 @@
               "mode": "raw",
               "raw": "{\n  \"code\": \"SAVE10\"\n}"
             },
-            "description": "Apply a coupon code to the cart. Validates coupon rules, minimum order amount, and usage limits."
+            "description": "Validate a coupon code and get a discount preview. Does NOT store the coupon on the cart. Pass the coupon_code in the checkout request to apply it."
           },
           "response": [
             {
               "name": "Success",
-              "body": "{\n  \"success\": true,\n  \"message\": \"Coupon applied successfully\",\n  \"data\": {\n    \"code\": \"SAVE10\",\n    \"type\": \"percentage\",\n    \"value\": 10,\n    \"discount\": 10.00,\n    \"total\": 95.00\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"message\": \"Coupon applied successfully\",\n  \"data\": {\n    \"code\": \"SAVE10\",\n    \"type\": \"percentage\",\n    \"value\": 10,\n    \"discount\": 29.99,\n    \"subtotal\": 299.98,\n    \"total\": 269.99\n  }\n}"
             }
           ]
         },
         {
-          "name": "Remove Coupon",
+          "name": "Checkout",
           "request": {
-            "method": "DELETE",
+            "method": "POST",
             "url": {
-              "raw": "{{tenant_url}}/api/cart/{{cart_token}}/coupon",
+              "raw": "{{tenant_url}}/api/checkout/{{cart_token}}",
               "host": ["{{tenant_url}}"],
-              "path": ["api", "cart", "{{cart_token}}", "coupon"],
+              "path": ["api", "checkout", "{{cart_token}}"],
               "variable": [
                 { "key": "cart_token", "value": "" }
               ]
             },
             "header": [
+              { "key": "Content-Type", "value": "application/json" },
               { "key": "Accept", "value": "application/json" }
             ],
-            "description": "Remove the coupon from the cart."
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_name\": \"John Doe\",\n  \"customer_phone\": \"+1234567890\",\n  \"customer_email\": \"john@example.com\",\n  \"customer_address\": \"123 Main St\",\n  \"payment_method\": \"cash\",\n  \"coupon_code\": \"SAVE10\",\n  \"notes\": \"Please call before delivery\"\n}"
+            },
+            "description": "Place the order directly (no OTP). All prices are computed from live product data at checkout time. `payment_method` is required (`cash` or `online`). Optional `coupon_code` to apply a discount."
           },
           "response": [
             {
               "name": "Success",
-              "body": "{\n  \"success\": true,\n  \"message\": \"Coupon removed successfully\",\n  \"data\": null\n}"
+              "body": "{\n  \"success\": true,\n  \"message\": \"Order placed successfully\",\n  \"data\": {\n    \"token\": \"order-uuid-here\",\n    \"order_number\": \"ORD-00001\",\n    \"total\": 269.99\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Checkout: Send OTP",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}/checkout/send-otp",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}", "checkout", "send-otp"],
+              "variable": [
+                { "key": "cart_token", "value": "" }
+              ]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}"
+            },
+            "description": "Send a 6-digit OTP to the customer's email before checkout. The OTP is valid for 10 minutes. Use the code with the Verify & Checkout endpoint."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"A verification code has been sent to your email.\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Checkout: Verify OTP & Place Order",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/cart/{{cart_token}}/checkout/verify",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "cart", "{{cart_token}}", "checkout", "verify"],
+              "variable": [
+                { "key": "cart_token", "value": "" }
+              ]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"code\": \"123456\",\n  \"customer_name\": \"John Doe\",\n  \"customer_phone\": \"+1234567890\",\n  \"customer_address\": \"123 Main St\",\n  \"payment_method\": \"cash\",\n  \"coupon_code\": \"SAVE10\",\n  \"notes\": \"Please call before delivery\"\n}"
+            },
+            "description": "Verify the OTP and place the order. Links customer to existing account if one exists. If authenticated via Sanctum token, `user_id` is stored on the order. `payment_method` is required (`cash` or `online`). Optional `coupon_code` to apply a discount."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Order placed successfully\",\n  \"data\": {\n    \"token\": \"order-uuid-here\",\n    \"order_number\": \"ORD-00001\",\n    \"total\": 269.99\n  }\n}"
+            },
+            {
+              "name": "Invalid OTP",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid or expired code.\"\n}"
             }
           ]
         }

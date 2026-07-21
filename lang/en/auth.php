@@ -35,5 +35,7 @@ return [
     'password_reset_success' => 'Password has been reset successfully.',
     'failed_to_send_email' => 'Failed to send email. Please try again.',
     'success' => 'Success.',
+    'checkout_otp_subject' => 'Checkout Verification Code',
+    'use_code_to_verify_checkout' => 'Use the following code to complete your order:',
 
 ];

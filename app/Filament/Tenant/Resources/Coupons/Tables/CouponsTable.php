@@ -29,6 +29,11 @@ class CouponsTable
                 TextColumn::make('type')
                     ->label(__('dashboard.coupon_type'))
                     ->badge()
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'percentage' => __('dashboard.percentage'),
+                        'fixed' => __('dashboard.fixed_amount'),
+                        default => $state,
+                    })
                     ->colors([
                         'info' => 'percentage',
                         'success' => 'fixed',
@@ -38,7 +43,7 @@ class CouponsTable
                     ->label(__('dashboard.coupon_value'))
                     ->formatStateUsing(fn ($record) => $record->type === 'percentage'
                         ? $record->value.'%'
-                        : number_format($record->value, 2).' SAR')
+                        : number_format($record->value, 2))
                     ->sortable(),
 
                 TextColumn::make('minimum_order_amount')

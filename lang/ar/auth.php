@@ -24,5 +24,7 @@ return [
     'password_reset_success' => 'تم إعادة تعيين كلمة المرور بنجاح.',
     'failed_to_send_email' => 'فشل إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى.',
     'success' => 'تم بنجاح.',
+    'checkout_otp_subject' => 'رمز التحقق من الطلب',
+    'use_code_to_verify_checkout' => 'استخدم الرمز التالي لإتمام الطلب:',
 
 ];

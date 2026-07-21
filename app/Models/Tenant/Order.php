@@ -18,6 +18,8 @@ class Order extends Model
         'customer_id',
         'user_id',
         'status',
+        'payment_method',
+        'payment_status',
         'customer_name',
         'customer_phone',
         'customer_email',

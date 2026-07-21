@@ -11,30 +11,20 @@ class CartItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->product->name,
+            'image' => $this->product->media->first()
+                ? asset('storage/' . $this->product->media->first()->file)
+                : null,
+
             'quantity' => $this->quantity,
-            'unit_price' => $this->unit_price,
-            'total_price' => $this->total_price,
-            'product' => $this->whenLoaded('product', fn () => [
-                'id' => $this->product->id,
-                'name' => $this->product->name,
-                'slug' => $this->product->slug,
-                'price' => $this->product->price,
-                'sale_price' => $this->product->sale_price,
-                'media' => $this->product->media->map(fn ($m) => [
-                    'file' => asset('storage/'.$m->file),
-                    'type' => $m->type,
-                ]),
+            'price' => $this->variant?->price,
+            'sale_price' => $this->variant?->sale_price ?? $this->variant?->price,
+            'options' => $this->variant?->options->map(fn($o) => [
+                'name' => $o->variation->name ?? null,
+                'value' => $o->value,
             ]),
-            'variant' => $this->whenLoaded('variant', fn () => [
-                'id' => $this->variant->id,
-                'price' => $this->variant->price,
-                'sale_price' => $this->variant->sale_price ?? $this->variant->price,
-                'sku' => $this->variant->sku,
-                'options' => $this->variant->options->map(fn ($o) => [
-                    'value' => $o->value,
-                    'variation_name' => $o->variation->name ?? null,
-                ]),
-            ]),
+
+
         ];
     }
 }

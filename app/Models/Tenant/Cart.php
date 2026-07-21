@@ -15,19 +15,7 @@ class Cart extends Model
         'token',
         'session_id',
         'governorate_id',
-        'coupon_id',
-        'subtotal',
-        'discount',
-        'shipping_cost',
-        'total',
         'status',
-    ];
-
-    protected $casts = [
-        'subtotal' => 'decimal:2',
-        'discount' => 'decimal:2',
-        'shipping_cost' => 'decimal:2',
-        'total' => 'decimal:2',
     ];
 
     protected static function booted(): void
@@ -47,27 +35,5 @@ class Cart extends Model
     public function governorate(): BelongsTo
     {
         return $this->belongsTo(Governorate::class);
-    }
-
-    public function coupon(): BelongsTo
-    {
-        return $this->belongsTo(Coupon::class);
-    }
-
-    public function recalculate(): void
-    {
-        $subtotal = $this->items->sum(fn ($item) => $item->unit_price * $item->quantity);
-
-        $discount = 0;
-
-        if ($this->coupon) {
-            $discount = $this->coupon->calculateDiscount($subtotal);
-        }
-
-        $this->update([
-            'subtotal' => $subtotal,
-            'discount' => $discount,
-            'total' => max(0, $subtotal - $discount + $this->shipping_cost),
-        ]);
     }
 }

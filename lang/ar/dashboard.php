@@ -1220,4 +1220,9 @@ return [
     'meta_reset_status_failed' => 'فشل',
     'meta_reset_status_running' => 'جارٍ',
     'meta_reset_status_previewed' => 'معاينة',
+    'payment_method' => 'طريقة الدفع',
+    'payment_status' => 'حالة الدفع',
+    'cash' => 'نقدي',
+    'online' => 'إلكتروني',
+    'unpaid' => 'غير مدفوع',
 ];

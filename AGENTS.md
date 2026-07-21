@@ -39,8 +39,7 @@
 - **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `POST tenants`.
 - **Tenant API** (`routes/tenant.php`): `GET products`, `GET products/{slug}`, `GET governorates`, cart CRUD, coupon apply/remove, `POST checkout/{token}`, `GET orders/{token}`. Token-based login: `GET /app/login/{token}`.
 - **Public web** (`routes/web.php`): Legal pages (`/privacy-policy`, `/terms-of-service`, `/data-deletion`), WhatsApp/Messenger webhooks (GET+POST), tenant login, forgot password (OTP flow), WhatsApp/Messenger onboarding routes (central domain middleware).
-- **GitHub Actions**: `.github/workflows/deploy.yml` — deploys on push to `main` via SSH to CWP. Sequence: `composer install --no-dev` → central `migrate` → `tenants:sync-permissions --migrate` → `npm ci && npm run build` → `filament:assets` → `optimize:clear` → `optimize` → `queue:restart`.
-- No test CI workflow exists — only deploy. Tests are not automatically run on push.
+- **GitHub Actions**: `.github/workflows/deploy.yml` — deploys on push to `main` via SSH to CWP. Sequence: `composer install --no-dev` → central `migrate` → `tenants:sync-permissions --migrate` → `npm ci && npm run build` → `filament:assets` → `optimize:clear` → `optimize` → `queue:restart`. No test CI exists — tests are not run on push.
 
 ## Filament Resources
 
@@ -76,27 +75,21 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 ## Code Style
 
 - Laravel Pint for formatting, 4-space indentation per `.editorconfig`.
+- **Filament v5 imports**: `Section` must be imported from `Filament\Schemas\Components\Section` (not `Filament\Forms\Components`). This applies to both `form()` and `infolist()` schemas.
 
 ## Documentation
 
 | Document | Purpose |
 |---|---|
-| [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module. Manual integration complete; onboarding Phase A done; Phase B+ blocked on Meta verification |
-| [`docs/messenger-messaging-module.md`](docs/messenger-messaging-module.md) | Messenger module. **Phases A–G code-complete** (manual staging E2E passed; Phase G Facebook Login staging E2E pending). Also documents Meta App legal URLs + Access Verification public pages (`/`, `/platform`, company static pack) |
-| [`docs/messaging-health-dashboard.md`](docs/messaging-health-dashboard.md) | Admin Messaging Health Dashboard (Phase H) — central registry/webhook diagnostics; no tokens; no cross-tenant inbox |
-| [`docs/meta-integrations-reset.md`](docs/meta-integrations-reset.md) | Destructive Admin tool to wipe local WhatsApp/Messenger integration rows (central + all tenants) before Meta App Review; gated by `META_INTEGRATION_RESET_ENABLED` |
-| [`docs/deployment-cwp.md`](docs/deployment-cwp.md) | CWP production deploy sequence and required secrets |
-| [`docs/tenancy-summary.md`](docs/tenancy-summary.md) | Tenancy architecture summary |
-| [`public-delivery/techno-online-store/`](public-delivery/techno-online-store/) | Standalone company Access Verification landing (upload to technomasr.com) |
-| [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module. Manual integration complete; API Only Embedded Signup (Phases A–D) and Coexistence (Phase E) code-complete — staging E2E postponed pending numbers. Orders notifications postponed. |
-| [`docs/messenger-messaging-module.md`](docs/messenger-messaging-module.md) | Messenger module. Phases A–F complete (staging E2E passed). Phase G code-complete (Facebook Login + Page picker + auto webhook subscription); staging E2E pending. |
-| [`docs/deployment-cwp.md`](docs/deployment-cwp.md) | CWP production deploy sequence and required secrets |
-| [`docs/tenancy-summary.md`](docs/tenancy-summary.md) | Tenancy architecture summary |
-| [`docs/frontend-api.postman_collection.json`](docs/frontend-api.postman_collection.json) | Postman collection for the frontend/public API endpoints |
-
-## Code Style
-
-- **Filament v5 imports**: `Section` must be imported from `Filament\Schemas\Components\Section` (not `Filament\Forms\Components`). This applies to both `form()` and `infolist()` schemas.
+| [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module. API Only Embedded Signup (Phases A–D) and Coexistence (Phase E) code-complete — staging E2E postponed pending numbers. Orders notifications postponed. |
+| [`docs/messenger-messaging-module.md`](docs/messenger-messaging-module.md) | Messenger module. Phases A–F complete (staging E2E passed). Phase G code-complete (Facebook Login + Page picker + auto webhook subscription); staging E2E pending. Also documents Meta App legal URLs + Access Verification public pages. |
+| [`docs/messaging-health-dashboard.md`](docs/messaging-health-dashboard.md) | Admin Messaging Health Dashboard (Phase H) — central registry/webhook diagnostics; no tokens; no cross-tenant inbox. |
+| [`docs/meta-integrations-reset.md`](docs/meta-integrations-reset.md) | Destructive Admin tool to wipe local WhatsApp/Messenger integration rows (central + all tenants) before Meta App Review; gated by `META_INTEGRATION_RESET_ENABLED`. |
+| [`docs/deployment-cwp.md`](docs/deployment-cwp.md) | CWP production deploy sequence and required secrets. |
+| [`docs/tenancy-summary.md`](docs/tenancy-summary.md) | Tenancy architecture summary. |
+| [`docs/frontend-api.postman_collection.json`](docs/frontend-api.postman_collection.json) | Postman collection for the frontend/public API endpoints. |
+| [`docs/tenant-auth-api.postman_collection.json`](docs/tenant-auth-api.postman_collection.json) | Postman collection for tenant auth API endpoints. |
+| [`public-delivery/techno-online-store/`](public-delivery/techno-online-store/) | Standalone company Access Verification landing (upload to technomasr.com). |
 
 ## API Resources Conventions
 
@@ -109,5 +102,5 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 - `composer run dev` uses `npx concurrently` — requires Node.js available. Also uses `php artisan pail` which requires the `pcntl` PHP extension (not available on Windows — run the 3 other processes manually if needed).
 - `.env.example` defaults to SQLite but actual `.env` uses MySQL. Always check `.env` not `.env.example` for truth.
 - Tenant seeding (`SeedTenantDatabase`) and `setupStoreAdminRole()` are invoked from `CreateTenant.php`, not from the tenancy event pipeline.
-- The deploy workflow (`deploy.yml`) deletes `public/css/app/custom-stylesheet.css` and `public/css/app/whatsapp-ui.css` before `git pull` — intentional to avoid merge conflicts with generated/custom files.
+- The deploy workflow (`deploy.yml`) deletes `public/css/app/custom-stylesheet.css`, `public/css/app/whatsapp-ui.css`, `public/css/app/messaging-health-dashboard.css`, and `public/css/app/meta-integrations-reset.css` before `git pull` — intentional to avoid merge conflicts with generated/custom files.
 - `composer.json` `post-autoload-dump` runs `filament:upgrade` — this may cause issues if Filament assets aren't published.

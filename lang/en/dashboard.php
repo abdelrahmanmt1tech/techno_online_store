@@ -1216,4 +1216,9 @@ return [
     'meta_reset_status_failed' => 'Failed',
     'meta_reset_status_running' => 'Running',
     'meta_reset_status_previewed' => 'Previewed',
+    'payment_method' => 'Payment Method',
+    'payment_status' => 'Payment Status',
+    'cash' => 'Cash',
+    'online' => 'Online',
+    'unpaid' => 'Unpaid',
 ];

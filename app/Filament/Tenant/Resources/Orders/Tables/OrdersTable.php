@@ -48,6 +48,24 @@ class OrdersTable
                     ->label(__('dashboard.total'))
                     ->sortable(),
 
+                TextColumn::make('payment_method')
+                    ->label(__('dashboard.payment_method'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => __('dashboard.'.$state))
+                    ->color(fn (string $state): string => match ($state) {
+                        'cash' => 'warning',
+                        'online' => 'success',
+                        default => 'gray',
+                    }),
+
+                SelectColumn::make('payment_status')
+                    ->label(__('dashboard.payment_status'))
+                    ->options([
+                        'paid' => __('dashboard.paid'),
+                        'unpaid' => __('dashboard.unpaid'),
+                    ])
+                    ->selectablePlaceholder(false),
+
                 TextColumn::make('discount')
                     ->label(__('dashboard.discount'))
                     ->sortable()
@@ -73,6 +91,14 @@ class OrdersTable
                         'delivered' => __('dashboard.delivered'),
                         'cancelled' => __('dashboard.cancelled'),
                         'returned' => __('dashboard.returned'),
+                    ])
+                    ->native(false),
+
+                SelectFilter::make('payment_status')
+                    ->label(__('dashboard.payment_status'))
+                    ->options([
+                        'paid' => __('dashboard.paid'),
+                        'unpaid' => __('dashboard.unpaid'),
                     ])
                     ->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
