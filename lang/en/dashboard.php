@@ -153,6 +153,7 @@ return [
     'canonical_url' => 'Canonical URL',
     'og_image' => 'OG Image',
     'subscription_plan' => 'Subscription Plan',
+    'subscription_currency' => 'Subscription Currency',
     'started_at' => 'Started At',
     'expires_at' => 'Expires At',
     'currency_name' => 'Currency Name',
@@ -1221,4 +1222,30 @@ return [
     'cash' => 'Cash',
     'online' => 'Online',
     'unpaid' => 'Unpaid',
+
+    // Countries
+    'country' => 'Country',
+    'countries' => 'Countries',
+    'no_countries' => 'No countries',
+    'no_countries_desc' => 'Create a country to get started.',
+    'country_details' => 'Country Details',
+    'name_ar' => 'Name (Arabic)',
+    'name_en' => 'Name (English)',
+    'currency_name' => 'Currency Name',
+    'currency_name_ar' => 'Currency Name (Arabic)',
+    'currency_name_en' => 'Currency Name (English)',
+    'currency_symbol' => 'Currency Symbol',
+    'phone_code' => 'Phone Code',
+    'icon' => 'Icon',
+    'locale' => 'Locale',
+    'sort_order' => 'Sort Order',
+    'country_code' => 'Country Code',
+
+    // Currencies
+    'currency' => 'Currency',
+    'currencies' => 'Currencies',
+    'no_currencies' => 'No currencies',
+    'no_currencies_desc' => 'Create a currency to get started.',
+    'currency_details' => 'Currency Details',
+    'currency_code' => 'Currency Code',
 ];

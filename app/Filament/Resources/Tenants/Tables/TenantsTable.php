@@ -35,6 +35,14 @@ class TenantsTable
                     ->listWithLineBreaks()
                     ->limitList(1),
 
+                TextColumn::make('country.name')
+                    ->label(__('dashboard.country'))
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('currency.code')
+                    ->label(__('dashboard.currency'))
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 ToggleColumn::make('is_active')
                     ->label(__('dashboard.active')),
 

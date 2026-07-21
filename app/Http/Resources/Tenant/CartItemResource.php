@@ -12,9 +12,9 @@ class CartItemResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->product->name,
-            'image' => $this->product->media->first()
-                ? asset('storage/' . $this->product->media->first()->file)
-                : null,
+            'image' => $this->whenLoaded('product', fn () => $this->product->media->first()
+                ? asset('storage/tenant'.tenant('id').'/'.$this->product->media->first()->file)
+                : null),
 
             'quantity' => $this->quantity,
             'price' => $this->variant?->price,

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
@@ -20,8 +21,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'name',
         'email',
         'phone',
-        'country_name',
-        'currency_code',
+        'country_id',
+        'currency_id',
         'is_active',
     ];
 
@@ -39,8 +40,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'name',
             'email',
             'phone',
-            'country_name',
-            'currency_code',
+            'country_id',
+            'currency_id',
             'is_active',
         ];
     }
@@ -48,6 +49,16 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function subscriptions(): HasMany
     {
         return $this->hasMany(TenantSubscription::class, 'tenant_id');
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 
     public function scopeActive(Builder $query): Builder

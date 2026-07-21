@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Tenants\Schemas;
 
+use App\Models\Country;
+use App\Models\Currency;
 use App\Models\Plan;
 use Closure;
 use Filament\Forms\Components\DateTimePicker;
@@ -36,30 +38,36 @@ class TenantForm
                             ->tel()
                             ->maxLength(50),
 
-                        Select::make('country_name')
+                        Select::make('country_id')
                             ->label(__('dashboard.country'))
-                            ->options(self::getCountries())
+                            ->options(fn () => Country::where('is_active', true)
+                                ->orderBy('sort_order')
+                                ->get()
+                                ->mapWithKeys(fn ($c) => [
+                                    $c->id => $c->getTranslation('name', app()->getLocale()),
+                                ]))
                             ->searchable()
                             ->live()
                             ->native(false)
                             ->afterStateUpdated(function ($state, $set) {
-                                $currencies = self::getCountryCurrencies();
-
-                                $set('currency_code', $currencies[$state] ?? null);
+                                $country = Country::find($state);
+                                if ($country) {
+                                    $currency = Currency::where('name->en', $country->getTranslation('currency_name', 'en'))->first();
+                                    if ($currency) {
+                                        $set('currency_id', $currency->id);
+                                    }
+                                }
                             })
                             ->required(),
 
-                        Select::make('currency_code')
+                        Select::make('currency_id')
                             ->label(__('dashboard.currency'))
-                            ->options(function () {
-                                return collect(self::getCountryCurrencies())
-                                    ->unique()
-                                    ->sort()
-                                    ->mapWithKeys(fn ($currency) => [
-                                        $currency => $currency,
-                                    ])
-                                    ->toArray();
-                            })
+                            ->options(fn () => Currency::where('is_active', true)
+                                ->orderBy('sort_order')
+                                ->get()
+                                ->mapWithKeys(fn ($c) => [
+                                    $c->id => $c->getTranslation('name', app()->getLocale()).' ('.$c->code.')',
+                                ]))
                             ->searchable()
                             ->native(false)
                             ->required(),
@@ -149,16 +157,13 @@ class TenantForm
                             ->dehydrated(),
 
                         Select::make('currency')
-                            ->label(__('dashboard.currency'))
-                            ->options(function () {
-                                return collect(self::getCountryCurrencies())
-                                    ->unique()
-                                    ->sort()
-                                    ->mapWithKeys(fn ($currency) => [
-                                        $currency => $currency,
-                                    ])
-                                    ->toArray();
-                            })
+                            ->label(__('dashboard.subscription_currency'))
+                            ->options(fn () => Currency::where('is_active', true)
+                                ->orderBy('sort_order')
+                                ->get()
+                                ->mapWithKeys(fn ($c) => [
+                                    $c->code => $c->code.' — '.$c->getTranslation('name', app()->getLocale()),
+                                ]))
                             ->searchable()
                             ->required()
                             ->native(false),
@@ -175,46 +180,5 @@ class TenantForm
                     ])
                     ->columnSpanFull(),
             ]);
-    }
-
-    protected static function getCountries(): array
-    {
-        $countries = json_decode(
-            file_get_contents(storage_path('app/countries.json')),
-            true
-        );
-
-        return collect($countries)
-            ->filter(
-                fn ($country) => ! empty($country['cca2'])
-                    && ! empty($country['name']['common'])
-            )
-            ->mapWithKeys(fn ($country) => [
-                $country['cca2'] => $country['name']['common'],
-            ])
-            ->sort()
-            ->toArray();
-    }
-
-    protected static function getCountryCurrencies(): array
-    {
-        $countries = json_decode(
-            file_get_contents(storage_path('app/countries.json')),
-            true
-        );
-
-        return collect($countries)
-            ->filter(
-                fn ($country) => ! empty($country['cca2'])
-                    && ! empty($country['currencies'])
-            )
-            ->mapWithKeys(function ($country) {
-                $currency = array_key_first($country['currencies']);
-
-                return $currency
-                    ? [$country['cca2'] => $currency]
-                    : [];
-            })
-            ->toArray();
     }
 }

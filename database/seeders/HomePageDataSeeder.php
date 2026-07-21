@@ -16,6 +16,10 @@ class HomePageDataSeeder extends Seeder
 {
     public function run(): void
     {
+        if (Plan::exists()) {
+            return;
+        }
+
         // ── Settings (pages from app/Filament/Pages/) ──
 
         $settings = [

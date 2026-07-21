@@ -153,6 +153,7 @@ return [
     'canonical_url' => 'الرابط Canonical',
     'og_image' => 'صورة OG',
     'subscription_plan' => 'خطة الاشتراك',
+    'subscription_currency' => 'عملة الاشتراك',
     'started_at' => 'تاريخ البداية',
     'expires_at' => 'تاريخ الانتهاء',
     'currency_name' => 'اسم العملة',
@@ -1225,4 +1226,30 @@ return [
     'cash' => 'نقدي',
     'online' => 'إلكتروني',
     'unpaid' => 'غير مدفوع',
+
+    // Countries
+    'country' => 'دولة',
+    'countries' => 'الدول',
+    'no_countries' => 'لا توجد دول',
+    'no_countries_desc' => 'أضف دولة للبدء.',
+    'country_details' => 'بيانات الدولة',
+    'name_ar' => 'الاسم (عربي)',
+    'name_en' => 'الاسم (إنجليزي)',
+    'currency_name' => 'اسم العملة',
+    'currency_name_ar' => 'اسم العملة (عربي)',
+    'currency_name_en' => 'اسم العملة (إنجليزي)',
+    'currency_symbol' => 'رمز العملة',
+    'phone_code' => 'رمز الهاتف',
+    'icon' => 'الأيقونة',
+    'locale' => 'اللغة',
+    'sort_order' => 'الترتيب',
+    'country_code' => 'كود الدولة',
+
+    // Currencies
+    'currency' => 'عملة',
+    'currencies' => 'العملات',
+    'no_currencies' => 'لا توجد عملات',
+    'no_currencies_desc' => 'أضف عملة للبدء.',
+    'currency_details' => 'بيانات العملة',
+    'currency_code' => 'كود العملة',
 ];

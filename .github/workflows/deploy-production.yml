@@ -193,6 +193,11 @@ jobs:
                   --force \
                   --no-interaction
 
+                echo "========== SEED COUNTRIES AND CURRENCIES =========="
+
+                "${PHP}" artisan db:seed --class=CountrySeeder --force
+                "${PHP}" artisan db:seed --class=CurrencySeeder --force
+
                 echo "========== TENANT MIGRATIONS AND PERMISSIONS =========="
 
                 "${PHP}" artisan tenants:sync-permissions \

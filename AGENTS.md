@@ -46,11 +46,11 @@
 Admin resources under `app/Filament/Resources/`, tenant resources under `app/Filament/Tenant/Resources/`. Each resource has `Pages/`, `Schemas/`, `Tables/` subdirectories.
 
 - **Admin** (15): Admins, Roles, Tenants, Plans, Categories, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
-- **Tenant** (13): Categories, Products, Orders, Coupons, Governorates, WhatsAppContacts, WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, MessengerPages, MessengerWebhookEvents, MessengerApiRequests
+- **Tenant** (15): Categories, Contacts, Coupons, Customers, Governorates, MessengerApiRequests, MessengerPages, MessengerWebhookEvents, Orders, Products, WhatsAppApiRequests, WhatsAppContacts, WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents
 
 Tenant pages (`app/Filament/Tenant/Pages/`): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage
 
-Admin pages (`app/Filament/Pages/`): 13 settings pages (General, About, AiServices, Code, ContactUs, Footer, HaveQuestion, Intro, MarketingChannels, PaymentGateways, ShippingCompanies, Statistics, TrainingSupport) plus WhatsAppInboxPage, WhatsAppTemplatesPage, MessengerInboxPage
+Admin pages (`app/Filament/Pages/`): 13 settings pages (General, About, AiServices, Code, ContactUs, Footer, HaveQuestion, Intro, MarketingChannels, PaymentGateways, ShippingCompanies, Statistics, TrainingSupport) plus MessagingHealthDashboard, MetaIntegrationsReset, WhatsAppInboxPage, WhatsAppTemplatesPage, MessengerInboxPage
 
 Admin widgets (`app/Filament/Widgets/`): AdminKpis, TenantsTrend, TenantSubscriptionStatusPie, WhatsAppStatusPie, MessengerStatusPie, WebhookEventsTrend
 
