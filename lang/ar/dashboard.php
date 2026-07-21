@@ -210,7 +210,7 @@ return [
     // Product Type
     'product_type' => 'نوع المنتج',
     'type' => 'النوع',
-    'physical' => 'فيزيائي',
+    'physical' => 'مادي',
     'digital' => 'رقمي',
     'digital_delivery_type' => 'نوع التوصيل الرقمي',
     'download_link' => 'رابط التحميل',
@@ -1070,6 +1070,19 @@ return [
     'pricing_summary' => 'ملخص الأسعار',
     'no_items' => 'لا توجد عناصر',
 
+    // العملاء
+    'customer' => 'العميل',
+    'customers' => 'العملاء',
+    'create_customer' => 'إنشاء عميل',
+    'customer_contacts' => 'بيانات الاتصال',
+    'contact_type' => 'نوع الاتصال',
+    'contact_value' => 'قيمة الاتصال',
+    'primary' => 'رئيسي',
+    'add_contact' => 'إضافة اتصال',
+    'no_customers' => 'لا يوجد عملاء',
+    'no_customers_desc' => 'لم يتم إضافة أي عملاء بعد.',
+    'linked_user' => 'المستخدم المربوط',
+    'whatsapp' => 'واتساب',
     // Messaging Health Dashboard (Phase H)
     'messaging_operations_group' => 'عمليات المنصة',
     'messaging_health' => 'صحة المراسلة',

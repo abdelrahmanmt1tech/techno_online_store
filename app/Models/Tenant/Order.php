@@ -15,6 +15,8 @@ class Order extends Model
         'order_number',
         'token',
         'cart_id',
+        'customer_id',
+        'user_id',
         'status',
         'customer_name',
         'customer_phone',
@@ -81,5 +83,10 @@ class Order extends Model
     public function couponUsages(): HasMany
     {
         return $this->hasMany(CouponUsage::class);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
     }
 }

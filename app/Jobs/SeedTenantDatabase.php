@@ -33,6 +33,7 @@ class SeedTenantDatabase
                     'name' => $this->tenant->name.' Admin',
                     'password' => $password,
                     'email_verified_at' => now(),
+                    'is_admin' => true,
                 ]
             );
 

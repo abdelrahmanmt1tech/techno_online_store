@@ -23,11 +23,12 @@
 ## Architecture
 
 - **Two Filament panels** (separate auth guards, primary color `Emerald`):
-  - **Admin panel** (`/admin`, panel ID `admin`, `authGuard('admin')`) — central management. `->default()`. Discovers `app/Filament/Resources/` and `app/Filament/Pages/`.
+  - **Admin panel** (`/admin`, panel ID `admin`, `authGuard('admin')`) — central management. `->default()`. Discovers `app/Filament/Resources/` and `app/Filament/Pages/`. Note: `AdminPanelProvider` calls `->colors()` twice (Amber then Emerald — Emerald wins).
   - **Tenant panel** (`/app`, panel ID `tenant`, `authGuard('tenant')`) — per-tenant. Discovers `app/Filament/Tenant/{Resources,Pages}/`. Uses `InitializeTenancyByDomain` + `PreventAccessFromCentralDomains` + `EnsureTenantIsInitialized`; routes in `routes/tenant.php`. `persistentMiddleware([InitializeTenancyByDomain])`. Uses custom `TenantAuthenticateSession` middleware that resolves panel via `FilamentPanelResolver`.
 - **Central DB** — `admins`, `tenants`, `domains`, `permissions`, `roles`, `role_has_permissions`, `model_has_permissions`, sessions/cache/jobs.
 - **Per-tenant DBs** — created synchronously. Tenancy event pipeline (`TenancyServiceProvider`) fires `CreateDatabase` → `MigrateDatabase`. `SeedTenantDatabase` called synchronously after pipeline completes.
 - **Tenant DB naming**: `technomasrsystem_tenant{tenant_uuid}` (prefix in `config/tenancy.php`).
+- **Tenant migrations**: live in `database/migrations/tenant/` (non-default path, configured via `tenancy.migration_parameters`).
 - **Auth models**: `App\Models\Admin` (`$guard_name = 'admin'`, central DB) and `App\Models\TenantUser` (`$guard_name = 'tenant'`, `$connection = 'tenant'`, per-tenant DB). Both use spatie `HasRoles`.
 - **Shared Login component**: Both panels use `App\Filament\Auth\Login` (custom panel resolver logic in `app/Support/FilamentPanelResolver.php`).
 - **Tenant login flow**: Central-domain form (`/tenant-login`) authenticates via `TenantLoginController`, creates short-lived token (`TenantLoginToken`), redirects to tenant subdomain (`/app/login/{token}`). Token-based, cross-domain. OTP-based forgot-password flow at `/tenant/forgot-password`.
@@ -39,6 +40,7 @@
 - **Tenant API** (`routes/tenant.php`): `GET products`, `GET products/{slug}`, `GET governorates`, cart CRUD, coupon apply/remove, `POST checkout/{token}`, `GET orders/{token}`. Token-based login: `GET /app/login/{token}`.
 - **Public web** (`routes/web.php`): Legal pages (`/privacy-policy`, `/terms-of-service`, `/data-deletion`), WhatsApp/Messenger webhooks (GET+POST), tenant login, forgot password (OTP flow), WhatsApp/Messenger onboarding routes (central domain middleware).
 - **GitHub Actions**: `.github/workflows/deploy.yml` — deploys on push to `main` via SSH to CWP. Sequence: `composer install --no-dev` → central `migrate` → `tenants:sync-permissions --migrate` → `npm ci && npm run build` → `filament:assets` → `optimize:clear` → `optimize` → `queue:restart`.
+- No test CI workflow exists — only deploy. Tests are not automatically run on push.
 
 ## Filament Resources
 
@@ -91,6 +93,14 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 | [`docs/deployment-cwp.md`](docs/deployment-cwp.md) | CWP production deploy sequence and required secrets |
 | [`docs/tenancy-summary.md`](docs/tenancy-summary.md) | Tenancy architecture summary |
 | [`docs/frontend-api.postman_collection.json`](docs/frontend-api.postman_collection.json) | Postman collection for the frontend/public API endpoints |
+
+## Code Style
+
+- **Filament v5 imports**: `Section` must be imported from `Filament\Schemas\Components\Section` (not `Filament\Forms\Components`). This applies to both `form()` and `infolist()` schemas.
+
+## API Resources Conventions
+
+- **Tenant media paths**: Always use `asset('storage/tenant'.tenant('id').'/'.$model->file)` for tenant file/image URLs. Never use `asset('storage/'.$model->file)` — tenant files are isolated in per-tenant directories.
 
 ## Gotchas
 

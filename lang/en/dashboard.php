@@ -1066,6 +1066,19 @@ return [
     'add_category' => 'Add Category',
     'sort_order' => 'Sort Order',
 
+    // Customers
+    'customer' => 'Customer',
+    'customers' => 'Customers',
+    'create_customer' => 'Create Customer',
+    'customer_contacts' => 'Contact Information',
+    'contact_type' => 'Contact Type',
+    'contact_value' => 'Contact Value',
+    'primary' => 'Primary',
+    'add_contact' => 'Add Contact',
+    'no_customers' => 'No Customers',
+    'no_customers_desc' => 'No customers have been added yet.',
+    'linked_user' => 'Linked User',
+    'whatsapp' => 'WhatsApp',
     // Messaging Health Dashboard (Phase H)
     'messaging_operations_group' => 'Platform Operations',
     'messaging_health' => 'Messaging Health',
