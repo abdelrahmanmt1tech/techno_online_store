@@ -43,43 +43,21 @@ jobs:
             rm -f public/css/app/messaging-health-dashboard.css
             rm -f public/css/app/meta-integrations-reset.css
 
-            # حماية public/.htaccess (غير متتبَّع) أثناء git pull
+            # الحفاظ على public/.htaccess الخاص بالخادم (غير متتبَّع؛ لا يُكتب من الكود)
             HTACCESS_BACKUP="${APP_DIR}/storage/app/.htaccess.deploy-backup"
             mkdir -p "${APP_DIR}/storage/app"
             if [ -f public/.htaccess ]; then
-              cp -f public/.htaccess "${HTACCESS_BACKUP}"
+              cp -a public/.htaccess "${HTACCESS_BACKUP}"
             fi
 
             echo "Pulling latest changes..."
-            git pull --ff-only origin main || git pull origin main
+            git pull --ff-only origin main
+
+            git pull origin main
 
             if [ -f "${HTACCESS_BACKUP}" ]; then
-              cp -f "${HTACCESS_BACKUP}" public/.htaccess
+              cp -a "${HTACCESS_BACKUP}" public/.htaccess
             fi
-
-            if [ ! -f public/.htaccess ]; then
-              cat > public/.htaccess <<'HTACCESS_EOF'
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
-    RewriteEngine On
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-    RewriteCond %{HTTP:x-xsrf-token} .
-    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
-</IfModule>
-HTACCESS_EOF
-            fi
-
-            chmod 644 public/.htaccess
 
             echo "Installing Composer packages..."
             $PHP /usr/local/bin/composer install \
