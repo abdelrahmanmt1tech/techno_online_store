@@ -1,0 +1,162 @@
+
+[root@server ~]# useradd -m -s /bin/bash deploy
+[root@server ~]# id deploy
+uid=1047(deploy) gid=1047(deploy) groups=1047(deploy)
+[root@server ~]# mkdir -p /home/deploy/.ssh
+chmod 700 /home/deploy/.ssh
+chown -R deploy:deploy /home/deploy/.ssh
+[root@server ~]# sudo -u deploy ssh-keygen -t ed25519 -C "github-actions-deploy" -f /home/deploy/.ssh/id_ed25519 -N ""
+Generating public/private ed25519 key pair.
+Your identification has been saved in /home/deploy/.ssh/id_ed25519
+Your public key has been saved in /home/deploy/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:FegDRMGDym74zX9egULOk+Nbqcx8X2XzKmUViXuSd/M github-actions-deploy
+The key's randomart image is:
++--[ED25519 256]--+
+|     =+. ..   . .|
+|    . + .  . . o |
+| . .  .+  .   o .|
+|  o  + .oo   + +o|
+| o    B S..   B.+|
+|. o  . + . . oooE|
+| o o  . o . .o  .|
+|  . o+ +o. ..  . |
+|     .B+...  ..  |
++----[SHA256]-----+
+[root@server ~]#
+
+
+[root@server ~]# cat /home/deploy/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP7geyHAvWKIQILEIrb+ONSaVrjLw9KX8vRETS8BBk22 github-actions-deploy
+[root@server ~]#
+
+SSH_PRIVATE_KEY
+
+[root@server ~]# cat /home/deploy/.ssh/id_ed25519
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACD+4HshwL1iiECCxCK2/jjUmla4y8PSl/L0RE0vAQZNtgAAAJiZzbHtmc2x
+7QAAAAtzc2gtZWQyNTUxOQAAACD+4HshwL1iiECCxCK2/jjUmla4y8PSl/L0RE0vAQZNtg
+AAAEBgLAokhMmgD0lVeEkt2rA6ez9TmuhQvrhwekkI33jgZv7geyHAvWKIQILEIrb+ONSa
+VrjLw9KX8vRETS8BBk22AAAAFWdpdGh1Yi1hY3Rpb25zLWRlcGxveQ==
+-----END OPENSSH PRIVATE KEY-----
+[root@server ~]#
+
+
+
+
+
+
+
+[root@server ~]# cp /home/deploy/.ssh/id_ed25519.pub /home/deploy/.ssh/authorized_keys
+[root@server ~]# chmod 600 /home/deploy/.ssh/authorized_keys
+chown deploy:deploy /home/deploy/.ssh/authorized_keys
+[root@server ~]# passwd -l deploy
+Locking password for user deploy.
+passwd: Success
+[root@server ~]# passwd -S deploy
+deploy LK 2026-07-21 0 99999 7 -1 (Password locked.)
+[root@server ~]# visudo -f /etc/sudoers.d/deploy
+[root@server ~]#
+
+
+
+deploy ALL=(technomasrsystem) NOPASSWD: ALL
+deploy ALL=(flyaram) NOPASSWD: ALL
+deploy ALL=(rwadsolu) NOPASSWD: ALL
+|--------------------------------|
+
+deploy ALL=(technomasrsystem) NOPASSWD:SETENV: ALL
+deploy ALL=(flyaram) NOPASSWD:SETENV: ALL
+deploy ALL=(rwadsolu) NOPASSWD:SETENV: ALL
+
+
+
+
+
+
+
+
+
+
+
+
+
+mkdir -p ~/.ssh
+
+ssh-keygen -t ed25519 \
+  -C "rwadsolu-github" \
+  -f ~/.ssh/github_deploy \
+  -N ""
+
+
+Generating public/private ed25519 key pair.
+Your identification has been saved in /home/rwadsolu/.ssh/github_deploy
+Your public key has been saved in /home/rwadsolu/.ssh/github_deploy.pub
+The key fingerprint is:
+SHA256:dnK4EjNmt+kB/cGmbrCZY1KGj/XMPm9CKUcUcO+GV+4 rwadsolu-github
+The key's randomart image is:
++--[ED25519 256]--+
+|      ..o.       |
+|       ...       |
+|       .  . .    |
+|       ..= o     |
+|     .B.S.X .    |
+|    .o*B+& o     |
+|     *.%* . E    |
+|    o B+B..      |
+|     o ++=.      |
++----[SHA256]-----+
+[rwadsolu@server apps]$
+
+[rwadsolu@server apps]$ cat ~/.ssh/github_deploy.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC8KGYAHn9VzboGKmqkK/U14ffOFBenARIfnG1iEyFsY rwadsolu-github
+[rwadsolu@server apps]$
+
+
+
+[rwadsolu@server apps]$ cat ~/.ssh/github_deploy
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACAvChmAB5/Vc26BipqpCv1NeH3zhQXpwESH5xtYhMhbGAAAAJiMplVjjKZV
+YwAAAAtzc2gtZWQyNTUxOQAAACAvChmAB5/Vc26BipqpCv1NeH3zhQXpwESH5xtYhMhbGA
+AAAEAK/S6KLjXIOdxzPIPckOQEfzfRF4wQ4uLgL+mSigc3BC8KGYAHn9VzboGKmqkK/U14
+ffOFBenARIfnG1iEyFsYAAAAD3J3YWRzb2x1LWdpdGh1YgECAwQFBg==
+-----END OPENSSH PRIVATE KEY-----
+[rwadsolu@server apps]$
+
+
+
+
+cat > ~/.ssh/config <<EOF
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/github_deploy
+    IdentitiesOnly yes
+EOF
+
+
+
+
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC8KGYAHn9VzboGKmqkK/U14ffOFBenARIfnG1iEyFsY rwadsolu-github
+
+ثم:
+
+chmod 600 ~/.ssh/config
+الخطوة 5: أضف المفتاح إلى GitHub
+
+خذ ناتج:
+
+cat ~/.ssh/github_deploy.pub
+
+ثم في GitHub:
+
+Repository
+→ Settings
+→ Deploy keys
+→ Add deploy key
+
+ضع:
+
+
