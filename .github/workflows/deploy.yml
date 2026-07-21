@@ -1,17 +1,17 @@
-name: 🚀 Deploy Production
+name: 🚀 Deploy Development
 
 on:
   push:
     branches:
-      - main
+      - dev
 
 concurrency:
-  group: production-deploy
+  group: development-deploy
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy to Production
+    name: Deploy to Development
     runs-on: ubuntu-latest
 
     steps:
