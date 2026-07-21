@@ -30,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->authGuard('admin')
+            ->brandName("TWM-Store")
             ->login(Login::class)
             ->colors([
                 'primary' => Color::Amber,

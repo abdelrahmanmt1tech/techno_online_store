@@ -1,0 +1,216 @@
+name: 🚀 Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: techno-online-store-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Backend to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    # يمنع تشغيل Production يدويًا من فرع غير main
+    if: github.ref == 'refs/heads/main'
+
+    env:
+      DEPLOY_SHA: ${{ github.sha }}
+
+    steps:
+      - name: Execute production deployment via SSH
+        uses: appleboy/ssh-action@v1.2.5
+
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: deploy
+          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+
+          timeout: 30s
+          command_timeout: 30m
+
+          envs: DEPLOY_SHA
+
+          script: |
+            set -Eeuo pipefail
+
+            echo "========== START PRODUCTION DEPLOY =========="
+            echo "Target commit: ${DEPLOY_SHA}"
+
+            sudo -u rwadsolu -H \
+              env DEPLOY_SHA="${DEPLOY_SHA}" \
+              bash -lc '
+                set -Eeuo pipefail
+
+                PHP="/opt/alt/php83/usr/bin/php"
+                COMPOSER="/usr/local/bin/composer"
+                APP_DIR="/home/rwadsolu/online-store.rwadsolutions.com"
+
+                MAINTENANCE_MODE=0
+
+                restore_application() {
+                  if [ "${MAINTENANCE_MODE}" -eq 1 ]; then
+                    echo "========== LEAVING MAINTENANCE MODE =========="
+                    "${PHP}" artisan up || true
+                  fi
+                }
+
+                trap restore_application EXIT
+
+                echo "========== ENVIRONMENT =========="
+
+                echo "Current user: $(whoami)"
+                echo "Application directory: ${APP_DIR}"
+
+                test -d "${APP_DIR}" || {
+                  echo "ERROR: Application directory does not exist."
+                  exit 1
+                }
+
+                test -x "${PHP}" || {
+                  echo "ERROR: PHP 8.3 was not found at ${PHP}."
+                  exit 1
+                }
+
+                test -f "${COMPOSER}" || {
+                  echo "ERROR: Composer was not found at ${COMPOSER}."
+                  exit 1
+                }
+
+                command -v node >/dev/null 2>&1 || {
+                  echo "ERROR: Node.js was not found."
+                  exit 1
+                }
+
+                command -v npm >/dev/null 2>&1 || {
+                  echo "ERROR: npm was not found."
+                  exit 1
+                }
+
+                cd "${APP_DIR}"
+
+                test -f ".env" || {
+                  echo "ERROR: Production .env file is missing."
+                  exit 1
+                }
+
+                echo "PHP:"
+                "${PHP}" -v | head -1
+
+                echo "Composer:"
+                "${PHP}" "${COMPOSER}" --version
+
+                echo "Node:"
+                node -v
+
+                echo "npm:"
+                npm -v
+
+                echo "========== MAINTENANCE MODE =========="
+
+                if [ -f "vendor/autoload.php" ]; then
+                  "${PHP}" artisan down --retry=60
+                  MAINTENANCE_MODE=1
+                else
+                  echo "First deployment detected; maintenance mode skipped."
+                fi
+
+                echo "========== UPDATE SOURCE CODE =========="
+
+                git fetch --prune origin main
+
+                git rev-parse --verify "${DEPLOY_SHA}^{commit}" >/dev/null || {
+                  echo "ERROR: Commit ${DEPLOY_SHA} was not fetched."
+                  exit 1
+                }
+
+                # إزالة الملفات المحلية التي سببت تعارضات سابقًا
+                rm -f public/css/app/custom-stylesheet.css
+                rm -f public/css/app/whatsapp-ui.css
+                rm -f public/css/app/messaging-health-dashboard.css
+                rm -f public/css/app/meta-integrations-reset.css
+
+                git checkout main
+                git reset --hard "${DEPLOY_SHA}"
+
+                echo "Branch: $(git branch --show-current)"
+                echo "Commit: $(git rev-parse --short HEAD)"
+
+                echo "========== INSTALL COMPOSER PACKAGES =========="
+
+                "${PHP}" "${COMPOSER}" install \
+                  --no-interaction \
+                  --no-dev \
+                  --prefer-dist \
+                  --optimize-autoloader \
+                  --no-progress
+
+                echo "========== INSTALL NODE PACKAGES =========="
+
+                npm ci --ignore-scripts
+
+                echo "========== OPEN FILES LIMIT =========="
+
+                HARD_OPEN_FILES="$(ulimit -Hn)"
+                ulimit -Sn "${HARD_OPEN_FILES}"
+
+                echo "Soft open files: $(ulimit -Sn)"
+                echo "Hard open files: $(ulimit -Hn)"
+
+                echo "========== BUILD FRONTEND ASSETS =========="
+
+                npm run build
+
+                echo "========== CLEAR OLD CACHE =========="
+
+                "${PHP}" artisan optimize:clear
+
+                echo "========== CENTRAL MIGRATIONS =========="
+
+                "${PHP}" artisan migrate \
+                  --force \
+                  --no-interaction
+
+                echo "========== TENANT MIGRATIONS AND PERMISSIONS =========="
+
+                "${PHP}" artisan tenants:sync-permissions \
+                  --migrate \
+                  --no-interaction
+
+                echo "========== PUBLISH FILAMENT ASSETS =========="
+
+                "${PHP}" artisan filament:assets
+
+                echo "========== OPTIMIZE APPLICATION =========="
+
+                "${PHP}" artisan optimize
+
+                echo "========== RESTART QUEUE WORKERS =========="
+
+                "${PHP}" artisan queue:restart
+
+                echo "========== DEPLOYMENT VERIFICATION =========="
+
+                test -f "artisan"
+                test -f "vendor/autoload.php"
+
+                echo "Deployed commit:"
+                git log -1 --oneline
+
+                echo "Git status:"
+                git status --short --branch
+
+                echo "========== PRODUCTION DEPLOY SUCCESSFUL =========="
+              '
+
+            echo "========== DEPLOY COMPLETED =========="
