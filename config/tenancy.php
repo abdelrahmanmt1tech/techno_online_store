@@ -63,7 +63,7 @@ return [
          * Tenant database names are created like this:
          * prefix + tenant_id + suffix.
          */
-        'prefix' => 'rwadsolu_tenant',
+        'prefix' => 'rwadsolu_tenant_',
         'suffix' => '',
 
         /**
