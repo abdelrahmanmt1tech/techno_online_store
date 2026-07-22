@@ -78,6 +78,11 @@ Requires `npm install` then `npm run build`. Document if `node_modules` was miss
 - BCMath via custom Decimal helper (extension available)
 - gitignore extended for `database/rwadsolu_tenant*`
 
+## Invoice printing follow-up
+
+Branch `feature/erp-invoice-printing` adds browser HTML print + settings/snapshots. See `docs/erp-invoice-printing.md`.  
+`php artisan test --filter=Erp` → **32 passed** (includes 7 print tests).
+
 ## Push
 
 Attempted: `git push -u origin feature/erp-core-fifo` — see final agent report for success/failure.

@@ -1,0 +1,1 @@
+@include('erp.invoices.layout')

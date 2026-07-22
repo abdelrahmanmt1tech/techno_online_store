@@ -10,6 +10,7 @@ use App\Models\Tenant\SaleItem;
 use App\Models\Tenant\SalesInvoice;
 use App\Models\Tenant\SalesInvoiceItem;
 use App\Services\Erp\DocumentNumberService;
+use App\Services\Erp\InvoicePrintSettingsService;
 use App\Support\Erp\Decimal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,10 @@ use Illuminate\Validation\ValidationException;
  */
 final class CreateSalesInvoiceAction
 {
-    public function __construct(private readonly DocumentNumberService $numbers) {}
+    public function __construct(
+        private readonly DocumentNumberService $numbers,
+        private readonly InvoicePrintSettingsService $printSettings,
+    ) {}
 
     /**
      * @param  list<array{sale_item_id: int, quantity: string|int|float}>|null  $lines  null = فاتورة كل المتبقي
@@ -132,6 +136,7 @@ final class CreateSalesInvoiceAction
             $invoice->grand_total = $grand;
             $invoice->due_amount = $grand;
             $invoice->paid_amount = '0';
+            $invoice->print_settings_snapshot = $this->printSettings->buildSnapshot();
             $invoice->save();
 
             $this->refreshSaleInvoiceStatus($locked);

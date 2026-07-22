@@ -39,6 +39,18 @@
 | Branch list/create persists | `FilamentErpSmokeTest` |
 | Stock receipt / sale create pages load | same |
 
+## Feature — invoice printing
+
+| Case | File |
+|---|---|
+| Default settings singleton | `InvoicePrintingTest` |
+| Filament settings save | same |
+| Sales print auth + content + LTR | same |
+| Arabic RTL + hide SKU | same |
+| Draft watermark + issued snapshot stability | same |
+| Purchase print supplier/totals | same |
+| Filament print actions on list/view | same |
+
 ## Recommended additions (manual / follow-up)
 
 - Variant commerce receipt only updates that variant

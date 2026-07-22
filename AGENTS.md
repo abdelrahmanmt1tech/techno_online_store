@@ -60,16 +60,18 @@ Navigation labels use `__('dashboard.*')` translations (`lang/{ar,en}/dashboard.
 
 ## ERP Core (Tenant)
 
-FIFO inventory + purchases/sales/invoices live in the **tenant DB only**. Docs: [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md), discovery/handover/test plans under `docs/erp-core-*.md`.
+FIFO inventory + purchases/sales/invoices live in the **tenant DB only**. Docs: [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md), discovery/handover/test plans under `docs/erp-core-*.md`, invoice print: [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md).
 
-- **Migrations**: `database/migrations/tenant/2026_07_22_10000{1-4}_create_erp_*.php`
-- **Models**: `app/Models/Tenant/` (Branch, Warehouse, InventoryItem, Stock*, Purchase*, Sale*, InvoicePayment, …)
+- **Migrations**: `database/migrations/tenant/2026_07_22_10000{1-4}_create_erp_*.php`, plus `2026_07_22_110001` invoice print settings and `110002` print snapshots
+- **Models**: `app/Models/Tenant/` (Branch, Warehouse, InventoryItem, Stock*, Purchase*, Sale*, InvoicePayment, InvoicePrintSetting, …)
 - **Enums**: `app/Enums/Erp/`
-- **Services**: `app/Services/Erp/` (`DocumentNumberService`, `FifoCostingService`, `CommerceQuantityService`, `InventoryItemResolver`)
+- **Services**: `app/Services/Erp/` (`DocumentNumberService`, `FifoCostingService`, `CommerceQuantityService`, `InventoryItemResolver`, `InvoicePrintSettingsService`, `InvoicePrintDataBuilder`)
 - **Actions**: `app/Actions/Erp/` (post/reverse stock, confirm sale, goods receipt, invoices, payments, returns)
 - **Math**: `app/Support/Erp/Decimal` (BCMath) — no float for money/qty
-- **Filament**: `app/Filament/Tenant/Resources/{Branches,Warehouses,UnitsOfMeasure,InventoryItems,Suppliers,StockTransactions,StockMovements,StockBalances,PurchaseOrders,GoodsReceipts,PurchaseInvoices,PurchaseReturns,Sales,SalesInvoices,SalesReturns,InvoicePayments}/`
-- **Tests**: `tests/Feature/Erp/`, `tests/Unit/Erp/` (base `ErpTestCase`)
+- **Print media**: `App\Support\Erp\TenantMediaUrl` → `asset('storage/tenant'.tenant('id').'/'.$path)`
+- **Print routes** (tenant panel auth): `/app/erp/sales-invoices/{id}/print`, `/app/erp/purchase-invoices/{id}/print`
+- **Filament**: … + `InvoicePrintSettings` singleton; print actions on sales/purchase invoices
+- **Tests**: `tests/Feature/Erp/`, `tests/Unit/Erp/` (base `ErpTestCase`); `php artisan test --filter=Erp`
 
 ### Commerce vs ERP stock (critical)
 
@@ -107,6 +109,7 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 
 | Document | Purpose |
 |---|---|
+| [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md) | Browser print-ready sales/purchase invoices, settings singleton, snapshots. |
 | [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md) | Tenant ERP core: FIFO inventory, purchases/sales/invoices; commerce↔ERP separation rules. |
 | [`docs/erp-core-discovery.md`](docs/erp-core-discovery.md) | Pre-implementation discovery and architectural decisions. |
 | [`docs/erp-core-handover.md`](docs/erp-core-handover.md) | Branch, commits, migrations, test results, runbook. |

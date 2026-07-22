@@ -8,7 +8,7 @@ Tenant-side ERP core: branches, warehouses, FIFO inventory, purchases, sales, in
 
 **In scope:** master data, stock documents, FIFO costing, suppliers/PO/GR/purchase invoices/returns, mixed sales, sales invoices (`order_id` FK), sales returns, invoice payments, Filament Tenant UI, tests, docs.
 
-**Out of scope:** plan features/limits, POS, Meta messaging, payroll, full accounting/GL, automatic Order→Sale, continuous commerce↔ERP sync, advanced PDF.
+**Out of scope:** plan features/limits, POS, Meta messaging, payroll, full accounting/GL, automatic Order→Sale, continuous commerce↔ERP sync, **server-generated PDF** (browser print-ready HTML is implemented — see [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md)).
 
 ## Commerce vs ERP separation
 
@@ -81,4 +81,8 @@ PO approve (no stock) → Goods Receipt post (stock + FIFO + optional commerce) 
 
 ## Deferred
 
-POS, weighted average costing, GL/journals, plan gates, continuous sync, PDF, credit notes full accounting.
+POS, weighted average costing, GL/journals, plan gates, continuous sync, **server-side PDF libraries**, credit notes full accounting.
+
+## Invoice printing
+
+Print-ready HTML for sales/purchase invoices with singleton `invoice_print_settings`, historical `print_settings_snapshot`, and Filament print actions. Details: [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md).

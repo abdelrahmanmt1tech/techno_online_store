@@ -31,6 +31,7 @@ class PurchaseInvoice extends Model
         'paid_amount',
         'due_amount',
         'notes',
+        'print_settings_snapshot',
         'issued_at',
         'created_by',
         'updated_by',
@@ -47,6 +48,7 @@ class PurchaseInvoice extends Model
         'paid_amount' => 'decimal:2',
         'due_amount' => 'decimal:2',
         'issued_at' => 'datetime',
+        'print_settings_snapshot' => 'array',
     ];
 
     public function supplier(): BelongsTo

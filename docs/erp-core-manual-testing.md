@@ -16,3 +16,8 @@
 14. Product with variants: receipt/sale must pick **variant**; parent qty unchanged.
 15. Re-Post / Re-Confirm same document — no double stock/commerce movement.
 16. Try edit posted document — should be view-locked; use Reverse where available.
+17. **Invoice Print Settings**: set company AR/EN, logo, hide SKU → Save.
+18. Open Sales Invoice → **Print** (new tab) → verify RTL/LTR, totals, toolbar hidden in print preview.
+19. Change company name → reprint **old issued** invoice (snapshot) vs **new** invoice (live settings).
+20. Print Purchase Invoice → supplier, PO/GR refs, paid/due.
+21. Browser **Save as PDF** from print dialog.

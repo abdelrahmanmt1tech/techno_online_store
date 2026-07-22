@@ -9,6 +9,7 @@ use App\Models\Tenant\GoodsReceipt;
 use App\Models\Tenant\PurchaseInvoice;
 use App\Models\Tenant\PurchaseInvoiceItem;
 use App\Services\Erp\DocumentNumberService;
+use App\Services\Erp\InvoicePrintSettingsService;
 use App\Support\Erp\Decimal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,10 @@ use Illuminate\Validation\ValidationException;
 
 final class CreatePurchaseInvoiceAction
 {
-    public function __construct(private readonly DocumentNumberService $numbers) {}
+    public function __construct(
+        private readonly DocumentNumberService $numbers,
+        private readonly InvoicePrintSettingsService $printSettings,
+    ) {}
 
     public function execute(GoodsReceipt $receipt, ?string $invoiceDate = null): PurchaseInvoice
     {
@@ -71,6 +75,7 @@ final class CreatePurchaseInvoiceAction
             $invoice->subtotal = Decimal::money($subtotal);
             $invoice->grand_total = Decimal::money($subtotal);
             $invoice->due_amount = Decimal::money($subtotal);
+            $invoice->print_settings_snapshot = $this->printSettings->buildSnapshot();
             $invoice->save();
 
             return $invoice->fresh('items');
