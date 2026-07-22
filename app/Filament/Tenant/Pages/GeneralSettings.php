@@ -4,6 +4,7 @@ namespace App\Filament\Tenant\Pages;
 
 use App\Models\Setting;
 use Filament\Actions\Action;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -90,6 +91,9 @@ class GeneralSettings extends Page
                                 ->label(__('dashboard.general_settings.site_name'))
                                 ->maxLength(255)
                                 ->columnSpan(1),
+
+                            ColorPicker::make('site_color')
+                                ->label(__('dashboard.general_settings.site_color')),
                         ])
                         ->icon(Heroicon::Cog6Tooth)
                         ->columnSpanFull(),
@@ -179,6 +183,7 @@ class GeneralSettings extends Page
         $valueKeys = [
             'site_logo',
             'site_name',
+            'site_color',
             'admin_favicon',
             'web_favicon',
             'dashboard_logo',

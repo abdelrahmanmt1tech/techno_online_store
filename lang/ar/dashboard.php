@@ -802,6 +802,7 @@ return [
     'general_settings' => [
         'site_logo' => 'لوجو الموقع',
         'site_name' => 'اسم الموقع',
+        'site_color' => 'لون الموقع',
         'admin_favicon' => 'أيقونة لوحة التحكم',
         'web_favicon' => 'أيقونة الموقع',
         'dashboard_logo' => 'لوجو لوحة التحكم',

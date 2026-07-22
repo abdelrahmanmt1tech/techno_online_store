@@ -27,7 +27,7 @@
   - **Tenant panel** (`/app`, panel ID `tenant`, `authGuard('tenant')`) — per-tenant. Discovers `app/Filament/Tenant/{Resources,Pages}/`. Uses `InitializeTenancyByDomain` + `PreventAccessFromCentralDomains` + `EnsureTenantIsInitialized`; routes in `routes/tenant.php`. `persistentMiddleware([InitializeTenancyByDomain])`. Uses custom `TenantAuthenticateSession` middleware that resolves panel via `FilamentPanelResolver`.
 - **Central DB** — `admins`, `tenants`, `domains`, `permissions`, `roles`, `role_has_permissions`, `model_has_permissions`, sessions/cache/jobs.
 - **Per-tenant DBs** — created synchronously. Tenancy event pipeline (`TenancyServiceProvider`) fires `CreateDatabase` → `MigrateDatabase`. `SeedTenantDatabase` called synchronously after pipeline completes.
-- **Tenant DB naming**: `technomasrsystem_tenant{tenant_uuid}` (prefix in `config/tenancy.php`).
+- **Tenant DB naming**: `rwadsolu_tenant_{tenant_uuid}` (prefix `rwadsolu_tenant_` in `config/tenancy.php`).
 - **Tenant migrations**: live in `database/migrations/tenant/` (non-default path, configured via `tenancy.migration_parameters`).
 - **Auth models**: `App\Models\Admin` (`$guard_name = 'admin'`, central DB) and `App\Models\TenantUser` (`$guard_name = 'tenant'`, `$connection = 'tenant'`, per-tenant DB). Both use spatie `HasRoles`.
 - **Shared Login component**: Both panels use `App\Filament\Auth\Login` (custom panel resolver logic in `app/Support/FilamentPanelResolver.php`).
@@ -39,7 +39,9 @@
 - **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `POST tenants`.
 - **Tenant API** (`routes/tenant.php`): `GET products`, `GET products/{slug}`, `GET governorates`, cart CRUD, coupon apply/remove, `POST checkout/{token}`, `GET orders/{token}`. Token-based login: `GET /app/login/{token}`.
 - **Public web** (`routes/web.php`): Legal pages (`/privacy-policy`, `/terms-of-service`, `/data-deletion`), WhatsApp/Messenger webhooks (GET+POST), tenant login, forgot password (OTP flow), WhatsApp/Messenger onboarding routes (central domain middleware).
-- **GitHub Actions**: `.github/workflows/deploy.yml` — deploys on push to `main` via SSH to CWP. Sequence: `composer install --no-dev` → central `migrate` → `tenants:sync-permissions --migrate` → `npm ci && npm run build` → `filament:assets` → `optimize:clear` → `optimize` → `queue:restart`. No test CI exists — tests are not run on push.
+- **GitHub Actions**: Two workflows via SSH to CWP. No test CI exists — tests are not run on push.
+  - `.github/workflows/deploy.yml` — dev deploy on push to `dev`.
+  - `.github/workflows/deploy-production.yml` — prod deploy on push to `main`. Sequence: maintenance mode → `composer install --no-dev` → `npm ci && npm run build` → `optimize:clear` → central `migrate` → seed `CountrySeeder`/`CurrencySeeder` → `tenants:sync-permissions --migrate` → `filament:assets` → `optimize` → `queue:restart`.
 
 ## Filament Resources
 

@@ -802,6 +802,7 @@ return [
     'general_settings' => [
         'site_logo' => 'Site Logo',
         'site_name' => 'Site Name',
+        'site_color' => 'Site Color',
         'admin_favicon' => 'Admin Panel Favicon',
         'web_favicon' => 'Website Favicon',
         'dashboard_logo' => 'Dashboard Logo',
