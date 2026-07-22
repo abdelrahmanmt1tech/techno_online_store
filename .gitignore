@@ -29,6 +29,7 @@ Thumbs.db
 /database/testing.sqlite
 /database/tenant*
 /database/technomasrsystem_tenant*
+/database/rwadsolu_tenant*
 hide.text
 /hide.text
 
