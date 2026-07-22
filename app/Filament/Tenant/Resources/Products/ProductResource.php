@@ -5,6 +5,8 @@ namespace App\Filament\Tenant\Resources\Products;
 use App\Filament\Tenant\Resources\Products\Pages\CreateProduct;
 use App\Filament\Tenant\Resources\Products\Pages\EditProduct;
 use App\Filament\Tenant\Resources\Products\Pages\ListProducts;
+use App\Filament\Tenant\Resources\Products\Pages\ViewProduct;
+use App\Filament\Tenant\Resources\Products\RelationManagers\ReviewsRelationManager;
 use App\Filament\Tenant\Resources\Products\Schemas\ProductForm;
 use App\Filament\Tenant\Resources\Products\Tables\ProductsTable;
 use App\Models\Tenant\Product;
@@ -52,7 +54,15 @@ class ProductResource extends Resource
         return [
             'index' => ListProducts::route('/'),
             'create' => CreateProduct::route('/create'),
+            'view' => ViewProduct::route('/{record}'),
             'edit' => EditProduct::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ReviewsRelationManager::class,
         ];
     }
 }

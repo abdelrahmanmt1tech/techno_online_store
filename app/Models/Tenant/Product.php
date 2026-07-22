@@ -69,4 +69,14 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function reviews(): MorphMany
+    {
+        return $this->morphMany(Review::class, 'reviewable');
+    }
 }

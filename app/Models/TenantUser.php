@@ -5,7 +5,9 @@ namespace App\Models;
 use Database\Factories\TenantUserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use App\Models\Tenant\Favorite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -26,6 +28,7 @@ class TenantUser extends Authenticatable implements FilamentUser
         'name',
         'email',
         'phone',
+        'avatar',
         'password',
         'email_verified_at',
         'is_admin',
@@ -53,6 +56,11 @@ class TenantUser extends Authenticatable implements FilamentUser
             'verification_code_expires_at' => 'datetime',
             'reset_password_token_expires_at' => 'datetime',
         ];
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -1253,4 +1253,37 @@ return [
     'no_currencies_desc' => 'أضف عملة للبدء.',
     'currency_details' => 'بيانات العملة',
     'currency_code' => 'كود العملة',
+
+    // المراجعات
+    'reviews' => 'المراجعات',
+    'review' => 'مراجعة',
+    'reviews_user' => 'المستخدم',
+    'reviews_rating' => 'التقييم',
+    'reviews_title' => 'العنوان',
+    'reviews_comment' => 'التعليق',
+    'reviews_approved' => 'موافق عليها',
+    'reviews_featured' => 'مميزة',
+    'no_reviews' => 'لا توجد مراجعات',
+    'review_not_eligible' => 'يمكنك مراجعة المنتجات فقط من الطلبات المسلّمة.',
+    'review_already_exists' => 'لقد قمت بمراجعة هذا المنتج بالفعل.',
+
+    // الملف الشخصي
+    'profile' => 'الملف الشخصي',
+    'profile_name' => 'الاسم',
+    'profile_email' => 'البريد الإلكتروني',
+    'profile_phone' => 'رقم الهاتف',
+    'profile_avatar' => 'صورة الملف الشخصي',
+    'profile_avatar_helper' => 'حد أقصى 2 ميجا. JPG أو PNG أو WEBP.',
+    'profile_current_password' => 'كلمة المرور الحالية',
+    'profile_new_password' => 'كلمة المرور الجديدة',
+    'profile_new_password_confirmation' => 'تأكيد كلمة المرور الجديدة',
+    'profile_current_password_incorrect' => 'كلمة المرور الحالية غير صحيحة.',
+    'profile_password_updated' => 'تم تحديث كلمة المرور بنجاح.',
+    'profile_updated' => 'تم تحديث الملف الشخصي بنجاح.',
+
+    // المفضلة
+    'removed_from_favorites' => 'تمت الإزالة من المفضلة',
+    'added_to_favorites' => 'تمت الإضافة إلى المفضلة',
+    'favorites_fetched_successfully' => 'تم جلب المفضلات بنجاح',
+    'product_not_found' => 'المنتج غير موجود',
 ];

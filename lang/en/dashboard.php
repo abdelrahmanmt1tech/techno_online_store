@@ -1249,4 +1249,37 @@ return [
     'no_currencies_desc' => 'Create a currency to get started.',
     'currency_details' => 'Currency Details',
     'currency_code' => 'Currency Code',
+
+    // Reviews
+    'reviews' => 'Reviews',
+    'review' => 'Review',
+    'reviews_user' => 'User',
+    'reviews_rating' => 'Rating',
+    'reviews_title' => 'Title',
+    'reviews_comment' => 'Comment',
+    'reviews_approved' => 'Approved',
+    'reviews_featured' => 'Featured',
+    'no_reviews' => 'No Reviews',
+    'review_not_eligible' => 'You can only review products from delivered orders.',
+    'review_already_exists' => 'You have already reviewed this product.',
+
+    // Profile
+    'profile' => 'Profile',
+    'profile_name' => 'Name',
+    'profile_email' => 'Email',
+    'profile_phone' => 'Phone',
+    'profile_avatar' => 'Profile Photo',
+    'profile_avatar_helper' => 'Max 2MB. JPG, PNG or WEBP.',
+    'profile_current_password' => 'Current Password',
+    'profile_new_password' => 'New Password',
+    'profile_new_password_confirmation' => 'Confirm New Password',
+    'profile_current_password_incorrect' => 'The current password is incorrect.',
+    'profile_password_updated' => 'Password updated successfully.',
+    'profile_updated' => 'Profile updated successfully.',
+
+    // Favorites
+    'removed_from_favorites' => 'Removed from favorites',
+    'added_to_favorites' => 'Added to favorites',
+    'favorites_fetched_successfully' => 'Favorites fetched successfully',
+    'product_not_found' => 'Product not found',
 ];
