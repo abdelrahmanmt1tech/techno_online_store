@@ -80,4 +80,4 @@ Requires `npm install` then `npm run build`. Document if `node_modules` was miss
 
 ## Push
 
-Record whether `git push -u origin feature/erp-core-fifo` succeeded in the final report.
+Attempted: `git push -u origin feature/erp-core-fifo` — see final agent report for success/failure.
