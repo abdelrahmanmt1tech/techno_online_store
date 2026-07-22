@@ -59,6 +59,7 @@ class ProductDetailResource extends JsonResource
                     'variation_name' => $o->variation->name ?? null,
                 ]),
             ])),
+            'is_favorite' => $this->is_favorite ?? false,
         ];
     }
 }

@@ -27,6 +27,7 @@ class ProductListResource extends JsonResource
             'discount_percent' => $discountPercent,
             'image' => $this->whenLoaded('media', fn () => $this->media->first() ? asset('storage/tenant'.tenant('id').'/'.$this->media->first()->file) : null),
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'is_favorite' => $this->is_favorite ?? false,
         ];
     }
 }

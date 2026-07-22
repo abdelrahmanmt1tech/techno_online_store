@@ -18,6 +18,12 @@ class ProductController extends Controller
         $query = Product::where('is_active', true)
             ->with(['categories', 'media', 'variants']);
 
+        if (auth('sanctum')->user()) {
+            $query->withExists([
+                'favorites as is_favorite' => fn ($q) => $q->where('user_id', auth('sanctum')->user()->id),
+            ]);
+        }
+
         if ($request->filled('category_id')) {
             $query->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $request->category_id));
         }
@@ -61,7 +67,7 @@ class ProductController extends Controller
 
     public function show(string $slug)
     {
-        $product = Product::where('slug', $slug)
+        $productQuery = Product::where('slug', $slug)
             ->where('is_active', true)
             ->with([
                 'categories',
@@ -69,8 +75,15 @@ class ProductController extends Controller
                 'variations.options',
                 'variants' => fn ($q) => $q->where('is_active', true),
                 'variants.options',
-            ])
-            ->first();
+            ]);
+
+        if (auth('sanctum')->user()) {
+            $productQuery->withExists([
+                'favorites as is_favorite' => fn ($q) => $q->where('user_id', auth('sanctum')->user()->id),
+            ]);
+        }
+
+        $product = $productQuery->first();
 
         if (! $product) {
             return $this->notFoundResponse(__('messages.resource_not_found'));
