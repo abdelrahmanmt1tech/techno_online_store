@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Tenant\ProductIndexRequest;
 use App\Http\Resources\Tenant\ProductDetailResource;
 use App\Http\Resources\Tenant\ProductListResource;
+use App\Http\Resources\Tenant\SeoResource;
+use App\Models\Setting;
 use App\Models\Tenant\Product;
 use App\Traits\ApiResponse;
 
@@ -59,9 +61,38 @@ class ProductController extends Controller
 
         $products = $query->paginate($perPage);
 
-        return $this->paginatedResponse(
+        $seoKeys = [
+            'products_title',
+            'products_subtitle',
+            'products_meta_title',
+            'products_meta_description',
+            'products_keywords',
+            'products_canonical_url',
+            'products_og_image',
+        ];
+
+        $settings = Setting::whereIn('key', $seoKeys)->get()->keyBy('key');
+
+        $get = fn (string $key) => $settings->get($key)?->value;
+
+        $seo = [
+            'title' => $get('products_title'),
+            'subtitle' => $get('products_subtitle'),
+            'meta_title' => $get('products_meta_title'),
+            'meta_description' => $get('products_meta_description'),
+            'keywords' => $get('products_keywords')
+                ? array_map('trim', explode(' ', $get('products_keywords')))
+                : [],
+            'canonical_url' => $get('products_canonical_url'),
+            'og_image' => $get('products_og_image')
+                ? asset('storage/tenant'.tenant('id').'/'.$get('products_og_image'))
+                : null,
+        ];
+
+        return $this->paginatedWithExtraResponse(
             $products,
             ProductListResource::collection($products),
+            ['seo' => $seo],
         );
     }
 
@@ -72,6 +103,7 @@ class ProductController extends Controller
             ->with([
                 'categories',
                 'media',
+                'seo',
                 'variations.options',
                 'variants' => fn ($q) => $q->where('is_active', true),
                 'variants.options',

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Tenant\Resources\Products\Schemas;
 
+use App\Filament\Shared\SeoFormOnelanguageSection;
 use App\Models\Tenant\Category;
 use App\Models\Tenant\Product;
 use Filament\Actions\Action;
@@ -68,6 +69,8 @@ class ProductForm
 
                     ])
                     ->columnSpanFull(),
+
+                SeoFormOnelanguageSection::make()->columnSpanFull(),
             ]);
     }
 

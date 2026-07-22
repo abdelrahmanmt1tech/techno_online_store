@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Tenant\CheckoutOtpController;
 use App\Http\Controllers\Api\Tenant\ContactController;
 use App\Http\Controllers\Api\Tenant\GovernorateController;
 use App\Http\Controllers\Api\Tenant\OrderController;
+use App\Http\Controllers\Api\Tenant\PageController;
 use App\Http\Controllers\Api\Tenant\ProfileController;
 use App\Http\Controllers\Api\Tenant\ProductController;
 use App\Http\Controllers\Api\Tenant\ReviewController;
@@ -51,6 +52,7 @@ Route::middleware([
 
         // التصنيفات (عام)
         Route::get('tenant/categories', [CategoryController::class, 'index']);
+        Route::get('tenant/categories/{slug}', [CategoryController::class, 'show']);
 
         // المحافظات (عام)
         Route::get('governorates', [GovernorateController::class, 'index']);
@@ -90,5 +92,15 @@ Route::middleware([
         // المراجعات
         Route::post('reviews', [ReviewController::class, 'store'])->middleware('auth:sanctum');
         Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
+
+        // الصفحة الرئيسية
+        Route::get('home', \App\Http\Controllers\Api\Tenant\HomeController::class);
+
+        // اتصل بنا
+        Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);
+
+        // الصفحات
+        Route::get('pages', [PageController::class, 'index']);
+        Route::get('pages/{slug}', [PageController::class, 'show']);
     });
 });

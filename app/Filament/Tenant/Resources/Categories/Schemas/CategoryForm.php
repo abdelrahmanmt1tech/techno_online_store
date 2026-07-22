@@ -2,6 +2,7 @@
 
 namespace App\Filament\Tenant\Resources\Categories\Schemas;
 
+use App\Filament\Shared\SeoFormOnelanguageSection;
 use App\Models\Tenant\Category;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -74,6 +75,8 @@ class CategoryForm
 
                     ])
                     ->columnSpanFull(),
+
+                SeoFormOnelanguageSection::make()->columnSpanFull(),
             ]);
     }
 

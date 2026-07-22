@@ -72,12 +72,8 @@ class FooterSettings extends Page
                         ->columns(2)
                         ->schema([
 
-                            Textarea::make('footer_description_ar')
-                                ->label(__('dashboard.footer_settings.description_ar'))
-                                ->rows(5),
-
-                            Textarea::make('footer_description_en')
-                                ->label(__('dashboard.footer_settings.description_en'))
+                            Textarea::make('footer_description')
+                                ->label(__('dashboard.footer_settings.description'))
                                 ->rows(5),
 
                             FileUpload::make('footer_logo')
@@ -159,7 +155,7 @@ class FooterSettings extends Page
 
         $data = $this->form->getState();
 
-        $richEditorKeys = ['footer_description_ar', 'footer_description_en'];
+        $richEditorKeys = ['footer_description'];
 
         foreach ($data as $key => $value) {
             if (in_array($key, $richEditorKeys)) {
@@ -185,8 +181,7 @@ class FooterSettings extends Page
     {
         $keys = [
             'footer_logo',
-            'footer_description_ar',
-            'footer_description_en',
+            'footer_description',
             'footer_facebook',
             'footer_instagram',
             'footer_tiktok',
@@ -195,7 +190,7 @@ class FooterSettings extends Page
             'footer_linkedin',
         ];
 
-        $richEditorKeys = ['footer_description_ar', 'footer_description_en'];
+        $richEditorKeys = ['footer_description'];
 
         $settings = [];
 

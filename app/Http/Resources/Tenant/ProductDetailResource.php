@@ -60,6 +60,7 @@ class ProductDetailResource extends JsonResource
                 ]),
             ])),
             'is_favorite' => $this->is_favorite ?? false,
+            'seo' => $this->whenLoaded('seo', fn () => $this->seo ? SeoResource::make($this->seo) : null),
         ];
     }
 }

@@ -48,8 +48,8 @@ class ReviewsTable
                 ToggleColumn::make('is_approved')
                     ->label(__('dashboard.reviews_approved')),
 
-                ToggleColumn::make('is_featured')
-                    ->label(__('dashboard.reviews_featured')),
+                // ToggleColumn::make('is_featured')
+                //     ->label(__('dashboard.reviews_featured')),
 
                 TextColumn::make('created_at')
                     ->label(__('dashboard.created_at'))

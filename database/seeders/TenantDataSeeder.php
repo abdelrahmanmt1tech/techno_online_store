@@ -17,6 +17,7 @@ class TenantDataSeeder extends Seeder
         $categories = $this->seedCategories();
         $this->seedProducts($categories);
         $this->seedCoupons();
+        (new HomeSectionSeeder)->run();
     }
 
     protected function seedGovernorates(): void
