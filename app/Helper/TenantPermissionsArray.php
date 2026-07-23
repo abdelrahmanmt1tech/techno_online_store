@@ -45,6 +45,13 @@ function tenantPermissionsArray(): array
                 ['name' => 'dashboard.permissions.create', 'key' => 'coupons.create'],
                 ['name' => 'dashboard.permissions.update', 'key' => 'coupons.update'],
                 ['name' => 'dashboard.permissions.delete', 'key' => 'coupons.delete'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'code-settings.view'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'footer-settings.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'footer-settings.update'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'reviews.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'reviews.update'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'store-settings.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'store-settings.update'],
             ],
         ],
     ];

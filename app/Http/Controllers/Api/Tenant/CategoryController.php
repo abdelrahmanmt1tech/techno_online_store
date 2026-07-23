@@ -20,4 +20,20 @@ class CategoryController extends Controller
 
         return $this->successResponse( CategoryResource::collection($categories) );
     }
+
+    public function show(string $slug)
+    {
+        $category = Category::where('slug', $slug)
+            ->where('is_active', true)
+            ->with('seo')
+            ->first();
+
+        if (! $category) {
+            return $this->notFoundResponse(__('messages.resource_not_found'));
+        }
+
+        return $this->successResponse(
+            CategoryResource::make($category),
+        );
+    }
 }
