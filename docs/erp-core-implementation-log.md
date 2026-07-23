@@ -16,6 +16,29 @@ Updated during `feature/erp-core-fifo`.
 | `.gitignore` | updated | Ignore `rwadsolu_tenant*` SQLite leftovers | Hygiene |
 | `lang/en/erp.php`, `lang/ar/erp.php` | added | UI/validation i18n | UX |
 
+## Invoice printing (`feature/erp-invoice-printing`)
+
+| Path | Change | Why | Role |
+|---|---|---|---|
+| `docs/erp-invoice-printing.md` | added | Print system docs | Docs |
+| `database/migrations/tenant/2026_07_22_110001_*` | added | Settings table | DB |
+| `database/migrations/tenant/2026_07_22_110002_*` | added | Snapshot columns | DB |
+| `app/Models/Tenant/InvoicePrintSetting.php` | added | Settings model | Persistence |
+| `app/Models/Tenant/SalesInvoice.php` / `PurchaseInvoice.php` | updated | snapshot cast | Persistence |
+| `app/Services/Erp/InvoicePrintSettingsService.php` | added | Defaults/snapshot | Service |
+| `app/Services/Erp/InvoicePrintDataBuilder.php` | added | Print DTO | Service |
+| `app/Support/Erp/TenantMediaUrl.php` | added | Tenant asset URLs | Support |
+| `app/Http/Controllers/Tenant/Erp/*PrintController.php` | added | Print responses | HTTP |
+| `app/Providers/Filament/TenantPanelProvider.php` | updated | authenticated print routes | Routes |
+| `app/Filament/Tenant/Resources/InvoicePrintSettings/*` | added | Settings UI | Filament |
+| `app/Filament/Tenant/Support/Erp/ErpPrintActions.php` | added | Print actions | Filament |
+| Sales/Purchase invoice Tables + View pages | updated | Print buttons | Filament |
+| `CreateSalesInvoiceAction` / `CreatePurchaseInvoiceAction` | updated | Snapshot on issue | Domain |
+| `resources/views/erp/invoices/*` | added | Print templates | Views |
+| `resources/css/erp-invoice-print.css` | added | Print CSS | Assets |
+| `tests/Feature/Erp/InvoicePrintingTest.php` | added | Print coverage | Tests |
+| `AGENTS.md` + erp-core docs | updated | Print notes | Docs |
+
 ## Core backend
 
 | Path | Change | Why | Role |

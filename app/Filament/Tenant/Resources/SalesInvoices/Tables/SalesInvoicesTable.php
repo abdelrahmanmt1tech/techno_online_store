@@ -4,6 +4,7 @@ namespace App\Filament\Tenant\Resources\SalesInvoices\Tables;
 
 use App\Enums\Erp\InvoiceStatus;
 use App\Filament\Tenant\Support\Erp\ErpEnumOptions;
+use App\Filament\Tenant\Support\Erp\ErpPrintActions;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -33,7 +34,11 @@ class SalesInvoicesTable
             ->filters([
                 SelectFilter::make('status')->label(__('erp.fields.status'))->options(ErpEnumOptions::options(InvoiceStatus::class))->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
-            ->recordActions([ViewAction::make(), EditAction::make()])
+            ->recordActions([
+                ErpPrintActions::printSalesInvoice(),
+                ViewAction::make(),
+                EditAction::make(),
+            ])
             ->emptyStateHeading(__('erp.empty.default'));
     }
 }

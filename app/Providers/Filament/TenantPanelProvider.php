@@ -3,6 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Http\Controllers\Tenant\Erp\PurchaseInvoicePrintController;
+use App\Http\Controllers\Tenant\Erp\SalesInvoicePrintController;
 use App\Http\Middleware\EnsureTenantIsInitialized;
 use App\Http\Middleware\TenantAuthenticateSession;
 use Filament\Http\Middleware\Authenticate;
@@ -20,6 +22,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -70,6 +73,17 @@ class TenantPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->authenticatedRoutes(function () {
+                Route::get(
+                    'erp/sales-invoices/{salesInvoice}/print',
+                    SalesInvoicePrintController::class,
+                )->name('erp.sales-invoices.print');
+
+                Route::get(
+                    'erp/purchase-invoices/{purchaseInvoice}/print',
+                    PurchaseInvoicePrintController::class,
+                )->name('erp.purchase-invoices.print');
+            });
     }
 }
