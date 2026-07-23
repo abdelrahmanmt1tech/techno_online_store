@@ -48,7 +48,7 @@
 Admin resources under `app/Filament/Resources/`, tenant resources under `app/Filament/Tenant/Resources/`. Each resource has `Pages/`, `Schemas/`, `Tables/` subdirectories.
 
 - **Admin** (15): Admins, Roles, Tenants, Plans, Categories, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
-- **Tenant** (15): Categories, Contacts, Coupons, Customers, Governorates, MessengerApiRequests, MessengerPages, MessengerWebhookEvents, Orders, Products, WhatsAppApiRequests, WhatsAppContacts, WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents
+- **Tenant** (15 store/messaging + 20 ERP): Categories, Contacts, Coupons, Customers, Governorates, Messenger*, Orders, Products, WhatsApp*; plus ERP Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, StockReceipt/Issue/Transfer/Adjustment/Damage, StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns, InvoicePayments
 
 Tenant pages (`app/Filament/Tenant/Pages/`): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage
 
@@ -58,7 +58,32 @@ Admin widgets (`app/Filament/Widgets/`): AdminKpis, TenantsTrend, TenantSubscrip
 
 Shared components in `app/Filament/Shared/` (WhatsApp/, Messenger/, SeoFormSection.php) with subdirectories: Tables/, Schemas/, Actions/, Concerns/.
 
-Navigation labels use `__('dashboard.*')` translations (`lang/{ar,en}/dashboard.php`).
+Navigation labels use `__('dashboard.*')` translations (`lang/{ar,en}/dashboard.php`). ERP Tenant UI uses `__('erp.*')` (`lang/{ar,en}/erp.php`).
+
+## ERP Core (Tenant)
+
+FIFO inventory + purchases/sales/invoices live in the **tenant DB only**. Docs: [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md), discovery/handover/test plans under `docs/erp-core-*.md`.
+
+- **Migrations**: `database/migrations/tenant/2026_07_22_10000{1-4}_create_erp_*.php`
+- **Models**: `app/Models/Tenant/` (Branch, Warehouse, InventoryItem, Stock*, Purchase*, Sale*, InvoicePayment, …)
+- **Enums**: `app/Enums/Erp/`
+- **Services**: `app/Services/Erp/` (`DocumentNumberService`, `FifoCostingService`, `CommerceQuantityService`, `InventoryItemResolver`)
+- **Actions**: `app/Actions/Erp/` (post/reverse stock, confirm sale, goods receipt, invoices, payments, returns)
+- **Math**: `app/Support/Erp/Decimal` (BCMath) — no float for money/qty
+- **Filament**: `app/Filament/Tenant/Resources/{Branches,Warehouses,UnitsOfMeasure,InventoryItems,Suppliers,StockTransactions,StockMovements,StockBalances,PurchaseOrders,GoodsReceipts,PurchaseInvoices,PurchaseReturns,Sales,SalesInvoices,SalesReturns,InvoicePayments}/`
+- **Tests**: `tests/Feature/Erp/`, `tests/Unit/Erp/` (base `ErpTestCase`)
+
+### Commerce vs ERP stock (critical)
+
+- Store qty (`products.quantity` / `product_variants.quantity`) and ERP (`stock_balances` + FIFO layers) are **separate**.
+- Cross-impact only inside explicit Actions (e.g. commerce goods receipt / sales return restock) + `commerce_quantity_adjustments` audit with idempotency keys.
+- **Do not** use Model Observers / `boot()` to sync stock between systems.
+- Selling from ERP inventory does **not** change store qty; selling commerce does **not** change ERP.
+- Transfers/damage/ERP adjustments never touch store qty unless the line is explicitly `commerce` / `affects_commerce_quantity`.
+
+### FIFO
+
+`FifoCostingService` + `lockForUpdate()`; consume by `received_at`, `id`; no negative stock; transfers preserve original layer unit costs.
 
 Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) and `app/Helper/TenantPermissionsArray.php` (tenant, guard `tenant`). Auto-loaded via `composer.json` `files` array (also loads `app/Helper/SeoHelper.php`). Permission keys follow pattern `{group}.{action}` (e.g., `tenants.view`, `roles-and-permission.destroy`).
 
@@ -72,7 +97,8 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 - Uses **SQLite in-memory** (`:memory:`) with `QUEUE_CONNECTION=sync`, `CACHE_STORE=array`, `SESSION_DRIVER=array` (see `phpunit.xml`).
 - `tests/TestCase.php` extends `Illuminate\Foundation\Testing\TestCase` (no `RefreshDatabase` by default — add trait when needed).
 - Unit tests extend `PHPUnit\Framework\TestCase` directly (no Laravel app boot).
-- Base test cases: `Feature/WhatsApp/WhatsAppTestCase.php`, `Feature/Messenger/MessengerTestCase.php`.
+- Base test cases: `Feature/WhatsApp/WhatsAppTestCase.php`, `Feature/Messenger/MessengerTestCase.php`, `Feature/Erp/ErpTestCase.php`.
+- ERP: `php artisan test --filter=Erp`
 
 ## Code Style
 
@@ -83,6 +109,9 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 
 | Document | Purpose |
 |---|---|
+| [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md) | Tenant ERP core: FIFO inventory, purchases/sales/invoices; commerce↔ERP separation rules. |
+| [`docs/erp-core-discovery.md`](docs/erp-core-discovery.md) | Pre-implementation discovery and architectural decisions. |
+| [`docs/erp-core-handover.md`](docs/erp-core-handover.md) | Branch, commits, migrations, test results, runbook. |
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module. API Only Embedded Signup (Phases A–D) and Coexistence (Phase E) code-complete — staging E2E postponed pending numbers. Orders notifications postponed. |
 | [`docs/messenger-messaging-module.md`](docs/messenger-messaging-module.md) | Messenger module. Phases A–F complete (staging E2E passed). Phase G code-complete (Facebook Login + Page picker + auto webhook subscription); staging E2E pending. Also documents Meta App legal URLs + Access Verification public pages. |
 | [`docs/messaging-health-dashboard.md`](docs/messaging-health-dashboard.md) | Admin Messaging Health Dashboard (Phase H) — central registry/webhook diagnostics; no tokens; no cross-tenant inbox. |
@@ -100,7 +129,8 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 ## Gotchas
 
 - **NEVER run `migrate:fresh`, `db:wipe`, `migrate:refresh`, or any destructive database command without explicitly asking the user first.** These commands destroy all data. Always ask for confirmation before running them.
-- **Do not set** `SESSION_DOMAIN` to a value with a port (e.g., `localhost:8000`).
+- **ERP stock**: never add Observers that sync `products.quantity` with ERP balances; use Actions only.
+- Do not set `SESSION_DOMAIN` to a value with a port (e.g., `localhost:8000`).
 - `composer run dev` uses `npx concurrently` — requires Node.js available. Also uses `php artisan pail` which requires the `pcntl` PHP extension (not available on Windows — run the 3 other processes manually if needed).
 - `.env.example` defaults to SQLite but actual `.env` uses MySQL. Always check `.env` not `.env.example` for truth.
 - Tenant seeding (`SeedTenantDatabase`) and `setupStoreAdminRole()` are invoked from `CreateTenant.php`, not from the tenancy event pipeline.

@@ -91,4 +91,14 @@ class Order extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    public function salesInvoices(): HasMany
+    {
+        return $this->hasMany(SalesInvoice::class);
+    }
 }
