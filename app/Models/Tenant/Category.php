@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Openplain\FilamentTreeView\Concerns\HasTreeStructure;
 
 class Category extends Model
@@ -43,5 +44,10 @@ class Category extends Model
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class);
+    }
+
+    public function seo(): MorphOne
+    {
+        return $this->morphOne(Seo::class, 'seoable');
     }
 }

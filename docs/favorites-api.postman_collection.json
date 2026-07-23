@@ -1,0 +1,107 @@
+{
+  "info": {
+    "name": "Techno Online Store - Favorites API",
+    "description": "Favorites (Wishlist) API for tenant store customers.\n\nBase URL: {{tenant_url}}/api\n\nSet `tenant_url` to the tenant subdomain, e.g. `https://store1.example.com`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "tenant_url",
+      "value": "http://store1.localhost",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "Toggle Favorite",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{tenant_url}}/api/favorites",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "favorites"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}", "description": "Sanctum token" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{product_id}}\n}"
+            },
+            "description": "Toggle a product as favorite. If the product is already favorited, it will be removed (unfavorited). If not favorited, it will be added. Requires authentication."
+          },
+          "response": [
+            {
+              "name": "Added to Favorites",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Added to favorites\",\n  \"data\": []\n}"
+            },
+            {
+              "name": "Removed from Favorites",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Removed from favorites\",\n  \"data\": []\n}"
+            },
+            {
+              "name": "Product Not Found (404)",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Product not found\"\n}"
+            },
+            {
+              "name": "Validation Error (422)",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"errors\": {\n    \"id\": [\"The id field is required.\"]\n  }\n}"
+            },
+            {
+              "name": "Unauthenticated (401)",
+              "body": "{\n  \"message\": \"Unauthenticated.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Favorites",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{tenant_url}}/api/favorites?page=1",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "favorites"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number" }
+              ]
+            },
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}", "description": "Sanctum token" }
+            ],
+            "description": "Get paginated list of the authenticated user's favorite products. Each item includes product details with price, image, and categories. Requires authentication."
+          },
+          "response": [
+            {
+              "name": "Success (200)",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Favorites fetched successfully\",\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": 1,\n        \"name\": \"Bluetooth Headphones\",\n        \"slug\": \"bluetooth-headphones\",\n        \"price\": 299.99,\n        \"sale_price\": 249.99,\n        \"discount_percent\": 17,\n        \"image\": \"http://store1.localhost/storage/tenant1/products/headphones.jpg\",\n        \"categories\": [\n          {\n            \"id\": 1,\n            \"name\": \"Electronics\",\n            \"slug\": \"electronics\"\n          }\n        ]\n      }\n    ],\n    \"meta\": {\n      \"current_page\": 1,\n      \"last_page\": 1,\n      \"per_page\": 10,\n      \"total\": 1,\n      \"next_page_url\": null,\n      \"prev_page_url\": null\n    }\n  }\n}"
+            },
+            {
+              "name": "Empty List",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Favorites fetched successfully\",\n  \"data\": {\n    \"items\": [],\n    \"meta\": {\n      \"current_page\": 1,\n      \"last_page\": 1,\n      \"per_page\": 10,\n      \"total\": 0,\n      \"next_page_url\": null,\n      \"prev_page_url\": null\n    }\n  }\n}"
+            },
+            {
+              "name": "Unauthenticated (401)",
+              "body": "{\n  \"message\": \"Unauthenticated.\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -138,28 +138,16 @@ class GeneralSettings extends Page
                     Section::make(__('dashboard.homepage_seo'))
                         ->columns(2)
                         ->schema([
-                            TextInput::make('home_meta_title_ar')
-                                ->label(__('dashboard.general_settings.home_meta_title_ar')),
+                            TextInput::make('home_meta_title')
+                                ->label(__('dashboard.general_settings.home_meta_title')),
 
-                            TextInput::make('home_meta_title_en')
-                                ->label(__('dashboard.general_settings.home_meta_title_en')),
-
-                            Textarea::make('home_meta_description_ar')
-                                ->label(__('dashboard.general_settings.home_meta_description_ar'))
+                            Textarea::make('home_meta_description')
+                                ->label(__('dashboard.general_settings.home_meta_description'))
                                 ->rows(3),
 
-                            Textarea::make('home_meta_description_en')
-                                ->label(__('dashboard.general_settings.home_meta_description_en'))
-                                ->rows(3),
-
-                            TagsInput::make('home_keywords_ar')
-                                ->label(__('dashboard.general_settings.home_keywords_ar'))
-                                ->placeholder(__('dashboard.keywords_ar_placeholder'))
-                                ->separator(' '),
-
-                            TagsInput::make('home_keywords_en')
-                                ->label(__('dashboard.general_settings.home_keywords_en'))
-                                ->placeholder(__('dashboard.keywords_en_placeholder'))
+                            TagsInput::make('home_keywords')
+                                ->label(__('dashboard.general_settings.home_keywords'))
+                                ->placeholder(__('dashboard.keywords_placeholder'))
                                 ->separator(' '),
 
                             TextInput::make('home_canonical_url')
@@ -171,7 +159,8 @@ class GeneralSettings extends Page
                                 ->label(__('dashboard.general_settings.og_image'))
                                 ->directory('seo')
                                 ->image()
-                                ->optimize('webp'),
+                                ->optimize('webp')
+                                ->columnSpanFull(),
                         ])
                         ->icon('heroicon-o-globe-alt')
                         ->columnSpanFull(),
@@ -205,7 +194,7 @@ class GeneralSettings extends Page
 
         $richEditorKeys = ['terms_and_conditions_ar', 'terms_and_conditions_en', 'privacy_policy_ar', 'privacy_policy_en'];
 
-        $tagInputKeys = ['home_keywords_ar', 'home_keywords_en'];
+        $tagInputKeys = ['home_keywords'];
 
         foreach ($data as $key => $value) {
             if (in_array($key, $richEditorKeys)) {
@@ -243,19 +232,16 @@ class GeneralSettings extends Page
             'courses_link',
             'header_color',
             'footer_color',
-            'home_meta_title_ar',
-            'home_meta_title_en',
-            'home_meta_description_ar',
-            'home_meta_description_en',
-            'home_keywords_ar',
-            'home_keywords_en',
+            'home_meta_title',
+            'home_meta_description',
+            'home_keywords',
             'home_canonical_url',
             'home_og_image',
         ];
 
         $richEditorKeys = ['terms_and_conditions_ar', 'terms_and_conditions_en', 'privacy_policy_ar', 'privacy_policy_en'];
 
-        $tagInputKeys = ['home_keywords_ar', 'home_keywords_en'];
+        $tagInputKeys = ['home_keywords'];
 
         $settings = [];
 

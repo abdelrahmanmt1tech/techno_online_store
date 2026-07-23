@@ -52,6 +52,8 @@ function permissionsArray(): array
                 ['name' => 'dashboard.permissions.update', 'key' => 'intro-settings.update'],
                 ['name' => 'dashboard.permissions.view', 'key' => 'about-settings.view'],
                 ['name' => 'dashboard.permissions.update', 'key' => 'about-settings.update'],
+                ['name' => 'dashboard.permissions.view', 'key' => 'home-sections.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'home-sections.update'],
             ],
         ],
         [

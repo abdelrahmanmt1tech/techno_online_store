@@ -3,13 +3,17 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Tenant\CartController;
+use App\Http\Controllers\Api\Tenant\FavoriteController;
 use App\Http\Controllers\Api\Tenant\CategoryController;
 use App\Http\Controllers\Api\Tenant\CheckoutController;
 use App\Http\Controllers\Api\Tenant\CheckoutOtpController;
 use App\Http\Controllers\Api\Tenant\ContactController;
 use App\Http\Controllers\Api\Tenant\GovernorateController;
 use App\Http\Controllers\Api\Tenant\OrderController;
+use App\Http\Controllers\Api\Tenant\PageController;
+use App\Http\Controllers\Api\Tenant\ProfileController;
 use App\Http\Controllers\Api\Tenant\ProductController;
+use App\Http\Controllers\Api\Tenant\ReviewController;
 use App\Http\Controllers\Api\Tenant\Auth\LoginController;
 use App\Http\Controllers\Api\Tenant\Auth\PasswordResetController;
 use App\Http\Controllers\Api\Tenant\Auth\RegisterController;
@@ -48,12 +52,26 @@ Route::middleware([
 
         // التصنيفات (عام)
         Route::get('tenant/categories', [CategoryController::class, 'index']);
+        Route::get('tenant/categories/{slug}', [CategoryController::class, 'show']);
 
         // المحافظات (عام)
         Route::get('governorates', [GovernorateController::class, 'index']);
 
         // جهات الاتصال
         Route::post('contacts', [ContactController::class, 'store']);
+
+        // المفضلة
+        Route::prefix('favorites')->middleware(['auth:sanctum'])->group(function () {
+            Route::post('/', [FavoriteController::class, 'toggle']);
+            Route::get('/', [FavoriteController::class, 'getFavorites']);
+        });
+
+        // الملف الشخصي
+        Route::prefix('profile')->middleware(['auth:sanctum'])->group(function () {
+            Route::get('/', [ProfileController::class, 'show']);
+            Route::put('/', [ProfileController::class, 'update']);
+            Route::put('/password', [ProfileController::class, 'updatePassword']);
+        });
 
         // السلة
         Route::post('cart/items', [CartController::class, 'addItem']);
@@ -70,5 +88,19 @@ Route::middleware([
         Route::post('cart/{token}/checkout/verify', [CheckoutOtpController::class, 'verifyAndCheckout']);
         Route::post('checkout/{token}', [CheckoutController::class, 'store']);
         Route::get('orders/{token}', [OrderController::class, 'show']);
+
+        // المراجعات
+        Route::post('reviews', [ReviewController::class, 'store'])->middleware('auth:sanctum');
+        Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
+
+        // الصفحة الرئيسية
+        Route::get('home', \App\Http\Controllers\Api\Tenant\HomeController::class);
+
+        // اتصل بنا
+        Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);
+
+        // الصفحات
+        Route::get('pages', [PageController::class, 'index']);
+        Route::get('pages/{slug}', [PageController::class, 'show']);
     });
 });
