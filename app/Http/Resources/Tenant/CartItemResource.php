@@ -19,11 +19,10 @@ class CartItemResource extends JsonResource
             'quantity' => $this->quantity,
             'price' => $this->variant?->price,
             'sale_price' => $this->variant?->sale_price ?? $this->variant?->price,
-            'options' => $this->variant?->options->map(fn($o) => [
+            'options' => $this->variant?->options->map(fn ($o) => [
                 'name' => $o->variation->name ?? null,
                 'value' => $o->value,
             ]),
-
 
         ];
     }

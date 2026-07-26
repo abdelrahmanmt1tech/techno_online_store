@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class PageForm
 {
@@ -24,7 +25,7 @@ class PageForm
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn ($state, $set) => $set('slug', \Illuminate\Support\Str::slug($state)))
+                            ->afterStateUpdated(fn ($state, $set) => $set('slug', Str::slug($state)))
                             ->columnSpan(1),
 
                         TextInput::make('slug')

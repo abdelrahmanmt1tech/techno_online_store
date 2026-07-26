@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 
 class StatisticsSettings extends Page
 {
@@ -43,6 +44,11 @@ class StatisticsSettings extends Page
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-chart-bar';
+    }
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('statistics-settings.view');
     }
 
     public function mount(): void
@@ -123,7 +129,8 @@ class StatisticsSettings extends Page
                             Action::make('save')
                                 ->submit('save')
                                 ->label(__('dashboard.save'))
-                                ->keyBindings(['mod+s']),
+                                ->keyBindings(['mod+s'])
+                                ->visible(fn () => Auth::user()->can('statistics-settings.update')),
                         ]),
                     ]),
             ])
@@ -132,6 +139,9 @@ class StatisticsSettings extends Page
 
     public function save(): void
     {
+        if (! Auth::user()?->can('statistics-settings.update')) {
+            abort(403);
+        }
         $data = $this->form->getState();
         $jsonKeys = ['statistics_items'];
 

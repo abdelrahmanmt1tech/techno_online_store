@@ -29,7 +29,6 @@ class CountriesTable
                     ->label(__('dashboard.country_code'))
                     ->sortable(),
 
-
                 TextColumn::make('currency_name.en')
                     ->label(__('dashboard.currency_name'))
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -115,8 +115,8 @@ class HomeSectionBuilder extends Page
                                 ->collapsible()
                                 ->reorderable('sort_order')
                                 ->reorderableWithButtons()
-                                ->itemLabel(fn(array $state): ?string => $state['type']
-                                    ? __('dashboard.section_type_' . $state['type'])
+                                ->itemLabel(fn (array $state): ?string => $state['type']
+                                    ? __('dashboard.section_type_'.$state['type'])
                                     : null),
                         ])
                         ->columnSpanFull(),
@@ -155,7 +155,7 @@ class HomeSectionBuilder extends Page
                         ->directory('home/hero')
                         ->optimize('webp'),
                 ])
-                ->visible(fn($get) => $get('type') === 'hero')
+                ->visible(fn ($get) => $get('type') === 'hero')
                 ->columnSpanFull(),
         ];
     }
@@ -171,12 +171,12 @@ class HomeSectionBuilder extends Page
                         ->label(__('dashboard.categories_title')),
                     CheckboxList::make('category_ids')
                         ->label(__('dashboard.categories_select'))
-                        ->options(fn() => Category::where('is_active', true)->pluck('name', 'id'))
+                        ->options(fn () => Category::where('is_active', true)->pluck('name', 'id'))
                         ->columns(3)
                         ->searchable()
                         ->columnSpanFull(),
                 ])
-                ->visible(fn($get) => $get('type') === 'categories')
+                ->visible(fn ($get) => $get('type') === 'categories')
                 ->columnSpanFull(),
         ];
     }
@@ -199,7 +199,7 @@ class HomeSectionBuilder extends Page
                         ->minValue(1)
                         ->maxValue(50),
                 ])
-                ->visible(fn($get) => $get('type') === 'new_arrivals')
+                ->visible(fn ($get) => $get('type') === 'new_arrivals')
                 ->columnSpanFull(),
         ];
     }
@@ -222,7 +222,7 @@ class HomeSectionBuilder extends Page
                         ->minValue(1)
                         ->maxValue(50),
                 ])
-                ->visible(fn($get) => $get('type') === 'best_sellers')
+                ->visible(fn ($get) => $get('type') === 'best_sellers')
                 ->columnSpanFull(),
         ];
     }
@@ -245,7 +245,7 @@ class HomeSectionBuilder extends Page
                         ->minValue(1)
                         ->maxValue(50),
                 ])
-                ->visible(fn($get) => $get('type') === 'deals')
+                ->visible(fn ($get) => $get('type') === 'deals')
                 ->columnSpanFull(),
         ];
     }
@@ -292,7 +292,7 @@ class HomeSectionBuilder extends Page
                         ->addActionLabel(__('dashboard.add_testimonial'))
                         ->cloneable(),
                 ])
-                ->visible(fn($get) => $get('type') === 'testimonials')
+                ->visible(fn ($get) => $get('type') === 'testimonials')
                 ->columnSpanFull(),
         ];
     }

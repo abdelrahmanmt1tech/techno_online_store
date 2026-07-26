@@ -17,7 +17,7 @@ class UpdateProfileRequest extends FormRequest
 
         return [
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|max:255|unique:users,email,' . $userId,
+            'email' => 'sometimes|email|max:255|unique:users,email,'.$userId,
             'phone' => 'sometimes|nullable|string|max:20',
             'avatar' => 'sometimes|nullable|image|max:2048',
         ];

@@ -12,7 +12,7 @@ class ProductListResource extends JsonResource
         $firstVariant = $this->variants?->first();
 
         $price = $firstVariant?->price ?? $this->price;
-        $salePrice = $firstVariant?->sale_price ?? $firstVariant?->price  ?? $this->sale_price;
+        $salePrice = $firstVariant?->sale_price ?? $firstVariant?->price ?? $this->sale_price;
 
         $discountPercent = $price > 0 && $salePrice !== null && $salePrice < $price
             ? round((($price - $salePrice) / $price) * 100)

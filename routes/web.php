@@ -68,9 +68,6 @@ Route::prefix('messenger/onboarding')
         Route::get('status', [MessengerOnboardingController::class, 'status'])->name('messenger.onboarding.status');
     });
 
-
-
-
 //     Route::get('/smtp-test', function () {
 //     Mail::raw('hello', function ($message) {
 //         $message->to('mohamed.sala71996@gmail.com')
@@ -79,7 +76,6 @@ Route::prefix('messenger/onboarding')
 
 //     return 'sent';
 // });
-
 
 //  Route::get('/clear-config', function () {
 //     Artisan::call('optimize:clear');

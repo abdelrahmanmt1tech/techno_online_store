@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Tenant\ProductIndexRequest;
 use App\Http\Resources\Tenant\ProductDetailResource;
 use App\Http\Resources\Tenant\ProductListResource;
-use App\Http\Resources\Tenant\SeoResource;
 use App\Models\Setting;
 use App\Models\Tenant\Product;
 use App\Traits\ApiResponse;

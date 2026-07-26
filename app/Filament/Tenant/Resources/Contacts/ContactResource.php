@@ -2,10 +2,7 @@
 
 namespace App\Filament\Tenant\Resources\Contacts;
 
-use App\Filament\Tenant\Resources\Contacts\Pages\CreateContact;
-use App\Filament\Tenant\Resources\Contacts\Pages\EditContact;
 use App\Filament\Tenant\Resources\Contacts\Pages\ListContacts;
-use App\Filament\Tenant\Resources\Contacts\Pages\ViewContact;
 use App\Filament\Tenant\Resources\Contacts\Schemas\ContactForm;
 use App\Filament\Tenant\Resources\Contacts\Schemas\ContactInfolist;
 use App\Filament\Tenant\Resources\Contacts\Tables\ContactsTable;

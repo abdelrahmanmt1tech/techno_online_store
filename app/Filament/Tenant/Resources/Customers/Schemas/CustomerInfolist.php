@@ -2,7 +2,6 @@
 
 namespace App\Filament\Tenant\Resources\Customers\Schemas;
 
-use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -20,7 +19,7 @@ class CustomerInfolist
                             ->label(__('dashboard.name'))
                             ->icon('heroicon-o-user-circle'),
 
-                        TextEntry::make('user.name')                                                                                                                                                                                             
+                        TextEntry::make('user.name')
                             ->label(__('dashboard.linked_user'))
                             ->icon('heroicon-o-link')
                             ->placeholder('-'),
@@ -40,7 +39,7 @@ class CustomerInfolist
                             ->icon('heroicon-o-envelope')
                             ->state(fn ($record) => $record->primaryEmail() ?? '-'),
 
-                        TextEntry::make('primary_whatsapp')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                        TextEntry::make('primary_whatsapp')
                             ->label(__('dashboard.whatsapp'))
                             ->icon('heroicon-o-chat-bubble-left-right')
                             ->state(fn ($record) => $record->primaryWhatsapp() ?? '-'),
@@ -64,4 +63,3 @@ class CustomerInfolist
             ]);
     }
 }
-

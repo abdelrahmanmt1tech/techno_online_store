@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Models\Tenant\Branch;
+use App\Models\Tenant\Favorite;
 use Database\Factories\TenantUserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use App\Models\Tenant\Favorite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -33,6 +33,7 @@ class TenantUser extends Authenticatable implements FilamentUser
         'avatar',
         'password',
         'email_verified_at',
+        'is_active',
         'is_admin',
         'verification_code',
         'verification_code_expires_at',
@@ -53,6 +54,7 @@ class TenantUser extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
             'is_admin' => 'boolean',
             'is_verified' => 'boolean',
             'verification_code_expires_at' => 'datetime',
@@ -67,7 +69,7 @@ class TenantUser extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return 1; // $panel->getId() === 'tenant' && $this->is_admin;
+        return $panel->getId() === 'tenant' && $this->is_active;
     }
 
     public function branches(): BelongsToMany

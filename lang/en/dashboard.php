@@ -5,6 +5,8 @@ return [
     // Navigation & Resources
     'admins' => 'Admins',
     'admin' => 'Admin',
+    'tenant_users' => 'Users',
+    'tenant_user' => 'User',
     'users_group' => 'Users',
     'roles_and_permissions' => 'Roles & Permissions',
     'login' => 'Login',
@@ -82,7 +84,9 @@ return [
     'name_en' => 'Name (English)',
     'title_ar' => 'Title (Arabic)',
     'title_en' => 'Title (English)',
-        'description' => 'Description',
+    'description' => 'Description',
+    'description_ar' => 'Description (Arabic)',
+    'description_en' => 'Description (English)',
     'settings' => 'Settings',
     'commission_per_order' => 'Commission Per Order',
     'subscription_period' => 'Subscription Period',
@@ -162,19 +166,13 @@ return [
     'expires_at' => 'Expires At',
     'currency_name' => 'Currency Name',
 
-    // Permissions groups
+    // Permissions groups (admin panel)
     'permissions_groups' => [
         'roles' => 'Roles',
         'tenants' => 'Stores',
         'admins' => 'Admins',
         'plans' => 'Plans',
-        'site_content' => 'Site Content',
-        'whatsapp' => 'WhatsApp',
-        'whatsapp_platform' => 'WhatsApp Platform',
-        'messenger' => 'Messenger',
-        'messenger_platform' => 'Messenger Platform',
-        'meta_platform_ops' => 'Meta Platform Operations',
-        'store' => 'Store',
+        'contacts' => 'Contacts',
     ],
 
     // Permissions actions
@@ -1341,6 +1339,27 @@ return [
     'show_in_header' => 'Show in Header',
     'show_in_footer' => 'Show in Footer',
     'page_sort_order' => 'Sort Order',
+
+    // Themes
+    'themes_group' => 'Themes',
+    'browse_themes' => 'Browse Themes',
+    'theme_preview' => 'Preview',
+    'theme_subscribe' => 'Subscribe',
+    'theme_subscribed' => 'Subscribed ✓',
+    'theme_free' => 'Free',
+    'theme_filter_all' => 'All',
+    'theme_filter_paid' => 'Paid',
+    'theme_filter_category' => 'Category',
+    'theme_filter_price' => 'Price',
+    'theme_filter_clear' => 'Clear Filters',
+    'theme_subscribed_success' => 'Theme subscribed successfully',
+    'theme_already_subscribed' => 'You are already subscribed to this theme',
+    'theme_subscribed_banner' => 'You are subscribed to :name',
+    'theme_confirm_subscribe' => 'Are you sure you want to subscribe to this theme?',
+    'theme_confirm_subscribe_title' => 'Confirm Subscription',
+    'theme_confirm_subscribe_yes' => 'Subscribe',
+    'cancel' => 'Cancel',
+    'theme_no_themes' => 'No themes match your filters',
 
     // Favorites
     'removed_from_favorites' => 'Removed from favorites',

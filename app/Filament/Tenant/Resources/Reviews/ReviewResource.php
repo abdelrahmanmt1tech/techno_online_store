@@ -7,7 +7,6 @@ use App\Filament\Tenant\Resources\Reviews\Tables\ReviewsTable;
 use App\Models\Tenant\Review;
 use BackedEnum;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 

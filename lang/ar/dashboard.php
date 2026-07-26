@@ -5,6 +5,8 @@ return [
     // Navigation & Resources
     'admins' => 'المشرفين',
     'admin' => 'مشرف',
+    'tenant_users' => 'المستخدمين',
+    'tenant_user' => 'مستخدم',
     'users_group' => 'المستخدمين',
     'roles_and_permissions' => 'الأدوار والصلاحيات',
     'login' => 'تسجيل الدخول',
@@ -82,7 +84,9 @@ return [
     'name_en' => 'الاسم (إنجليزي)',
     'title_ar' => 'العنوان (عربي)',
     'title_en' => 'العنوان (إنجليزي)',
-        'description' => 'الوصف',
+    'description' => 'الوصف',
+    'description_ar' => 'الوصف (عربي)',
+    'description_en' => 'الوصف (إنجليزي)',
     'settings' => 'الإعدادات',
     'commission_per_order' => 'عمولة لكل طلب',
     'subscription_period' => 'مدة الاشتراك',
@@ -162,19 +166,13 @@ return [
     'expires_at' => 'تاريخ الانتهاء',
     'currency_name' => 'اسم العملة',
 
-    // Permissions groups
+    // Permissions groups (admin panel)
     'permissions_groups' => [
         'roles' => 'الأدوار',
         'tenants' => 'المتاجر',
         'admins' => 'المشرفين',
         'plans' => 'الخطط',
-        'site_content' => 'محتوى الموقع',
-        'whatsapp' => 'واتساب',
-        'whatsapp_platform' => 'منصة واتساب',
-        'messenger' => 'ماسنجر',
-        'messenger_platform' => 'منصة ماسنجر',
-        'meta_platform_ops' => 'عمليات منصة Meta',
-        'store' => 'المتجر',
+        'contacts' => 'جهات الاتصال',
     ],
 
     // Permissions actions
@@ -282,10 +280,10 @@ return [
     'no' => 'لا',
 
     // Themes
-    'themes' => 'القوالب',
-    'theme' => 'قالب',
-    'theme_details' => 'بيانات القالب',
-    'theme_options' => 'خيارات القالب',
+    'themes' => 'الثيمات',
+    'theme' => 'ثيم',
+    'theme_details' => 'بيانات الثيم',
+    'theme_options' => 'خيارات الثيم',
     'preview_url' => 'رابط المعاينة',
     'is_free' => 'مجاني',
     'free' => 'مجاني',
@@ -1345,6 +1343,27 @@ return [
     'show_in_header' => 'إظهار في الهيدر',
     'show_in_footer' => 'إظهار في الفوتر',
     'page_sort_order' => 'ترتيب العرض',
+
+    // الثيمات
+    'themes_group' => 'الثيمات',
+    'browse_themes' => 'تصفح الثيمات',
+    'theme_preview' => 'معاينة',
+    'theme_subscribe' => 'اشتراك',
+    'theme_subscribed' => 'مشترك ✓',
+    'theme_free' => 'مجاني',
+    'theme_filter_all' => 'الكل',
+    'theme_filter_paid' => 'مدفوع',
+    'theme_filter_category' => 'القسم',
+    'theme_filter_price' => 'السعر',
+    'theme_filter_clear' => 'إزالة الفلتر',
+    'theme_subscribed_success' => 'تم الاشتراك في الثيم بنجاح',
+    'theme_already_subscribed' => 'أنت مشترك بالفعل في هذا الثيم',
+    'theme_subscribed_banner' => 'أنت مشترك في ثيم :name',
+    'theme_confirm_subscribe' => 'هل أنت متأكد من الاشتراك في هذا الثيم؟',
+    'theme_confirm_subscribe_title' => 'تأكيد الاشتراك',
+    'theme_confirm_subscribe_yes' => 'اشتراك',
+    'cancel' => 'إلغاء',
+    'theme_no_themes' => 'لا توجد ثيمات تطابق فلترك',
 
     // المفضلة
     'removed_from_favorites' => 'تمت الإزالة من المفضلة',

@@ -21,7 +21,7 @@ class ReviewResource extends JsonResource
                 'id' => $this->user->id,
                 'name' => $this->user->name,
                 'avatar' => $this->user->avatar
-                    ? asset('storage/tenant' . tenant('id') . '/avatars/' . $this->user->avatar)
+                    ? asset('storage/tenant'.tenant('id').'/avatars/'.$this->user->avatar)
                     : null,
             ],
             'reviewable' => [

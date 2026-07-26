@@ -67,7 +67,7 @@ class ContactUsSettings extends Page
                         ->schema([
                             TextInput::make('contact_us_title')
                                 ->label(__('dashboard.contact_us_settings.title')),
-                                
+
                             Textarea::make('contact_us_description')
                                 ->label(__('dashboard.contact_us_settings.description'))
                                 ->rows(4),

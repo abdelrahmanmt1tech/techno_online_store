@@ -21,7 +21,7 @@ class OrderItemResource extends JsonResource
                 $media = $this->product->media->first();
 
                 return $media
-                    ? asset('storage/tenant' . tenant('id') . '/' . $media->file)
+                    ? asset('storage/tenant'.tenant('id').'/'.$media->file)
                     : null;
             }),
         ];
