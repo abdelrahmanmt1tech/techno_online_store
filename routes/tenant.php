@@ -69,8 +69,8 @@ Route::middleware([
         // الملف الشخصي
         Route::prefix('profile')->middleware(['auth:sanctum'])->group(function () {
             Route::get('/', [ProfileController::class, 'show']);
-            Route::put('/', [ProfileController::class, 'update']);
-            Route::put('/password', [ProfileController::class, 'updatePassword']);
+            Route::post('/', [ProfileController::class, 'update']);
+            Route::post('/password', [ProfileController::class, 'updatePassword']);
         });
 
         // السلة
@@ -87,6 +87,12 @@ Route::middleware([
         Route::post('cart/{token}/checkout/send-otp', [CheckoutOtpController::class, 'sendOtp']);
         Route::post('cart/{token}/checkout/verify', [CheckoutOtpController::class, 'verifyAndCheckout']);
         Route::post('checkout/{token}', [CheckoutController::class, 'store']);
+
+        Route::prefix('my-orders')->middleware(['auth:sanctum'])->group(function () {
+            Route::get('/', [OrderController::class, 'index']);
+            Route::get('{id}', [OrderController::class, 'showById']);
+        });
+
         Route::get('orders/{token}', [OrderController::class, 'show']);
 
         // المراجعات

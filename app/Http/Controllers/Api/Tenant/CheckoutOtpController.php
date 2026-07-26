@@ -134,20 +134,21 @@ class CheckoutOtpController extends Controller
             $coupon,
             $request,
         ) {
-            $customer = $this->findOrCreateCustomer(
-                $validated['email'],
-                $validated['customer_name'],
-                $validated['customer_phone'],
-            );
+            $customer = auth('sanctum')->id()
+                ? Customer::where('user_id', auth('sanctum')->id())->first()
+                : $this->findOrCreateCustomer(
+                    $validated['email'],
+                    $validated['customer_name'],
+                    $validated['customer_phone'],
+                );
 
-            $userId = $request->user()?->id;
 
             $order = Order::create([
                 'order_number' => Order::generateOrderNumber(),
                 'token' => Str::uuid()->toString(),
                 'cart_id' => $cart->id,
                 'customer_id' => $customer?->id,
-                'user_id' => $userId,
+                'user_id' => auth('sanctum')->id(),
                 'status' => 'pending',
                 'payment_method' => $validated['payment_method'],
                 'payment_status' => $validated['payment_method'] === 'online' ? 'paid' : 'unpaid',
