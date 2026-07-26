@@ -100,7 +100,7 @@ Route::middleware([
         Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
 
         // الصفحة الرئيسية
-        Route::get('home', \App\Http\Controllers\Api\Tenant\HomeController::class);
+        Route::get('tenant/home', \App\Http\Controllers\Api\Tenant\HomeController::class);
 
         // اتصل بنا
         Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);
