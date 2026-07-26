@@ -4,8 +4,8 @@
 
 - **Laravel 13** / PHP ^8.3 / Filament ~5.0 / Tailwind CSS v4 / Vite
 - **stancl/tenancy** — multi-tenant app (central DB + per-tenant databases)
-- **MySQL** — DB, sessions (`database`), cache (`database`), queues (`database`)
-- **Locale**: English (`en`) in `.env`. Supported locales: `['en', 'ar']`. `.env.example` defaults to SQLite/English.
+- **MySQL** — DB, sessions (`database`), cache (`database`), queues (`sync` in `.env`, `database` in production)
+- **Locale**: Arabic (`ar`) in `.env`, English (`en`) in `.env.example`. Supported locales: `['en', 'ar']`. `.env.example` defaults to SQLite/English.
 
 ## Commands
 
@@ -36,9 +36,9 @@
 
 ### Routes
 
-- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `POST tenants`.
-- **Tenant API** (`routes/tenant.php`): `GET products`, `GET products/{slug}`, `GET governorates`, cart CRUD, coupon apply/remove, `POST checkout/{token}`, `GET orders/{token}`. Token-based login: `GET /app/login/{token}`.
-- **Public web** (`routes/web.php`): Legal pages (`/privacy-policy`, `/terms-of-service`, `/data-deletion`), WhatsApp/Messenger webhooks (GET+POST), tenant login, forgot password (OTP flow), WhatsApp/Messenger onboarding routes (central domain middleware).
+- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `POST tenants`.
+- **Tenant API** (`routes/tenant.php`): Auth (register/verify/login/logout/forgot-password), `GET products`, `GET products/{slug}`, `GET tenant/categories`, `GET governorates`, `POST contacts`, cart CRUD, coupon apply/remove, checkout (OTP flow), `GET orders/{token}`, favorites toggle, profile CRUD, reviews, `GET home`, `GET pages`. Token-based login: `GET /app/login/{token}`.
+- **Public web** (`routes/web.php`): Landing (`/` + `/platform`), Legal pages (`/privacy-policy`, `/terms-of-service`, `/data-deletion`), WhatsApp/Messenger webhooks (GET+POST), tenant login, forgot password (OTP flow), WhatsApp/Messenger onboarding routes (central domain middleware).
 - **GitHub Actions**: Two workflows via SSH to CWP. No test CI exists — tests are not run on push.
   - `.github/workflows/deploy.yml` — dev deploy on push to `dev`.
   - `.github/workflows/deploy-production.yml` — prod deploy on push to `main`. Sequence: maintenance mode → `composer install --no-dev` → `npm ci && npm run build` → `optimize:clear` → central `migrate` → seed `CountrySeeder`/`CurrencySeeder` → `tenants:sync-permissions --migrate` → `filament:assets` → `optimize` → `queue:restart`.
@@ -47,7 +47,7 @@
 
 Admin resources under `app/Filament/Resources/`, tenant resources under `app/Filament/Tenant/Resources/`. Each resource has `Pages/`, `Schemas/`, `Tables/` subdirectories.
 
-- **Admin** (15): Admins, Roles, Tenants, Plans, Categories, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
+- **Admin** (17): Admins, Roles, Tenants, Plans, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
 - **Tenant** (15 store/messaging + 20 ERP): Categories, Contacts, Coupons, Customers, Governorates, Messenger*, Orders, Products, WhatsApp*; plus ERP Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, StockReceipt/Issue/Transfer/Adjustment/Damage, StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns, InvoicePayments
 
 Tenant pages (`app/Filament/Tenant/Pages/`): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage
@@ -127,7 +127,7 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 
 ## API Resources Conventions
 
-- **Tenant media paths**: Always use `asset('storage/tenant'.tenant('id').'/'.$model->file)` for tenant file/image URLs. Never use `asset('storage/'.$model->file)` — tenant files are isolated in per-tenant directories.
+- **Tenant media paths**: Always use `asset('storage/tenant'.tenant('id').'/'.$model->file)` for tenant file/image URLs. Never use `asset('storage/'.$model->file)` — tenant files are isolated in per-tenant directories. This is required because `config/tenancy.php` sets `asset_helper_tenancy => false` (so `asset()` is NOT tenant-aware).
 
 ## Gotchas
 
@@ -138,4 +138,5 @@ Permissions defined in `app/Helper/PermissionsArray.php` (admin, guard `admin`) 
 - `.env.example` defaults to SQLite but actual `.env` uses MySQL. Always check `.env` not `.env.example` for truth.
 - Tenant seeding (`SeedTenantDatabase`) and `setupStoreAdminRole()` are invoked from `CreateTenant.php`, not from the tenancy event pipeline.
 - The deploy workflow (`deploy.yml`) deletes `public/css/app/custom-stylesheet.css`, `public/css/app/whatsapp-ui.css`, `public/css/app/messaging-health-dashboard.css`, and `public/css/app/meta-integrations-reset.css` before `git pull` — intentional to avoid merge conflicts with generated/custom files.
+- `deploy.yml` triggers on push to `dev` but `git pull origin main` inside — likely a bug. Dev deploy effectively mirrors main, not dev.
 - `composer.json` `post-autoload-dump` runs `filament:upgrade` — this may cause issues if Filament assets aren't published.

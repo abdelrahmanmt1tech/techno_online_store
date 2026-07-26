@@ -17,6 +17,13 @@ class OrderItemResource extends JsonResource
             'quantity' => $this->quantity,
             'unit_price' => $this->unit_price,
             'total_price' => $this->unit_price * $this->quantity,
+            'product_image' => $this->whenLoaded('product', function () {
+                $media = $this->product->media->first();
+
+                return $media
+                    ? asset('storage/tenant' . tenant('id') . '/' . $media->file)
+                    : null;
+            }),
         ];
     }
 }

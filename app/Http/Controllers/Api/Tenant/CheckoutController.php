@@ -8,6 +8,8 @@ use App\Http\Resources\Tenant\CheckoutResource;
 use App\Models\Tenant\Cart;
 use App\Models\Tenant\Coupon;
 use App\Models\Tenant\CouponUsage;
+use App\Models\Tenant\Customer;
+use App\Models\Tenant\CustomerContact;
 use App\Models\Tenant\Governorate;
 use App\Models\Tenant\Order;
 use App\Models\Tenant\OrderItem;
@@ -89,10 +91,20 @@ class CheckoutController extends Controller
             $coupon,
             $request,
         ) {
+            $customer = auth('sanctum')->id()
+                ? Customer::where('user_id', auth('sanctum')->id())->first()
+                : $this->findOrCreateCustomer(
+                    $validated['customer_email'] ?? $cart->session_id,
+                    $validated['customer_name'],
+                    $validated['customer_phone'],
+                );
+
             $order = Order::create([
                 'order_number' => Order::generateOrderNumber(),
                 'token' => Str::uuid()->toString(),
                 'cart_id' => $cart->id,
+                'customer_id' => $customer->id,
+                'user_id' => auth('sanctum')->id(),
                 'status' => 'pending',
                 'payment_method' => $validated['payment_method'],
                 'payment_status' => $validated['payment_method'] === 'online' ? 'paid' : 'unpaid',
@@ -161,5 +173,33 @@ class CheckoutController extends Controller
         });
 
         return $this->createdResponse(new CheckoutResource($result), 'Order placed successfully');
+    }
+
+    private function findOrCreateCustomer(string $email, string $name, string $phone): Customer
+    {
+        $contact = CustomerContact::where('type', 'email')
+            ->where('value', $email)
+            ->first();
+
+        if ($contact) {
+            return $contact->customer;
+        }
+
+        $customer = Customer::create(['name' => $name]);
+
+        $customer->contacts()->create([
+            'type' => 'email',
+            'value' => $email,
+            'verified_at' => now(),
+            'is_primary' => true,
+        ]);
+
+        $customer->contacts()->create([
+            'type' => 'phone',
+            'value' => $phone,
+            'is_primary' => true,
+        ]);
+
+        return $customer;
     }
 }

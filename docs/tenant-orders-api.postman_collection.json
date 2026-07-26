@@ -1,0 +1,83 @@
+{
+  "info": {
+    "name": "Techno Online Store - Tenant Orders API",
+    "description": "My orders endpoints for authenticated tenant customers.\n\nBase URL: {{tenant_url}}/api\n\nSet `tenant_url` to the tenant subdomain, e.g. `https://store1.example.com`\nSet `auth_token` to the Sanctum token obtained from login/verify.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "tenant_url",
+      "value": "http://store1.localhost",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "My Orders",
+      "item": [
+        {
+          "name": "List My Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{tenant_url}}/api/my-orders?per_page=10&page=1",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "my-orders"],
+              "query": [
+                { "key": "per_page", "value": "10", "description": "Results per page (default 10)" },
+                { "key": "page", "value": "1", "description": "Page number" }
+              ]
+            },
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "description": "Get paginated list of authenticated user's orders, newest first."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"order_number\": \"#1001\",\n      \"status\": \"pending\",\n      \"payment_method\": \"cash\",\n      \"payment_status\": \"unpaid\",\n      \"customer_name\": \"John Doe\",\n      \"customer_phone\": \"+1234567890\",\n      \"customer_email\": \"john@example.com\",\n      \"customer_address\": \"123 Main St\",\n      \"governorate\": null,\n      \"governorate_name\": \"Cairo\",\n      \"shipping_cost\": \"50.00\",\n      \"coupon_code\": null,\n      \"discount\": \"0.00\",\n      \"subtotal\": \"150.00\",\n      \"total\": \"200.00\",\n      \"notes\": null,\n      \"created_at\": \"2026-07-26T12:00:00.000000Z\",\n      \"items\": [\n        {\n          \"id\": 1,\n          \"product_name\": \"Product A\",\n          \"product_sku\": \"SKU-001\",\n          \"variant_options\": null,\n          \"quantity\": 2,\n          \"unit_price\": \"75.00\",\n          \"total_price\": 150\n        }\n      ]\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"last_page\": 1,\n    \"per_page\": 10,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Show Order Details",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{tenant_url}}/api/my-orders/{{order_id}}",
+              "host": ["{{tenant_url}}"],
+              "path": ["api", "my-orders", "{{order_id}}"]
+            },
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "description": "Get a single order's details by ID. Only returns the order if it belongs to the authenticated user."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Fetched successfully\",\n  \"data\": {\n    \"id\": 1,\n    \"order_number\": \"#1001\",\n    \"status\": \"pending\",\n    \"payment_method\": \"cash\",\n    \"payment_status\": \"unpaid\",\n    \"customer_name\": \"John Doe\",\n    \"customer_phone\": \"+1234567890\",\n    \"customer_email\": \"john@example.com\",\n    \"customer_address\": \"123 Main St\",\n    \"governorate\": null,\n    \"governorate_name\": \"Cairo\",\n    \"shipping_cost\": \"50.00\",\n    \"coupon_code\": null,\n    \"discount\": \"0.00\",\n    \"subtotal\": \"150.00\",\n    \"total\": \"200.00\",\n    \"notes\": null,\n    \"created_at\": \"2026-07-26T12:00:00.000000Z\",\n    \"items\": [\n      {\n        \"id\": 1,\n        \"product_name\": \"Product A\",\n        \"product_sku\": \"SKU-001\",\n        \"variant_options\": null,\n        \"quantity\": 2,\n        \"unit_price\": \"75.00\",\n        \"total_price\": 150\n      }\n    ]\n  }\n}"
+            },
+            {
+              "name": "Not Found",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Resource not found\",\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
