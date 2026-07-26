@@ -9,6 +9,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class SuppliersTable
 {
@@ -25,8 +26,10 @@ class SuppliersTable
                 ToggleColumn::make('is_active')->label(__('erp.fields.is_active')),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.suppliers.manage')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.suppliers.manage')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

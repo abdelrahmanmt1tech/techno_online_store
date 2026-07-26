@@ -13,6 +13,7 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class CategoriesTable
 {
@@ -60,9 +61,12 @@ class CategoriesTable
                     ->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('categories.view')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('categories.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('categories.delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 
 class GeneralSettings extends Page
 {
@@ -44,6 +45,11 @@ class GeneralSettings extends Page
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-cog-6-tooth';
+    }
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('settings.general.view');
     }
 
     public function mount(): void
@@ -134,7 +140,8 @@ class GeneralSettings extends Page
                             Action::make('save')
                                 ->submit('save')
                                 ->label(__('dashboard.save'))
-                                ->keyBindings(['mod+s']),
+                                ->keyBindings(['mod+s'])
+                                ->visible(fn () => Auth::user()->can('settings.general.update')),
                         ]),
                     ]),
             ])
@@ -143,6 +150,15 @@ class GeneralSettings extends Page
 
     public function save(): void
     {
+        if (! Auth::user()->can('settings.general.update')) {
+            Notification::make()
+                ->danger()
+                ->title(__('dashboard.not_authorized'))
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         $tagInputKeys = ['home_keywords'];

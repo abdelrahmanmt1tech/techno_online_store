@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class SalesTable
 {
@@ -31,7 +32,12 @@ class SalesTable
             ->filters([
                 SelectFilter::make('status')->label(__('erp.fields.status'))->options(ErpEnumOptions::options(SaleStatus::class))->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
-            ->recordActions([ViewAction::make(), EditAction::make()])
+            ->recordActions([
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.sales.manage')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.sales.manage')),
+            ])
             ->emptyStateHeading(__('erp.empty.default'));
     }
 }

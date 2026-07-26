@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class ContactsTable
 {
@@ -94,12 +95,14 @@ class ContactsTable
             ->recordActions([
                 ViewAction::make()
                     ->label(__('dashboard.show_message'))
+                    ->visible(fn () => Auth::user()->can('contacts.view'))
                     ->modalContent(function (Contact $record) {
                         if (! $record->read_at) {
                             $record->update(['read_at' => now()]);
                         }
                     }),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('contacts.delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

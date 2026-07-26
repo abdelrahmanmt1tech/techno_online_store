@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 
@@ -175,6 +176,6 @@ class BrowseThemesPage extends Page
 
     public static function canAccess(): bool
     {
-        return true;
+        return Auth::user()->can('themes.browse');
     }
 }

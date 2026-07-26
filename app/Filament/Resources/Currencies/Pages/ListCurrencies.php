@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Currencies\Pages;
 use App\Filament\Resources\Currencies\CurrencyResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListCurrencies extends ListRecords
 {
@@ -13,7 +14,8 @@ class ListCurrencies extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('currencies.create')),
         ];
     }
 }

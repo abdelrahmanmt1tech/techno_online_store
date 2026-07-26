@@ -6,6 +6,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class TagsTable
 {
@@ -29,8 +30,10 @@ class TagsTable
                     ->sortable(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('blog-tags.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('blog-tags.delete')),
             ]);
     }
 }

@@ -11,10 +11,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class StockTransactionsTable
 {
-    public static function configure(Table $table, bool $showTypeFilter = true): Table
+    public static function configure(Table $table, bool $showTypeFilter = true, ?string $permissionKey = null): Table
     {
         return $table
             ->defaultSort('created_at', 'desc')
@@ -63,8 +64,10 @@ class StockTransactionsTable
                     : null,
             ]), layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->visible(fn () => $permissionKey ? Auth::user()->can($permissionKey) : true),
+                EditAction::make()
+                    ->visible(fn () => $permissionKey ? Auth::user()->can($permissionKey) : true),
             ])
             ->emptyStateHeading(__('erp.empty.default'))
             ->emptyStateDescription(__('erp.empty.default_desc'));

@@ -12,6 +12,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class PagesTable
 {
@@ -50,9 +51,12 @@ class PagesTable
                     ->sortable(),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('pages.view')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('pages.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('pages.delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

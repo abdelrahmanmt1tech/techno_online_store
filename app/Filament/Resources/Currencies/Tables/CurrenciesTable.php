@@ -11,6 +11,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class CurrenciesTable
 {
@@ -56,12 +57,15 @@ class CurrenciesTable
                     ->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('currencies.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('currencies.delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn () => Auth::user()->can('currencies.delete')),
                 ]),
             ])
             ->emptyStateHeading(__('dashboard.no_currencies'))

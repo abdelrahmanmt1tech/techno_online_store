@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Resources\Pages\Pages;
 use App\Filament\Tenant\Resources\Pages\PageResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListPages extends ListRecords
 {
@@ -13,7 +14,8 @@ class ListPages extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('pages.create')),
         ];
     }
 }

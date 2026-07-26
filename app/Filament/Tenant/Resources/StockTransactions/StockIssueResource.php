@@ -15,6 +15,8 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class StockIssueResource extends Resource
 {
@@ -44,6 +46,26 @@ class StockIssueResource extends Resource
         return __('erp.resources.stock_issue');
     }
 
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('erp.stock_issues.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('erp.stock_issues.manage');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('erp.stock_issues.manage');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('erp.stock_issues.manage');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -57,7 +79,7 @@ class StockIssueResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return StockTransactionsTable::configure($table, showTypeFilter: false);
+        return StockTransactionsTable::configure($table, showTypeFilter: false, permissionKey: 'erp.stock_issues.manage');
     }
 
     public static function getPages(): array

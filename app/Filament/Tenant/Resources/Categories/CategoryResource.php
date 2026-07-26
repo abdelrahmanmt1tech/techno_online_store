@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Openplain\FilamentTreeView\Fields\IconField;
 use Openplain\FilamentTreeView\Fields\TextField;
 use Openplain\FilamentTreeView\Tree;
@@ -38,6 +40,26 @@ class CategoryResource extends Resource
     public static function getModelLabel(): string
     {
         return __('dashboard.category');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('categories.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('categories.create');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('categories.update');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('categories.delete');
     }
 
     public static function form(Schema $schema): Schema

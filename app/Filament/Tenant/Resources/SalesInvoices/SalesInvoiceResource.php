@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class SalesInvoiceResource extends Resource
 {
@@ -41,6 +43,26 @@ class SalesInvoiceResource extends Resource
     public static function getModelLabel(): string
     {
         return __('erp.resources.sales_invoice');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('erp.sales_invoices.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('erp.sales_invoices.manage');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('erp.sales_invoices.manage');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('erp.sales_invoices.manage');
     }
 
     public static function form(Schema $schema): Schema

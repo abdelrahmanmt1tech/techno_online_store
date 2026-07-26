@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Resources\PurchaseOrders\Pages;
 use App\Filament\Tenant\Resources\PurchaseOrders\PurchaseOrderResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListPurchaseOrders extends ListRecords
 {
@@ -13,7 +14,8 @@ class ListPurchaseOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('erp.purchase_orders.manage')),
         ];
     }
 }

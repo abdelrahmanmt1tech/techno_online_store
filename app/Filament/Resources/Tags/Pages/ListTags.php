@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Tags\Pages;
 use App\Filament\Resources\Tags\TagResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListTags extends ListRecords
 {
@@ -13,7 +14,8 @@ class ListTags extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('blog-tags.create')),
         ];
     }
 }

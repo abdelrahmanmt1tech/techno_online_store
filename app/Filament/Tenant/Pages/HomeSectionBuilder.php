@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class HomeSectionBuilder extends Page
@@ -48,6 +49,11 @@ class HomeSectionBuilder extends Page
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-home';
+    }
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('settings.home_sections.view');
     }
 
     public function mount(): void
@@ -127,7 +133,8 @@ class HomeSectionBuilder extends Page
                             Action::make('save')
                                 ->submit('save')
                                 ->label(__('dashboard.save'))
-                                ->keyBindings(['mod+s']),
+                                ->keyBindings(['mod+s'])
+                                ->visible(fn () => Auth::user()->can('settings.home_sections.update')),
                         ]),
                     ]),
             ])
@@ -346,6 +353,15 @@ class HomeSectionBuilder extends Page
 
     public function save(): void
     {
+        if (! Auth::user()->can('settings.home_sections.update')) {
+            Notification::make()
+                ->danger()
+                ->title(__('dashboard.not_authorized'))
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
         $sections = $data['sections'] ?? [];
 

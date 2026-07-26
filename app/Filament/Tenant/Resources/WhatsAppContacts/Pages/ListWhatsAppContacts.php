@@ -6,6 +6,7 @@ use App\Filament\Shared\WhatsApp\Actions\SendWhatsAppMessageFilamentAction;
 use App\Filament\Tenant\Resources\WhatsAppContacts\WhatsAppContactResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListWhatsAppContacts extends ListRecords
 {
@@ -20,7 +21,8 @@ class ListWhatsAppContacts extends ListRecords
                 includePhoneField: true,
                 label: __('dashboard.whatsapp_send_to_number'),
             ),
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('whatsapp.view_inbox')),
         ];
     }
 }

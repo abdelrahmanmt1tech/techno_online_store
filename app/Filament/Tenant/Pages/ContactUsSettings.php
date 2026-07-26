@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 
 class ContactUsSettings extends Page
 {
@@ -42,6 +43,11 @@ class ContactUsSettings extends Page
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-phone';
+    }
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('settings.contact_us.view');
     }
 
     public function mount(): void
@@ -108,7 +114,8 @@ class ContactUsSettings extends Page
                             Action::make('save')
                                 ->submit('save')
                                 ->label(__('dashboard.save'))
-                                ->keyBindings(['mod+s']),
+                                ->keyBindings(['mod+s'])
+                                ->visible(fn () => Auth::user()->can('settings.contact_us.update')),
                         ]),
                     ]),
             ])
@@ -117,6 +124,15 @@ class ContactUsSettings extends Page
 
     public function save(): void
     {
+        if (! Auth::user()->can('settings.contact_us.update')) {
+            Notification::make()
+                ->danger()
+                ->title(__('dashboard.not_authorized'))
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {

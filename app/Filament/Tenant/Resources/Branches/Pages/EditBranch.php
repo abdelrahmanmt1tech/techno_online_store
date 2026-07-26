@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Resources\Branches\Pages;
 use App\Filament\Tenant\Resources\Branches\BranchResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditBranch extends EditRecord
 {
@@ -13,7 +14,8 @@ class EditBranch extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->visible(fn () => Auth::user()->can('erp.branches.manage')),
         ];
     }
 }

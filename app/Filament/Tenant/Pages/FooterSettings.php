@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 
 class FooterSettings extends Page
 {
@@ -42,6 +43,11 @@ class FooterSettings extends Page
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-bars-3-bottom-right';
+    }
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()->can('footer-settings.view');
     }
 
     public function mount(): void
@@ -126,7 +132,8 @@ class FooterSettings extends Page
                             Action::make('save')
                                 ->submit('save')
                                 ->label(__('dashboard.save'))
-                                ->keyBindings(['mod+s']),
+                                ->keyBindings(['mod+s'])
+                                ->visible(fn () => Auth::user()->can('footer-settings.update')),
                         ]),
                     ]),
             ])
@@ -135,6 +142,15 @@ class FooterSettings extends Page
 
     public function save(): void
     {
+        if (! Auth::user()->can('footer-settings.update')) {
+            Notification::make()
+                ->danger()
+                ->title(__('dashboard.not_authorized'))
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         $richEditorKeys = ['footer_description'];

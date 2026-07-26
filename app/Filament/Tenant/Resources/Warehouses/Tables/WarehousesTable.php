@@ -10,6 +10,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class WarehousesTable
 {
@@ -27,8 +28,10 @@ class WarehousesTable
                 ToggleColumn::make('is_active')->label(__('erp.fields.is_active')),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.warehouses.manage')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.warehouses.manage')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -11,6 +11,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryItemsTable
 {
@@ -29,8 +30,10 @@ class InventoryItemsTable
                 ToggleColumn::make('is_active')->label(__('erp.fields.is_active')),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.inventory.manage')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.inventory.manage')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

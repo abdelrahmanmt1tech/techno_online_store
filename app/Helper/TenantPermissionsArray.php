@@ -167,6 +167,8 @@ function tenantPermissionsArray(): array
             'permissions' => [
                 ['name' => 'dashboard.permissions.view', 'key' => 'orders.view'],
                 ['name' => 'dashboard.permissions.update', 'key' => 'orders.update'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'orders.create'],
+                ['name' => 'dashboard.permissions.delete', 'key' => 'orders.delete'],
             ],
         ],
 
@@ -186,6 +188,9 @@ function tenantPermissionsArray(): array
             'name' => 'dashboard.customers',
             'permissions' => [
                 ['name' => 'dashboard.permissions.view', 'key' => 'customers.view'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'customers.create'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'customers.update'],
+                ['name' => 'dashboard.permissions.delete', 'key' => 'customers.delete'],
             ],
         ],
 

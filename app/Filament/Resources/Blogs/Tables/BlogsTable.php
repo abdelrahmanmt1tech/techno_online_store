@@ -9,6 +9,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class BlogsTable
 {
@@ -66,8 +67,10 @@ class BlogsTable
             ])
             ->filtersLayout(FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('blogs.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('blogs.delete')),
             ]);
     }
 }

@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class SaleResource extends Resource
 {
@@ -41,6 +43,26 @@ class SaleResource extends Resource
     public static function getModelLabel(): string
     {
         return __('erp.resources.sale');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('erp.sales.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('erp.sales.manage');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('erp.sales.manage');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('erp.sales.manage');
     }
 
     public static function form(Schema $schema): Schema

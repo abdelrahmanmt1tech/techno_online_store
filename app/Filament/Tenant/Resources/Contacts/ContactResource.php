@@ -12,6 +12,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ContactResource extends Resource
 {
@@ -41,6 +43,16 @@ class ContactResource extends Resource
     public static function getModelLabel(): string
     {
         return __('dashboard.contact');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('contacts.view');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('contacts.delete');
     }
 
     public static function form(Schema $schema): Schema

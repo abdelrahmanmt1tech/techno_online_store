@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class GoodsReceiptsTable
 {
@@ -34,8 +35,10 @@ class GoodsReceiptsTable
                     ->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.goods_receipts.manage')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.goods_receipts.manage')),
             ])
             ->emptyStateHeading(__('erp.empty.default'));
     }

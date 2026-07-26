@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class EditGoodsReceipt extends EditRecord
@@ -35,7 +36,7 @@ class EditGoodsReceipt extends EditRecord
                     }
                 }),
             DeleteAction::make()
-                ->visible(fn () => ($this->record->status?->value ?? $this->record->status) === 'draft'),
+                ->visible(fn () => ($this->record->status?->value ?? $this->record->status) === 'draft' && Auth::user()->can('erp.goods_receipts.manage')),
         ];
     }
 }

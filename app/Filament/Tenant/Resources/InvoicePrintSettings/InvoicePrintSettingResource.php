@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class InvoicePrintSettingResource extends Resource
 {
@@ -52,6 +53,16 @@ class InvoicePrintSettingResource extends Resource
     public static function canDeleteAny(): bool
     {
         return false;
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('erp.invoice_print.view');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('erp.invoice_print.manage');
     }
 
     public static function form(Schema $schema): Schema

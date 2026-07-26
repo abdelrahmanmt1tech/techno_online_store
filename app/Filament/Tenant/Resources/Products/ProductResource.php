@@ -15,6 +15,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ProductResource extends Resource
 {
@@ -37,6 +39,26 @@ class ProductResource extends Resource
     public static function getModelLabel(): string
     {
         return __('dashboard.product');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('products.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('products.create');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('products.update');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('products.delete');
     }
 
     public static function form(Schema $schema): Schema

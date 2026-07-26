@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Resources\StockTransactions\Pages;
 use App\Filament\Tenant\Resources\StockTransactions\StockReceiptResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListStockReceipts extends ListRecords
 {
@@ -13,7 +14,8 @@ class ListStockReceipts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('erp.stock_receipts.manage')),
         ];
     }
 }
