@@ -9,6 +9,8 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
@@ -26,6 +28,22 @@ class UnitsOfMeasureTable
                 TextColumn::make('precision')->label(__('erp.fields.precision')),
                 ToggleColumn::make('is_active')->label(__('erp.fields.is_active')),
             ])
+            ->filters([
+                SelectFilter::make('is_active')
+                    ->label(__('erp.fields.is_active'))
+                    ->options([
+                        '1' => __('dashboard.active'),
+                        '0' => __('dashboard.inactive'),
+                    ])
+                    ->native(false),
+                SelectFilter::make('allows_decimal')
+                    ->label(__('erp.fields.allows_decimal'))
+                    ->options([
+                        '1' => __('dashboard.yes'),
+                        '0' => __('dashboard.no'),
+                    ])
+                    ->native(false),
+            ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
                 EditAction::make()
                     ->visible(fn () => Auth::user()->can('erp.uom.manage')),

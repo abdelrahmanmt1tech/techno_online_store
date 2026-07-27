@@ -33,3 +33,6 @@ Thumbs.db
 hide.text
 /hide.text
 
+
+# FogLamp scan (edit token is a secret)
+.foglamp/

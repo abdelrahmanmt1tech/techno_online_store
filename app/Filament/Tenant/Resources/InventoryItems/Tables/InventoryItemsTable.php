@@ -10,6 +10,8 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,6 +31,35 @@ class InventoryItemsTable
                 IconColumn::make('track_stock')->label(__('erp.fields.track_stock'))->boolean(),
                 ToggleColumn::make('is_active')->label(__('erp.fields.is_active')),
             ])
+            ->filters([
+                SelectFilter::make('is_active')
+                    ->label(__('erp.fields.is_active'))
+                    ->options([
+                        '1' => __('dashboard.active'),
+                        '0' => __('dashboard.inactive'),
+                    ])
+                    ->native(false),
+                SelectFilter::make('item_type')
+                    ->label(__('erp.fields.item_type'))
+                    ->options([
+                        'finished_good' => __('erp.item_types.finished_good'),
+                        'raw_material' => __('erp.item_types.raw_material'),
+                        'consumable' => __('erp.item_types.consumable'),
+                        'packaging' => __('erp.item_types.packaging'),
+                        'spare_part' => __('erp.item_types.spare_part'),
+                        'asset' => __('erp.item_types.asset'),
+                        'service' => __('erp.item_types.service'),
+                        'other' => __('erp.item_types.other'),
+                    ])
+                    ->native(false),
+                SelectFilter::make('track_stock')
+                    ->label(__('erp.fields.track_stock'))
+                    ->options([
+                        '1' => __('dashboard.yes'),
+                        '0' => __('dashboard.no'),
+                    ])
+                    ->native(false),
+            ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
                 EditAction::make()
                     ->visible(fn () => Auth::user()->can('erp.inventory.manage')),

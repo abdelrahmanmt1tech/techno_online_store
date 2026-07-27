@@ -9,6 +9,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,6 +29,25 @@ class WarehousesTable
                     ->formatStateUsing(fn ($state) => $state instanceof WarehouseType ? $state->label() : (__('erp.warehouse_types.'.$state) ?: $state)),
                 ToggleColumn::make('is_active')->label(__('erp.fields.is_active')),
             ])
+            ->filters([
+                SelectFilter::make('is_active')
+                    ->label(__('erp.fields.is_active'))
+                    ->options([
+                        '1' => __('dashboard.active'),
+                        '0' => __('dashboard.inactive'),
+                    ])
+                    ->native(false),
+                SelectFilter::make('warehouse_type')
+                    ->label(__('erp.fields.warehouse_type'))
+                    ->options([
+                        'regular' => __('erp.warehouse_types.regular'),
+                        'central' => __('erp.warehouse_types.central'),
+                        'returns' => __('erp.warehouse_types.returns'),
+                        'damaged' => __('erp.warehouse_types.damaged'),
+                        'other' => __('erp.warehouse_types.other'),
+                    ])
+                    ->native(false),
+            ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
                 EditAction::make()
                     ->visible(fn () => Auth::user()->can('erp.warehouses.manage')),

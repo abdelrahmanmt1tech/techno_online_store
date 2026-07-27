@@ -8,6 +8,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,6 +27,15 @@ class SuppliersTable
                 TextColumn::make('payment_terms_days')->label(__('erp.fields.payment_terms_days'))->toggleable(),
                 ToggleColumn::make('is_active')->label(__('erp.fields.is_active')),
             ])
+            ->filters([
+                SelectFilter::make('is_active')
+                    ->label(__('erp.fields.is_active'))
+                    ->options([
+                        '1' => __('dashboard.active'),
+                        '0' => __('dashboard.inactive'),
+                    ])
+                    ->native(false),
+            ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
                 EditAction::make()
                     ->visible(fn () => Auth::user()->can('erp.suppliers.manage')),
