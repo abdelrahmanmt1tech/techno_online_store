@@ -57,7 +57,7 @@ class InventoryItemForm
                 ->schema([
                     Select::make('product_id')
                         ->label(__('erp.fields.product'))
-                        ->options(fn() => Product::query()->orderBy('name')->pluck('name', 'id'))
+                        ->options(fn () => Product::query()->orderBy('name')->pluck('name', 'id'))
                         ->searchable()
                         ->preload()
                         ->live()
@@ -66,7 +66,7 @@ class InventoryItemForm
                         ->visibleOn('create'),
                     Select::make('product_variant_id')
                         ->label(__('erp.fields.product_variant'))
-                        ->options(fn($get) => ProductVariant::query()
+                        ->options(fn ($get) => ProductVariant::query()
                             ->where('product_id', $get('product_id'))
                             ->orderBy('sku')
                             ->pluck('sku', 'id'))
