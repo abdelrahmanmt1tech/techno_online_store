@@ -50,6 +50,8 @@ return [
         'cashier_sessions' => 'ورديات الكاشير',
         'cash_drawer' => 'درج النقدية',
         'cash_drawers' => 'أدراج النقدية',
+        'cash_movement' => 'حركة نقدية',
+        'cash_movements' => 'الحركات النقدية',
     ],
 
     'fields' => [
@@ -91,6 +93,10 @@ return [
         'cashier' => 'الكاشير',
         'opened_at' => 'وقت الفتح',
         'closed_at' => 'وقت الإغلاق',
+        'suspend_expires_minutes' => 'انتهاء التعليق (دقائق)',
+        'direction' => 'الاتجاه',
+        'amount' => 'المبلغ',
+        'payment_method_type' => 'نوع طريقة الدفع',
     ],
 
     'pos_payment_types' => [
@@ -101,6 +107,7 @@ return [
     ],
 
     'receipt_number_strategies' => [
+        'branch_register_date' => 'فرع + صندوق + تاريخ + تسلسل',
         'per_register' => 'لكل صندوق',
         'global' => 'عام',
     ],
@@ -108,24 +115,51 @@ return [
     'validation' => [
         'cashier_session_required' => 'يجب فتح وردية كاشير قبل البيع من نقطة البيع.',
         'cashier_session_already_open' => 'يوجد وردية مفتوحة بالفعل لهذا الصندوق.',
+        'cashier_user_already_has_session' => 'هذا المستخدم لديه وردية مفتوحة بالفعل.',
+        'cashier_session_already_closed' => 'هذه الوردية مغلقة بالفعل.',
+        'cashier_session_cancelled' => 'تم إلغاء هذه الوردية.',
+        'cashier_session_not_operational' => 'الوردية ليست مفتوحة للتشغيل.',
+        'cashier_session_user_mismatch' => 'الوردية لا تخص المستخدم الحالي.',
+        'cashier_session_register_mismatch' => 'الوردية لا تطابق هذا الصندوق.',
+        'pos_user_required' => 'يجب تسجيل دخول مستخدم المستأجر لعمليات نقطة البيع.',
+        'pos_register_inactive' => 'صندوق نقطة البيع غير نشط أو غير موجود.',
+        'pos_drawer_required' => 'يجب ربط الصندوق بدرج نقدية نشط.',
+        'pos_drawer_inactive' => 'درج النقدية المرتبط بالصندوق غير نشط.',
         'sale_not_suspended' => 'المبيعة ليست معلّقة.',
         'sale_already_suspended' => 'المبيعة معلّقة بالفعل.',
         'only_draft_can_suspend' => 'يمكن تعليق مسودات المبيعات فقط.',
+        'suspend_disabled' => 'تعليق المبيعات معطّل في إعدادات نقطة البيع.',
+        'suspended_sale_expired' => 'انتهت صلاحية المبيعة المعلّقة.',
         'bundle_stock_not_deducted' => 'خصم مخزون الحزم غير مفعّل في هذه المرحلة.',
+        'invalid_session_transition' => 'انتقال غير صالح لحالة الوردية من :from إلى :to.',
+        'cannot_cancel_session_with_sales' => 'لا يمكن إلغاء وردية تحتوي مبيعات مؤكدة.',
+        'cash_movement_immutable' => 'حركات الخزنة غير قابلة للتعديل. أنشئ حركة عكسية.',
+        'cash_movement_session_closed' => 'لا يمكن تسجيل حركة على وردية مغلقة أو ملغاة.',
+        'cash_movement_already_reversed' => 'تم عكس هذه الحركة مسبقًا.',
+        'cash_movement_direction_invalid' => 'اتجاه الحركة يجب أن يكون in أو out.',
+        'cash_movement_reversal_note' => 'حركة عكسية',
     ],
 
     'session_statuses' => [
-        'open' => 'مفتوحة',
+        'opening' => 'قيد الفتح',
+        'opened' => 'مفتوحة',
+        'closing' => 'قيد الإغلاق',
         'closed' => 'مغلقة',
+        'cancelled' => 'ملغاة',
+        'open' => 'مفتوحة',
     ],
 
     'cash_movement_types' => [
+        'opening' => 'افتتاح',
         'cash_in' => 'إدخال نقدي',
         'cash_out' => 'إخراج نقدي',
+        'sale_payment' => 'دفعة بيع',
+        'refund' => 'استرداد',
+        'adjustment' => 'تسوية',
+        'closing' => 'إغلاق',
+        'transfer' => 'تحويل',
         'safe_drop' => 'إيداع خزنة',
         'pay_in' => 'دفعة واردة',
         'pay_out' => 'دفعة صادرة',
-        'opening' => 'افتتاح',
-        'closing' => 'إغلاق',
     ],
 ];

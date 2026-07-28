@@ -50,6 +50,8 @@ return [
         'cashier_sessions' => 'Cashier Sessions',
         'cash_drawer' => 'Cash Drawer',
         'cash_drawers' => 'Cash Drawers',
+        'cash_movement' => 'Cash Movement',
+        'cash_movements' => 'Cash Movements',
     ],
 
     'fields' => [
@@ -91,6 +93,10 @@ return [
         'cashier' => 'Cashier',
         'opened_at' => 'Opened At',
         'closed_at' => 'Closed At',
+        'suspend_expires_minutes' => 'Suspend Expiry (minutes)',
+        'direction' => 'Direction',
+        'amount' => 'Amount',
+        'payment_method_type' => 'Payment Method Type',
     ],
 
     'pos_payment_types' => [
@@ -101,6 +107,7 @@ return [
     ],
 
     'receipt_number_strategies' => [
+        'branch_register_date' => 'Branch + Register + Date + Sequence',
         'per_register' => 'Per Register',
         'global' => 'Global',
     ],
@@ -108,24 +115,51 @@ return [
     'validation' => [
         'cashier_session_required' => 'An open cashier session is required before selling on POS.',
         'cashier_session_already_open' => 'This register already has an open cashier session.',
+        'cashier_user_already_has_session' => 'This user already has an open cashier session.',
+        'cashier_session_already_closed' => 'This cashier session is already closed.',
+        'cashier_session_cancelled' => 'This cashier session was cancelled.',
+        'cashier_session_not_operational' => 'The cashier session is not open for operations.',
+        'cashier_session_user_mismatch' => 'The cashier session does not belong to the current user.',
+        'cashier_session_register_mismatch' => 'The cashier session does not match this register.',
+        'pos_user_required' => 'A tenant user must be authenticated for POS operations.',
+        'pos_register_inactive' => 'The POS register is inactive or missing.',
+        'pos_drawer_required' => 'The POS register must have an active cash drawer.',
+        'pos_drawer_inactive' => 'The cash drawer linked to this register is inactive.',
         'sale_not_suspended' => 'Sale is not suspended.',
         'sale_already_suspended' => 'Sale is already suspended.',
         'only_draft_can_suspend' => 'Only draft sales can be suspended.',
+        'suspend_disabled' => 'Suspended sales are disabled in POS settings.',
+        'suspended_sale_expired' => 'This suspended sale has expired.',
         'bundle_stock_not_deducted' => 'Bundle stock deduction is not implemented in this phase.',
+        'invalid_session_transition' => 'Invalid session transition from :from to :to.',
+        'cannot_cancel_session_with_sales' => 'Cannot cancel a session that has confirmed sales.',
+        'cash_movement_immutable' => 'Cash movements are immutable. Create a reversal instead.',
+        'cash_movement_session_closed' => 'Cannot post cash movements on a closed or cancelled session.',
+        'cash_movement_already_reversed' => 'This cash movement was already reversed.',
+        'cash_movement_direction_invalid' => 'Cash movement direction must be in or out.',
+        'cash_movement_reversal_note' => 'Reversal movement',
     ],
 
     'session_statuses' => [
-        'open' => 'Open',
+        'opening' => 'Opening',
+        'opened' => 'Opened',
+        'closing' => 'Closing',
         'closed' => 'Closed',
+        'cancelled' => 'Cancelled',
+        'open' => 'Opened',
     ],
 
     'cash_movement_types' => [
+        'opening' => 'Opening',
         'cash_in' => 'Cash In',
         'cash_out' => 'Cash Out',
+        'sale_payment' => 'Sale Payment',
+        'refund' => 'Refund',
+        'adjustment' => 'Adjustment',
+        'closing' => 'Closing',
+        'transfer' => 'Transfer',
         'safe_drop' => 'Safe Drop',
         'pay_in' => 'Pay In',
         'pay_out' => 'Pay Out',
-        'opening' => 'Opening',
-        'closing' => 'Closing',
     ],
 ];

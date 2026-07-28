@@ -19,15 +19,21 @@ class PosSettingForm
                     Select::make('receipt_number_strategy')
                         ->label(__('commerce.fields.receipt_number_strategy'))
                         ->options([
+                            'branch_register_date' => __('commerce.receipt_number_strategies.branch_register_date'),
                             'per_register' => __('commerce.receipt_number_strategies.per_register'),
                             'global' => __('commerce.receipt_number_strategies.global'),
                         ])
-                        ->default('per_register')
+                        ->default('branch_register_date')
                         ->required()
                         ->native(false),
                     TextInput::make('default_currency')->label(__('commerce.fields.default_currency'))->maxLength(8),
                     Toggle::make('require_open_session')->label(__('commerce.fields.require_open_session'))->default(true),
                     Toggle::make('allow_suspend_sales')->label(__('commerce.fields.allow_suspend_sales'))->default(true),
+                    TextInput::make('suspend_expires_minutes')
+                        ->label(__('commerce.fields.suspend_expires_minutes'))
+                        ->numeric()
+                        ->minValue(1)
+                        ->nullable(),
                     Toggle::make('allow_negative_stock')->label(__('commerce.fields.allow_negative_stock'))->default(false),
                 ])
                 ->columnSpanFull(),
