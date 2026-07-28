@@ -47,6 +47,7 @@ abstract class ErpTestCase extends TestCase
             'email' => 'erp@example.com',
             'password' => Hash::make('password'),
             'is_admin' => true,
+            'is_active' => true,
         ]);
 
         $this->actingAs($this->user, 'tenant');
