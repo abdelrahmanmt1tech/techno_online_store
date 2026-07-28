@@ -315,7 +315,9 @@ return [
     'sale_source_types' => [
         'manual' => 'يدوي',
         'order' => 'طلب',
+        'store' => 'متجر',
         'pos' => 'نقطة بيع',
+        'api' => 'واجهة API',
         'import' => 'استيراد',
     ],
 
