@@ -81,7 +81,9 @@ PO approve (no stock) → Goods Receipt post (stock + FIFO + optional commerce) 
 
 ## Deferred
 
-POS, weighted average costing, GL/journals, plan gates, continuous sync, **server-side PDF libraries**, credit notes full accounting.
+Weighted average costing, GL/journals, plan gates, continuous sync, **server-side PDF libraries**, credit notes full accounting.
+
+**POS / shared commerce core** foundation is implemented on `feature/erp-next-phase` — see [`docs/commerce-core.md`](docs/commerce-core.md). Vue POS UI and store-checkout→engine routing remain deferred.
 
 ## Invoice printing
 

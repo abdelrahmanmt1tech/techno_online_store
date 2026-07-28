@@ -95,10 +95,21 @@ Defined in `app/Helper/PermissionsArray.php` (admin) and `app/Helper/TenantPermi
 
 Use `asset('storage/tenant'.tenant('id').'/'.$model->file)` — never `asset('storage/'.$model->file)`. Tenant files are isolated per-tenant; `config/tenancy.php` sets `asset_helper_tenancy => false`.
 
+## Commerce Core (Shared Catalog + Sales Engine + POS Foundation)
+
+Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/erp-next-phase`.
+
+- **Single catalog**: extend existing `products` / variants / categories — do **not** create parallel product tables for ERP/POS.
+- **UnifiedSalesEngine** (`App\Services\Commerce\UnifiedSalesEngine`): one path for confirm/invoice/payment/return/suspend across Store/ERP/POS/API channels. Delegates to existing ERP Actions.
+- **Store checkout behavior unchanged** in this phase (Orders still created in Checkout controllers).
+- **POS foundation**: registers, cashier sessions, cash drawers, payment methods, settings, suspend/resume — backend + Filament only; no Vue SPA / Sanctum / Vue Router.
+- Bundle stock deduction deferred. No observers syncing store qty ↔ ERP FIFO.
+
 ## Documentation
 
 | File | Purpose |
 |---|---|
+| [`docs/commerce-core.md`](docs/commerce-core.md) | Shared catalog, UnifiedSalesEngine, POS foundation |
 | [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md) | FIFO inventory, purchases/sales/invoices; commerce↔ERP rules |
 | [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md) | Browser print-ready invoices, settings singleton, snapshots |
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module |
