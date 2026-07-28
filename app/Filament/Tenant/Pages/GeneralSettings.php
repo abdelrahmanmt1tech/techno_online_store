@@ -6,11 +6,13 @@ use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
@@ -100,6 +102,61 @@ class GeneralSettings extends Page
 
                             ColorPicker::make('site_color')
                                 ->label(__('dashboard.general_settings.site_color')),
+
+                            Select::make('site_font')
+                                ->label(__('dashboard.general_settings.site_font'))
+                                ->options([
+                                    __('dashboard.general_settings.arabic_fonts') => [
+                                        'Cairo' => __('dashboard.general_settings.font_Cairo'),
+                                        'Tajawal' => __('dashboard.general_settings.font_Tajawal'),
+                                        'IBM Plex Sans Arabic' => __('dashboard.general_settings.font_IBM Plex Sans Arabic'),
+                                        'El Messiri' => __('dashboard.general_settings.font_El Messiri'),
+                                        'Mada' => __('dashboard.general_settings.font_Mada'),
+                                        'Readex Pro' => __('dashboard.general_settings.font_Readex Pro'),
+                                        'Changa' => __('dashboard.general_settings.font_Changa'),
+                                        'Noto Sans Arabic' => __('dashboard.general_settings.font_Noto Sans Arabic'),
+                                    ],
+                                    __('dashboard.general_settings.english_fonts') => [
+                                        'Raleway' => __('dashboard.general_settings.font_Raleway'),
+                                        'Unna' => __('dashboard.general_settings.font_Unna'),
+                                        'Wittgenstein' => __('dashboard.general_settings.font_Wittgenstein'),
+                                        'Baskerville' => __('dashboard.general_settings.font_Baskerville'),
+                                        'Nunito Sans' => __('dashboard.general_settings.font_Nunito Sans'),
+                                        'Didact Gothic' => __('dashboard.general_settings.font_Didact Gothic'),
+                                        'Hind' => __('dashboard.general_settings.font_Hind'),
+                                    ],
+                                ])
+                                ->searchable()
+                                ->columnSpan(1),
+
+                            Select::make('site_language')
+                                ->label(__('dashboard.general_settings.site_language'))
+                                ->options([
+                                    'en' => __('dashboard.general_settings.lang_en'),
+                                    'ar' => __('dashboard.general_settings.lang_ar'),
+                                ])
+                                ->columnSpan(1),
+
+                            Select::make('site_currency')
+                                ->label(__('dashboard.general_settings.site_currency'))
+                                ->options(function () {
+                                    $currencies = DB::connection(
+                                        config('tenancy.database.central_connection', config('database.default'))
+                                    )
+                                        ->table('currencies')
+                                        ->where('is_active', true)
+                                        ->orderBy('sort_order')
+                                        ->get();
+
+                                    $locale = app()->getLocale();
+
+                                    return $currencies->mapWithKeys(function ($currency) use ($locale) {
+                                        $name = json_decode($currency->name, true)[$locale] ?? $currency->code;
+                                        return [$currency->code => $currency->code . ' - ' . $name];
+                                    })->toArray();
+                                })
+                                ->searchable()
+                                ->columnSpan(1),
                         ])
                         ->icon(Heroicon::Cog6Tooth)
                         ->columnSpanFull(),
@@ -199,6 +256,9 @@ class GeneralSettings extends Page
             'home_keywords',
             'home_canonical_url',
             'home_og_image',
+            'site_font',
+            'site_language',
+            'site_currency',
         ];
 
         $tagInputKeys = ['home_keywords'];

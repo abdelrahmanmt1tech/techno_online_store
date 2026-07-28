@@ -49,10 +49,10 @@ Admin resources under `app/Filament/Resources/`, tenant under `app/Filament/Tena
 - **Admin resources** (17): Admins, Roles, Tenants, Plans, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
 - **Admin pages** (18): 13 settings pages (General, About, AiServices, Code, ContactUs, Footer, HaveQuestion, Intro, MarketingChannels, PaymentGateways, ShippingCompanies, Statistics, TrainingSupport) + MessagingHealthDashboard, MetaIntegrationsReset, WhatsAppInboxPage, WhatsAppTemplatesPage, MessengerInboxPage
 - **Admin widgets**: AdminKpis, TenantsTrend, TenantSubscriptionStatusPie, WhatsAppStatusPie, MessengerStatusPie, WebhookEventsTrend
-- **Tenant store/messaging resources** (15): Categories, Contacts, Coupons, Customers, Governorates, Messenger\*, Orders, Products, WhatsApp\*
-- **Tenant ERP resources** (20): Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, StockReceipt/Issue/Transfer/Adjustment/Damage, StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns, InvoicePayments
+- **Tenant resources** (36 resource dirs, 40 classes): Categories, Contacts, Coupons, Customers, Governorates, Orders, Pages, Products, Reviews, Roles, TenantUsers — MessengerPages, MessengerWebhookEvents, MessengerApiRequests — WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, WhatsAppContacts — Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, InvoicePayments, InvoicePrintSettings — StockTransactions/{Receipt,Issue,Transfer,Adjustment,Damage}, StockMovements, StockBalances — PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns — Sales, SalesInvoices, SalesReturns, InvoicePayments
 - **Tenant pages** (10): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage, HomeSectionBuilder, BrowseThemesPage, GeneralSettings, FooterSettings, ContactUsSettings, CodeSettings
-- **Shared components**: `app/Filament/Shared/` (WhatsApp/, Messenger/, SeoFormSection.php)
+- **Tenant widgets** (3): OrderStatusPie, OrdersTrend, StoreKpis
+- **Shared components**: `app/Filament/Shared/` (WhatsApp/, Messenger/, SeoFormSection.php, SeoFormOnelanguageSection.php)
 - Navigation labels: `__('dashboard.*')` in `lang/{ar,en}/dashboard.php`. ERP: `__('erp.*')` in `lang/{ar,en}/erp.php`.
 
 ## ERP Core (Tenant)

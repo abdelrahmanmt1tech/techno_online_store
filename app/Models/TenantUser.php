@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Tenant\Branch;
+use App\Models\Tenant\Customer;
 use App\Models\Tenant\Favorite;
 use Database\Factories\TenantUserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -60,6 +61,11 @@ class TenantUser extends Authenticatable implements FilamentUser
             'verification_code_expires_at' => 'datetime',
             'reset_password_token_expires_at' => 'datetime',
         ];
+    }
+
+    public function customer(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Customer::class, 'user_id');
     }
 
     public function favorites(): HasMany
