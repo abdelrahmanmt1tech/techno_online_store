@@ -17,7 +17,13 @@ class ProductVariant extends Model
         'expense',
         'quantity',
         'sku',
+        'barcode',
+        'weight',
+        'length',
+        'width',
+        'height',
         'image',
+        'meta',
         'is_active',
     ];
 
@@ -26,6 +32,11 @@ class ProductVariant extends Model
         'sale_price' => 'decimal:2',
         'expense' => 'decimal:2',
         'quantity' => 'integer',
+        'weight' => 'decimal:4',
+        'length' => 'decimal:4',
+        'width' => 'decimal:4',
+        'height' => 'decimal:4',
+        'meta' => 'array',
         'is_active' => 'boolean',
     ];
 
