@@ -223,9 +223,18 @@ final class PosApiController extends Controller
     {
         $sale->load(['items', 'customer', 'branch', 'posRegister', 'cashierSession.user', 'salesInvoices']);
 
+        $invoice = $sale->salesInvoices->sortByDesc('id')->first();
+        $paid = $invoice ? (string) $invoice->paid_amount : '0.00';
+        $change = '0.00';
+        if ($invoice && \App\Support\Erp\Decimal::cmp($paid, (string) $sale->grand_total, 2) > 0) {
+            $change = \App\Support\Erp\Decimal::money(\App\Support\Erp\Decimal::sub($paid, (string) $sale->grand_total));
+        }
+
         return view('pos.receipt', [
             'sale' => $sale,
-            'invoice' => $sale->salesInvoices->sortByDesc('id')->first(),
+            'invoice' => $invoice,
+            'paid' => $paid,
+            'change' => $change,
         ]);
     }
 

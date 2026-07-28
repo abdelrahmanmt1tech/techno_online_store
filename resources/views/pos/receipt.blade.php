@@ -56,7 +56,8 @@
         <tr><td>Tax</td><td class="right">{{ $sale->tax_total }}</td></tr>
         <tr class="grand"><td>Total</td><td class="right">{{ $sale->grand_total }}</td></tr>
         @if($invoice)
-            <tr><td>Paid</td><td class="right">{{ $invoice->paid_amount }}</td></tr>
+            <tr><td>Paid</td><td class="right">{{ $paid ?? $invoice->paid_amount }}</td></tr>
+            <tr><td>Change</td><td class="right">{{ $change ?? '0.00' }}</td></tr>
             <tr><td>Due</td><td class="right">{{ $invoice->due_amount }}</td></tr>
         @endif
     </table>
@@ -64,6 +65,13 @@
         <hr>
         <div class="muted">{{ $sale->notes }}</div>
     @endif
+    <script>
+        window.addEventListener('load', function () {
+            if (new URLSearchParams(window.location.search).get('autoprint') === '1') {
+                setTimeout(function () { window.print(); }, 200);
+            }
+        });
+    </script>
 </div>
 </body>
 </html>

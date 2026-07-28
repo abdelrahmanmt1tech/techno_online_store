@@ -36,7 +36,10 @@ export function createApi(baseUrl) {
         shiftSummary: (registerId) => client.get('/session/summary', { params: { register_id: registerId } }).then((r) => r.data.data),
         cashIn: (payload) => client.post('/cash-in', payload).then((r) => r.data.data),
         cashOut: (payload) => client.post('/cash-out', payload).then((r) => r.data.data),
-        checkout: (payload) => client.post('/checkout', payload).then((r) => r.data.data),
+        checkout: (payload) => client.post('/checkout', payload).then((r) => {
+            const body = r.data;
+            return body?.data ?? body;
+        }),
         suspend: (payload) => client.post('/suspend', payload).then((r) => r.data.data),
         suspended: (registerId) => client.get('/suspended', { params: { register_id: registerId } }).then((r) => r.data.data),
         resume: (saleId) => client.post(`/suspended/${saleId}/resume`).then((r) => r.data.data),

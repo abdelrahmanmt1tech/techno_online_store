@@ -1,4 +1,5 @@
-:root {
+:root,
+[data-theme="dark"] {
     --pos-bg: #0f172a;
     --pos-panel: #111827;
     --pos-card: #1f2937;
@@ -8,6 +9,36 @@
     --pos-accent: #10b981;
     --pos-danger: #ef4444;
     --pos-warn: #f59e0b;
+    --pos-btn-bg: #0b1220;
+    --pos-img-bg: #0b1220;
+    --pos-success-bg: rgba(16,185,129,.12);
+    --pos-success-text: #a7f3d0;
+    --pos-success-border: rgba(16,185,129,.35);
+    --pos-error-bg: rgba(239,68,68,.12);
+    --pos-error-text: #fecaca;
+    --pos-error-border: rgba(239,68,68,.35);
+    --pos-backdrop: rgba(2,6,23,.72);
+}
+
+[data-theme="light"] {
+    --pos-bg: #f1f5f9;
+    --pos-panel: #ffffff;
+    --pos-card: #ffffff;
+    --pos-border: #cbd5e1;
+    --pos-text: #0f172a;
+    --pos-muted: #64748b;
+    --pos-accent: #059669;
+    --pos-danger: #dc2626;
+    --pos-warn: #d97706;
+    --pos-btn-bg: #e2e8f0;
+    --pos-img-bg: #e2e8f0;
+    --pos-success-bg: rgba(16,185,129,.12);
+    --pos-success-text: #065f46;
+    --pos-success-border: rgba(5,150,105,.35);
+    --pos-error-bg: rgba(220,38,38,.1);
+    --pos-error-text: #991b1b;
+    --pos-error-border: rgba(220,38,38,.3);
+    --pos-backdrop: rgba(15,23,42,.45);
 }
 
 * { box-sizing: border-box; }
@@ -84,11 +115,11 @@ html, body, #pos-app {
 
 .pos-btn {
     cursor: pointer;
-    background: #0b1220;
+    background: var(--pos-btn-bg);
 }
 
 .pos-btn.primary { background: var(--pos-accent); border-color: var(--pos-accent); color: #042f2e; font-weight: 600; }
-.pos-btn.danger { background: #7f1d1d; border-color: #991b1b; }
+.pos-btn.danger { background: #7f1d1d; border-color: #991b1b; color: #fff; }
 .pos-btn:disabled { opacity: .55; cursor: not-allowed; }
 
 .pos-categories {
@@ -138,7 +169,7 @@ html, body, #pos-app {
     height: 84px;
     object-fit: cover;
     border-radius: .5rem;
-    background: #0b1220;
+    background: var(--pos-img-bg);
 }
 
 .pos-product .price { color: var(--pos-accent); font-weight: 600; }
@@ -181,7 +212,7 @@ html, body, #pos-app {
 .pos-modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(2,6,23,.72);
+    background: var(--pos-backdrop);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -204,21 +235,31 @@ html, body, #pos-app {
 .pos-modal h3 { margin: 0 0 .75rem; }
 
 .pos-error {
-    background: rgba(239,68,68,.12);
-    color: #fecaca;
-    border: 1px solid rgba(239,68,68,.35);
+    background: var(--pos-error-bg);
+    color: var(--pos-error-text);
+    border: 1px solid var(--pos-error-border);
     border-radius: .5rem;
     padding: .65rem .75rem;
     margin-bottom: .75rem;
 }
 
 .pos-success {
-    background: rgba(16,185,129,.12);
-    color: #a7f3d0;
-    border: 1px solid rgba(16,185,129,.35);
+    background: var(--pos-success-bg);
+    color: var(--pos-success-text);
+    border: 1px solid var(--pos-success-border);
     border-radius: .5rem;
     padding: .65rem .75rem;
     margin-bottom: .75rem;
+}
+
+.pos-receipt-meta {
+    display: grid;
+    gap: .35rem;
+    margin-bottom: .75rem;
+}
+
+.pos-receipt-meta strong {
+    color: var(--pos-text);
 }
 
 .pos-field { display: grid; gap: .35rem; margin-bottom: .75rem; }
