@@ -114,3 +114,7 @@ Read-only **Cash Movements** resource under POS nav. Sessions remain list/view; 
 ## Tests
 
 `tests/Feature/Pos/PosRuntimeTest.php` + existing `CommerceCoreTest` / ERP suite.
+
+## UI
+
+Phase 10 adds the Blade + Vue terminal — see [`docs/pos-interface.md`](docs/pos-interface.md) (`/app/pos`).

@@ -102,8 +102,9 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 - **Single catalog**: extend existing `products` / variants / categories — do **not** create parallel product tables for ERP/POS.
 - **UnifiedSalesEngine** (`App\Services\Commerce\UnifiedSalesEngine`): one path for confirm/invoice/payment/return/suspend across Store/ERP/POS/API channels. Delegates to existing ERP Actions.
 - **Store checkout behavior unchanged** in this phase (Orders still created in Checkout controllers).
-- **POS foundation**: registers, cashier sessions, cash drawers, payment methods, settings, suspend/resume — backend + Filament only; no Vue SPA / Sanctum / Vue Router.
-- **POS runtime** ([`docs/pos-runtime.md`](docs/pos-runtime.md)): session lifecycle, immutable cash movements, register guard, receipt sequences, shift X/Z reports. Store checkout remains unwired.
+- **POS foundation**: registers, cashier sessions, cash drawers, payment methods, settings, suspend/resume — backend + Filament admin.
+- **POS runtime** ([`docs/pos-runtime.md`](docs/pos-runtime.md)): session lifecycle, immutable cash movements, register guard, receipt sequences, shift X/Z reports.
+- **POS interface** ([`docs/pos-interface.md`](docs/pos-interface.md)): Blade + Vue terminal at `/app/pos` (session auth + CSRF + Axios). No SPA / Vue Router / Sanctum. Store checkout remains unwired to `UnifiedSalesEngine`.
 - Bundle stock deduction deferred. No observers syncing store qty ↔ ERP FIFO.
 
 ## Documentation
@@ -112,6 +113,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 |---|---|
 | [`docs/commerce-core.md`](docs/commerce-core.md) | Shared catalog, UnifiedSalesEngine, POS foundation |
 | [`docs/pos-runtime.md`](docs/pos-runtime.md) | POS session lifecycle, cash flow, guard, receipts, shift reports |
+| [`docs/pos-interface.md`](docs/pos-interface.md) | POS Blade + Vue terminal, routes, checkout/suspend/close flows |
 | [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md) | FIFO inventory, purchases/sales/invoices; commerce↔ERP rules |
 | [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md) | Browser print-ready invoices, settings singleton, snapshots |
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module |

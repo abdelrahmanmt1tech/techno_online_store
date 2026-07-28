@@ -114,14 +114,19 @@ Laravel route → Blade → #pos-app → Vue components → Axios + CSRF/session
 
 Store qty and ERP FIFO remain separate. Observers must not sync them. Cross-impact only via explicit Actions + `commerce_quantity_adjustments`.
 
+## POS Interface (Phase 10)
+
+See [`docs/pos-interface.md`](docs/pos-interface.md). Terminal at `/app/pos` (Blade + Vue, session auth). Store checkout still **not** routed through the engine.
+
 ## Tests
 
 - Existing: `php artisan test --filter=Erp` (must stay green)
-- New: `tests/Feature/Commerce/CommerceCoreTest.php`
+- Commerce: `tests/Feature/Commerce/CommerceCoreTest.php`
+- POS runtime: `tests/Feature/Pos/PosRuntimeTest.php`
+- POS interface: `tests/Feature/Pos/PosInterfaceTest.php`
 
 ## Deferred
 
-- Vue / Blade POS presentation layer
 - Bundle BOM + stock explosion
 - Routing store checkout through UnifiedSalesEngine
 - Automatic Order → Sale conversion
@@ -129,3 +134,4 @@ Store qty and ERP FIFO remain separate. Observers must not sync them. Cross-impa
 - Weighted average costing / GL
 - Abort-close transition UI (`closing` → `opened`) operationalization beyond enum rules
 - Transfer cash movements between drawers
+- POS Returns UI / HR / advanced reports
