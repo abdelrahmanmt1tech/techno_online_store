@@ -9,6 +9,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class FaqsTable
 {
@@ -51,8 +52,10 @@ class FaqsTable
             ])
             ->filtersLayout(FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('faqs.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('faqs.delete')),
             ]);
     }
 }

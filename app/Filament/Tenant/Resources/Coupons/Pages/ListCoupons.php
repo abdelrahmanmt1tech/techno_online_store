@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Resources\Coupons\Pages;
 use App\Filament\Tenant\Resources\Coupons\CouponResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Auth;
 
 class ListCoupons extends ListRecords
 {
@@ -13,7 +14,8 @@ class ListCoupons extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('coupons.create')),
         ];
     }
 }

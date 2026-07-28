@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class EditSale extends EditRecord
@@ -54,7 +55,7 @@ class EditSale extends EditRecord
                             ->send();
                     }
                 }),
-            DeleteAction::make()->visible(fn () => ($this->record->status?->value ?? $this->record->status) === 'draft'),
+            DeleteAction::make()->visible(fn () => ($this->record->status?->value ?? $this->record->status) === 'draft' && Auth::user()->can('erp.sales.manage')),
         ];
     }
 }

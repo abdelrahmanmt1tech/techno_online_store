@@ -7,6 +7,7 @@ use App\Filament\Tenant\Resources\PurchaseInvoices\PurchaseInvoiceResource;
 use App\Filament\Tenant\Support\Erp\ErpPaymentActions;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditPurchaseInvoice extends EditRecord
 {
@@ -16,7 +17,7 @@ class EditPurchaseInvoice extends EditRecord
     {
         return [
             ErpPaymentActions::recordPayment(InvoicePayableType::PurchaseInvoice),
-            DeleteAction::make()->visible(fn () => ($this->record->status?->value ?? $this->record->status) === 'draft'),
+            DeleteAction::make()->visible(fn () => ($this->record->status?->value ?? $this->record->status) === 'draft' && Auth::user()->can('erp.purchase_invoices.manage')),
         ];
     }
 }

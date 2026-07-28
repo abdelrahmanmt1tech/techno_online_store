@@ -6,6 +6,7 @@ use App\Filament\Resources\Contacts\ContactResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditContact extends EditRecord
 {
@@ -14,7 +15,8 @@ class EditContact extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
+            ViewAction::make()
+                ->visible(fn () => Auth::user()->can('contacts.view')),
             DeleteAction::make()
                 ->visible(fn ($record) => Auth::user()->can('contacts.delete')),
         ];

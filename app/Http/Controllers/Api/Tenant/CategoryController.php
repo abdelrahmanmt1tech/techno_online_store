@@ -18,7 +18,7 @@ class CategoryController extends Controller
             ->orderBy('order')
             ->get();
 
-        return $this->successResponse( CategoryResource::collection($categories) );
+        return $this->successResponse(CategoryResource::collection($categories));
     }
 
     public function show(string $slug)

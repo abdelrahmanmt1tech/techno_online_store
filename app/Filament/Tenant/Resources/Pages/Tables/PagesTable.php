@@ -7,11 +7,14 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class PagesTable
 {
@@ -49,10 +52,36 @@ class PagesTable
                     ->label(__('dashboard.page_sort_order'))
                     ->sortable(),
             ])
+            ->filters([
+                SelectFilter::make('is_active')
+                    ->label(__('dashboard.status'))
+                    ->options([
+                        '1' => __('dashboard.active'),
+                        '0' => __('dashboard.inactive'),
+                    ])
+                    ->native(false),
+                SelectFilter::make('show_in_header')
+                    ->label(__('dashboard.show_in_header'))
+                    ->options([
+                        '1' => __('dashboard.yes'),
+                        '0' => __('dashboard.no'),
+                    ])
+                    ->native(false),
+                SelectFilter::make('show_in_footer')
+                    ->label(__('dashboard.show_in_footer'))
+                    ->options([
+                        '1' => __('dashboard.yes'),
+                        '0' => __('dashboard.no'),
+                    ])
+                    ->native(false),
+            ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('pages.view')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('pages.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('pages.delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class PurchaseReturnsTable
 {
@@ -30,7 +31,12 @@ class PurchaseReturnsTable
             ->filters([
                 SelectFilter::make('status')->label(__('erp.fields.status'))->options(ErpEnumOptions::options(DocumentStatus::class))->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
-            ->recordActions([ViewAction::make(), EditAction::make()])
+            ->recordActions([
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.purchase_returns.manage')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.purchase_returns.manage')),
+            ])
             ->emptyStateHeading(__('erp.empty.default'));
     }
 }

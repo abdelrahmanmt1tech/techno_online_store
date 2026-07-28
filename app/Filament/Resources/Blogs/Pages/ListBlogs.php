@@ -12,6 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Grid;
+use Illuminate\Support\Facades\Auth;
 
 class ListBlogs extends ListRecords
 {
@@ -96,9 +97,11 @@ class ListBlogs extends ListRecords
                     }
                 })
                 // ->icon('heroicon-o-globe-alt')
-                ->successNotificationTitle(__('dashboard.saved_successfully')),
+                ->successNotificationTitle(__('dashboard.saved_successfully'))
+                ->visible(fn () => Auth::user()->can('blogs.update')),
 
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('blogs.create')),
         ];
     }
 }

@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class TagResource extends Resource
 {
@@ -40,6 +42,26 @@ class TagResource extends Resource
     public static function getNavigationGroup(): ?string
     {
         return __('dashboard.nav_blog_management');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('blog-tags.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return Auth::user()->can('blog-tags.create');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('blog-tags.update');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('blog-tags.delete');
     }
 
     public static function form(Schema $schema): Schema

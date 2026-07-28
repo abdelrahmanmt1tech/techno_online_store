@@ -34,7 +34,7 @@ class CountrySeeder extends Seeder
 
             $phoneCode = null;
             if (! empty($data['idd']['root']) && ! empty($data['idd']['suffixes'][0])) {
-                $phoneCode = $data['idd']['root'] . $data['idd']['suffixes'][0];
+                $phoneCode = $data['idd']['root'].$data['idd']['suffixes'][0];
             }
 
             Country::updateOrCreate(
@@ -59,6 +59,6 @@ class CountrySeeder extends Seeder
             );
         }
 
-        $this->command?->info('Seeded ' . $sort . ' countries.');
+        $this->command?->info('Seeded '.$sort.' countries.');
     }
 }

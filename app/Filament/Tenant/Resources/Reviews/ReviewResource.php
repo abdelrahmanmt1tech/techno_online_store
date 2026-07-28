@@ -7,9 +7,10 @@ use App\Filament\Tenant\Resources\Reviews\Tables\ReviewsTable;
 use App\Models\Tenant\Review;
 use BackedEnum;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewResource extends Resource
 {
@@ -37,6 +38,16 @@ class ReviewResource extends Resource
     public static function getModelLabel(): string
     {
         return __('dashboard.review');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('reviews.view');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('reviews.update');
     }
 
     public static function table(Table $table): Table

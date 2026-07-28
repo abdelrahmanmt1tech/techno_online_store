@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\Tenant\Widgets\OrderStatusPie;
+use App\Filament\Tenant\Widgets\OrdersTrend;
+use App\Filament\Tenant\Widgets\StoreKpis;
 use App\Http\Controllers\Tenant\Erp\PurchaseInvoicePrintController;
 use App\Http\Controllers\Tenant\Erp\SalesInvoicePrintController;
 use App\Http\Middleware\EnsureTenantIsInitialized;
@@ -15,8 +18,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -51,8 +52,9 @@ class TenantPanelProvider extends PanelProvider
                 Css::make('messaging-health-dashboard', resource_path('css/messaging-health-dashboard.css')),
             ])
             ->widgets([
-                // AccountWidget::class,
-                // FilamentInfoWidget::class,
+                StoreKpis::class,
+                OrdersTrend::class,
+                OrderStatusPie::class,
             ])
             ->persistentMiddleware([
                 InitializeTenancyByDomain::class,

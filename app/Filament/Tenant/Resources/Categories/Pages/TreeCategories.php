@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Support\Enums\FontWeight;
+use Illuminate\Support\Facades\Auth;
 use Openplain\FilamentTreeView\Fields\TextField;
 use Openplain\FilamentTreeView\Resources\Pages\TreePage;
 use Openplain\FilamentTreeView\Tree;
@@ -19,7 +20,8 @@ class TreeCategories extends TreePage
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('categories.create')),
         ];
     }
 

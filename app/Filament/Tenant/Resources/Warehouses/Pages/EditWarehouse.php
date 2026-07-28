@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Resources\Warehouses\Pages;
 use App\Filament\Tenant\Resources\Warehouses\WarehouseResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditWarehouse extends EditRecord
 {
@@ -13,7 +14,8 @@ class EditWarehouse extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->visible(fn () => Auth::user()->can('erp.warehouses.manage')),
         ];
     }
 }

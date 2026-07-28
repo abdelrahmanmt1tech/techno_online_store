@@ -11,6 +11,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class SalesInvoicesTable
 {
@@ -35,9 +36,12 @@ class SalesInvoicesTable
                 SelectFilter::make('status')->label(__('erp.fields.status'))->options(ErpEnumOptions::options(InvoiceStatus::class))->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                ErpPrintActions::printSalesInvoice(),
-                ViewAction::make(),
-                EditAction::make(),
+                ErpPrintActions::printSalesInvoice()
+                    ->visible(fn () => Auth::user()->can('erp.sales_invoices.manage')),
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.sales_invoices.manage')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('erp.sales_invoices.manage')),
             ])
             ->emptyStateHeading(__('erp.empty.default'));
     }

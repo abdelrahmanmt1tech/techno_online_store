@@ -132,7 +132,6 @@ class CheckoutOtpController extends Controller
             $shippingCost,
             $total,
             $coupon,
-            $request,
         ) {
             $customer = auth('sanctum')->id()
                 ? Customer::where('user_id', auth('sanctum')->id())->first()
@@ -141,7 +140,6 @@ class CheckoutOtpController extends Controller
                     $validated['customer_name'],
                     $validated['customer_phone'],
                 );
-
 
             $order = Order::create([
                 'order_number' => Order::generateOrderNumber(),

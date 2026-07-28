@@ -77,7 +77,8 @@ class CodeSettings extends Page
                             Action::make('save')
                                 ->submit('save')
                                 ->label(__('dashboard.save'))
-                                ->keyBindings(['mod+s']),
+                                ->keyBindings(['mod+s'])
+                                ->visible(fn () => Auth::user()->can('code-settings.update')),
                         ]),
                     ]),
             ])
@@ -86,6 +87,15 @@ class CodeSettings extends Page
 
     public function save(): void
     {
+        if (! Auth::user()->can('code-settings.update')) {
+            Notification::make()
+                ->danger()
+                ->title(__('dashboard.not_authorized'))
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {

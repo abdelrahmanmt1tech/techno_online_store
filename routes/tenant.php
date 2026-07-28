@@ -2,21 +2,24 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\Tenant\Auth\LoginController;
+use App\Http\Controllers\Api\Tenant\Auth\PasswordResetController;
+use App\Http\Controllers\Api\Tenant\Auth\RegisterController;
 use App\Http\Controllers\Api\Tenant\CartController;
-use App\Http\Controllers\Api\Tenant\FavoriteController;
 use App\Http\Controllers\Api\Tenant\CategoryController;
 use App\Http\Controllers\Api\Tenant\CheckoutController;
 use App\Http\Controllers\Api\Tenant\CheckoutOtpController;
 use App\Http\Controllers\Api\Tenant\ContactController;
+use App\Http\Controllers\Api\Tenant\FavoriteController;
+use App\Http\Controllers\Api\Tenant\FooterController;
 use App\Http\Controllers\Api\Tenant\GovernorateController;
+use App\Http\Controllers\Api\Tenant\HomeController;
 use App\Http\Controllers\Api\Tenant\OrderController;
 use App\Http\Controllers\Api\Tenant\PageController;
-use App\Http\Controllers\Api\Tenant\ProfileController;
 use App\Http\Controllers\Api\Tenant\ProductController;
+use App\Http\Controllers\Api\Tenant\ProfileController;
 use App\Http\Controllers\Api\Tenant\ReviewController;
-use App\Http\Controllers\Api\Tenant\Auth\LoginController;
-use App\Http\Controllers\Api\Tenant\Auth\PasswordResetController;
-use App\Http\Controllers\Api\Tenant\Auth\RegisterController;
+use App\Http\Controllers\Api\Tenant\SettingController;
 use App\Http\Controllers\Auth\Tenant\TenantTokenLoginController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -100,7 +103,13 @@ Route::middleware([
         Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
 
         // الصفحة الرئيسية
-        Route::get('tenant/home', \App\Http\Controllers\Api\Tenant\HomeController::class);
+        Route::get('tenant/home', HomeController::class);
+
+        // الإعدادات
+        Route::get('tenant/settings', SettingController::class);
+
+        // الفوتر
+        Route::get('tenant/footer', FooterController::class);
 
         // اتصل بنا
         Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);

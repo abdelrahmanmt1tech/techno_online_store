@@ -6,6 +6,7 @@ use App\Filament\Resources\Contacts\ContactResource;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Auth;
 
 class ViewContact extends ViewRecord
 {
@@ -15,6 +16,7 @@ class ViewContact extends ViewRecord
     {
         return [
             Action::make('mark_as_read')
+                ->visible(fn () => Auth::user()->can('contacts.update'))
                 ->label(__('dashboard.update_status'))
                 ->color('primary')
                 ->schema([

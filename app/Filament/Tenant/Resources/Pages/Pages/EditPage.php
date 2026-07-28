@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Resources\Pages\Pages;
 use App\Filament\Tenant\Resources\Pages\PageResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditPage extends EditRecord
 {
@@ -13,7 +14,8 @@ class EditPage extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->visible(fn () => Auth::user()->can('pages.delete')),
         ];
     }
 }

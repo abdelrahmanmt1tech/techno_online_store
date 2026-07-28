@@ -12,6 +12,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class CountriesTable
 {
@@ -28,7 +29,6 @@ class CountriesTable
                 TextColumn::make('country_code')
                     ->label(__('dashboard.country_code'))
                     ->sortable(),
-
 
                 TextColumn::make('currency_name.en')
                     ->label(__('dashboard.currency_name'))
@@ -70,12 +70,15 @@ class CountriesTable
                     ->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('countries.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('countries.delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn () => Auth::user()->can('countries.delete')),
                 ]),
             ])
             ->emptyStateHeading(__('dashboard.no_countries'))

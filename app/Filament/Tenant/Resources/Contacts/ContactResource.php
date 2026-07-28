@@ -2,10 +2,7 @@
 
 namespace App\Filament\Tenant\Resources\Contacts;
 
-use App\Filament\Tenant\Resources\Contacts\Pages\CreateContact;
-use App\Filament\Tenant\Resources\Contacts\Pages\EditContact;
 use App\Filament\Tenant\Resources\Contacts\Pages\ListContacts;
-use App\Filament\Tenant\Resources\Contacts\Pages\ViewContact;
 use App\Filament\Tenant\Resources\Contacts\Schemas\ContactForm;
 use App\Filament\Tenant\Resources\Contacts\Schemas\ContactInfolist;
 use App\Filament\Tenant\Resources\Contacts\Tables\ContactsTable;
@@ -15,6 +12,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ContactResource extends Resource
 {
@@ -44,6 +43,16 @@ class ContactResource extends Resource
     public static function getModelLabel(): string
     {
         return __('dashboard.contact');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('contacts.view');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('contacts.delete');
     }
 
     public static function form(Schema $schema): Schema

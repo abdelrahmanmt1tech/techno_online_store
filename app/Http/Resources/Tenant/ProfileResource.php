@@ -15,7 +15,7 @@ class ProfileResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'avatar' => $this->avatar
-                ? asset('storage/tenant' . tenant('id') . '/avatars/' . $this->avatar)
+                ? asset('storage/tenant'.tenant('id').'/avatars/'.$this->avatar)
                 : null,
             'is_verified' => $this->is_verified,
             'created_at' => $this->created_at,

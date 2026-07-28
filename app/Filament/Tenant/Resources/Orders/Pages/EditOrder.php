@@ -6,13 +6,23 @@ use App\Filament\Tenant\Resources\Orders\OrderResource;
 use App\Models\Tenant\OrderItem;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\ProductVariant;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditOrder extends EditRecord
 {
     protected static string $resource = OrderResource::class;
 
     protected ?array $itemsData = null;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make()
+                ->visible(fn () => Auth::user()->can('orders.delete')),
+        ];
+    }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {

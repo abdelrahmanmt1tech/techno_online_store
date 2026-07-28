@@ -12,6 +12,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class CouponsTable
 {
@@ -88,9 +89,12 @@ class CouponsTable
                     ->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('coupons.view')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('coupons.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('coupons.delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

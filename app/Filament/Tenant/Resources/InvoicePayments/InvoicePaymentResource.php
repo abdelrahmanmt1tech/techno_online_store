@@ -10,6 +10,8 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class InvoicePaymentResource extends Resource
 {
@@ -39,9 +41,24 @@ class InvoicePaymentResource extends Resource
         return __('erp.resources.invoice_payment');
     }
 
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('erp.invoice_payments.view');
+    }
+
     public static function canCreate(): bool
     {
         return false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return Auth::user()->can('erp.invoice_payments.manage');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return Auth::user()->can('erp.invoice_payments.manage');
     }
 
     public static function table(Table $table): Table

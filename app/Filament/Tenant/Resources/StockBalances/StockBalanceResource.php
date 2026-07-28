@@ -9,6 +9,8 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class StockBalanceResource extends Resource
 {
@@ -38,7 +40,22 @@ class StockBalanceResource extends Resource
         return __('erp.resources.stock_balance');
     }
 
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->can('erp.stock_balances.view');
+    }
+
     public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete(Model $record): bool
     {
         return false;
     }

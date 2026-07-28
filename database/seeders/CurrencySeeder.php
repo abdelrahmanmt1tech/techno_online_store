@@ -56,6 +56,6 @@ class CurrencySeeder extends Seeder
             );
         }
 
-        $this->command?->info('Seeded ' . $sort . ' currencies.');
+        $this->command?->info('Seeded '.$sort.' currencies.');
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Tenant\UpdateProfileRequest;
 use App\Http\Requests\Api\Tenant\UpdatePasswordRequest;
+use App\Http\Requests\Api\Tenant\UpdateProfileRequest;
 use App\Http\Resources\Tenant\ProfileResource;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -34,10 +34,10 @@ class ProfileController extends Controller
 
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
-                Storage::disk('public')->delete('avatars/' . $user->avatar);
+                Storage::disk('public')->delete('avatars/'.$user->avatar);
             }
             $file = $request->file('avatar');
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
             $file->storeAs('avatars', $filename, 'public');
             $data['avatar'] = $filename;
         }

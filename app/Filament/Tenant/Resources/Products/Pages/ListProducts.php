@@ -12,6 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Grid;
+use Illuminate\Support\Facades\Auth;
 
 class ListProducts extends ListRecords
 {
@@ -85,7 +86,8 @@ class ListProducts extends ListRecords
                 })
                 ->successNotificationTitle(__('dashboard.saved_successfully')),
 
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn () => Auth::user()->can('products.create')),
         ];
     }
 }

@@ -15,7 +15,13 @@ class OrderController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $orders = Order::where('user_id', $request->user()->id)
+        $customer = $request->user()->customer;
+
+        if (! $customer) {
+            return $this->successResponse([], __('messages.fetched_successfully'));
+        }
+
+        $orders = Order::where('customer_id', $customer->id)
             ->with([
                 'items.product',
                 'items.variant',
@@ -32,8 +38,14 @@ class OrderController extends Controller
 
     public function showById(Request $request, string $id): JsonResponse
     {
+        $customer = $request->user()->customer;
+
+        if (! $customer) {
+            return $this->notFoundResponse(__('messages.resource_not_found'));
+        }
+
         $order = Order::where('id', $id)
-            ->where('user_id', $request->user()->id)
+            ->where('customer_id', $customer->id)
             ->with([
                 'items.product',
                 'items.variant',

@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class OrdersTable
 {
@@ -103,9 +104,12 @@ class OrdersTable
                     ->native(false),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->visible(fn () => Auth::user()->can('orders.view')),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('orders.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('orders.delete')),
             ])
             ->emptyStateHeading(__('dashboard.no_orders'))
             ->emptyStateDescription(__('dashboard.no_orders_desc'))

@@ -44,12 +44,12 @@ class InventoryItemForm
                         ->default(CostingMethod::Fifo->value)
                         ->required()
                         ->native(false),
-                    Toggle::make('track_stock')->label(__('erp.fields.track_stock'))->default(true),
                     TextInput::make('default_purchase_cost')->label(__('erp.fields.default_purchase_cost'))->numeric()->default(0),
                     TextInput::make('default_sale_price')->label(__('erp.fields.default_sale_price'))->numeric()->default(0),
                     TextInput::make('minimum_stock')->label(__('erp.fields.minimum_stock'))->numeric()->default(0),
-                    Toggle::make('is_active')->label(__('erp.fields.is_active'))->default(true),
                     Textarea::make('description')->label(__('erp.fields.description'))->rows(2)->columnSpanFull(),
+                    Toggle::make('track_stock')->label(__('erp.fields.track_stock'))->default(true),
+                    Toggle::make('is_active')->label(__('erp.fields.is_active'))->default(true),
                 ])
                 ->columnSpanFull(),
             Section::make(__('erp.sections.commerce_link'))
@@ -60,12 +60,16 @@ class InventoryItemForm
                         ->options(fn () => Product::query()->orderBy('name')->pluck('name', 'id'))
                         ->searchable()
                         ->preload()
+                        ->live()
                         ->native(false)
                         ->dehydrated()
                         ->visibleOn('create'),
                     Select::make('product_variant_id')
                         ->label(__('erp.fields.product_variant'))
-                        ->options(fn () => ProductVariant::query()->orderBy('sku')->pluck('sku', 'id'))
+                        ->options(fn ($get) => ProductVariant::query()
+                            ->where('product_id', $get('product_id'))
+                            ->orderBy('sku')
+                            ->pluck('sku', 'id'))
                         ->searchable()
                         ->preload()
                         ->native(false)

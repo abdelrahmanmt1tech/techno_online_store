@@ -10,6 +10,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class CustomersTable
 {
@@ -57,9 +58,11 @@ class CustomersTable
             ->filters([], layout: FiltersLayout::AboveContentCollapsible)
             ->recordActions([
                 ViewAction::make()
-                    ->visible(fn ($record) => $record->contacts()->exists()),
-                EditAction::make(),
-                DeleteAction::make(),
+                    ->visible(fn ($record) => Auth::user()->can('customers.view') && $record->contacts()->exists()),
+                EditAction::make()
+                    ->visible(fn () => Auth::user()->can('customers.update')),
+                DeleteAction::make()
+                    ->visible(fn () => Auth::user()->can('customers.delete')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

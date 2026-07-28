@@ -7,6 +7,7 @@ use App\Models\Tenant\Customer;
 use App\Models\Tenant\Governorate;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\ProductVariant;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -36,17 +37,20 @@ class OrderForm
                                     $set('customer_name', null);
                                     $set('customer_phone', null);
                                     $set('customer_email', null);
+
                                     return;
                                 }
                                 $customer = Customer::with('contacts')->find($state);
-                                if (! $customer) return;
+                                if (! $customer) {
+                                    return;
+                                }
 
                                 $set('customer_name', $customer->name);
                                 $set('customer_phone', $customer->primaryPhone());
                                 $set('customer_email', $customer->primaryEmail());
                             })
                             ->suffixAction(
-                                \Filament\Actions\Action::make('createCustomer')
+                                Action::make('createCustomer')
                                     ->icon('heroicon-o-plus')
                                     ->modalHeading(__('dashboard.create_customer'))
                                     ->schema([
@@ -119,7 +123,7 @@ class OrderForm
                         Select::make('governorate_id')
                             ->label(__('dashboard.governorate'))
                             ->required()
-                            ->options(fn() => Governorate::where('is_active', true)
+                            ->options(fn () => Governorate::where('is_active', true)
                                 ->orderBy('name')
                                 ->pluck('name', 'id'))
                             ->searchable()
@@ -138,22 +142,22 @@ class OrderForm
                             ->required()
                             ->minValue(0)
                             ->live()
-                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set)),
+                            ->afterStateUpdated(fn ($get, $set) => self::recalculate($get, $set)),
 
                         Select::make('coupon_id')
                             ->label(__('dashboard.coupon'))
-                            ->options(fn() => Coupon::where('is_active', true)
+                            ->options(fn () => Coupon::where('is_active', true)
                                 ->orderBy('code')
                                 ->get()
-                                ->mapWithKeys(fn($c) => [
-                                    $c->id => $c->code . ' — ' . ($c->type === 'percentage' ? $c->value . '%' : number_format($c->value, 2) ),
+                                ->mapWithKeys(fn ($c) => [
+                                    $c->id => $c->code.' — '.($c->type === 'percentage' ? $c->value.'%' : number_format($c->value, 2)),
                                 ]))
                             ->searchable()
                             ->preload()
                             ->native(false)
                             ->nullable()
                             ->live()
-                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set)),
+                            ->afterStateUpdated(fn ($get, $set) => self::recalculate($get, $set)),
 
                         Select::make('status')
                             ->label(__('dashboard.status'))
@@ -231,13 +235,13 @@ class OrderForm
 
                                         Select::make('product_variant_id')
                                             ->label(__('dashboard.variant'))
-                                            
+
                                             ->options(function ($get) {
                                                 $currentVariantId = $get('product_variant_id');
 
                                                 $selectedVariantIds = collect($get('../../items_data') ?? [])
                                                     ->pluck('product_variant_id')
-                                                    ->filter(fn($id) => filled($id) && $id != $currentVariantId)
+                                                    ->filter(fn ($id) => filled($id) && $id != $currentVariantId)
                                                     ->values()
                                                     ->all();
 
@@ -245,9 +249,9 @@ class OrderForm
                                                     ->where('is_active', true)
                                                     ->whereNotIn('id', $selectedVariantIds)
                                                     ->get()
-                                                    ->map(fn($v) => [
+                                                    ->map(fn ($v) => [
                                                         'label' => $v->sku
-                                                            ? $v->sku . ' — ' . $v->options->pluck('value')->implode(', ')
+                                                            ? $v->sku.' — '.$v->options->pluck('value')->implode(', ')
                                                             : $v->options->pluck('value')->implode(', '),
                                                         'value' => $v->id,
                                                     ])
@@ -257,7 +261,7 @@ class OrderForm
                                             ->preload()
                                             ->required()
                                             ->live()
-                                            ->visible(fn($get) => filled($get('product_id')))
+                                            ->visible(fn ($get) => filled($get('product_id')))
                                             ->afterStateUpdated(function ($state, $set, $get) {
                                                 if ($state) {
                                                     $variant = ProductVariant::find($state);
@@ -273,7 +277,7 @@ class OrderForm
                                             ->minValue(1)
                                             ->required()
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set, nested: true)),
+                                            ->afterStateUpdated(fn ($get, $set) => self::recalculate($get, $set, nested: true)),
 
                                         TextInput::make('unit_price')
                                             ->label(__('dashboard.unit_price'))
@@ -281,7 +285,7 @@ class OrderForm
                                             ->default(0)
                                             ->required()
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set, nested: true)),
+                                            ->afterStateUpdated(fn ($get, $set) => self::recalculate($get, $set, nested: true)),
                                     ]),
                             ])
                             ->columns(1)
@@ -289,7 +293,7 @@ class OrderForm
                             ->addActionLabel(__('dashboard.add_item'))
                             ->reorderable(false)
                             ->live()
-                            ->afterStateUpdated(fn($get, $set) => self::recalculate($get, $set)),
+                            ->afterStateUpdated(fn ($get, $set) => self::recalculate($get, $set)),
                     ])
                     ->columnSpanFull(),
 
@@ -332,9 +336,9 @@ class OrderForm
     {
         $prefix = $nested ? '../../' : '';
 
-        $items = $get($prefix . 'items_data') ?? [];
-        $couponId = $get($prefix . 'coupon_id');
-        $shippingCost = (float) ($get($prefix . 'shipping_cost') ?? 0);
+        $items = $get($prefix.'items_data') ?? [];
+        $couponId = $get($prefix.'coupon_id');
+        $shippingCost = (float) ($get($prefix.'shipping_cost') ?? 0);
 
         $subtotal = 0;
         foreach ($items as $item) {
@@ -344,9 +348,9 @@ class OrderForm
         $discount = self::calculateDiscount($subtotal, $couponId);
         $total = max(0, $subtotal - $discount + $shippingCost);
 
-        $set($prefix . 'subtotal', round($subtotal, 2));
-        $set($prefix . 'discount', $discount);
-        $set($prefix . 'total', round($total, 2));
+        $set($prefix.'subtotal', round($subtotal, 2));
+        $set($prefix.'discount', $discount);
+        $set($prefix.'total', round($total, 2));
     }
 
     private static function calculateDiscount(float $subtotal, $couponId): float
