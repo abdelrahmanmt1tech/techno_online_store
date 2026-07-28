@@ -315,7 +315,9 @@ return [
     'sale_source_types' => [
         'manual' => 'Manual',
         'order' => 'Order',
+        'store' => 'Store',
         'pos' => 'POS',
+        'api' => 'API',
         'import' => 'Import',
     ],
 

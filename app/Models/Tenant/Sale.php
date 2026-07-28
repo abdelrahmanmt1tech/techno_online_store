@@ -18,10 +18,13 @@ class Sale extends Model
 
     protected $fillable = [
         'document_number',
+        'receipt_number',
         'source_type',
         'order_id',
         'customer_id',
         'branch_id',
+        'pos_register_id',
+        'cashier_session_id',
         'sale_date',
         'status',
         'currency_code',
@@ -32,6 +35,12 @@ class Sale extends Model
         'cost_total',
         'profit_total',
         'notes',
+        'is_suspended',
+        'suspended_at',
+        'suspended_until',
+        'resumed_at',
+        'suspend_cancelled_at',
+        'suspend_cancelled_by',
         'confirmed_at',
         'confirmed_by',
         'reversed_at',
@@ -51,6 +60,11 @@ class Sale extends Model
         'grand_total' => 'decimal:2',
         'cost_total' => 'decimal:4',
         'profit_total' => 'decimal:2',
+        'is_suspended' => 'boolean',
+        'suspended_at' => 'datetime',
+        'suspended_until' => 'datetime',
+        'resumed_at' => 'datetime',
+        'suspend_cancelled_at' => 'datetime',
         'confirmed_at' => 'datetime',
         'reversed_at' => 'datetime',
     ];
@@ -68,6 +82,16 @@ class Sale extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function posRegister(): BelongsTo
+    {
+        return $this->belongsTo(PosRegister::class);
+    }
+
+    public function cashierSession(): BelongsTo
+    {
+        return $this->belongsTo(CashierSession::class);
     }
 
     public function confirmedBy(): BelongsTo

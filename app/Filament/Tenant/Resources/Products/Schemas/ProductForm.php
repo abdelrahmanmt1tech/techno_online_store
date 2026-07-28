@@ -2,9 +2,13 @@
 
 namespace App\Filament\Tenant\Resources\Products\Schemas;
 
+use App\Enums\Commerce\CatalogProductType;
+use App\Enums\Commerce\ProductStatus;
+use App\Enums\Commerce\ProductVisibility;
 use App\Filament\Shared\SeoFormOnelanguageSection;
 use App\Models\Tenant\Category;
 use App\Models\Tenant\Product;
+use App\Models\Tenant\UnitOfMeasure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
@@ -97,6 +101,53 @@ class ProductForm
                     ->label(__('dashboard.sku'))
                     ->maxLength(255)
                     ->helperText(__('dashboard.sku_helper')),
+
+                TextInput::make('barcode')
+                    ->label(__('commerce.fields.barcode'))
+                    ->maxLength(255),
+
+                Select::make('brand_id')
+                    ->label(__('commerce.fields.brand'))
+                    ->relationship('brand', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->nullable(),
+
+                Select::make('unit_id')
+                    ->label(__('commerce.fields.unit'))
+                    ->options(fn () => UnitOfMeasure::query()->where('is_active', true)->orderBy('name')->pluck('name', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->nullable(),
+
+                Select::make('catalog_type')
+                    ->label(__('commerce.fields.catalog_type'))
+                    ->options(collect(CatalogProductType::cases())->mapWithKeys(
+                        fn (CatalogProductType $t) => [$t->value => $t->label()]
+                    )->all())
+                    ->default(CatalogProductType::InventoryItem->value)
+                    ->required()
+                    ->native(false),
+
+                Select::make('status')
+                    ->label(__('commerce.fields.status'))
+                    ->options(collect(ProductStatus::cases())->mapWithKeys(
+                        fn (ProductStatus $s) => [$s->value => $s->label()]
+                    )->all())
+                    ->default(ProductStatus::Active->value)
+                    ->required()
+                    ->native(false),
+
+                Select::make('visibility')
+                    ->label(__('commerce.fields.visibility'))
+                    ->options(collect(ProductVisibility::cases())->mapWithKeys(
+                        fn (ProductVisibility $v) => [$v->value => $v->label()]
+                    )->all())
+                    ->default(ProductVisibility::Visible->value)
+                    ->required()
+                    ->native(false),
 
                 Select::make('categories')
                     ->label(__('dashboard.categories'))
@@ -209,14 +260,6 @@ class ProductForm
         return Section::make(__('dashboard.stock_management'))
             ->columns(2)
             ->schema([
-                // TextInput::make('quantity')
-                //     ->label(__('dashboard.quantity'))
-                //     ->numeric()
-                //     ->default(0)
-                //     ->minValue(0)
-                //     ->live()
-                //     ->visible(fn (Get $get) => (bool) $get('track_stock')),
-
                 Toggle::make('track_stock')
                     ->label(__('dashboard.track_stock'))
                     ->default(false)
@@ -229,6 +272,51 @@ class ProductForm
                     ->default(false)
                     ->visible(fn (Get $get) => (bool) $get('track_stock'))
                     ->helperText(__('dashboard.disable_orders_for_no_stock_helper')),
+
+                Toggle::make('allow_backorders')
+                    ->label(__('commerce.fields.allow_backorders'))
+                    ->default(false)
+                    ->visible(fn (Get $get) => (bool) $get('track_stock')),
+
+                TextInput::make('low_stock_alert')
+                    ->label(__('commerce.fields.low_stock_alert'))
+                    ->numeric()
+                    ->minValue(0)
+                    ->nullable(),
+
+                TextInput::make('tax_class')
+                    ->label(__('commerce.fields.tax_class'))
+                    ->maxLength(50)
+                    ->nullable(),
+
+                TextInput::make('weight')
+                    ->label(__('commerce.fields.weight'))
+                    ->numeric()
+                    ->minValue(0)
+                    ->nullable(),
+
+                TextInput::make('length')
+                    ->label('Length')
+                    ->numeric()
+                    ->minValue(0)
+                    ->nullable(),
+
+                TextInput::make('width')
+                    ->label('Width')
+                    ->numeric()
+                    ->minValue(0)
+                    ->nullable(),
+
+                TextInput::make('height')
+                    ->label('Height')
+                    ->numeric()
+                    ->minValue(0)
+                    ->nullable(),
+
+                Textarea::make('notes')
+                    ->label(__('commerce.fields.notes'))
+                    ->rows(3)
+                    ->columnSpanFull(),
             ]);
     }
 

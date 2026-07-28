@@ -2,9 +2,8 @@
 
 namespace App\Filament\Tenant\Resources\Sales\Pages;
 
-use App\Actions\Erp\ConfirmSaleAction;
-use App\Actions\Erp\CreateSalesInvoiceAction;
 use App\Filament\Tenant\Resources\Sales\SaleResource;
+use App\Services\Commerce\UnifiedSalesEngine;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
@@ -22,10 +21,10 @@ class ViewSale extends ViewRecord
                 ->label(__('erp.actions.confirm'))
                 ->color('success')
                 ->requiresConfirmation()
-                ->visible(fn () => ($this->record->status?->value ?? $this->record->status) === 'draft')
+                ->visible(fn () => ($this->record->status?->value ?? $this->record->status) === 'draft' && ! $this->record->is_suspended)
                 ->action(function () {
                     try {
-                        app(ConfirmSaleAction::class)->execute($this->record);
+                        app(UnifiedSalesEngine::class)->confirm($this->record);
                         Notification::make()->title(__('erp.notifications.confirmed'))->success()->send();
                         $this->refreshFormData(['status', 'confirmed_at', 'confirmed_by', 'subtotal', 'grand_total', 'cost_total', 'profit_total']);
                     } catch (ValidationException $e) {
@@ -44,7 +43,7 @@ class ViewSale extends ViewRecord
                 ], true))
                 ->action(function () {
                     try {
-                        app(CreateSalesInvoiceAction::class)->execute($this->record);
+                        app(UnifiedSalesEngine::class)->issueInvoice($this->record);
                         Notification::make()->title(__('erp.notifications.invoice_created'))->success()->send();
                         $this->refreshFormData(['status']);
                     } catch (ValidationException $e) {
