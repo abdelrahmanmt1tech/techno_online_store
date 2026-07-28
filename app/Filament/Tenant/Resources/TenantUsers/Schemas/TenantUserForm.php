@@ -20,10 +20,12 @@ class TenantUserForm
                     ->schema([
                         TextInput::make('name')
                             ->label(__('dashboard.name'))
+                            ->required()
                             ->maxLength(255),
 
                         TextInput::make('email')
                             ->label(__('dashboard.email'))
+                            ->required()
                             ->email()
                             ->autocomplete('new-email')
                             ->unique(ignoreRecord: true),
