@@ -8,11 +8,14 @@ use App\Filament\Tenant\Widgets\OrdersTrend;
 use App\Filament\Tenant\Widgets\StoreKpis;
 use App\Http\Controllers\Tenant\Erp\PurchaseInvoicePrintController;
 use App\Http\Controllers\Tenant\Erp\SalesInvoicePrintController;
+use App\Http\Controllers\Tenant\Pos\PosApiController;
+use App\Http\Controllers\Tenant\Pos\PosPageController;
 use App\Http\Middleware\EnsureTenantIsInitialized;
 use App\Http\Middleware\TenantAuthenticateSession;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -56,6 +59,14 @@ class TenantPanelProvider extends PanelProvider
                 OrdersTrend::class,
                 OrderStatusPie::class,
             ])
+            ->navigationItems([
+                NavigationItem::make('POS')
+                    ->label(fn (): string => __('commerce.nav.pos_terminal'))
+                    ->icon('heroicon-o-calculator')
+                    ->url(fn (): string => url('/app/pos'))
+                    ->group(fn (): string => __('commerce.nav.pos'))
+                    ->sort(10),
+            ])
             ->persistentMiddleware([
                 InitializeTenancyByDomain::class,
             ])
@@ -86,6 +97,28 @@ class TenantPanelProvider extends PanelProvider
                     'erp/purchase-invoices/{purchaseInvoice}/print',
                     PurchaseInvoicePrintController::class,
                 )->name('erp.purchase-invoices.print');
+
+                Route::get('pos', PosPageController::class)->name('pos');
+                Route::get('pos/receipt/{sale}', [PosApiController::class, 'receipt'])->name('pos.receipt');
+
+                Route::prefix('pos/api')->name('pos.api.')->group(function () {
+                    Route::get('bootstrap', [PosApiController::class, 'bootstrap'])->name('bootstrap');
+                    Route::get('products', [PosApiController::class, 'products'])->name('products');
+                    Route::get('barcode', [PosApiController::class, 'barcode'])->name('barcode');
+                    Route::get('customers', [PosApiController::class, 'customers'])->name('customers');
+                    Route::post('customers', [PosApiController::class, 'storeCustomer'])->name('customers.store');
+                    Route::post('session/open', [PosApiController::class, 'openSession'])->name('session.open');
+                    Route::get('session/status', [PosApiController::class, 'sessionStatus'])->name('session.status');
+                    Route::post('session/close', [PosApiController::class, 'closeSession'])->name('session.close');
+                    Route::get('session/summary', [PosApiController::class, 'shiftSummary'])->name('session.summary');
+                    Route::post('cash-in', [PosApiController::class, 'cashIn'])->name('cash-in');
+                    Route::post('cash-out', [PosApiController::class, 'cashOut'])->name('cash-out');
+                    Route::post('checkout', [PosApiController::class, 'checkout'])->name('checkout');
+                    Route::post('suspend', [PosApiController::class, 'suspend'])->name('suspend');
+                    Route::get('suspended', [PosApiController::class, 'suspended'])->name('suspended');
+                    Route::post('suspended/{sale}/resume', [PosApiController::class, 'resume'])->name('suspended.resume');
+                    Route::post('suspended/{sale}/cancel', [PosApiController::class, 'cancelSuspended'])->name('suspended.cancel');
+                });
             });
     }
 }
