@@ -2,127 +2,72 @@
 
 namespace App\Services\Pos;
 
-use App\Enums\Pos\CashierSessionStatus;
-use App\Enums\Pos\CashMovementType;
+use App\Actions\Pos\CancelCashierSessionAction;
+use App\Actions\Pos\CloseCashierSessionAction;
+use App\Actions\Pos\OpenCashierSessionAction;
 use App\Enums\Pos\ReceiptNumberStrategy;
 use App\Models\Tenant\CashierSession;
-use App\Models\Tenant\CashMovement;
 use App\Models\Tenant\PosRegister;
 use App\Models\Tenant\PosSetting;
 use App\Support\Erp\Decimal;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
+/**
+ * Facade for session lifecycle — delegates to Actions.
+ */
 final class CashierSessionService
 {
+    public function __construct(
+        private readonly OpenCashierSessionAction $openAction,
+        private readonly CloseCashierSessionAction $closeAction,
+        private readonly CancelCashierSessionAction $cancelAction,
+    ) {}
+
     public function open(
         PosRegister $register,
         string $openingBalance = '0',
         ?string $deviceName = null,
         ?string $openingNotes = null,
     ): CashierSession {
-        return DB::connection('tenant')->transaction(function () use ($register, $openingBalance, $deviceName, $openingNotes) {
-            $settings = $this->settings();
-            if ($settings->require_open_session && $register->openSession()) {
-                throw ValidationException::withMessages([
-                    'pos_register_id' => __('commerce.validation.cashier_session_already_open'),
-                ]);
-            }
-
-            if ($register->openSession()) {
-                throw ValidationException::withMessages([
-                    'pos_register_id' => __('commerce.validation.cashier_session_already_open'),
-                ]);
-            }
-
-            $userId = Auth::guard('tenant')->id();
-            $session = CashierSession::query()->create([
-                'pos_register_id' => $register->id,
-                'branch_id' => $register->branch_id,
-                'user_id' => $userId,
-                'status' => CashierSessionStatus::Open,
-                'device_name' => $deviceName,
-                'opening_balance' => Decimal::money($openingBalance),
-                'opening_notes' => $openingNotes,
-                'opened_at' => now(),
-            ]);
-
-            CashMovement::query()->create([
-                'cashier_session_id' => $session->id,
-                'cash_drawer_id' => $register->cash_drawer_id,
-                'type' => CashMovementType::Opening,
-                'amount' => Decimal::money($openingBalance),
-                'notes' => $openingNotes,
-                'created_by' => $userId,
-            ]);
-
-            return $session->fresh();
-        });
+        return $this->openAction->execute($register, $openingBalance, $deviceName, $openingNotes);
     }
 
+    /**
+     * @param  array{cash?: string|int|float, card?: string|int|float, transfer?: string|int|float, other?: string|int|float}|string  $actuals
+     */
     public function close(
         CashierSession $session,
-        string $actualBalance,
-        ?string $expectedBalance = null,
-        ?string $closingNotes = null,
+        array|string $actuals,
+        ?string $expectedOrNotes = null,
+        ?string $notesOrReason = null,
         ?string $differenceReason = null,
     ): CashierSession {
-        return DB::connection('tenant')->transaction(function () use ($session, $actualBalance, $expectedBalance, $closingNotes, $differenceReason) {
-            /** @var CashierSession $locked */
-            $locked = CashierSession::query()->whereKey($session->id)->lockForUpdate()->firstOrFail();
+        if (is_array($actuals)) {
+            return $this->closeAction->execute($session, $actuals, $expectedOrNotes, $notesOrReason);
+        }
 
-            if (! $locked->isOpen()) {
-                return $locked;
-            }
+        // Legacy: close($session, $actualCash, $expectedCash, $notes, $reason?)
+        if ($notesOrReason !== null) {
+            return $this->closeAction->execute($session, $actuals, $notesOrReason, $differenceReason);
+        }
 
-            $expected = Decimal::money($expectedBalance ?? $this->calculateExpectedBalance($locked));
-            $actual = Decimal::money($actualBalance);
-            $difference = Decimal::money(Decimal::sub($actual, $expected));
+        return $this->closeAction->execute($session, $actuals, $expectedOrNotes, $differenceReason);
+    }
 
-            $locked->fill([
-                'status' => CashierSessionStatus::Closed,
-                'expected_balance' => $expected,
-                'actual_balance' => $actual,
-                'difference' => $difference,
-                'closing_notes' => $closingNotes,
-                'difference_reason' => $differenceReason,
-                'closed_at' => now(),
-                'closed_by' => Auth::guard('tenant')->id(),
-            ]);
-            $locked->save();
-
-            CashMovement::query()->create([
-                'cashier_session_id' => $locked->id,
-                'cash_drawer_id' => $locked->register?->cash_drawer_id,
-                'type' => CashMovementType::Closing,
-                'amount' => $actual,
-                'notes' => $closingNotes,
-                'created_by' => Auth::guard('tenant')->id(),
-            ]);
-
-            return $locked->fresh();
-        });
+    public function cancel(CashierSession $session, ?string $reason = null): CashierSession
+    {
+        return $this->cancelAction->execute($session, $reason);
     }
 
     public function calculateExpectedBalance(CashierSession $session): string
     {
-        $total = Decimal::money($session->opening_balance ?? '0');
+        $byTender = $this->closeAction->calculateExpectedByTender($session->loadMissing('cashMovements'));
 
-        foreach ($session->cashMovements as $movement) {
-            if (in_array($movement->type, [CashMovementType::Opening, CashMovementType::Closing], true)) {
-                continue;
-            }
-
-            $amount = Decimal::money($movement->amount);
-            $total = match ($movement->type) {
-                CashMovementType::CashIn, CashMovementType::PayIn => Decimal::add($total, $amount),
-                CashMovementType::CashOut, CashMovementType::PayOut, CashMovementType::SafeDrop => Decimal::sub($total, $amount),
-                default => $total,
-            };
-        }
-
-        return Decimal::money($total);
+        return Decimal::money(
+            Decimal::add(
+                Decimal::add($byTender['cash'], $byTender['card']),
+                Decimal::add($byTender['transfer'], $byTender['other'])
+            )
+        );
     }
 
     public function settings(): PosSetting
@@ -133,10 +78,11 @@ final class CashierSessionService
         }
 
         return PosSetting::query()->create([
-            'receipt_number_strategy' => ReceiptNumberStrategy::PerRegister,
+            'receipt_number_strategy' => ReceiptNumberStrategy::BranchRegisterDate,
             'require_open_session' => true,
             'allow_suspend_sales' => true,
             'allow_negative_stock' => false,
+            'suspend_expires_minutes' => 120,
         ]);
     }
 }

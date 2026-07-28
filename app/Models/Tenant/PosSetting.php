@@ -17,6 +17,7 @@ class PosSetting extends Model
         'default_currency',
         'require_open_session',
         'allow_suspend_sales',
+        'suspend_expires_minutes',
         'allow_negative_stock',
         'meta',
         'updated_by',
@@ -26,6 +27,7 @@ class PosSetting extends Model
         'receipt_number_strategy' => ReceiptNumberStrategy::class,
         'require_open_session' => 'boolean',
         'allow_suspend_sales' => 'boolean',
+        'suspend_expires_minutes' => 'integer',
         'allow_negative_stock' => 'boolean',
         'meta' => 'array',
     ];

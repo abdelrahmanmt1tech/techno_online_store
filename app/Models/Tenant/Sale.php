@@ -18,6 +18,7 @@ class Sale extends Model
 
     protected $fillable = [
         'document_number',
+        'receipt_number',
         'source_type',
         'order_id',
         'customer_id',
@@ -36,7 +37,10 @@ class Sale extends Model
         'notes',
         'is_suspended',
         'suspended_at',
+        'suspended_until',
         'resumed_at',
+        'suspend_cancelled_at',
+        'suspend_cancelled_by',
         'confirmed_at',
         'confirmed_by',
         'reversed_at',
@@ -58,7 +62,9 @@ class Sale extends Model
         'profit_total' => 'decimal:2',
         'is_suspended' => 'boolean',
         'suspended_at' => 'datetime',
+        'suspended_until' => 'datetime',
         'resumed_at' => 'datetime',
+        'suspend_cancelled_at' => 'datetime',
         'confirmed_at' => 'datetime',
         'reversed_at' => 'datetime',
     ];

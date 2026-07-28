@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Enums\Pos\CashierSessionStatus;
 use App\Models\Tenant\Concerns\BelongsToTenantConnection;
 use App\Models\Tenant\Concerns\HasErpAuthors;
 use Illuminate\Database\Eloquent\Model;
@@ -56,6 +57,13 @@ class PosRegister extends Model
 
     public function openSession(): ?CashierSession
     {
-        return $this->sessions()->where('status', 'open')->latest('opened_at')->first();
+        return $this->sessions()
+            ->whereIn('status', [
+                CashierSessionStatus::Opening->value,
+                CashierSessionStatus::Opened->value,
+                CashierSessionStatus::Closing->value,
+            ])
+            ->latest('opened_at')
+            ->first();
     }
 }
