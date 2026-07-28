@@ -4,6 +4,7 @@ return [
     'nav' => [
         'commerce' => 'Commerce',
         'pos' => 'POS',
+        'pos_terminal' => 'POS Terminal',
     ],
 
     'catalog_product_types' => [
@@ -138,6 +139,16 @@ return [
         'cash_movement_already_reversed' => 'This cash movement was already reversed.',
         'cash_movement_direction_invalid' => 'Cash movement direction must be in or out.',
         'cash_movement_reversal_note' => 'Reversal movement',
+        'pos_barcode_required' => 'Barcode is required.',
+        'pos_cart_empty' => 'The cart is empty.',
+        'pos_payment_required' => 'At least one payment is required.',
+        'pos_payment_mismatch' => 'Paid amount is less than the sale total.',
+        'pos_product_unavailable' => 'One or more products are unavailable.',
+        'pos_variant_unavailable' => 'Selected variant is unavailable.',
+        'pos_variant_required' => 'A product variant must be selected.',
+        'pos_invalid_quantity' => 'Quantity must be greater than zero.',
+        'pos_invalid_discount' => 'Discount is invalid for this line.',
+        'pos_insufficient_stock' => 'Insufficient stock for :product.',
     ],
 
     'session_statuses' => [

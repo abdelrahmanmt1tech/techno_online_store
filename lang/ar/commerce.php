@@ -4,6 +4,7 @@ return [
     'nav' => [
         'commerce' => 'التجارة',
         'pos' => 'نقطة البيع',
+        'pos_terminal' => 'شاشة نقطة البيع',
     ],
 
     'catalog_product_types' => [
@@ -138,6 +139,16 @@ return [
         'cash_movement_already_reversed' => 'تم عكس هذه الحركة مسبقًا.',
         'cash_movement_direction_invalid' => 'اتجاه الحركة يجب أن يكون in أو out.',
         'cash_movement_reversal_note' => 'حركة عكسية',
+        'pos_barcode_required' => 'الباركود مطلوب.',
+        'pos_cart_empty' => 'السلة فارغة.',
+        'pos_payment_required' => 'يجب إدخال دفعة واحدة على الأقل.',
+        'pos_payment_mismatch' => 'المبلغ المدفوع أقل من إجمالي البيع.',
+        'pos_product_unavailable' => 'منتج واحد أو أكثر غير متاح.',
+        'pos_variant_unavailable' => 'المتغير المحدد غير متاح.',
+        'pos_variant_required' => 'يجب اختيار متغير للمنتج.',
+        'pos_invalid_quantity' => 'يجب أن تكون الكمية أكبر من صفر.',
+        'pos_invalid_discount' => 'الخصم غير صالح لهذا السطر.',
+        'pos_insufficient_stock' => 'المخزون غير كافٍ للمنتج :product.',
     ],
 
     'session_statuses' => [
