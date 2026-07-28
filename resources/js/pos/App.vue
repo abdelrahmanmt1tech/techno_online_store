@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRefs, watch } from 'vue';
 import { createApi } from './api';
+import { playSound, setSoundEnabled } from './sounds';
 
 const props = defineProps({
     initialBootstrap: { type: Object, required: true },
@@ -8,6 +9,9 @@ const props = defineProps({
     dashboardUrl: { type: String, required: true },
     locale: { type: String, default: 'en' },
 });
+
+const THEME_KEY = 'pos.theme';
+const SOUND_KEY = 'pos.sound';
 
 const api = createApi(props.apiBase);
 const state = reactive({
@@ -27,11 +31,14 @@ const state = reactive({
     notes: '',
     barcodeBuffer: '',
     checkoutBusy: false,
+    theme: localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark',
+    soundOn: localStorage.getItem(SOUND_KEY) !== '0',
 });
 
 const {
     bootstrap, online, loading, error, success, search, categoryId, products,
     productsPage, productsLastPage, cart, customer, discountTotal, notes, checkoutBusy,
+    theme, soundOn,
 } = toRefs(state);
 
 const modal = reactive({
@@ -76,14 +83,61 @@ function money(n) {
     return Number(n || 0).toFixed(2);
 }
 
+function applyTheme(value) {
+    state.theme = value === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', state.theme);
+    localStorage.setItem(THEME_KEY, state.theme);
+}
+
+function toggleTheme() {
+    applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+    beep('click');
+}
+
+function toggleSound() {
+    state.soundOn = !state.soundOn;
+    setSoundEnabled(state.soundOn);
+    localStorage.setItem(SOUND_KEY, state.soundOn ? '1' : '0');
+    if (state.soundOn) beep('click');
+}
+
+function beep(kind) {
+    if (!state.soundOn) return;
+    playSound(kind);
+}
+
 function setError(e) {
     state.error = e?.message || String(e);
     state.success = '';
+    beep('error');
 }
 
 function clearFlash() {
     state.error = '';
     state.success = '';
+}
+
+function normalizeReceipt(result, fallbackTotal = '0.00') {
+    const payload = result?.sale ? result : (result?.data || result || {});
+    const sale = payload.sale || {};
+    const invoice = payload.invoice || {};
+    const id = sale.id || invoice.id || null;
+    const total = sale.grand_total ?? invoice.grand_total ?? fallbackTotal;
+    const number = sale.receipt_number || sale.document_number || (id ? `#${id}` : '—');
+    const receiptUrl = payload.receipt_url
+        || (id ? `${window.location.origin}/app/pos/receipt/${id}` : null);
+
+    return {
+        sale,
+        invoice,
+        change: payload.change ?? '0.00',
+        paid_total: payload.paid_total ?? null,
+        receipt_url: receiptUrl,
+        display_number: number,
+        display_total: total,
+        display_change: payload.change ?? '0.00',
+        sale_id: id,
+    };
 }
 
 async function refreshBootstrap(registerId = null) {
@@ -119,12 +173,14 @@ async function loadProducts(reset = false) {
 function addProduct(product, variant = null) {
     if (!canSell.value) {
         modal.openSession = true;
+        beep('error');
         return;
     }
     const activeVariants = product.variants || [];
     if (!variant && activeVariants.length > 1) {
         forms.variantProduct = product;
         modal.variantPick = true;
+        beep('click');
         return;
     }
     if (!variant && activeVariants.length === 1) {
@@ -134,6 +190,7 @@ function addProduct(product, variant = null) {
     const existing = state.cart.find((l) => l.key === key);
     if (existing) {
         existing.quantity = Number(existing.quantity) + 1;
+        beep('add');
         return;
     }
     state.cart.push({
@@ -149,14 +206,17 @@ function addProduct(product, variant = null) {
         notes: '',
         stock: variant?.quantity ?? product.quantity,
     });
+    beep('add');
 }
 
 function changeQty(line, delta) {
     line.quantity = Math.max(1, Number(line.quantity) + delta);
+    beep(delta > 0 ? 'add' : 'click');
 }
 
 function removeLine(line) {
     state.cart = state.cart.filter((l) => l.key !== line.key);
+    beep('remove');
 }
 
 function clearCart() {
@@ -174,6 +234,7 @@ async function onBarcode(code) {
             setError(t('Product not found for barcode', 'لا يوجد منتج لهذا الباركود'));
             return;
         }
+        beep('scan');
         if (hits.length === 1) {
             const p = hits[0];
             const variant = p.matched_variant_id
@@ -274,12 +335,14 @@ function openPayment() {
     }
     forms.paymentLines = [{ type: 'cash', amount: money(grandTotal.value), reference: '' }];
     modal.payment = true;
+    beep('click');
 }
 
 async function checkout() {
     if (state.checkoutBusy) return;
     clearFlash();
     state.checkoutBusy = true;
+    const fallbackTotal = money(grandTotal.value);
     try {
         const paid = forms.paymentLines.reduce((s, p) => s + Number(p.amount || 0), 0);
         if (paid + 0.0001 < grandTotal.value) {
@@ -305,11 +368,12 @@ async function checkout() {
                 reference: p.reference || null,
             })),
         });
-        forms.receipt = result;
+        forms.receipt = normalizeReceipt(result, fallbackTotal);
         modal.payment = false;
         modal.receipt = true;
         clearCart();
         state.success = t('Sale completed', 'تم إتمام البيع');
+        beep('success');
         await loadProducts(true);
     } catch (e) {
         setError(e);
@@ -458,8 +522,19 @@ async function closeShift() {
 }
 
 function printReceipt() {
-    if (forms.receipt?.receipt_url) {
-        window.open(forms.receipt.receipt_url, '_blank');
+    let url = forms.receipt?.receipt_url
+        || (forms.receipt?.sale_id ? `${window.location.origin}/app/pos/receipt/${forms.receipt.sale_id}` : null);
+    if (!url) {
+        setError(t('Receipt URL is missing', 'رابط الإيصال غير متوفر'));
+        return;
+    }
+    const joiner = url.includes('?') ? '&' : '?';
+    url = `${url}${joiner}autoprint=1`;
+    beep('click');
+    const w = window.open(url, '_blank', 'noopener,noreferrer,width=480,height=720');
+    if (!w) {
+        setError(t('Pop-up blocked. Allow pop-ups to print.', 'تم حظر النافذة المنبثقة. اسمح بالنوافذ للطباعة.'));
+        return;
     }
 }
 
@@ -469,6 +544,8 @@ watch(search, () => {
 });
 
 onMounted(async () => {
+    applyTheme(state.theme);
+    setSoundEnabled(state.soundOn);
     window.addEventListener('keydown', onKeydown);
     window.addEventListener('online', () => { state.online = true; });
     window.addEventListener('offline', () => { state.online = false; });
@@ -496,9 +573,11 @@ onUnmounted(() => {
         <span :class="online ? 'pos-online' : 'pos-offline'">{{ online ? t('Online', 'متصل') : t('Offline', 'غير متصل') }}</span>
       </div>
       <div class="pos-toolbar">
-        <button class="pos-btn" @click="modal.cash = true" :disabled="!canSell">{{ t('Cash In/Out', 'إدخال/إخراج نقدي') }}</button>
-        <button class="pos-btn" @click="loadSuspended" :disabled="!canSell">{{ t('Suspended', 'المعلّقة') }}</button>
-        <button class="pos-btn" @click="prepareClose" :disabled="!canSell">{{ t('Close Shift', 'إغلاق الوردية') }}</button>
+        <button class="pos-btn" type="button" @click="toggleTheme">{{ theme === 'dark' ? t('Light', 'فاتح') : t('Dark', 'غامق') }}</button>
+        <button class="pos-btn" type="button" @click="toggleSound">{{ soundOn ? t('Sound On', 'الصوت: تشغيل') : t('Sound Off', 'الصوت: إيقاف') }}</button>
+        <button class="pos-btn" @click="modal.cash = true; beep('click')" :disabled="!canSell">{{ t('Cash In/Out', 'إدخال/إخراج نقدي') }}</button>
+        <button class="pos-btn" @click="loadSuspended(); beep('click')" :disabled="!canSell">{{ t('Suspended', 'المعلّقة') }}</button>
+        <button class="pos-btn" @click="prepareClose(); beep('click')" :disabled="!canSell">{{ t('Close Shift', 'إغلاق الوردية') }}</button>
         <a class="pos-btn" :href="dashboardUrl">{{ t('Dashboard', 'لوحة التحكم') }}</a>
       </div>
     </header>
@@ -725,14 +804,22 @@ onUnmounted(() => {
     <div v-if="modal.receipt" class="pos-modal-backdrop">
       <div class="pos-modal">
         <h3>{{ t('Sale complete', 'اكتمل البيع') }}</h3>
-        <div class="pos-success">
-          {{ t('Receipt', 'الإيصال') }}: {{ forms.receipt?.sale?.receipt_number || forms.receipt?.sale?.document_number }}
-          <div>{{ t('Total', 'الإجمالي') }}: {{ forms.receipt?.sale?.grand_total }}</div>
-          <div>{{ t('Change', 'الباقي') }}: {{ forms.receipt?.change }}</div>
+        <div class="pos-success pos-receipt-meta">
+          <div>{{ t('Receipt', 'الإيصال') }}: <strong>{{ forms.receipt?.display_number || '—' }}</strong></div>
+          <div>{{ t('Total', 'الإجمالي') }}: <strong>{{ money(forms.receipt?.display_total) }}</strong></div>
+          <div>{{ t('Paid', 'المدفوع') }}: <strong>{{ money(forms.receipt?.paid_total ?? forms.receipt?.display_total) }}</strong></div>
+          <div>{{ t('Change', 'الباقي') }}: <strong>{{ money(forms.receipt?.display_change) }}</strong></div>
         </div>
-        <div style="display:flex;gap:.5rem">
-          <button class="pos-btn primary" @click="printReceipt">{{ t('Print receipt', 'طباعة الإيصال') }}</button>
-          <button class="pos-btn" @click="modal.receipt = false">{{ t('New sale', 'بيع جديد') }}</button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="pos-btn primary" type="button" @click="printReceipt">{{ t('Print receipt', 'طباعة الإيصال') }}</button>
+          <a
+            v-if="forms.receipt?.receipt_url"
+            class="pos-btn"
+            :href="forms.receipt.receipt_url"
+            target="_blank"
+            rel="noopener"
+          >{{ t('Open receipt', 'فتح الإيصال') }}</a>
+          <button class="pos-btn" type="button" @click="modal.receipt = false; beep('click')">{{ t('New sale', 'بيع جديد') }}</button>
         </div>
       </div>
     </div>

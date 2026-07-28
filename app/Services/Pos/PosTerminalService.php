@@ -334,7 +334,8 @@ final class PosTerminalService
                 'payments' => $paymentRows,
                 'paid_total' => $paidTotal,
                 'change' => $change,
-                'receipt_url' => route('filament.tenant.pos.receipt', ['sale' => $confirmed->id]),
+                // Prefer current request host (tenant domain) over Filament absolute route helpers.
+                'receipt_url' => url('/app/pos/receipt/'.$confirmed->id),
             ];
         });
     }
