@@ -94,10 +94,20 @@ Filament (Tenant): Brands, Cash Drawers, POS Registers, Payment Methods, Cashier
 
 Policies under `App\Policies\Tenant\` (ready for hardening; Filament `can*()` permission gates deferred per project rule).
 
+## Phase 9 — POS Runtime & Shift Operations
+
+See [`docs/pos-runtime.md`](docs/pos-runtime.md).
+
+- Session lifecycle: `opening` → `opened` → `closing` → `closed` (+ `cancelled`)
+- Actions: `OpenCashierSessionAction`, `CloseCashierSessionAction`, `CancelCashierSessionAction`
+- Immutable cash movements + reversals
+- `PosRegisterGuard`, receipt sequences (branch/register/date), shift X/Z/summary reports
+- `UnifiedSalesEngine` is the POS/ERP sales orchestrator (store checkout still separate)
+
 Future POS UI path (not built yet):
 
 ```text
-Laravel route → Blade → #pos-app → Vue components → Axios + CSRF/session → Controllers → Services
+Laravel route → Blade → #pos-app → Vue components → Axios + CSRF/session → Controllers → UnifiedSalesEngine / Pos services
 ```
 
 ## Commerce vs ERP stock (unchanged)
@@ -117,3 +127,5 @@ Store qty and ERP FIFO remain separate. Observers must not sync them. Cross-impa
 - Automatic Order → Sale conversion
 - Spatie permission keys for POS / commerce
 - Weighted average costing / GL
+- Abort-close transition UI (`closing` → `opened`) operationalization beyond enum rules
+- Transfer cash movements between drawers

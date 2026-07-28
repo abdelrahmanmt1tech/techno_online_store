@@ -178,7 +178,7 @@ class CommerceCoreTest extends ErpTestCase
 
         $sessions = app(CashierSessionService::class);
         $open = $sessions->open($register, '100.00', 'POS-PC-1', 'start');
-        $this->assertSame(CashierSessionStatus::Open, $open->status);
+        $this->assertSame(CashierSessionStatus::Opened, $open->status);
 
         $engine = app(UnifiedSalesEngine::class);
         $sale = $engine->createDraftSale(SaleChannel::Pos, [

@@ -103,6 +103,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 - **UnifiedSalesEngine** (`App\Services\Commerce\UnifiedSalesEngine`): one path for confirm/invoice/payment/return/suspend across Store/ERP/POS/API channels. Delegates to existing ERP Actions.
 - **Store checkout behavior unchanged** in this phase (Orders still created in Checkout controllers).
 - **POS foundation**: registers, cashier sessions, cash drawers, payment methods, settings, suspend/resume — backend + Filament only; no Vue SPA / Sanctum / Vue Router.
+- **POS runtime** ([`docs/pos-runtime.md`](docs/pos-runtime.md)): session lifecycle, immutable cash movements, register guard, receipt sequences, shift X/Z reports. Store checkout remains unwired.
 - Bundle stock deduction deferred. No observers syncing store qty ↔ ERP FIFO.
 
 ## Documentation
@@ -110,6 +111,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 | File | Purpose |
 |---|---|
 | [`docs/commerce-core.md`](docs/commerce-core.md) | Shared catalog, UnifiedSalesEngine, POS foundation |
+| [`docs/pos-runtime.md`](docs/pos-runtime.md) | POS session lifecycle, cash flow, guard, receipts, shift reports |
 | [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md) | FIFO inventory, purchases/sales/invoices; commerce↔ERP rules |
 | [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md) | Browser print-ready invoices, settings singleton, snapshots |
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module |
