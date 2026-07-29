@@ -36,16 +36,17 @@ class SettingController extends Controller
             'footer_youtube',
             'footer_x',
             'footer_linkedin',
+            'registration_terms',
         ];
 
         $settings = Setting::whereIn('key', $keys)->get()->keyBy('key');
 
-        $get = fn(string $key) => $settings->get($key)?->value;
+        $get = fn (string $key) => $settings->get($key)?->value;
 
-        $getString = fn(string $key) => $settings->get($key)?->string_value;
+        $getString = fn (string $key) => $settings->get($key)?->string_value;
 
-        $fileUrl = fn(?string $path) => $path
-            ? asset('storage/tenant' . tenant('id') . '/' . $path)
+        $fileUrl = fn (?string $path) => $path
+            ? asset('storage/tenant'.tenant('id').'/'.$path)
             : null;
 
         $currencyCode = $get('site_currency');
@@ -93,6 +94,7 @@ class SettingController extends Controller
                     'linkedin' => $get('footer_linkedin'),
                 ],
             ],
+            'registration_terms' => $get('registration_terms'),
             'seo' => [
                 'meta_title' => $get('home_meta_title'),
                 'meta_description' => $get('home_meta_description'),

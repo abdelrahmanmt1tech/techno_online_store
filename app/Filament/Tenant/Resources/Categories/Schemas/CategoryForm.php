@@ -59,7 +59,8 @@ class CategoryForm
                             ->label(__('dashboard.show_in_header')),
 
                         Toggle::make('is_active')
-                            ->label(__('dashboard.active')),
+                            ->label(__('dashboard.active'))
+                            ->default(true),
 
                         Select::make('products')
                             ->label(__('dashboard.products'))

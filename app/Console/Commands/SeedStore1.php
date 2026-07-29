@@ -22,7 +22,7 @@ class SeedStore1 extends Command
         $currency = Currency::where('code', 'EGP')->first();
 
         $tenant = Tenant::firstOrCreate(
-            ['email' => 'store1@admin.com'],
+            ['email' => 'store1@gmail.com'],
             [
                 'name' => 'Store 1',
                 'phone' => '01000000000',
@@ -44,7 +44,7 @@ class SeedStore1 extends Command
             'password' => '123456789',
         ])->handle();
 
-        $this->info('Done. Credentials: store1@admin.com / 123456789');
+        $this->info('Done. Credentials: store1@gmail.com / 123456789');
 
         return self::SUCCESS;
     }

@@ -17,6 +17,8 @@ class ProductController extends Controller
     public function index(ProductIndexRequest $request)
     {
         $query = Product::where('is_active', true)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->with(['categories', 'media', 'variants']);
 
         if (auth('sanctum')->user()) {
@@ -54,8 +56,13 @@ class ProductController extends Controller
                 'newest' => 'created_at',
                 'price_high' => 'price',
                 'price_low' => 'price',
+                'top_rated' => 'reviews_avg_rating',
                 default => 'order',
-            }, $sort === 'price_high' ? 'desc' : 'asc');
+            }, match ($sort) {
+                'price_high' => 'desc',
+                'top_rated' => 'desc',
+                default => 'asc',
+            });
         }
 
         $products = $query->paginate($perPage);
@@ -99,6 +106,8 @@ class ProductController extends Controller
     {
         $productQuery = Product::where('slug', $slug)
             ->where('is_active', true)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->with([
                 'categories',
                 'media',

@@ -20,6 +20,7 @@
 | `php artisan db:seed --class=AdminSeeder` | Super admin (`admin@gmail.com` / `password`) + syncs permissions |
 | `php artisan db:seed --class=HomePageDataSeeder` | Settings, plans, FAQs, categories, themes, blog data |
 | `php artisan tenants:sync-permissions` | Sync permissions to all tenant DBs (`--migrate` also runs tenant migrations) |
+| `php artisan hr:mark-absent` | Mark employees absent after schedule end (hourly via scheduler) |
 | `php artisan test --filter=Erp` | Run only ERP tests |
 
 ## Architecture
@@ -105,6 +106,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 - **POS foundation**: registers, cashier sessions, cash drawers, payment methods, settings, suspend/resume — backend + Filament admin.
 - **POS runtime** ([`docs/pos-runtime.md`](docs/pos-runtime.md)): session lifecycle, immutable cash movements, register guard, receipt sequences, shift X/Z reports.
 - **POS interface** ([`docs/pos-interface.md`](docs/pos-interface.md)): Blade + Vue terminal at `/app/pos` (session auth + CSRF + Axios). No SPA / Vue Router / Sanctum. Store checkout remains unwired to `UnifiedSalesEngine`.
+- **HR Lite** ([`docs/hr-lite.md`](docs/hr-lite.md)): employees, schedules, geofenced attendance, simple deductions, payroll lite. Independent of Store/POS/ERP stock.
 - Bundle stock deduction deferred. No observers syncing store qty ↔ ERP FIFO.
 
 ## Documentation
@@ -114,6 +116,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 | [`docs/commerce-core.md`](docs/commerce-core.md) | Shared catalog, UnifiedSalesEngine, POS foundation |
 | [`docs/pos-runtime.md`](docs/pos-runtime.md) | POS session lifecycle, cash flow, guard, receipts, shift reports |
 | [`docs/pos-interface.md`](docs/pos-interface.md) | POS Blade + Vue terminal, routes, checkout/suspend/close flows |
+| [`docs/hr-lite.md`](docs/hr-lite.md) | HR Lite: employees, attendance geofence, simple payroll |
 | [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md) | FIFO inventory, purchases/sales/invoices; commerce↔ERP rules |
 | [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md) | Browser print-ready invoices, settings singleton, snapshots |
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module |
