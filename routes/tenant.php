@@ -35,7 +35,7 @@ Route::middleware([
     // Do not register GET / here — it overwrites the central home landing in routes/web.php
     // and PreventAccessFromCentralDomains then returns 404 on central domains.
 
-    Route::prefix('api')->group(function () {
+    Route::prefix('api/tenant')->group(function () {
         // Authentication
         Route::prefix('auth')->group(function () {
             Route::post('register', [RegisterController::class, 'register']);
@@ -54,8 +54,8 @@ Route::middleware([
         Route::get('products/{slug}', [ProductController::class, 'show']);
 
         // التصنيفات (عام)
-        Route::get('tenant/categories', [CategoryController::class, 'index']);
-        Route::get('tenant/categories/{slug}', [CategoryController::class, 'show']);
+        Route::get('categories', [CategoryController::class, 'index']);
+        Route::get('categories/{slug}', [CategoryController::class, 'show']);
 
         // المحافظات (عام)
         Route::get('governorates', [GovernorateController::class, 'index']);
@@ -103,13 +103,13 @@ Route::middleware([
         Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
 
         // الصفحة الرئيسية
-        Route::get('tenant/home', HomeController::class);
+        Route::get('home', HomeController::class);
 
         // الإعدادات
-        Route::get('tenant/settings', SettingController::class);
+        Route::get('settings', SettingController::class);
 
         // الفوتر
-        Route::get('tenant/footer', FooterController::class);
+        Route::get('footer', FooterController::class);
 
         // اتصل بنا
         Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);

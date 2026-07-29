@@ -33,7 +33,7 @@ class ProductListResource extends JsonResource
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'is_favorite' => $this->is_favorite ?? false,
             'rating' => $this->whenAggregated('reviews', 'rating', 'avg'),
-            'reviews_count' => $this->whenCounted('reviews'),
+            // 'reviews_count' => $this->whenCounted('reviews'),
             'currency' => static::getCurrency(),
         ];
     }
@@ -46,20 +46,22 @@ class ProductListResource extends JsonResource
 
         $currencyCode = Setting::where('key', 'site_currency')->value('value');
 
-        if (! $currencyCode) {
-            return static::$currencyCache = null;
+        if ($currencyCode) {
+            $row = DB::connection(
+                config('tenancy.database.central_connection', config('database.default'))
+            )
+                ->table('currencies')
+                ->where('code', $currencyCode)
+                ->where('is_active', true)
+                ->first();
         }
 
-        $row = DB::connection(
-            config('tenancy.database.central_connection', config('database.default'))
-        )
-            ->table('currencies')
-            ->where('code', $currencyCode)
-            ->where('is_active', true)
-            ->first();
-
-        if (! $row) {
-            return static::$currencyCache = null;
+        if (! isset($row) || ! $row) {
+            return static::$currencyCache = [
+                'code' => 'USD',
+                'name' => 'USD',
+                'symbol' => '$',
+            ];
         }
 
         $locale = app()->getLocale();

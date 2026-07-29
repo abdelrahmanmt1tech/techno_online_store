@@ -56,8 +56,13 @@ class ProductController extends Controller
                 'newest' => 'created_at',
                 'price_high' => 'price',
                 'price_low' => 'price',
+                'top_rated' => 'reviews_avg_rating',
                 default => 'order',
-            }, $sort === 'price_high' ? 'desc' : 'asc');
+            }, match ($sort) {
+                'price_high' => 'desc',
+                'top_rated' => 'desc',
+                default => 'asc',
+            });
         }
 
         $products = $query->paginate($perPage);
