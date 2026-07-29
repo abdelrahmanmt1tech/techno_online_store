@@ -8,6 +8,7 @@ use App\Models\TenantUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Branch extends Model
@@ -49,5 +50,10 @@ class Branch extends Model
     public function warehouses(): HasMany
     {
         return $this->hasMany(Warehouse::class);
+    }
+
+    public function seo(): MorphOne
+    {
+        return $this->morphOne(Seo::class, 'seoable');
     }
 }

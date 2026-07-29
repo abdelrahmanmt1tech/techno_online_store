@@ -3,6 +3,7 @@
 namespace App\Filament\Tenant\Resources\Branches\Schemas;
 
 use App\Filament\Forms\Components\Map;
+use App\Filament\Shared\SeoFormOnelanguageSection;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -49,6 +50,8 @@ class BranchForm
                     Hidden::make('longitude'),
                 ])
                 ->columnSpanFull(),
+
+            SeoFormOnelanguageSection::make()->columnSpanFull(),
         ]);
     }
 }

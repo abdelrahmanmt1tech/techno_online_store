@@ -22,6 +22,7 @@ class BranchResource extends JsonResource
             'longitude' => $this->longitude,
             'notes' => $this->notes,
             'is_main' => $this->is_main,
+            'seo' => $this->seo ? SeoResource::make($this->seo) : null,
         ];
     }
 }
