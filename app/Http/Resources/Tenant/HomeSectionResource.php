@@ -64,8 +64,6 @@ class HomeSectionResource extends JsonResource
         $products = Product::where('is_active', true)
             ->orderByDesc('created_at')
             ->limit($limit)
-            ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
             ->with('media')
             ->get()
             ->map(fn ($p) => new ProductListResource($p));
@@ -85,8 +83,6 @@ class HomeSectionResource extends JsonResource
         $products = Product::where('is_active', true)
             ->withCount(['orderItems as sales_count' => fn ($q) => $q->join('orders', 'orders.id', '=', 'order_items.order_id')
                 ->whereIn('orders.status', ['pending', 'confirmed', 'processing', 'shipped', 'delivered'])])
-            ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
             ->orderByDesc('sales_count')
             ->limit($limit)
             ->with('media')
@@ -108,8 +104,6 @@ class HomeSectionResource extends JsonResource
         $products = Product::where('is_active', true)
             ->orderByDesc('created_at')
             ->limit($limit)
-            ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
             ->with('media')
             ->get()
             ->map(fn ($p) => new ProductListResource($p));

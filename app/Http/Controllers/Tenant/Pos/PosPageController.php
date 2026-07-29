@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant\Pos;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\PosRegister;
 use App\Services\Pos\PosTerminalService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

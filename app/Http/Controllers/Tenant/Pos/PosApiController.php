@@ -226,8 +226,8 @@ final class PosApiController extends Controller
         $invoice = $sale->salesInvoices->sortByDesc('id')->first();
         $paid = $invoice ? (string) $invoice->paid_amount : '0.00';
         $change = '0.00';
-        if ($invoice && Decimal::cmp($paid, (string) $sale->grand_total, 2) > 0) {
-            $change = Decimal::money(Decimal::sub($paid, (string) $sale->grand_total));
+        if ($invoice && \App\Support\Erp\Decimal::cmp($paid, (string) $sale->grand_total, 2) > 0) {
+            $change = \App\Support\Erp\Decimal::money(\App\Support\Erp\Decimal::sub($paid, (string) $sale->grand_total));
         }
 
         return view('pos.receipt', [

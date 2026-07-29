@@ -5,10 +5,8 @@ namespace Tests\Feature\Pos;
 use App\Enums\Commerce\CatalogProductType;
 use App\Enums\Commerce\ProductStatus;
 use App\Enums\Commerce\ProductVisibility;
-use App\Enums\Commerce\SaleChannel;
 use App\Enums\Erp\SaleStatus;
 use App\Enums\Pos\CashierSessionStatus;
-use App\Enums\Pos\CashMovementType;
 use App\Enums\Pos\ReceiptNumberStrategy;
 use App\Models\Tenant\CashDrawer;
 use App\Models\Tenant\PosRegister;
@@ -182,7 +180,7 @@ class PosInterfaceTest extends ErpTestCase
         $guarded = $terminal->assertCanOperate($this->register);
 
         $sale = $terminal->salesEngine()->createDraftSale(
-            SaleChannel::Pos,
+            \App\Enums\Commerce\SaleChannel::Pos,
             [
                 'pos_register_id' => $guarded['register']->id,
                 'cashier_session_id' => $guarded['session']->id,
@@ -219,13 +217,13 @@ class PosInterfaceTest extends ErpTestCase
 
         $in = $terminal->movements()->record(
             $guarded['session'],
-            CashMovementType::CashIn,
+            \App\Enums\Pos\CashMovementType::CashIn,
             '20.00',
             ['direction' => 'in', 'payment_method_type' => 'cash', 'reference' => 'float top-up']
         );
         $out = $terminal->movements()->record(
             $guarded['session'],
-            CashMovementType::CashOut,
+            \App\Enums\Pos\CashMovementType::CashOut,
             '5.00',
             ['direction' => 'out', 'payment_method_type' => 'cash', 'reference' => 'safe drop']
         );

@@ -865,11 +865,6 @@ return [
         'privacy_en' => 'Privacy Policy (English)',
     ],
 
-    // Registration Terms
-    'registration_terms' => 'Registration Terms & Conditions',
-    'registration_terms_content' => 'Terms & Conditions Text',
-    'registration_terms_helper' => 'This text will appear during registration for the user to agree to the terms',
-
     // Homepage SEO
     'homepage_seo' => 'Homepage SEO',
     'keywords_placeholder' => 'Press Enter after each keyword to add it',
