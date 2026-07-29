@@ -491,6 +491,79 @@ function tenantPermissionsArray(): array
         ],
 
         // ══════════════════════════════════════════════
+        // ══ جروب: HR Lite ══
+        // ══════════════════════════════════════════════
+
+        [
+            'name' => 'hr.resources.employees',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'hr.employees.view'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'hr.employees.create'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'hr.employees.update'],
+                ['name' => 'dashboard.permissions.delete', 'key' => 'hr.employees.delete'],
+            ],
+        ],
+        [
+            'name' => 'hr.resources.departments',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.update', 'key' => 'hr.departments.manage'],
+            ],
+        ],
+        [
+            'name' => 'hr.resources.job_titles',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.update', 'key' => 'hr.job_titles.manage'],
+            ],
+        ],
+        [
+            'name' => 'hr.resources.attendance_schedules',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'hr.schedules.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'hr.schedules.manage'],
+            ],
+        ],
+        [
+            'name' => 'hr.resources.attendance_locations',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'hr.locations.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'hr.locations.manage'],
+            ],
+        ],
+        [
+            'name' => 'hr.resources.attendance_records',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'hr.attendance.view'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'hr.attendance.manage'],
+                ['name' => 'hr.permissions.adjust', 'key' => 'hr.attendance.adjust'],
+                ['name' => 'hr.permissions.check_in', 'key' => 'hr.attendance.check_in'],
+                ['name' => 'hr.permissions.check_out', 'key' => 'hr.attendance.check_out'],
+            ],
+        ],
+        [
+            'name' => 'hr.resources.settings',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.update', 'key' => 'hr.deduction_rules.manage'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'hr.settings.manage'],
+            ],
+        ],
+        [
+            'name' => 'hr.resources.payroll_periods',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'hr.payroll.view'],
+                ['name' => 'hr.permissions.generate', 'key' => 'hr.payroll.generate'],
+                ['name' => 'hr.permissions.review', 'key' => 'hr.payroll.review'],
+                ['name' => 'hr.permissions.approve', 'key' => 'hr.payroll.approve'],
+                ['name' => 'hr.permissions.mark_paid', 'key' => 'hr.payroll.mark_paid'],
+            ],
+        ],
+        [
+            'name' => 'hr.nav.reports',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'hr.reports.view'],
+            ],
+        ],
+
+        // ══════════════════════════════════════════════
         // ══ جروب: Users ══
         // ══════════════════════════════════════════════
 
