@@ -92,7 +92,6 @@ jobs:
 
             echo "Optimizing..."
             $PHP artisan optimize
-
             echo "Restarting queue workers..."
             $PHP artisan queue:restart
 
