@@ -785,6 +785,8 @@ return [
     'sender_name' => 'Sender Name',
     'sender_phone' => 'Sender Phone',
     'sender_email' => 'Sender Email',
+    'branch' => 'Branch',
+    'job' => 'Job Title',
     'open_whatsapp' => 'Open WhatsApp',
     'read_status' => 'Read Status',
     'pending' => 'Pending',

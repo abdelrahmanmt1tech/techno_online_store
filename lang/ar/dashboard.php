@@ -785,6 +785,8 @@ return [
     'sender_name' => 'اسم المرسل',
     'sender_phone' => 'هاتف المرسل',
     'sender_email' => 'بريد المرسل',
+    'branch' => 'الفرع',
+    'job' => 'الوظيفة',
     'open_whatsapp' => 'فتح واتساب',
     'read_status' => 'حالة القراءة',
     'pending' => 'قيد الانتظار',

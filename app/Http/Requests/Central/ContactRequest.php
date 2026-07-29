@@ -18,6 +18,8 @@ class ContactRequest extends FormRequest
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:255',
             'message' => 'required|string',
+            'branch_id' => 'nullable|integer',
+            'job' => 'nullable|string|max:255',
         ];
     }
 }
