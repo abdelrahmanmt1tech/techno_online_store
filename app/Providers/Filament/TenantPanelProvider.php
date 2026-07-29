@@ -8,6 +8,8 @@ use App\Filament\Tenant\Widgets\OrdersTrend;
 use App\Filament\Tenant\Widgets\StoreKpis;
 use App\Http\Controllers\Tenant\Erp\PurchaseInvoicePrintController;
 use App\Http\Controllers\Tenant\Erp\SalesInvoicePrintController;
+use App\Http\Controllers\Tenant\Hr\EmployeeAttendanceController;
+use App\Http\Controllers\Tenant\Hr\SalarySlipPrintController;
 use App\Http\Controllers\Tenant\Pos\PosApiController;
 use App\Http\Controllers\Tenant\Pos\PosPageController;
 use App\Http\Middleware\EnsureTenantIsInitialized;
@@ -66,6 +68,12 @@ class TenantPanelProvider extends PanelProvider
                     ->url(fn (): string => url('/app/pos'))
                     ->group(fn (): string => __('commerce.nav.pos'))
                     ->sort(10),
+                NavigationItem::make('HR Attendance')
+                    ->label(fn (): string => __('hr.nav.my_attendance'))
+                    ->icon('heroicon-o-finger-print')
+                    ->url(fn (): string => url('/app/hr/attendance'))
+                    ->group(fn (): string => __('hr.nav.hr'))
+                    ->sort(10),
             ])
             ->persistentMiddleware([
                 InitializeTenancyByDomain::class,
@@ -119,6 +127,16 @@ class TenantPanelProvider extends PanelProvider
                     Route::post('suspended/{sale}/resume', [PosApiController::class, 'resume'])->name('suspended.resume');
                     Route::post('suspended/{sale}/cancel', [PosApiController::class, 'cancelSuspended'])->name('suspended.cancel');
                 });
+
+                Route::get('hr/attendance', [EmployeeAttendanceController::class, 'page'])->name('hr.attendance');
+                Route::get('hr/attendance/status', [EmployeeAttendanceController::class, 'status'])->name('hr.attendance.status');
+                Route::get('hr/attendance/distance', [EmployeeAttendanceController::class, 'distance'])->name('hr.attendance.distance');
+                Route::post('hr/attendance/check-in', [EmployeeAttendanceController::class, 'checkIn'])->name('hr.attendance.check-in');
+                Route::post('hr/attendance/check-out', [EmployeeAttendanceController::class, 'checkOut'])->name('hr.attendance.check-out');
+                Route::get(
+                    'hr/payroll-employees/{payrollEmployee}/slip',
+                    SalarySlipPrintController::class,
+                )->name('hr.payroll.slip');
             });
     }
 }
