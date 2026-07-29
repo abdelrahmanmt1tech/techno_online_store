@@ -143,14 +143,21 @@ final class AttendanceCheckInAction
     private function assertAccuracy(mixed $location, ?float $accuracy): void
     {
         $settings = $this->settings->getOrCreate();
-        $maxAccuracy = $location->minimum_accuracy_meters
+        $maxAccuracy = $location->maximum_accuracy_meters
             ?? ($settings->require_location_accuracy ? $settings->default_maximum_accuracy_meters : null);
+
+        // If we enforce accuracy, always reject invalid values early.
+        if ($maxAccuracy !== null && ($accuracy === null || $accuracy <= 0)) {
+            throw ValidationException::withMessages([
+                'accuracy' => __('hr.validation.accuracy_too_low', ['max' => $maxAccuracy]),
+            ]);
+        }
 
         if ($maxAccuracy === null) {
             return;
         }
 
-        if ($accuracy === null || $accuracy > (float) $maxAccuracy) {
+        if ($accuracy !== null && $accuracy > (float) $maxAccuracy) {
             throw ValidationException::withMessages([
                 'accuracy' => __('hr.validation.accuracy_too_low', ['max' => $maxAccuracy]),
             ]);

@@ -41,8 +41,8 @@ class HrAttendanceLocationForm
                         ->minValue(1)
                         ->default(150)
                         ->required(),
-                    TextInput::make('minimum_accuracy_meters')
-                        ->label(__('hr.fields.minimum_accuracy_meters'))
+                    TextInput::make('maximum_accuracy_meters')
+                        ->label(__('hr.fields.maximum_accuracy_meters'))
                         ->numeric()
                         ->minValue(1)
                         ->nullable(),

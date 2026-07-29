@@ -19,7 +19,7 @@ class HrAttendanceLocation extends Model
         'latitude',
         'longitude',
         'allowed_radius_meters',
-        'minimum_accuracy_meters',
+        'maximum_accuracy_meters',
         'is_active',
         'notes',
     ];

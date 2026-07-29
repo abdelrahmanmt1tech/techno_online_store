@@ -62,7 +62,7 @@ return [
         'latitude' => 'Latitude',
         'longitude' => 'Longitude',
         'allowed_radius_meters' => 'Allowed Radius (meters)',
-        'minimum_accuracy_meters' => 'Minimum Accuracy (meters)',
+        'maximum_accuracy_meters' => 'Maximum Allowed Accuracy (meters)',
         'notes' => 'Notes',
         'employee_number' => 'Employee Number',
         'full_name' => 'Full Name',

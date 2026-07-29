@@ -72,8 +72,15 @@ final class AttendanceCheckOutAction
                 }
 
                 $settings = $this->settings->getOrCreate();
-                $maxAccuracy = $location->minimum_accuracy_meters
+                $maxAccuracy = $location->maximum_accuracy_meters
                     ?? ($settings->require_location_accuracy ? $settings->default_maximum_accuracy_meters : null);
+
+                if ($maxAccuracy !== null && ($accuracy === null || $accuracy <= 0)) {
+                    throw ValidationException::withMessages([
+                        'accuracy' => __('hr.validation.accuracy_too_low', ['max' => $maxAccuracy]),
+                    ]);
+                }
+
                 if ($maxAccuracy !== null && ($accuracy === null || $accuracy > (float) $maxAccuracy)) {
                     throw ValidationException::withMessages([
                         'accuracy' => __('hr.validation.accuracy_too_low', ['max' => $maxAccuracy]),

@@ -62,7 +62,7 @@ return [
         'latitude' => 'خط العرض',
         'longitude' => 'خط الطول',
         'allowed_radius_meters' => 'نطاق السماح (متر)',
-        'minimum_accuracy_meters' => 'الحد الأدنى لدقة الموقع (متر)',
+        'maximum_accuracy_meters' => 'الحد الأقصى المسموح لدقة الموقع (متر)',
         'notes' => 'ملاحظات',
         'employee_number' => 'الرقم الوظيفي',
         'full_name' => 'الاسم الكامل',
