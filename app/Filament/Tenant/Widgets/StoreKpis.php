@@ -15,7 +15,16 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StoreKpis extends BaseWidget
 {
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 80;
+
+    public static function canView(): bool
+    {
+        $user = \Illuminate\Support\Facades\Auth::guard('tenant')->user();
+
+        return $user !== null
+            && $user->can('dashboard.view')
+            && $user->can('dashboard.store.view');
+    }
 
     protected function getStats(): array
     {
