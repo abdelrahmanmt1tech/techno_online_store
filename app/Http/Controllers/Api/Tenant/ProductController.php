@@ -17,6 +17,8 @@ class ProductController extends Controller
     public function index(ProductIndexRequest $request)
     {
         $query = Product::where('is_active', true)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->with(['categories', 'media', 'variants']);
 
         if (auth('sanctum')->user()) {
@@ -99,6 +101,8 @@ class ProductController extends Controller
     {
         $productQuery = Product::where('slug', $slug)
             ->where('is_active', true)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->with([
                 'categories',
                 'media',
