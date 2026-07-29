@@ -169,7 +169,7 @@ jobs:
 
                 echo "========== INSTALL NODE PACKAGES =========="
 
-                npm ci --ignore-scripts
+                npm install
 
                 echo "========== OPEN FILES LIMIT =========="
 
