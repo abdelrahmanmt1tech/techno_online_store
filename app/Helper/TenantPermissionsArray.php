@@ -564,6 +564,22 @@ function tenantPermissionsArray(): array
         ],
 
         // ══════════════════════════════════════════════
+        // ══ جروب: Dashboard Lite ══
+        // ══════════════════════════════════════════════
+
+        [
+            'name' => 'dashboard.lite.group',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'dashboard.view'],
+                ['name' => 'dashboard.lite.perm_sales', 'key' => 'dashboard.sales.view'],
+                ['name' => 'dashboard.lite.perm_pos', 'key' => 'dashboard.pos.view'],
+                ['name' => 'dashboard.lite.perm_inventory', 'key' => 'dashboard.inventory.view'],
+                ['name' => 'dashboard.lite.perm_hr', 'key' => 'dashboard.hr.view'],
+                ['name' => 'dashboard.lite.perm_store', 'key' => 'dashboard.store.view'],
+            ],
+        ],
+
+        // ══════════════════════════════════════════════
         // ══ جروب: Users ══
         // ══════════════════════════════════════════════
 

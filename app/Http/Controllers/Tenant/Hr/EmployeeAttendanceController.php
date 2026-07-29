@@ -30,23 +30,16 @@ final class EmployeeAttendanceController extends Controller
         }
     }
 
-    private function authorizeEmployeeOperationallyActive(HrEmployee $employee): void
-    {
-        if (! $employee->isOperationallyActive()) {
-            abort(403, __('hr.validation.employee_inactive'));
-        }
-    }
-
     public function page(
         Request $request,
         AttendanceScheduleResolver $schedules,
-        GeolocationService $geo,
     ): View {
         $this->authorizeAttendanceRead();
-        $employee = $this->currentEmployeeOrFail();
-        $this->authorizeEmployeeOperationallyActive($employee);
 
+        $user = Auth::guard('tenant')->user();
+        $employee = $this->currentEmployee();
         $now = now();
+
         $schedule = $employee ? $schedules->resolveSchedule($employee) : null;
         $location = $employee ? $schedules->resolveLocation($employee) : null;
         $window = $schedule ? $schedules->windowFor($schedule, $now) : null;
@@ -57,6 +50,28 @@ final class EmployeeAttendanceController extends Controller
                 ->first()
             : null;
 
+        $canCheckIn = (bool) $user?->can('hr.attendance.check_in');
+        $canCheckOut = (bool) $user?->can('hr.attendance.check_out');
+        $employeeActive = $employee?->isOperationallyActive() ?? false;
+
+        // حالة العرض للواجهة — المنطق الأمني يبقى في الـ Actions
+        $uiState = 'ready';
+        if (! $employee) {
+            $uiState = 'not_linked';
+        } elseif (! $employeeActive) {
+            $uiState = 'inactive';
+        } elseif (! $schedule || ! $location) {
+            $uiState = 'incomplete_settings';
+        } elseif (! ($window['is_working_day'] ?? false)) {
+            $uiState = 'day_off';
+        } elseif ($today?->check_out_at) {
+            $uiState = 'checked_out';
+        } elseif ($today?->check_in_at) {
+            $uiState = $today->late_minutes > 0 ? 'late' : 'checked_in';
+        } else {
+            $uiState = 'not_checked_in';
+        }
+
         return view('hr.attendance', [
             'employee' => $employee,
             'schedule' => $schedule,
@@ -66,14 +81,51 @@ final class EmployeeAttendanceController extends Controller
             'now' => $now,
             'apiBase' => url('/app/hr/attendance'),
             'locale' => app()->getLocale(),
+            'canCheckIn' => $canCheckIn,
+            'canCheckOut' => $canCheckOut,
+            'employeeActive' => $employeeActive,
+            'uiState' => $uiState,
+            'i18n' => [
+                'locating' => __('hr.labels.locating'),
+                'locationReady' => __('hr.labels.location_ready'),
+                'accuracy' => __('hr.labels.location_accuracy'),
+                'inside' => __('hr.labels.inside_geofence'),
+                'outside' => __('hr.labels.outside_geofence'),
+                'distanceHint' => __('hr.labels.distance_hint'),
+                'successIn' => __('hr.notifications.checked_in'),
+                'successOut' => __('hr.notifications.checked_out'),
+                'sending' => __('hr.labels.sending'),
+                'confirmOut' => __('hr.labels.confirm_check_out'),
+                'geoUnsupported' => __('hr.validation.geolocation_unsupported'),
+                'geoDenied' => __('hr.validation.geolocation_denied'),
+                'geoUnavailable' => __('hr.validation.geolocation_unavailable'),
+                'geoTimeout' => __('hr.validation.geolocation_timeout'),
+                'geoRequired' => __('hr.validation.geolocation_required'),
+                'httpsRequired' => __('hr.validation.https_required'),
+                'error' => __('hr.notifications.error'),
+                'checkedIn' => __('hr.labels.checked_in'),
+                'checkedOut' => __('hr.labels.checked_out'),
+                'late' => __('hr.labels.late'),
+                'statusLabels' => [
+                    'present' => __('hr.attendance_statuses.present'),
+                    'late' => __('hr.attendance_statuses.late'),
+                    'absent' => __('hr.attendance_statuses.absent'),
+                    'incomplete' => __('hr.attendance_statuses.incomplete'),
+                    'day_off' => __('hr.attendance_statuses.day_off'),
+                    'manual' => __('hr.attendance_statuses.manual'),
+                ],
+            ],
         ]);
     }
 
     public function status(AttendanceScheduleResolver $schedules): JsonResponse
     {
-        $employee = $this->currentEmployeeOrFail();
         $this->authorizeAttendanceRead();
-        $this->authorizeEmployeeOperationallyActive($employee);
+        $employee = $this->currentEmployeeOrFail();
+
+        if (! $employee->isOperationallyActive()) {
+            abort(403, __('hr.validation.employee_inactive'));
+        }
 
         $now = now();
         $schedule = $schedules->resolveSchedule($employee);
@@ -84,6 +136,7 @@ final class EmployeeAttendanceController extends Controller
             ->whereDate('attendance_date', $now->toDateString())
             ->first();
 
+        // لا نُرجع إحداثيات موقع العمل — المسافة عبر /distance فقط
         return response()->json([
             'data' => [
                 'employee' => [
@@ -100,8 +153,6 @@ final class EmployeeAttendanceController extends Controller
                 'location' => $location ? [
                     'id' => $location->id,
                     'name' => $location->name,
-                    'latitude' => (float) $location->latitude,
-                    'longitude' => (float) $location->longitude,
                     'allowed_radius_meters' => (int) $location->allowed_radius_meters,
                     'maximum_accuracy_meters' => $location->maximum_accuracy_meters,
                 ] : null,
@@ -112,9 +163,12 @@ final class EmployeeAttendanceController extends Controller
                 ],
                 'today' => $today ? [
                     'status' => $today->status->value,
+                    'status_label' => $today->status->label(),
                     'check_in_at' => optional($today->check_in_at)?->toIso8601String(),
                     'check_out_at' => optional($today->check_out_at)?->toIso8601String(),
                     'late_minutes' => $today->late_minutes,
+                    'worked_minutes' => $today->worked_minutes,
+                    'early_leave_minutes' => $today->early_leave_minutes,
                 ] : null,
                 'server_now' => $now->toIso8601String(),
             ],
@@ -124,7 +178,10 @@ final class EmployeeAttendanceController extends Controller
     public function checkIn(AttendancePunchRequest $request, AttendanceCheckInAction $action): JsonResponse
     {
         $employee = $this->currentEmployeeOrFail();
-        $this->authorizeEmployeeOperationallyActive($employee);
+
+        if (! $employee->isOperationallyActive()) {
+            abort(403, __('hr.validation.employee_inactive'));
+        }
 
         if (! $request->user('tenant')?->can('hr.attendance.check_in')) {
             abort(403);
@@ -144,7 +201,10 @@ final class EmployeeAttendanceController extends Controller
     public function checkOut(AttendancePunchRequest $request, AttendanceCheckOutAction $action): JsonResponse
     {
         $employee = $this->currentEmployeeOrFail();
-        $this->authorizeEmployeeOperationallyActive($employee);
+
+        if (! $employee->isOperationallyActive()) {
+            abort(403, __('hr.validation.employee_inactive'));
+        }
 
         if (! $request->user('tenant')?->can('hr.attendance.check_out')) {
             abort(403);
@@ -163,9 +223,12 @@ final class EmployeeAttendanceController extends Controller
 
     public function distance(Request $request, AttendanceScheduleResolver $schedules, GeolocationService $geo): JsonResponse
     {
-        $employee = $this->currentEmployeeOrFail();
         $this->authorizeAttendanceRead();
-        $this->authorizeEmployeeOperationallyActive($employee);
+        $employee = $this->currentEmployeeOrFail();
+
+        if (! $employee->isOperationallyActive()) {
+            abort(403, __('hr.validation.employee_inactive'));
+        }
 
         $location = $schedules->resolveLocation($employee);
         if (! $location) {
@@ -176,6 +239,13 @@ final class EmployeeAttendanceController extends Controller
 
         $lat = (float) $request->query('latitude');
         $lon = (float) $request->query('longitude');
+
+        if ($lat < -90 || $lat > 90 || $lon < -180 || $lon > 180) {
+            return response()->json([
+                'message' => __('hr.validation.geolocation_required'),
+            ], 422);
+        }
+
         $distance = $geo->distanceMeters($lat, $lon, (float) $location->latitude, (float) $location->longitude);
 
         return response()->json([
@@ -218,6 +288,7 @@ final class EmployeeAttendanceController extends Controller
         return [
             'id' => $record->id,
             'status' => $record->status->value,
+            'status_label' => $record->status->label(),
             'check_in_at' => optional($record->check_in_at)?->toIso8601String(),
             'check_out_at' => optional($record->check_out_at)?->toIso8601String(),
             'late_minutes' => $record->late_minutes,
