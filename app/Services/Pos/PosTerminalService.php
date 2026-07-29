@@ -9,6 +9,8 @@ use App\Enums\Erp\PaymentMethod;
 use App\Enums\Erp\SaleItemSourceType;
 use App\Enums\Erp\SaleSourceType;
 use App\Enums\Erp\SaleStatus;
+use App\Exceptions\Pos\PosRegisterGuardException;
+use App\Models\Tenant\CashierSession;
 use App\Models\Tenant\Category;
 use App\Models\Tenant\Customer;
 use App\Models\Tenant\PosPaymentMethod;
@@ -16,9 +18,9 @@ use App\Models\Tenant\PosRegister;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\ProductVariant;
 use App\Models\Tenant\Sale;
+use App\Models\TenantUser;
 use App\Services\Commerce\CatalogService;
 use App\Services\Commerce\UnifiedSalesEngine;
-use App\Exceptions\Pos\PosRegisterGuardException;
 use App\Support\Erp\Decimal;
 use App\Support\Erp\TenantMediaUrl;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -554,7 +556,7 @@ final class PosTerminalService
     }
 
     /**
-     * @return array{register: PosRegister, session: \App\Models\Tenant\CashierSession, user: \App\Models\TenantUser}
+     * @return array{register: PosRegister, session: CashierSession, user: TenantUser}
      */
     public function assertCanOperate(PosRegister $register): array
     {

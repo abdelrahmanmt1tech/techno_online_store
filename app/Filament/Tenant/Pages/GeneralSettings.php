@@ -12,7 +12,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\DB;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
@@ -20,6 +19,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GeneralSettings extends Page
 {
@@ -152,7 +152,8 @@ class GeneralSettings extends Page
 
                                     return $currencies->mapWithKeys(function ($currency) use ($locale) {
                                         $name = json_decode($currency->name, true)[$locale] ?? $currency->code;
-                                        return [$currency->code => $currency->code . ' - ' . $name];
+
+                                        return [$currency->code => $currency->code.' - '.$name];
                                     })->toArray();
                                 })
                                 ->searchable()
@@ -189,6 +190,18 @@ class GeneralSettings extends Page
                                 ->columnSpanFull(),
                         ])
                         ->icon('heroicon-o-globe-alt')
+                        ->columnSpanFull(),
+
+                    Section::make(__('dashboard.registration_terms'))
+                        ->columns(2)
+                        ->schema([
+                            Textarea::make('registration_terms')
+                                ->label(__('dashboard.registration_terms_content'))
+                                ->helperText(__('dashboard.registration_terms_helper'))
+                                ->rows(8)
+                                ->columnSpanFull(),
+                        ])
+                        ->icon('heroicon-o-document-text')
                         ->columnSpanFull(),
                 ])
                     ->livewireSubmitHandler('save')
@@ -259,6 +272,7 @@ class GeneralSettings extends Page
             'site_font',
             'site_language',
             'site_currency',
+            'registration_terms',
         ];
 
         $tagInputKeys = ['home_keywords'];

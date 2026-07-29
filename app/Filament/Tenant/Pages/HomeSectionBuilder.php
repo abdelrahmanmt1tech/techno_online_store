@@ -95,6 +95,26 @@ class HomeSectionBuilder extends Page
                                                 'deals' => __('dashboard.section_type_deals'),
                                                 'testimonials' => __('dashboard.section_type_testimonials'),
                                             ])
+                                            ->disableOptionWhen(function (string $value, $component): bool {
+                                                preg_match('/sections\.(\d+)/', $component->getStatePath(), $matches);
+                                                $currentIndex = $matches[1] ?? null;
+                                                $sections = data_get($component->getLivewire()->data, 'sections', []);
+
+                                                if (empty($sections)) {
+                                                    return false;
+                                                }
+
+                                                foreach ($sections as $index => $section) {
+                                                    if ((string) $index === (string) $currentIndex) {
+                                                        continue;
+                                                    }
+                                                    if (($section['type'] ?? null) === $value) {
+                                                        return true;
+                                                    }
+                                                }
+
+                                                return false;
+                                            })
                                             ->required()
                                             ->live()
                                             ->columnSpan(1),
