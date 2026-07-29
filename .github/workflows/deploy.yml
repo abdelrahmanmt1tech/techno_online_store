@@ -30,7 +30,6 @@ jobs:
 
             PHP=/opt/alt/php83/usr/bin/php
             APP_DIR=/home/technomasrsystem/online-store.technomasrsystems.com
-
             echo "========== START DEPLOY =========="
             cd "$APP_DIR"
 
@@ -74,7 +73,6 @@ jobs:
             $PHP artisan migrate --force
 
             echo "Running tenant migrations and syncing permissions..."
-            $PHP artisan tenants:sync-permissions --migrate --no-interaction
 
             if command -v npm >/dev/null 2>&1; then
               echo "Building frontend assets..."
