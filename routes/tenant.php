@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\Tenant\Auth\LoginController;
 use App\Http\Controllers\Api\Tenant\Auth\PasswordResetController;
 use App\Http\Controllers\Api\Tenant\Auth\RegisterController;
+use App\Http\Controllers\Api\Tenant\BranchController;
 use App\Http\Controllers\Api\Tenant\CartController;
 use App\Http\Controllers\Api\Tenant\CategoryController;
 use App\Http\Controllers\Api\Tenant\CheckoutController;
@@ -114,6 +115,10 @@ Route::middleware([
 
         // اتصل بنا
         Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);
+
+        // الفروع
+        Route::get('branches', [BranchController::class, 'index']);
+        Route::get('branches/{branch:slug}', [BranchController::class, 'show']);
 
         // الصفحات
         Route::get('pages', [PageController::class, 'index']);

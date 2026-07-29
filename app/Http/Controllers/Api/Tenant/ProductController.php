@@ -21,6 +21,10 @@ class ProductController extends Controller
             ->withCount('reviews')
             ->with(['categories', 'media', 'variants']);
 
+        if ($request->filled('rating')) {
+            $query->having('reviews_avg_rating', '>=', (int) $request->rating);
+        }
+
         if (auth('sanctum')->user()) {
             $query->withExists([
                 'favorites as is_favorite' => fn ($q) => $q->where('user_id', auth('sanctum')->user()->id),

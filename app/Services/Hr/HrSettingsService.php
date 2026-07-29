@@ -4,8 +4,8 @@ namespace App\Services\Hr;
 
 use App\Enums\Hr\AbsenceDeductionType;
 use App\Enums\Hr\LateDeductionType;
-use App\Models\Tenant\HrAttendanceSchedule;
 use App\Models\Tenant\HrAttendanceLocation;
+use App\Models\Tenant\HrAttendanceSchedule;
 use App\Models\Tenant\HrSetting;
 use Illuminate\Validation\ValidationException;
 

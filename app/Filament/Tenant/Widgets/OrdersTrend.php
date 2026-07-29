@@ -4,6 +4,7 @@ namespace App\Filament\Tenant\Widgets;
 
 use App\Models\Tenant\Order;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Facades\Auth;
 
 class OrdersTrend extends ChartWidget
 {
@@ -13,7 +14,7 @@ class OrdersTrend extends ChartWidget
 
     public static function canView(): bool
     {
-        $user = \Illuminate\Support\Facades\Auth::guard('tenant')->user();
+        $user = Auth::guard('tenant')->user();
 
         return $user !== null
             && $user->can('dashboard.view')

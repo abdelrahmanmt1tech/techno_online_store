@@ -412,6 +412,7 @@ return [
         'main_title_ar' => 'العنوان الرئيسي (عربي)',
         'main_title_en' => 'العنوان الرئيسي (إنجليزي)',
         'title' => 'العنوان',
+        'subtitle' => 'العنوان الفرعي',
         'description_ar' => 'الوصف (عربي)',
         'description_en' => 'الوصف (إنجليزي)',
         'description' => 'الوصف',

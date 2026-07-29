@@ -32,7 +32,7 @@ class MarkHrAbsentEmployeesCommand extends Command
                         'tenant_id' => (string) $tenant->id,
                         'message' => $e->getMessage(),
                     ]);
-                    $this->line("Tenant {$tenant->id}: failed (" . get_class($e) . ')');
+                    $this->line("Tenant {$tenant->id}: failed (".get_class($e).')');
                 }
             });
 

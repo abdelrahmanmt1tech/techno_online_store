@@ -13,24 +13,26 @@ use App\Enums\Hr\EmploymentStatus;
 use App\Enums\Hr\LateDeductionType;
 use App\Enums\Hr\PayrollPeriodStatus;
 use App\Enums\Hr\SalaryType;
+use App\Models\Tenant;
+use App\Models\Tenant\Branch;
 use App\Models\Tenant\HrAttendanceLocation;
 use App\Models\Tenant\HrAttendanceRecord;
 use App\Models\Tenant\HrAttendanceSchedule;
 use App\Models\Tenant\HrAttendanceScheduleDay;
-use App\Models\Tenant\Branch;
 use App\Models\Tenant\HrDepartment;
 use App\Models\Tenant\HrEmployee;
 use App\Models\Tenant\HrJobTitle;
-use App\Models\Tenant;
 use App\Models\Tenant\HrPayrollPeriod;
 use App\Models\TenantUser;
-use Filament\Facades\Filament;
-use Illuminate\Support\Facades\Artisan;
 use App\Services\Hr\GeolocationService;
 use App\Services\Hr\HrSettingsService;
 use App\Services\Hr\PayrollGenerationService;
+use Filament\Facades\Filament;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Tests\Feature\Erp\ErpTestCase;
@@ -123,7 +125,7 @@ class HrLiteTest extends ErpTestCase
 
     public function test_employee_number_unique_and_user_unique(): void
     {
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
         HrEmployee::query()->create([
             'employee_number' => 'E-001',
             'full_name' => 'Dup',
@@ -364,7 +366,7 @@ class HrLiteTest extends ErpTestCase
 
         // Break tenant2 by removing hr_settings table so the action must fail there.
         $tenant2->run(function () {
-            \Illuminate\Support\Facades\Schema::dropIfExists('hr_settings');
+            Schema::dropIfExists('hr_settings');
         });
 
         $exitCode = Artisan::call('hr:mark-absent', ['--date' => '2026-07-29']);
@@ -481,10 +483,10 @@ class HrLiteTest extends ErpTestCase
 
         // Create 20 present records (avoid weekend by picking sequential working days in this simplified test)
         $presentDates = [
-            '2026-08-02','2026-08-03','2026-08-04','2026-08-05','2026-08-06',
-            '2026-08-09','2026-08-10','2026-08-11','2026-08-12','2026-08-13',
-            '2026-08-16','2026-08-17','2026-08-18','2026-08-19','2026-08-20',
-            '2026-08-23','2026-08-24','2026-08-25','2026-08-26','2026-08-27',
+            '2026-08-02', '2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06',
+            '2026-08-09', '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13',
+            '2026-08-16', '2026-08-17', '2026-08-18', '2026-08-19', '2026-08-20',
+            '2026-08-23', '2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27',
         ];
 
         foreach ($presentDates as $d) {
@@ -496,7 +498,7 @@ class HrLiteTest extends ErpTestCase
             ]);
         }
 
-        $absentDates = ['2026-08-28','2026-08-29','2026-09-01','2026-09-02','2026-09-03'];
+        $absentDates = ['2026-08-28', '2026-08-29', '2026-09-01', '2026-09-02', '2026-09-03'];
         foreach ($absentDates as $d) {
             // Keep inside the period range by using August dates only (simplified: pick last working days)
             if (Carbon::parse($d)->between($start, $end, true)) {
@@ -559,7 +561,7 @@ class HrLiteTest extends ErpTestCase
         $end = Carbon::parse('2026-08-31');
 
         // 5 present + 3 late, 1 absent
-        $presentDates = ['2026-08-02','2026-08-03','2026-08-04','2026-08-05','2026-08-06'];
+        $presentDates = ['2026-08-02', '2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06'];
         foreach ($presentDates as $d) {
             HrAttendanceRecord::query()->create([
                 'employee_id' => $dailyEmployee->id,
@@ -569,7 +571,7 @@ class HrLiteTest extends ErpTestCase
             ]);
         }
 
-        $lateDates = ['2026-08-09','2026-08-10','2026-08-11'];
+        $lateDates = ['2026-08-09', '2026-08-10', '2026-08-11'];
         foreach ($lateDates as $d) {
             HrAttendanceRecord::query()->create([
                 'employee_id' => $dailyEmployee->id,

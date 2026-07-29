@@ -18,11 +18,14 @@ class Branch extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'code',
         'phone',
         'email',
         'address',
         'city',
+        'latitude',
+        'longitude',
         'notes',
         'is_main',
         'is_active',
@@ -33,6 +36,8 @@ class Branch extends Model
     protected $casts = [
         'is_main' => 'boolean',
         'is_active' => 'boolean',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     public function users(): BelongsToMany

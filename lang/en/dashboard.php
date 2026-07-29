@@ -412,6 +412,7 @@ return [
         'main_title_ar' => 'Main Title (Arabic)',
         'main_title_en' => 'Main Title (English)',
         'title' => 'Title',
+        'subtitle' => 'Subtitle',
         'description_ar' => 'Description (Arabic)',
         'description_en' => 'Description (English)',
         'description' => 'Description',

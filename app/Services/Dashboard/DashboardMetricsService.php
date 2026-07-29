@@ -14,6 +14,7 @@ use App\Models\Tenant\InvoicePayment;
 use App\Models\Tenant\Sale;
 use App\Models\Tenant\SalesInvoice;
 use App\Models\Tenant\StockBalance;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +43,7 @@ final class DashboardMetricsService
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Builder<Sale>
+     * @return Builder<Sale>
      */
     public function countableSalesQuery()
     {

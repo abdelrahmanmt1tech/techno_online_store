@@ -74,6 +74,9 @@ class ContactUsSettings extends Page
                             TextInput::make('contact_us_title')
                                 ->label(__('dashboard.contact_us_settings.title')),
 
+                            TextInput::make('contact_us_subtitle')
+                                ->label(__('dashboard.contact_us_settings.subtitle')),
+
                             Textarea::make('contact_us_description')
                                 ->label(__('dashboard.contact_us_settings.description'))
                                 ->rows(4),
@@ -152,6 +155,7 @@ class ContactUsSettings extends Page
     {
         $keys = [
             'contact_us_title',
+            'contact_us_subtitle',
             'contact_us_description',
             'contact_us_image',
             'contact_us_email',

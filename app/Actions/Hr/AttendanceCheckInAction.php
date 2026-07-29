@@ -10,7 +10,6 @@ use App\Services\Hr\AttendanceScheduleResolver;
 use App\Services\Hr\GeolocationService;
 use App\Services\Hr\HrSettingsService;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
