@@ -13,11 +13,15 @@ class AttendancePunchRequest extends FormRequest
             return false;
         }
 
-        if ($this->routeIs('filament.tenant.hr.attendance.check-out')) {
+        if ($this->routeIs('*.hr.attendance.check-out')) {
             return $user->can('hr.attendance.check_out');
         }
 
-        return $user->can('hr.attendance.check_in');
+        if ($this->routeIs('*.hr.attendance.check-in')) {
+            return $user->can('hr.attendance.check_in');
+        }
+
+        return false;
     }
 
     public function rules(): array
@@ -25,7 +29,7 @@ class AttendancePunchRequest extends FormRequest
         return [
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'accuracy' => ['nullable', 'numeric', 'min:0'],
+            'accuracy' => ['nullable', 'numeric', 'min:1'],
             'captured_at' => ['nullable', 'date'],
         ];
     }

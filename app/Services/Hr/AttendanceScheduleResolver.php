@@ -84,10 +84,24 @@ final class AttendanceScheduleResolver
 
         $dateString = $date->toDateString();
 
+        $start = Carbon::parse($dateString.' '.$day->start_time);
+        $end = Carbon::parse($dateString.' '.$day->end_time);
+
+        // Overnight/invalid shifts are not supported in HR Lite.
+        // If end <= start, treat it as a non-working day to prevent incorrect attendance marking.
+        if ($end->lte($start)) {
+            return [
+                'is_working_day' => false,
+                'start' => null,
+                'end' => null,
+                'day' => $day,
+            ];
+        }
+
         return [
             'is_working_day' => true,
-            'start' => Carbon::parse($dateString.' '.$day->start_time),
-            'end' => Carbon::parse($dateString.' '.$day->end_time),
+            'start' => $start,
+            'end' => $end,
             'day' => $day,
         ];
     }

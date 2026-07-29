@@ -17,12 +17,35 @@ use Illuminate\View\View;
 
 final class EmployeeAttendanceController extends Controller
 {
+    private function authorizeAttendanceRead(): void
+    {
+        $user = Auth::guard('tenant')->user();
+
+        if (! $user) {
+            abort(403);
+        }
+
+        if (! $user->can('hr.attendance.check_in') && ! $user->can('hr.attendance.check_out')) {
+            abort(403);
+        }
+    }
+
+    private function authorizeEmployeeOperationallyActive(HrEmployee $employee): void
+    {
+        if (! $employee->isOperationallyActive()) {
+            abort(403, __('hr.validation.employee_inactive'));
+        }
+    }
+
     public function page(
         Request $request,
         AttendanceScheduleResolver $schedules,
         GeolocationService $geo,
     ): View {
-        $employee = $this->currentEmployee();
+        $this->authorizeAttendanceRead();
+        $employee = $this->currentEmployeeOrFail();
+        $this->authorizeEmployeeOperationallyActive($employee);
+
         $now = now();
         $schedule = $employee ? $schedules->resolveSchedule($employee) : null;
         $location = $employee ? $schedules->resolveLocation($employee) : null;
@@ -49,6 +72,9 @@ final class EmployeeAttendanceController extends Controller
     public function status(AttendanceScheduleResolver $schedules): JsonResponse
     {
         $employee = $this->currentEmployeeOrFail();
+        $this->authorizeAttendanceRead();
+        $this->authorizeEmployeeOperationallyActive($employee);
+
         $now = now();
         $schedule = $schedules->resolveSchedule($employee);
         $location = $schedules->resolveLocation($employee);
@@ -77,7 +103,7 @@ final class EmployeeAttendanceController extends Controller
                     'latitude' => (float) $location->latitude,
                     'longitude' => (float) $location->longitude,
                     'allowed_radius_meters' => (int) $location->allowed_radius_meters,
-                    'minimum_accuracy_meters' => $location->minimum_accuracy_meters,
+                    'maximum_accuracy_meters' => $location->maximum_accuracy_meters,
                 ] : null,
                 'window' => [
                     'is_working_day' => (bool) ($window['is_working_day'] ?? false),
@@ -98,6 +124,12 @@ final class EmployeeAttendanceController extends Controller
     public function checkIn(AttendancePunchRequest $request, AttendanceCheckInAction $action): JsonResponse
     {
         $employee = $this->currentEmployeeOrFail();
+        $this->authorizeEmployeeOperationallyActive($employee);
+
+        if (! $request->user('tenant')?->can('hr.attendance.check_in')) {
+            abort(403);
+        }
+
         $record = $action->execute($employee, [
             'latitude' => $request->validated('latitude'),
             'longitude' => $request->validated('longitude'),
@@ -112,6 +144,12 @@ final class EmployeeAttendanceController extends Controller
     public function checkOut(AttendancePunchRequest $request, AttendanceCheckOutAction $action): JsonResponse
     {
         $employee = $this->currentEmployeeOrFail();
+        $this->authorizeEmployeeOperationallyActive($employee);
+
+        if (! $request->user('tenant')?->can('hr.attendance.check_out')) {
+            abort(403);
+        }
+
         $record = $action->execute($employee, [
             'latitude' => $request->validated('latitude'),
             'longitude' => $request->validated('longitude'),
@@ -126,6 +164,9 @@ final class EmployeeAttendanceController extends Controller
     public function distance(Request $request, AttendanceScheduleResolver $schedules, GeolocationService $geo): JsonResponse
     {
         $employee = $this->currentEmployeeOrFail();
+        $this->authorizeAttendanceRead();
+        $this->authorizeEmployeeOperationallyActive($employee);
+
         $location = $schedules->resolveLocation($employee);
         if (! $location) {
             return response()->json([
