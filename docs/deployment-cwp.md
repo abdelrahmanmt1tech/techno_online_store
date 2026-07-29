@@ -26,6 +26,8 @@ PHP binary on CWP:
 8. `php artisan optimize`
 9. `php artisan queue:restart`
 
+Ensure the server cron runs `php artisan schedule:run` every minute. HR Lite registers `hr:mark-absent` hourly for automatic absence marking.
+
 ## Intentionally excluded from deploy
 
 | Step | Reason |
