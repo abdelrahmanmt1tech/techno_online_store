@@ -149,6 +149,7 @@ BUTTON TEXT COLOR FIX
 .fi-btn.fi-ac-btn-action:not(.fi-color-primary, .fi-color-info):hover {
 /*     color: #000000 !important; */
 }
+<<<<<<< Updated upstream
 
 /* ========== Browse Themes ========== */
 
@@ -467,3 +468,5 @@ BUTTON TEXT COLOR FIX
     border-color: var(--gray-600, #4b5563);
     color: var(--gray-400, #9ca3af);
 }
+=======
+>>>>>>> Stashed changes
