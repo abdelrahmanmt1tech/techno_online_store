@@ -172,7 +172,6 @@ jobs:
               npm install
 
                 echo "========== OPEN FILES LIMIT =========="
-
                 HARD_OPEN_FILES="$(ulimit -Hn)"
                 ulimit -Sn "${HARD_OPEN_FILES}"
 
