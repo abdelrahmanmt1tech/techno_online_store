@@ -133,4 +133,36 @@ class ProductController extends Controller
             ProductDetailResource::make($product),
         );
     }
+
+    public function similar(string $slug)
+    {
+        $product = Product::where('slug', $slug)
+            ->where('is_active', true)
+            ->with('categories')
+            ->first();
+
+        if (! $product) {
+            return $this->notFoundResponse(__('messages.resource_not_found'));
+        }
+
+        $categoryIds = $product->categories->pluck('id');
+
+        if ($categoryIds->isEmpty()) {
+            return $this->successResponse(ProductListResource::collection(collect()));
+        }
+
+        $products = Product::where('is_active', true)
+            ->where('id', '!=', $product->id)
+            ->whereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds))
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->with(['categories', 'media', 'variants'])
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get();
+
+        return $this->successResponse(
+            ProductListResource::collection($products),
+        );
+    }
 }
