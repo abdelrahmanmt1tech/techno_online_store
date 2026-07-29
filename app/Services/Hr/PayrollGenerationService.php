@@ -4,6 +4,7 @@ namespace App\Services\Hr;
 
 use App\Enums\Hr\EmploymentStatus;
 use App\Enums\Hr\PayrollPeriodStatus;
+use App\Enums\Hr\SalaryType;
 use App\Models\Tenant\HrAttendanceRecord;
 use App\Models\Tenant\HrEmployee;
 use App\Models\Tenant\HrPayrollEmployee;
@@ -67,7 +68,22 @@ final class PayrollGenerationService
                     Decimal::add($summary['absence_deduction'], $summary['late_deduction']),
                     $manual
                 ));
-                $net = Decimal::money(Decimal::sub(Decimal::money($employee->base_salary), $totalDeductions));
+
+                $gross = Decimal::money($employee->base_salary);
+                $details = $summary['details'];
+
+                if ($employee->salary_type === SalaryType::Daily) {
+                    $payableDays = max(0, (int) $summary['present_days']);
+                    $gross = Decimal::money(Decimal::mul($gross, (string) $payableDays));
+
+                    $details['payable_days'] = $payableDays;
+                    $details['calculated_gross'] = $gross;
+                    $details['absence_handling'] = 'daily_employee: absent days are excluded from payable_days; absence_deduction forced to 0';
+                } else {
+                    $details['calculated_gross'] = $gross;
+                }
+
+                $net = Decimal::money(Decimal::sub($gross, $totalDeductions));
                 if (Decimal::isNegative($net)) {
                     $net = '0.00';
                 }
@@ -82,13 +98,13 @@ final class PayrollGenerationService
                     'late_days' => $summary['late_days'],
                     'absent_days' => $summary['absent_days'],
                     'total_late_minutes' => $summary['total_late_minutes'],
-                    'absence_deduction' => $summary['absence_deduction'],
+                    'absence_deduction' => $employee->salary_type === SalaryType::Daily ? '0.00' : $summary['absence_deduction'],
                     'late_deduction' => $summary['late_deduction'],
                     'manual_deduction' => $manual,
                     'manual_deduction_reason' => null,
                     'total_deductions' => $totalDeductions,
                     'net_salary' => $net,
-                    'calculation_details' => $summary['details'],
+                    'calculation_details' => $details,
                     'status' => 'generated',
                 ]);
             }
@@ -121,7 +137,14 @@ final class PayrollGenerationService
             Decimal::add((string) $line->absence_deduction, (string) $line->late_deduction),
             $manual
         ));
-        $net = Decimal::money(Decimal::sub((string) $line->base_salary_snapshot, $total));
+
+        $gross = Decimal::money($line->base_salary_snapshot);
+        if ($line->salary_type_snapshot === SalaryType::Daily) {
+            $payableDays = max(0, (int) $line->present_days);
+            $gross = Decimal::money(Decimal::mul($gross, (string) $payableDays));
+        }
+
+        $net = Decimal::money(Decimal::sub($gross, $total));
         if (Decimal::isNegative($net)) {
             $net = '0.00';
         }

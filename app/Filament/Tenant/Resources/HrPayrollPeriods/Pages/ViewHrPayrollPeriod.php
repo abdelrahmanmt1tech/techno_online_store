@@ -76,7 +76,7 @@ class ViewHrPayrollPeriod extends ViewRecord
                 ->label(__('hr.actions.mark_paid'))
                 ->color('success')
                 ->requiresConfirmation()
-                ->visible(fn () => Auth::user()->can('hr.payroll.pay')
+                ->visible(fn () => Auth::user()->can('hr.payroll.mark_paid')
                     && $record->status === PayrollPeriodStatus::Approved)
                 ->action(function () {
                     try {

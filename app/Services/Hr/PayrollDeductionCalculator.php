@@ -48,6 +48,7 @@ final class PayrollDeductionCalculator
                     $totalLateMinutes += (int) $record->late_minutes;
                 }),
                 AttendanceStatus::Absent => $absentDays++,
+                AttendanceStatus::Manual => $presentDays++,
                 default => null,
             };
         }
@@ -82,6 +83,18 @@ final class PayrollDeductionCalculator
 
         if ($absentDays < 1 || $type === AbsenceDeductionType::None) {
             return ['amount' => '0.00', 'type' => AbsenceDeductionType::None->value, 'days' => $absentDays];
+        }
+
+        // For daily employees, absence is handled by excluding absent days from payable days
+        // (gross uses present/late/manual records only), so we intentionally do not apply
+        // an additional absence deduction to avoid double-counting.
+        if ($employee->salary_type === SalaryType::Daily) {
+            return [
+                'amount' => '0.00',
+                'type' => $type->value,
+                'days' => $absentDays,
+                'handled_by_payable_days' => true,
+            ];
         }
 
         if ($type === AbsenceDeductionType::FixedAmount) {
