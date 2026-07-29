@@ -7,9 +7,18 @@ use Filament\Widgets\ChartWidget;
 
 class OrderStatusPie extends ChartWidget
 {
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 82;
 
     protected int|string|array $columnSpan = 1;
+
+    public static function canView(): bool
+    {
+        $user = \Illuminate\Support\Facades\Auth::guard('tenant')->user();
+
+        return $user !== null
+            && $user->can('dashboard.view')
+            && $user->can('dashboard.store.view');
+    }
 
     public function getHeading(): ?string
     {

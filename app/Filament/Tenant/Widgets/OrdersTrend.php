@@ -7,9 +7,18 @@ use Filament\Widgets\ChartWidget;
 
 class OrdersTrend extends ChartWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 81;
 
     protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        $user = \Illuminate\Support\Facades\Auth::guard('tenant')->user();
+
+        return $user !== null
+            && $user->can('dashboard.view')
+            && $user->can('dashboard.store.view');
+    }
 
     public function getHeading(): ?string
     {
