@@ -34,6 +34,10 @@ Tenant DB tables (hr_*)
 1. Employee `attendance_schedule_id`
 2. HR Settings default / schedule marked `is_default`
 
+### Overnight shifts
+
+**Not supported.** If a schedule day has `end_time <= start_time`, that day is treated as **non-working** and check-in is rejected. Configure same-day windows only (e.g. `09:00`–`17:00`).
+
 ## Location resolution
 
 1. Employee `attendance_location_id`
@@ -43,18 +47,81 @@ If none → check-in rejected.
 
 ## Geolocation
 
-Browser sends lat/lon/accuracy. Backend recalculates Haversine distance (`GeolocationService`).  
-Accept when `distance <= allowed_radius_meters` and accuracy within configured max.
+Browser sends `latitude`, `longitude`, and `accuracy` only. Backend resolves employee from the authenticated user, recalculates Haversine distance (`GeolocationService`), and uses **server time** for punches.
 
-**Limitation:** browser geolocation is not anti-spoofing; suitable for SMB practical control, not a biometric replacement.
+### GPS accuracy
+
+Field name: **`maximum_accuracy_meters`** on `hr_attendance_locations` (and `default_maximum_accuracy_meters` in HR settings).
+
+**Lower accuracy value = better GPS fix.** The limit is the **maximum allowed** inaccuracy in meters.
+
+| Setting | Received accuracy | Result |
+|---|---|---|
+| 100 m | 50 m | Accept |
+| 100 m | 100 m | Accept (boundary) |
+| 100 m | 101 m | Reject |
+| `null` | any positive | No accuracy gate |
+
+Comparison: `received_accuracy <= maximum_accuracy_meters`
+
+- `null` limit → no accuracy constraint.
+- Accuracy must be a **positive number** when a limit is enforced (`min:1` on punch requests).
+- Frontend hints are not trusted; the backend decides.
+
+**Browser limits:** Geolocation accuracy varies by device, OS permission, and environment (indoor/outdoor). Typical mobile accuracy is tens of meters; desktop/Wi‑Fi may be worse. This module is practical SMB control, not anti-spoofing.
+
+Accept punch when `distance <= allowed_radius_meters` and accuracy passes the rule above.
 
 ## Attendance
 
 One row per `employee_id + attendance_date`.  
-Server time only. Statuses: present, late, absent, incomplete, day_off, manual.
+Server time only (`attendance_date` follows the application timezone). Statuses: `present`, `late`, `absent`, `incomplete`, `day_off`, `manual`.
 
 Page: `/app/hr/attendance`  
-Command: `php artisan hr:mark-absent` (hourly scheduler).
+Endpoints (session auth + CSRF, tenant domain):
+
+| Method | Path | Permission |
+|---|---|---|
+| GET | `/app/hr/attendance` | `hr.attendance.check_in` **or** `hr.attendance.check_out` |
+| GET | `/app/hr/attendance/status` | same as page |
+| GET | `/app/hr/attendance/distance` | same as page |
+| POST | `/app/hr/attendance/check-in` | `hr.attendance.check_in` |
+| POST | `/app/hr/attendance/check-out` | `hr.attendance.check_out` |
+
+Rules:
+
+- Employee is resolved from **auth user**; `employee_id` is never accepted from the client.
+- User must belong to the current tenant, be linked to an active `HrEmployee`, and hold the permission for the action.
+- Roles are **dynamic** (Spatie keys via Roles UI); no built-in HR roles.
+
+## Auto absence (`hr:mark-absent`)
+
+Registered hourly in `routes/console.php`:
+
+```php
+Schedule::command('hr:mark-absent')->hourly();
+```
+
+Runs from **central** cron context (`php artisan schedule:run` on the central app):
+
+```text
+Central command
+  → iterate Tenant::active()
+  → tenant->run() (initialize tenancy)
+  → MarkAbsentEmployeesAction
+  → catch/log per-tenant failures (tenant_id in logs)
+  → end tenancy
+  → continue with next tenant
+```
+
+Behavior:
+
+- **Idempotent** — does not create duplicate absent rows.
+- Waits until `scheduled_end + 30 minutes` before marking absent (no early absent).
+- Skips: inactive employees, non-working days, employees with check-in, employees without a valid schedule.
+- One tenant failure does not block others.
+
+Manual run: `php artisan hr:mark-absent` or `php artisan hr:mark-absent --date=2026-07-29`
 
 ## Deductions
 
@@ -62,11 +129,44 @@ Absence: `none` | `daily_rate` | `fixed_amount`
 Late: `none` | `fixed_per_late_day` | `per_minute` (+ optional daily cap)  
 Employee custom absence settings override tenant defaults.
 
+### Payable days (attendance → payroll)
+
+| Status | Counted as payable day |
+|---|---|
+| `present` | Yes |
+| `late` | Yes (late deduction applied separately) |
+| `manual` | Yes (admin-entered attendance) |
+| `incomplete` | No (unless adjusted by admin) |
+| `absent` | No |
+| `day_off` | No (unpaid for daily employees in this lite model) |
+
 ## Payroll
 
-`Net = max(0, base_salary - absence - late - manual)`  
-Lifecycle: `draft → generated → approved → paid` (cancel before paid).  
-Snapshots freeze salary/type at generate time. No GL / cash drawer posting.
+Snapshots freeze `base_salary` and `salary_type` at generate time. `calculation_details` documents rates, payable days, and deduction breakdown. No GL / cash drawer posting.
+
+### Monthly employee
+
+`base_salary` = full monthly salary.
+
+```text
+gross = base_salary_snapshot
+net = max(0, gross - absence_deduction - late_deduction - manual_deduction)
+```
+
+### Daily employee
+
+`base_salary` = **daily rate** (one day's wage), not a monthly total.
+
+```text
+payable_days = present_days (present + late + manual)
+gross = base_salary_snapshot × payable_days
+absence_deduction = 0   # absent days already excluded from payable_days
+net = max(0, gross - late_deduction - manual_deduction)
+```
+
+**No double absence deduction** for daily employees: absent days reduce `payable_days` only; `absence_deduction` is forced to `0.00`.
+
+Lifecycle: `draft → generated → approved → paid` (cancel before paid).
 
 Slip: `/app/hr/payroll-employees/{id}/slip` (browser print).
 
@@ -75,6 +175,8 @@ Slip: `/app/hr/payroll-employees/{id}/slip` (browser print).
 Keys only (no fixed HR roles). Admin creates roles and assigns keys via existing Roles UI + `tenants:sync-permissions`.
 
 See `TenantPermissionsArray` group `hr.*`.
+
+Attendance page keys: `hr.attendance.check_in`, `hr.attendance.check_out` (plus admin keys `hr.attendance.view`, `hr.attendance.manage`, `hr.attendance.adjust`).
 
 ## Reports
 
@@ -97,7 +199,13 @@ CSV/Excel export is not included (no new export package).
 
 ```bash
 php artisan tenants:sync-permissions --migrate
-php artisan hr:mark-absent   # optional manual
+php artisan hr:mark-absent   # optional manual smoke test
 ```
 
-Ensure Laravel scheduler/cron is running for hourly absence marking.
+Ensure Laravel scheduler/cron runs on the **central** application:
+
+```bash
+* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
+```
+
+The hourly `hr:mark-absent` job processes all active tenants automatically; no per-tenant cron is required.
