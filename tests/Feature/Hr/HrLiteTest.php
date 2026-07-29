@@ -711,6 +711,67 @@ class HrLiteTest extends ErpTestCase
         ]);
     }
 
+    public function test_status_and_distance_do_not_expose_work_location_coordinates(): void
+    {
+        $user = $this->makeAttendanceUserWithPermissions(['hr.attendance.check_in']);
+
+        $status = $this->getOnTenant(route('filament.tenant.hr.attendance.status', absolute: false), $user)
+            ->assertOk()
+            ->json('data');
+
+        $this->assertArrayHasKey('location', $status);
+        $this->assertArrayNotHasKey('latitude', $status['location'] ?? []);
+        $this->assertArrayNotHasKey('longitude', $status['location'] ?? []);
+
+        $distance = $this->getOnTenant(
+            route('filament.tenant.hr.attendance.distance', absolute: false).'?latitude=30.0444&longitude=31.2357',
+            $user
+        )->assertOk()->json('data');
+
+        $this->assertTrue($distance['has_location']);
+        $this->assertArrayNotHasKey('latitude', $distance);
+        $this->assertArrayNotHasKey('longitude', $distance);
+        $this->assertArrayHasKey('inside', $distance);
+    }
+
+    public function test_unlinked_user_sees_attendance_page_state_instead_of_hard_fail(): void
+    {
+        config(['app.bypass_permissions' => false]);
+
+        $user = TenantUser::query()->create([
+            'name' => 'Unlinked',
+            'email' => 'unlinked-'.str()->uuid().'@example.com',
+            'password' => Hash::make('password'),
+            'is_active' => true,
+        ]);
+
+        $permission = Permission::query()->firstOrCreate([
+            'name' => 'hr.attendance.check_in',
+            'guard_name' => 'tenant',
+        ]);
+        $user->permissions()->syncWithoutDetaching([$permission->id]);
+
+        $this->getOnTenant(route('filament.tenant.hr.attendance', absolute: false), $user)
+            ->assertOk()
+            ->assertSee(__('hr.validation.user_not_linked_employee'), false);
+    }
+
+    public function test_check_in_json_includes_status_label_and_ignores_foreign_employee_id(): void
+    {
+        $user = $this->makeAttendanceUserWithPermissions(['hr.attendance.check_in']);
+
+        $response = $this->postOnTenant(route('filament.tenant.hr.attendance.check-in', absolute: false), [
+            'latitude' => 30.0444,
+            'longitude' => 31.2357,
+            'accuracy' => 20,
+            'employee_id' => 999999,
+        ], $user);
+
+        $response->assertCreated();
+        $response->assertJsonPath('data.status_label', AttendanceStatus::Late->label());
+        $this->assertSame($this->employee->id, HrAttendanceRecord::query()->first()->employee_id);
+    }
+
     private function seedHrTenant(Tenant $tenant, string $employeeNumber): void
     {
         $tenant->run(function () use ($employeeNumber) {
