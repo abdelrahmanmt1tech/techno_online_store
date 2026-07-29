@@ -51,7 +51,7 @@ final class MarkAbsentEmployeesAction
             }
 
             // Only after scheduled end + 30 min grace margin
-            if (now()->lt($window['end']->copy()->addMinutes(30)) && $date->isSameDay(now())) {
+            if (now()->lt($window['end']->copy()->addMinutes(30))) {
                 continue;
             }
 

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Actions\Hr\MarkAbsentEmployeesAction;
 use App\Models\Tenant;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class MarkHrAbsentEmployeesCommand extends Command
 {
@@ -17,13 +18,23 @@ class MarkHrAbsentEmployeesCommand extends Command
         $date = $this->option('date') ? now()->parse((string) $this->option('date')) : null;
         $total = 0;
 
-        Tenant::query()->each(function (Tenant $tenant) use ($action, $date, &$total) {
-            $tenant->run(function () use ($action, $date, $tenant, &$total) {
-                $count = $action->execute($date);
-                $total += $count;
-                $this->line("Tenant {$tenant->id}: marked {$count} absent");
+        Tenant::query()
+            ->active()
+            ->each(function (Tenant $tenant) use ($action, $date, &$total) {
+                try {
+                    $tenant->run(function () use ($action, $date, $tenant, &$total) {
+                        $count = $action->execute($date);
+                        $total += $count;
+                        $this->line("Tenant {$tenant->id}: marked {$count} absent");
+                    });
+                } catch (\Throwable $e) {
+                    Log::error('hr:mark-absent failed for tenant', [
+                        'tenant_id' => (string) $tenant->id,
+                        'message' => $e->getMessage(),
+                    ]);
+                    $this->line("Tenant {$tenant->id}: failed (" . get_class($e) . ')');
+                }
             });
-        });
 
         $this->info("Done. Total absent records: {$total}");
 
