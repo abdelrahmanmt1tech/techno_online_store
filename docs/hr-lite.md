@@ -209,3 +209,39 @@ Ensure Laravel scheduler/cron runs on the **central** application:
 ```
 
 The hourly `hr:mark-absent` job processes all active tenants automatically; no per-tenant cron is required.
+
+## Attendance page Check-In fix (Phase 12)
+
+### Root cause
+
+The previous Blade UI called `watchPosition` on page load and only punched when `lastPos` was already set. If geolocation was slow, denied, unavailable (common on plain HTTP), or timed out, Check In appeared broken: the button fired but immediately showed a location error without acquiring a fresh fix. Status labels after punch also showed raw enum keys (`late`) instead of translated labels. The `/status` payload previously exposed workplace lat/lon.
+
+### Fix
+
+- Acquire location with `getCurrentPosition` (high accuracy, short `maximumAge`) on load **and** again on button press if needed.
+- No continuous `watchPosition` polling.
+- Disable buttons + spinner while punching; confirm on check-out.
+- Backend responses include `status_label`.
+- `/status` and `/distance` never return workplace coordinates.
+- Clear UI states for not-linked / inactive / day-off / incomplete settings.
+- Translations for browser geolocation error codes + HTTPS hint.
+
+### Flow
+
+1. User opens `/app/hr/attendance` (session + CSRF + Spatie permission).
+2. Page resolves employee from auth user only.
+3. Browser requests geolocation; distance hint via `/distance` (optional UX).
+4. On Check In/Out click → ensure coords → POST lat/lon/accuracy.
+5. Backend validates permission, schedule, geofence, accuracy, duplicates; stamps **server time**.
+6. UI updates from JSON (`status_label`, times, late/worked minutes).
+
+### Requirements
+
+- Prefer **HTTPS** (or secure context) for geolocation.
+- Permissions: `hr.attendance.check_in` / `hr.attendance.check_out`.
+- Linked active `HrEmployee`, working day, schedule + location configured.
+
+### Manual QA notes
+
+- Backend punch paths covered by Feature tests with mocked coordinates.
+- Browser GPS depends on device/OS permissions; do not claim real GPS verification unless tested on a secure tenant domain with permission granted.

@@ -52,7 +52,7 @@ Admin resources under `app/Filament/Resources/`, tenant under `app/Filament/Tena
 - **Admin widgets**: AdminKpis, TenantsTrend, TenantSubscriptionStatusPie, WhatsAppStatusPie, MessengerStatusPie, WebhookEventsTrend
 - **Tenant resources** (36 resource dirs, 40 classes): Categories, Contacts, Coupons, Customers, Governorates, Orders, Pages, Products, Reviews, Roles, TenantUsers — MessengerPages, MessengerWebhookEvents, MessengerApiRequests — WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, WhatsAppContacts — Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, InvoicePayments, InvoicePrintSettings — StockTransactions/{Receipt,Issue,Transfer,Adjustment,Damage}, StockMovements, StockBalances — PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns — Sales, SalesInvoices, SalesReturns, InvoicePayments
 - **Tenant pages** (10): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage, HomeSectionBuilder, BrowseThemesPage, GeneralSettings, FooterSettings, ContactUsSettings, CodeSettings
-- **Tenant widgets** (3): OrderStatusPie, OrdersTrend, StoreKpis
+- **Tenant widgets**: StoreKpis, OrdersTrend, OrderStatusPie + Dashboard Lite (sales/POS/inventory/HR stats, sales chart, short lists) — see [`docs/dashboard-lite.md`](docs/dashboard-lite.md)
 - **Shared components**: `app/Filament/Shared/` (WhatsApp/, Messenger/, SeoFormSection.php, SeoFormOnelanguageSection.php)
 - Navigation labels: `__('dashboard.*')` in `lang/{ar,en}/dashboard.php`. ERP: `__('erp.*')` in `lang/{ar,en}/erp.php`.
 
@@ -107,6 +107,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 - **POS runtime** ([`docs/pos-runtime.md`](docs/pos-runtime.md)): session lifecycle, immutable cash movements, register guard, receipt sequences, shift X/Z reports.
 - **POS interface** ([`docs/pos-interface.md`](docs/pos-interface.md)): Blade + Vue terminal at `/app/pos` (session auth + CSRF + Axios). No SPA / Vue Router / Sanctum. Store checkout remains unwired to `UnifiedSalesEngine`.
 - **HR Lite** ([`docs/hr-lite.md`](docs/hr-lite.md)): employees, schedules, geofenced attendance, simple deductions, payroll lite. Independent of Store/POS/ERP stock.
+- **Dashboard Lite** ([`docs/dashboard-lite.md`](docs/dashboard-lite.md)): permission-aware Tenant Filament dashboard metrics from existing Sale/InvoicePayment/StockBalance/HR tables (no new DB tables).
 - Bundle stock deduction deferred. No observers syncing store qty ↔ ERP FIFO.
 
 ## Documentation
@@ -117,6 +118,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 | [`docs/pos-runtime.md`](docs/pos-runtime.md) | POS session lifecycle, cash flow, guard, receipts, shift reports |
 | [`docs/pos-interface.md`](docs/pos-interface.md) | POS Blade + Vue terminal, routes, checkout/suspend/close flows |
 | [`docs/hr-lite.md`](docs/hr-lite.md) | HR Lite: employees, attendance geofence, simple payroll |
+| [`docs/dashboard-lite.md`](docs/dashboard-lite.md) | Tenant Dashboard Lite metrics and permissions |
 | [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md) | FIFO inventory, purchases/sales/invoices; commerce↔ERP rules |
 | [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md) | Browser print-ready invoices, settings singleton, snapshots |
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module |
