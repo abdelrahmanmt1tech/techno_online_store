@@ -51,9 +51,9 @@ jobs:
             fi
 
             echo "Pulling latest changes..."
-            git pull --ff-only origin main
-
-            git pull origin main
+            git fetch --prune origin dev
+            git checkout dev
+            git pull --ff-only origin dev
 
             if [ -f "${HTACCESS_BACKUP}" ]; then
               cp -a "${HTACCESS_BACKUP}" public/.htaccess
