@@ -137,11 +137,11 @@ class RegisterController extends Controller
         ]);
 
         try {
-            Mail::to($user->email)->send(new VerifyAccountCodeMail($code, $minutes));
+            // Mail::to($user->email)->send(new VerifyAccountCodeMail($code, $minutes));
         } catch (\Throwable $e) {
             return $this->errorResponse(__('auth.failed_to_send_email'), 500);
         }
 
-        return $this->successResponse(['expires_in' => $minutes.' minutes'], __('auth.verification_code_sent'));
+        return $this->successResponse(['expires_in' => $minutes.' minutes' , 'verification_code' => $code], __('auth.verification_code_sent'));
     }
 }
