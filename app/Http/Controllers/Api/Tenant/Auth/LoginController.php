@@ -24,9 +24,9 @@ class LoginController extends Controller
             return $this->errorResponse(__('auth.invalid_credentials'), 401);
         }
 
-        if (! $user->is_verified) {
-            return $this->errorResponse(__('auth.email_not_verified'), 403);
-        }
+        // if (! $user->is_verified) {
+        //     return $this->errorResponse(__('auth.email_not_verified'), 403);
+        // }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
