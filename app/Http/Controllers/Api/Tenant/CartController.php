@@ -24,10 +24,9 @@ class CartController extends Controller
     public function addItem(AddCartItemRequest $request)
     {
         $token = $request->input('cart_token');
-        $cart = $token ? Cart::where('token', $token)->first() : null;
+        $cart = Cart::where('token', $token)->first();
 
         if (! $cart) {
-            $token = Str::uuid()->toString();
             $cart = Cart::create([
                 'token' => $token,
                 'session_id' => session()->getId(),

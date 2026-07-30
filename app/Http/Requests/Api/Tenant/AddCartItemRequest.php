@@ -14,7 +14,7 @@ class AddCartItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cart_token' => 'nullable|uuid',
+            'cart_token' => 'required|string|max:255',
             'product_id' => 'required|exists:products,id',
             'product_variant_id' => 'required|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
