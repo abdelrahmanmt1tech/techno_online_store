@@ -44,7 +44,10 @@ class RegisterController extends Controller
             // Email failed but user was created — still return success
         }
 
-        return $this->createdResponse($code, __('auth.verification_code_sent'));
+        return $this->createdResponse([
+            'user' => new UserResource($user),
+            'verification_code' => $code,
+        ], __('auth.verification_code_sent'));
     }
 
     public function verifyAccount(VerifyAccountRequest $request)
