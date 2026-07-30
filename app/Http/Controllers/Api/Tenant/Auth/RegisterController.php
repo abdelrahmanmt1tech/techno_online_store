@@ -40,6 +40,7 @@ class RegisterController extends Controller
         try {
             Mail::to($user->email)->send(new VerifyAccountCodeMail($code, $minutes));
         } catch (\Throwable $e) {
+            return $this->errorResponse(__('auth.failed_to_send_email'), 500);
             // Email failed but user was created — still return success
         }
 
