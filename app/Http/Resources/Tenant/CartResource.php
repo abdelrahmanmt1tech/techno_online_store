@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tenant;
 
+use App\Helper\CurrencyHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,6 +21,7 @@ class CartResource extends JsonResource
             'total' => max(0, $subtotal + $shippingCost),
             'governorate' => GovernorateResource::make($this->whenLoaded('governorate')),
             'items' => CartItemResource::collection($this->whenLoaded('items')),
+            'currency' => CurrencyHelper::getCurrency(),
         ];
     }
 }
