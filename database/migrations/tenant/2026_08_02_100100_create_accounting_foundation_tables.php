@@ -25,9 +25,13 @@ return new class extends Migration
             $table->string('account_code')->unique();
             $table->foreignId('parent_id')->nullable()->constrained('account_trees')->nullOnDelete();
             $table->string('account_type')->nullable();
+            $table->unsignedInteger('level')->default(1);
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete();
+            $table->string('income_general_statement', 16)->default('none');
             $table->string('balance_side', 16)->nullable();
             $table->boolean('is_disabled')->default(false);
-            $table->unsignedInteger('sort')->default(0);
+            $table->unsignedInteger('order')->default(99);
+            $table->string('main_acc_status', 16)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -1405,6 +1405,13 @@ return array (
         array (
             'nav' => 'الميزانية العمومية',
             'title' => 'الميزانية العمومية',
+            'account_name' => 'اسم الحساب',
+            'total_all_branches' => 'الإجمالي (كل الفروع)',
+            'total_debit' => 'إجمالي مدين',
+            'total_credit' => 'إجمالي دائن',
+            'section_total' => 'إجمالي القسم',
+            'grand_total' => 'الإجمالي العام',
+            'no_data' => 'لا توجد بيانات لعرضها.',
         ),
         'general_account_statement' => 
         array (
@@ -1424,6 +1431,14 @@ return array (
         array (
             'nav' => 'قائمة الأرباح والخسائر',
             'title' => 'قائمة الأرباح والخسائر (P&L)',
+            'description' => 'البيان',
+            'current_month' => 'الشهر الحالي',
+            'current_month_pct' => 'الشهر الحالي %',
+            'ytd' => 'العام حتى تاريخه',
+            'ytd_pct' => 'العام حتى تاريخه %',
+            'sales_total_label' => 'إجمالي المبيعات (للـ %)',
+            'section_total' => 'إجمالي :name',
+            'no_data' => 'لا توجد بيانات لعرضها.',
         ),
     ),
     'page' => 'صفحة',

@@ -60,6 +60,7 @@ class TenantPanelProvider extends PanelProvider
                 Css::make('whatsapp-ui', resource_path('css/whatsapp-ui.css')),
                 Css::make('messaging-health-dashboard', resource_path('css/messaging-health-dashboard.css')),
                 Css::make('crm-custom-stylesheet', resource_path('css/crm-custom.css')),
+                Css::make('accounting-reports', resource_path('css/accounting-reports.css')),
             ])
             ->widgets([
                 StoreKpis::class,

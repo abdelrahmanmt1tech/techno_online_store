@@ -31,7 +31,7 @@
 - [x] Accounting Blade views + Tenant `FinancialPeriod` namespace in BS/P&L filters
 - [x] Merge missing `dashboard.*` keys from flyaram into `lang/{ar,en}/dashboard.php` (~285 keys)
 
-**Deploy note:** after pull, run `php artisan tenants:migrate` (or `tenants:sync-permissions --migrate`) so `100500` + `100600` apply on store1.
+**Deploy note:** `deploy.yml` now runs `tenants:migrate --force` after central migrate so schema fixes (`100500`–`100700`) apply automatically.
 
 ### 2026-08-02 — Initial bulk port
 

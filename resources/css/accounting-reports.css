@@ -1,0 +1,109 @@
+/* Accounting report pages: Balance Sheet / Profit & Loss
+   Self-contained — do not rely on Tailwind utilities outside Filament theme. */
+
+.acc-report {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.acc-report__filters {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--gray-50, #f9fafb) 100%, transparent);
+}
+
+@media (min-width: 768px) {
+    .acc-report__filters {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        align-items: end;
+    }
+}
+
+.acc-report__field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.acc-report__field .fi-input,
+.acc-report__field select,
+.acc-report__field input[type='date'] {
+    width: 100%;
+}
+
+.acc-report__submit {
+    width: 100%;
+}
+
+.acc-report__panel {
+    overflow: hidden;
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+.dark .acc-report__panel {
+    background: color-mix(in srgb, var(--gray-900, #111827) 100%, transparent);
+}
+
+.acc-report__scroll {
+    overflow-x: auto;
+}
+
+.acc-report__table {
+    width: 100%;
+    min-width: 40rem;
+    border-collapse: collapse;
+}
+
+.acc-report__table th,
+.acc-report__table td {
+    padding: 0.55rem 0.75rem;
+    text-align: start;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.18);
+    white-space: nowrap;
+}
+
+.acc-report__table thead th {
+    font-weight: 600;
+    background: color-mix(in srgb, var(--gray-50, #f3f4f6) 100%, transparent);
+}
+
+.dark .acc-report__table thead th {
+    background: color-mix(in srgb, var(--gray-950, #030712) 100%, transparent);
+}
+
+.acc-report__section-row td {
+    font-weight: 600;
+    background: color-mix(in srgb, var(--gray-100, #e5e7eb) 100%, transparent);
+}
+
+.dark .acc-report__section-row td {
+    background: color-mix(in srgb, var(--gray-800, #1f2937) 70%, transparent);
+}
+
+.acc-report__totals-row td {
+    font-weight: 600;
+    background: color-mix(in srgb, var(--primary-50, #ecfdf5) 100%, transparent);
+}
+
+.dark .acc-report__totals-row td {
+    background: color-mix(in srgb, var(--primary-950, #022c22) 55%, transparent);
+}
+
+.acc-report__empty {
+    padding: 1.5rem;
+    text-align: center;
+    color: color-mix(in srgb, var(--gray-500, #6b7280) 100%, transparent);
+}
+
+.acc-report__muted {
+    color: color-mix(in srgb, var(--gray-400, #9ca3af) 100%, transparent);
+}

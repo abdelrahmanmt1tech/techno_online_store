@@ -1404,6 +1404,13 @@ return array (
         array (
             'nav' => 'Balance Sheet',
             'title' => 'Balance Sheet',
+            'account_name' => 'Account Name',
+            'total_all_branches' => 'Total (All Branches)',
+            'total_debit' => 'Total Debit',
+            'total_credit' => 'Total Credit',
+            'section_total' => 'Section Total',
+            'grand_total' => 'Grand Total',
+            'no_data' => 'No data to display.',
         ),
         'general_account_statement' => 
         array (
@@ -1423,6 +1430,14 @@ return array (
         array (
             'nav' => 'Profit and Loss',
             'title' => 'Profit and Loss (P&L)',
+            'description' => 'Description',
+            'current_month' => 'Current Month',
+            'current_month_pct' => 'Current Month %',
+            'ytd' => 'Year to Date',
+            'ytd_pct' => 'Year to Date %',
+            'sales_total_label' => 'Total Sales (for %)',
+            'section_total' => 'Total :name',
+            'no_data' => 'No data to display.',
         ),
     ),
     'page' => 'Page',
