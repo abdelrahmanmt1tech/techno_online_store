@@ -41,7 +41,10 @@ class AppServiceProvider extends ServiceProvider
                 ->locales(['ar', 'en']);
         });
 
-        Relation::enforceMorphMap([
+        // Soft morph aliases for CRM Client/Customer only.
+        // Do NOT use enforceMorphMap here — the tenant app already stores many
+        // FQCN morph types (TenantUser, Product, Seo, Media, permissions, etc.).
+        Relation::morphMap([
             'client' => Client::class,
             'customer' => Customer::class,
         ]);
