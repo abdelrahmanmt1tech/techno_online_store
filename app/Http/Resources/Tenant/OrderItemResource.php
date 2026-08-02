@@ -13,7 +13,10 @@ class OrderItemResource extends JsonResource
             'id' => $this->id,
             'product_name' => $this->product_name,
             'product_sku' => $this->product_sku,
-            'variant_options' => $this->variant_options,
+            'options' => $this->variant?->options->map(fn ($o) => [
+                'name' => $o->variation->name ?? null,
+                'value' => $o->value,
+            ]),
             'quantity' => $this->quantity,
             'unit_price' => $this->unit_price,
             'total_price' => $this->unit_price * $this->quantity,

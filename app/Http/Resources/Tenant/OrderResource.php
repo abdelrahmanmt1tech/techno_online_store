@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tenant;
 
+use App\Helper\CurrencyHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -32,6 +33,7 @@ class OrderResource extends JsonResource
             'total' => $this->total,
             'notes' => $this->notes,
             'created_at' => $this->created_at,
+            'currency' => CurrencyHelper::getCurrency(),
             // 'items' => OrderItemResource::collection($this->whenLoaded('items')),
         ];
     }
