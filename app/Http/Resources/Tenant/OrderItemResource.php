@@ -22,7 +22,6 @@ class OrderItemResource extends JsonResource
             'unit_price' => $this->unit_price,
             'total_price' => $this->unit_price * $this->quantity,
             'currency' => CurrencyHelper::getCurrency(),
-
             'product_image' => $this->whenLoaded('product', function () {
                 $media = $this->product->media->first();
 

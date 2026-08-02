@@ -137,7 +137,7 @@ class TenantForm
                                 $plan = Plan::find($state);
                                 if ($plan) {
                                     $set('price', $plan->price);
-                                    $set('currency', $plan->currency);
+                                    $set('currency', $plan->currency?->code);
 
                                     if ($plan->type === 'subscription' && $plan->subscription_period === 'monthly') {
                                         $set('expires_at', now()->addMonth());

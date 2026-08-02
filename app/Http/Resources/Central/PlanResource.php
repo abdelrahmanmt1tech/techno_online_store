@@ -26,7 +26,8 @@ class PlanResource extends JsonResource
             'type' => $typeLabels[$this->type] ?? $this->type,
             'is_active' => $this->type === 'commission',
             'price' => $this->price,
-            'currency' => $this->currency,
+            'currency' => $this->currency?->code,
+            'currency_id' => $this->currency_id,
             'features' => $this->features
                 ->sortBy('order')
                 ->map(fn ($feature) => [

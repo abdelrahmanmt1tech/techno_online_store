@@ -77,8 +77,8 @@ Route::prefix('messenger/onboarding')
 //     return 'sent';
 // });
 
-//  Route::get('/clear-config', function () {
-//     Artisan::call('optimize:clear');
+ Route::get('/clear-config', function () {
+    Artisan::call('optimize:clear');
 
-//     return nl2br(Artisan::output());
-//  });
+    return nl2br(Artisan::output());
+ });

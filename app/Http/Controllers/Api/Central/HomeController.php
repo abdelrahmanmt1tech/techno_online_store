@@ -154,7 +154,7 @@ class HomeController extends Controller
         $plans = PlanResource::collection(
             Plan::where('is_active', true)
                 ->orderBy('order')
-                ->with('features')
+                ->with(['features', 'currency'])
                 ->get()
         );
 
