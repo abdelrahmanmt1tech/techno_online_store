@@ -1427,6 +1427,8 @@ return array (
         ),
     ),
     'page' => 'صفحة',
+    'cms_page' => 'صفحة',
+    'cms_pages' => 'الصفحات',
     'page_details' => 'بيانات الصفحة',
     'page_title' => 'العنوان',
     'page_slug' => 'الرابط المختصر',

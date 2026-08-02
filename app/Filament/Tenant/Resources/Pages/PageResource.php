@@ -32,17 +32,17 @@ class PageResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('dashboard.pages');
+        return __('dashboard.cms_pages');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('dashboard.pages');
+        return __('dashboard.cms_pages');
     }
 
     public static function getModelLabel(): string
     {
-        return __('dashboard.page');
+        return __('dashboard.cms_page');
     }
 
     public static function canViewAny(): bool

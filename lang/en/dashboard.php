@@ -1426,6 +1426,8 @@ return array (
         ),
     ),
     'page' => 'Page',
+    'cms_page' => 'Page',
+    'cms_pages' => 'Pages',
     'page_details' => 'Page Details',
     'page_title' => 'Title',
     'page_slug' => 'Slug',
