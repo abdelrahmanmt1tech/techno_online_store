@@ -97,6 +97,7 @@ Route::middleware([
         Route::prefix('my-orders')->middleware(['auth:sanctum'])->group(function () {
             Route::get('/', [OrderController::class, 'index']);
             Route::get('{id}', [OrderController::class, 'showById']);
+            Route::post('{id}/cancel', [OrderController::class, 'cancel']);
         });
 
         Route::get('orders/{token}', [OrderController::class, 'show']);
