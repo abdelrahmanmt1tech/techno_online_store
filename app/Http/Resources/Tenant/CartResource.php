@@ -15,6 +15,7 @@ class CartResource extends JsonResource
 
         return [
             'token' => $this->token,
+            'item_count' => $this->items->count(),
             'subtotal' => $subtotal,
             'discount' => 0,
             'shipping_cost' => $shippingCost,
