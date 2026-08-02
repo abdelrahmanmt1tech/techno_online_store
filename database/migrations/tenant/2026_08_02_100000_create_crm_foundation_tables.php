@@ -63,6 +63,7 @@ return new class extends Migration
             $table->unsignedInteger('sort_order')->default(0);
             $table->string('color')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_final')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -246,25 +247,36 @@ return new class extends Migration
 
         Schema::create('opportunity_commission_adjustments', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('opportunity_commission_id')->constrained('opportunity_commissions')->cascadeOnDelete();
+            $table->unsignedBigInteger('opportunity_commission_id');
             $table->string('direction', 16);
             $table->decimal('amount', 15, 2);
             $table->string('status', 32)->default('pending');
             $table->text('reason')->nullable();
-            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('opportunity_commission_id', 'oca_commission_fk')
+                ->references('id')->on('opportunity_commissions')->cascadeOnDelete();
+            $table->foreign('created_by', 'oca_created_by_fk')
+                ->references('id')->on('users')->nullOnDelete();
+            $table->foreign('approved_by', 'oca_approved_by_fk')
+                ->references('id')->on('users')->nullOnDelete();
         });
 
         Schema::create('commission_payment_cycle_allocations', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('commission_payment_cycle_id')->constrained('commission_payment_cycles')->cascadeOnDelete();
-            $table->foreignId('opportunity_commission_id')->constrained('opportunity_commissions')->restrictOnDelete();
+            $table->unsignedBigInteger('commission_payment_cycle_id');
+            $table->unsignedBigInteger('opportunity_commission_id');
             $table->decimal('allocated_amount', 15, 2)->default('0.00');
             $table->timestamps();
             $table->unique(['commission_payment_cycle_id', 'opportunity_commission_id'], 'cpc_alloc_uq');
+            $table->foreign('commission_payment_cycle_id', 'cpca_cycle_fk')
+                ->references('id')->on('commission_payment_cycles')->cascadeOnDelete();
+            $table->foreign('opportunity_commission_id', 'cpca_commission_fk')
+                ->references('id')->on('opportunity_commissions')->restrictOnDelete();
         });
 
         Schema::create('commission_payment_cycle_sequences', function (Blueprint $table): void {

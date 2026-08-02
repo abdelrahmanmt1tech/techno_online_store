@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Tenant\Resources;
 
 use App\Filament\Exports\AccountsCenterExporter;
 use App\Filament\Tenant\Resources\AccountsCenterResource\Pages;

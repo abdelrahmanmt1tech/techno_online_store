@@ -3,7 +3,6 @@
 namespace App\Models\Tenant;
 
 use App\Services\Accounting\ResolveFinancialPeriodService;
-use App\Services\Accounting\SafesBankBalanceService;
 use App\Services\Accounting\SyncOperationMetadataService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -92,21 +91,17 @@ class Entry extends Model
         static::saved(function (Entry $entry): void {
             app(SyncOperationMetadataService::class)->refreshOperation($entry->operation_id, $entry->day_date);
             self::syncOperationTaxRegisterRows($entry);
-            SafesBankBalanceService::syncForEntry($entry);
+            // SafesBank not ported — cash balances stay in POS drawers.
         });
 
         static::deleted(function (Entry $entry): void {
             app(SyncOperationMetadataService::class)->refreshOperation($entry->operation_id, $entry->day_date);
             self::syncOperationTaxRegisterRows($entry);
-            if ($entry->account_tree_id) {
-                SafesBankBalanceService::recalculateForAccountTree((int) $entry->account_tree_id);
-            }
         });
 
         static::restored(function (Entry $entry): void {
             app(SyncOperationMetadataService::class)->refreshOperation($entry->operation_id, $entry->day_date);
             self::syncOperationTaxRegisterRows($entry);
-            SafesBankBalanceService::syncForEntry($entry);
         });
     }
 
@@ -149,91 +144,11 @@ class Entry extends Model
 
     protected static function syncOperationTaxRegisterRows(Entry $entry): void
     {
-        if (empty($entry->operation_id)) {
-            return;
-        }
-
-        /** @var Operation|null $operation */
-        $operation = Operation::query()->find($entry->operation_id);
-        if (! $operation) {
-            return;
-        }
-
-        // IMPORTANT:
-        // Tax-register rows from Entry should be created ONLY for direct free/manual operations.
-        // Any operation linked to a source document (Ticket/Reservation/etc.) keeps its own tax flow
-        // to avoid duplicate AccountTax rows for the same operation.
-        if (! empty($operation->service_type) || ! empty($operation->service_id)) {
-            return;
-        }
-
-        // Extra guard: keep system-generated flows fully excluded.
-        if ((bool) ($operation->is_system_generated ?? false)) {
-            return;
-        }
-
-        $settings = Setting::query()
-            ->whereIn('key', [
-                'account_tax_register_purchase_tax_account_tree_id',
-                'account_tax_register_sales_tax_account_tree_id',
-            ])
-            ->pluck('value', 'key');
-
-        $purchaseAccountId = (int) ($settings['account_tax_register_purchase_tax_account_tree_id'] ?? 0);
-        $salesAccountId = (int) ($settings['account_tax_register_sales_tax_account_tree_id'] ?? 0);
-
-        if ($purchaseAccountId <= 0 && $salesAccountId <= 0) {
-            return;
-        }
-
-        $aggregateTaxValue = function (int $accountTreeId) use ($operation): float {
-            if ($accountTreeId <= 0) {
-                return 0.0;
-            }
-
-            return round((float) $operation->entries()
-                ->where('account_tree_id', $accountTreeId)
-                ->get(['debit', 'credit'])
-                ->sum(function (Entry $line): float {
-                    return max((float) ($line->debit ?? 0), (float) ($line->credit ?? 0));
-                }), 2);
-        };
-
-        $purchaseTaxValue = $aggregateTaxValue($purchaseAccountId);
-        $salesTaxValue = $aggregateTaxValue($salesAccountId);
-
-        self::upsertOperationTaxRegisterRow($operation, 'purchase_tax', $purchaseTaxValue);
-        self::upsertOperationTaxRegisterRow($operation, 'sales_tax', $salesTaxValue);
+        // AccountTax / TaxType / ZATCA tax register not ported to techno.
     }
 
     protected static function upsertOperationTaxRegisterRow(Operation $operation, string $type, float $taxValue): void
     {
-        $baseQuery = AccountTax::query()
-            ->where('operation_id', $operation->id)
-            ->whereNull('ticket_id')
-            ->whereNull('reservation_id')
-            ->whereNull('invoice_id')
-            ->where('type', $type);
-
-        if ($taxValue <= 0) {
-            $baseQuery->delete();
-            return;
-        }
-
-        $baseQuery->updateOrCreate(
-            [
-                'operation_id' => $operation->id,
-                'ticket_id' => null,
-                'reservation_id' => null,
-                'invoice_id' => null,
-                'type' => $type,
-            ],
-            [
-                'tax_value' => $taxValue,
-                'tax_types_id' => 1,
-                'tax_percentage' => null,
-                'is_returned' => false,
-            ]
-        );
+        // no-op
     }
 }

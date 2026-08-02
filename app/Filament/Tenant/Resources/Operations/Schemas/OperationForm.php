@@ -8,9 +8,7 @@ use App\Models\Tenant\AccountsCenter;
 use App\Models\Tenant\Branch;
 use App\Models\Tenant\Client;
 use App\Models\Tenant\FinancialPeriod;
-use App\Models\Franchise;
 use App\Models\Tenant\Supplier;
-use App\Models\TaxType;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
@@ -41,13 +39,12 @@ class OperationForm
 
     private static function recalculateInvoiceTax(Get $get, Set $set): void
     {
+        // TaxType / invoice-tax linking not ported — no-op.
         $taxable = (float) ($get('invoice_taxable_amount') ?? 0);
-        $taxTypeId = (int) ($get('invoice_tax_type_id') ?? 0);
-        $taxRate = (float) (TaxType::query()->whereKey($taxTypeId)->value('value') ?? 0);
+        $taxRate = (float) ($get('invoice_tax_rate') ?? 0);
         $taxValue = round($taxable * ($taxRate / 100), 2);
         $totalWithTax = round($taxable + $taxValue, 2);
 
-        $set('invoice_tax_rate', $taxRate);
         $set('invoice_tax_value', $taxValue);
         $set('invoice_total_with_tax', $totalWithTax);
     }
@@ -321,7 +318,7 @@ class OperationForm
 
                         Select::make('invoice_tax_type_id')
                             ->label(__('dashboard.resources.operation.tax_type'))
-                            ->options(fn (): array => TaxType::query()->pluck('name', 'id')->toArray())
+                            ->options([])
                             ->searchable()
                             ->preload()
                             ->required()

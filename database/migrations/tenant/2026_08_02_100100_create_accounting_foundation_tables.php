@@ -45,9 +45,17 @@ return new class extends Migration
         Schema::create('financial_periods', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
-            $table->date('starts_on');
-            $table->date('ends_on');
+            $table->string('code')->nullable();
+            $table->date('start_date');
+            $table->date('end_date');
             $table->string('status', 32)->default('open');
+            $table->boolean('is_current')->default(false);
+            $table->foreignId('parent_period_id')->nullable()->constrained('financial_periods')->nullOnDelete();
+            $table->timestamp('closed_at')->nullable();
+            $table->foreignId('closed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('reopened_at')->nullable();
+            $table->foreignId('reopened_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -84,6 +92,7 @@ return new class extends Migration
             $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete();
             $table->decimal('debit', 15, 2)->nullable();
             $table->decimal('credit', 15, 2)->nullable();
+            $table->nullableMorphs('linkable');
             $table->string('entry_type', 32)->nullable();
             $table->date('day_date')->nullable();
             $table->text('notes')->nullable();
