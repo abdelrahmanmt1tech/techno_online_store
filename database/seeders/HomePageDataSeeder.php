@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\Category;
+use App\Models\Currency;
 use App\Models\Faq;
 use App\Models\Plan;
 use App\Models\Setting;
@@ -211,13 +212,15 @@ class HomePageDataSeeder extends Seeder
 
         // ── Plans with features ──
 
+        $sarCurrencyId = optional(Currency::where('code', 'SAR')->first())->id;
+
         $basic = Plan::create([
             'name' => ['ar' => 'خطة أساسية', 'en' => 'Basic Plan'],
             'title' => ['ar' => 'الخطة الأساسية', 'en' => 'Basic Plan'],
             'description' => ['ar' => 'انطلق مع متجرك الإلكتروني بأقل التكاليف', 'en' => 'Launch your online store with minimal costs'],
             'type' => 'subscription',
             'price' => 99,
-            'currency' => 'SAR',
+            'currency_id' => $sarCurrencyId,
             'subscription_period' => 'monthly',
             'is_active' => true,
             'order' => 1,
@@ -236,7 +239,7 @@ class HomePageDataSeeder extends Seeder
             'description' => ['ar' => 'لمتجر متكامل مع مميزات متقدمة', 'en' => 'For a full-featured store with advanced features'],
             'type' => 'subscription',
             'price' => 199,
-            'currency' => 'SAR',
+            'currency_id' => $sarCurrencyId,
             'subscription_period' => 'monthly',
             'is_active' => true,
             'order' => 2,
@@ -256,7 +259,7 @@ class HomePageDataSeeder extends Seeder
             'description' => ['ar' => 'للشركات الكبيرة التي تحتاج حلول متكاملة', 'en' => 'For large companies needing comprehensive solutions'],
             'type' => 'subscription',
             'price' => 499,
-            'currency' => 'SAR',
+            'currency_id' => $sarCurrencyId,
             'subscription_period' => 'monthly',
             'is_active' => true,
             'order' => 3,
