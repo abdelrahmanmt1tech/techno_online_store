@@ -5,14 +5,13 @@ namespace App\Http\Resources\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OrderResource extends JsonResource
+class OrderDetailsResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
             'order_number' => $this->order_number,
-            'item_count' => $this->items->count(),
             'status' => $this->status,
             'payment_method' => $this->payment_method,
             'payment_status' => $this->payment_status,
@@ -32,7 +31,7 @@ class OrderResource extends JsonResource
             'total' => $this->total,
             'notes' => $this->notes,
             'created_at' => $this->created_at,
-            // 'items' => OrderItemResource::collection($this->whenLoaded('items')),
+            'items' => OrderItemResource::collection($this->whenLoaded('items')),
         ];
     }
 }

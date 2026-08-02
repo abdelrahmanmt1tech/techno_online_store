@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Tenant\OrderDetailsResource;
 use App\Http\Resources\Tenant\OrderResource;
 use App\Models\Tenant\Order;
 use App\Traits\ApiResponse;
@@ -59,7 +60,7 @@ class OrderController extends Controller
             return $this->notFoundResponse(__('messages.resource_not_found'));
         }
 
-        return $this->successResponse(new OrderResource($order));
+        return $this->successResponse(new OrderDetailsResource($order));
     }
 
     public function show(string $token)
@@ -76,7 +77,7 @@ class OrderController extends Controller
             return $this->notFoundResponse(__('messages.resource_not_found'));
         }
 
-        return $this->successResponse(new OrderResource($order));
+        return $this->successResponse(new OrderDetailsResource($order));
     }
 
     public function cancel(Request $request, string $id): JsonResponse
@@ -101,6 +102,6 @@ class OrderController extends Controller
 
         $order->update(['status' => 'cancelled']);
 
-        return $this->successResponse(new OrderResource($order), __('messages.success'));
+        return $this->successResponse(new OrderDetailsResource($order), __('messages.success'));
     }
 }
