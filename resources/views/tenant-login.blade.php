@@ -201,7 +201,7 @@
                             </div>
 
                             <div class="fi-form-actions">
-                                <x-filament::button type="submit" color="primary" size="md" class="w-full"
+                                <x-filament::button type="submit" color="primary" size="md" class="w-full text-center"
                                     x-bind:disabled="submitting"
                                     x-bind:class="{ 'opacity-50 cursor-not-allowed': submitting }">
                                     <span x-show="!submitting">
@@ -209,7 +209,7 @@
                                     </span>
 
                                     <span x-show="submitting">
-                                        جاري تسجيل الدخول...
+                                        {{ __('dashboard.signing_in') }}
                                     </span>
                                 </x-filament::button>
                             </div>

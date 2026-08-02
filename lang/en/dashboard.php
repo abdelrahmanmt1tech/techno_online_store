@@ -10,6 +10,7 @@ return [
     'users_group' => 'Users',
     'roles_and_permissions' => 'Roles & Permissions',
     'login' => 'Login',
+    'signing_in' => 'Signing in...',
     'roles' => 'Roles',
     'role' => 'Role',
 

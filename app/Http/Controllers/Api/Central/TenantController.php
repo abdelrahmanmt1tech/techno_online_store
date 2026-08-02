@@ -29,7 +29,7 @@ class TenantController extends Controller
         ];
         unset($data['plan_id'], $data['price'], $data['currency'], $data['started_at'], $data['expires_at']);
 
-        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+        $centralDomain = parse_url(config('app.domain_url'), PHP_URL_HOST) ?? 'localhost';
 
         $tenant = Tenant::create($data);
 

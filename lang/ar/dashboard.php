@@ -10,6 +10,7 @@ return [
     'users_group' => 'المستخدمين',
     'roles_and_permissions' => 'الأدوار والصلاحيات',
     'login' => 'تسجيل الدخول',
+    'signing_in' => 'جاري تسجيل الدخول...',
     'roles' => 'الأدوار',
     'role' => 'دور',
 
