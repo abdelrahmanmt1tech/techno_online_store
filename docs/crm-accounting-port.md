@@ -31,7 +31,7 @@
 - [x] Accounting Blade views + Tenant `FinancialPeriod` namespace in BS/P&L filters
 - [x] Merge missing `dashboard.*` keys from flyaram into `lang/{ar,en}/dashboard.php` (~285 keys)
 
-**Deploy note:** `deploy.yml` now runs `tenants:migrate --force` after central migrate so schema fixes (`100500`–`100700`) apply automatically.
+**Views audit (2026-08-02):** financial-period opening-entry create/edit blades + `filament.notes-modal` copied; CRM report/print/timeline views present.
 
 ### 2026-08-02 — Initial bulk port
 

@@ -909,6 +909,7 @@ return array (
     'modal_heading' => 'ملاحظات المتابعة',
     'created' => 'تم إنشاء الملاحظة',
     'empty' => 'لا توجد ملاحظات حتى الآن.',
+    'private' => 'خاصة',
   ),
   'stage_logs' => 
   array (

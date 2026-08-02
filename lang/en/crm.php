@@ -909,6 +909,7 @@ return array (
     'modal_heading' => 'Notes',
     'created' => 'Note created',
     'empty' => 'No notes yet.',
+    'private' => 'Private',
   ),
   'stage_logs' => 
   array (
