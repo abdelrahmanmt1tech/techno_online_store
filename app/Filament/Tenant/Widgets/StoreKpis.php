@@ -12,6 +12,7 @@ use App\Models\Tenant\Review;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Auth;
 
 class StoreKpis extends BaseWidget
 {
@@ -19,7 +20,7 @@ class StoreKpis extends BaseWidget
 
     public static function canView(): bool
     {
-        $user = \Illuminate\Support\Facades\Auth::guard('tenant')->user();
+        $user = Auth::guard('tenant')->user();
 
         return $user !== null
             && $user->can('dashboard.view')

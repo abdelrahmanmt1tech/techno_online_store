@@ -44,6 +44,17 @@ class ContactsTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('branch.name')
+                    ->label(__('dashboard.branch'))
+                    ->searchable()
+                    ->sortable()
+                    ->formatStateUsing(fn ($state) => $state ?: '-'),
+
+                TextColumn::make('job')
+                    ->label(__('dashboard.job'))
+                    ->searchable()
+                    ->formatStateUsing(fn ($state) => $state ?: '-'),
+
                 IconColumn::make('read_at')
                     ->label(__('dashboard.read_status'))
                     ->boolean()

@@ -64,11 +64,16 @@ return [
 
     'fields' => [
         'name' => 'Name',
+        'slug' => 'Slug',
         'code' => 'Code',
         'phone' => 'Phone',
         'email' => 'Email',
         'address' => 'Address',
         'city' => 'City',
+        'latitude' => 'Latitude',
+        'longitude' => 'Longitude',
+        'location' => 'Location',
+        'location_on_map' => 'Location on Map',
         'country' => 'Country',
         'notes' => 'Notes',
         'is_main' => 'Main Branch',

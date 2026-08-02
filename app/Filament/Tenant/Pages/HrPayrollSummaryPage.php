@@ -2,6 +2,7 @@
 
 namespace App\Filament\Tenant\Pages;
 
+use App\Enums\Hr\PayrollPeriodStatus;
 use App\Models\Tenant\HrPayrollEmployee;
 use App\Models\Tenant\HrPayrollPeriod;
 use BackedEnum;
@@ -119,7 +120,7 @@ class HrPayrollSummaryPage extends Page
 
         return [
             'period' => $period->name,
-            'status' => $period->status instanceof \App\Enums\Hr\PayrollPeriodStatus
+            'status' => $period->status instanceof PayrollPeriodStatus
                 ? $period->status->label()
                 : (string) $period->status,
             'employees_count' => $lines->count(),

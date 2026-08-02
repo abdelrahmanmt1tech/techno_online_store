@@ -25,6 +25,7 @@ class ContactController extends Controller
     {
         $keys = [
             'contact_us_title',
+            'contact_us_subtitle',
             'contact_us_description',
             'contact_us_image',
             'contact_us_email',

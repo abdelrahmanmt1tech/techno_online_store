@@ -11,6 +11,7 @@ class ContactUsResource extends JsonResource
     {
         return [
             'title' => $this['contact_us_title'] ?? '',
+            'subtitle' => $this['contact_us_subtitle'] ?? '',
             'description' => $this['contact_us_description'] ?? '',
             'image' => $this['contact_us_image']
                 ? asset('storage/tenant'.tenant('id').'/'.$this['contact_us_image'])

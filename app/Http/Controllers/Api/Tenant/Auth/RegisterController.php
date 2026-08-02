@@ -38,12 +38,16 @@ class RegisterController extends Controller
         ]);
 
         try {
-            Mail::to($user->email)->send(new VerifyAccountCodeMail($code, $minutes));
+            // Mail::to($user->email)->send(new VerifyAccountCodeMail($code, $minutes));
         } catch (\Throwable $e) {
+            return $this->errorResponse(__('auth.failed_to_send_email'), 500);
             // Email failed but user was created — still return success
         }
 
-        return $this->createdResponse(null, __('auth.verification_code_sent'));
+        return $this->createdResponse([
+            'user' => new UserResource($user),
+            'verification_code' => $code,
+        ], __('auth.verification_code_sent'));
     }
 
     public function verifyAccount(VerifyAccountRequest $request)
@@ -133,11 +137,11 @@ class RegisterController extends Controller
         ]);
 
         try {
-            Mail::to($user->email)->send(new VerifyAccountCodeMail($code, $minutes));
+            // Mail::to($user->email)->send(new VerifyAccountCodeMail($code, $minutes));
         } catch (\Throwable $e) {
             return $this->errorResponse(__('auth.failed_to_send_email'), 500);
         }
 
-        return $this->successResponse(['expires_in' => $minutes.' minutes'], __('auth.verification_code_sent'));
+        return $this->successResponse(['expires_in' => $minutes.' minutes' , 'verification_code' => $code], __('auth.verification_code_sent'));
     }
 }

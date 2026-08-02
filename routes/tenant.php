@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\Tenant\Auth\LoginController;
 use App\Http\Controllers\Api\Tenant\Auth\PasswordResetController;
 use App\Http\Controllers\Api\Tenant\Auth\RegisterController;
+use App\Http\Controllers\Api\Tenant\BranchController;
 use App\Http\Controllers\Api\Tenant\CartController;
 use App\Http\Controllers\Api\Tenant\CategoryController;
 use App\Http\Controllers\Api\Tenant\CheckoutController;
@@ -52,6 +53,7 @@ Route::middleware([
         // المنتجات (عام)
         Route::get('products', [ProductController::class, 'index']);
         Route::get('products/{slug}', [ProductController::class, 'show']);
+        Route::get('products/{slug}/similar', [ProductController::class, 'similar']);
 
         // التصنيفات (عام)
         Route::get('categories', [CategoryController::class, 'index']);
@@ -79,6 +81,7 @@ Route::middleware([
         // السلة
         Route::post('cart/items', [CartController::class, 'addItem']);
         Route::get('cart/{token}', [CartController::class, 'show']);
+        Route::get('cart/{token}/count', [CartController::class, 'count']);
         Route::post('cart/{token}/items/{item}', [CartController::class, 'updateItem']);
         Route::delete('cart/{token}/items/{item}', [CartController::class, 'removeItem']);
         Route::post('cart/{token}/governorate', [CartController::class, 'setGovernorate']);
@@ -94,6 +97,7 @@ Route::middleware([
         Route::prefix('my-orders')->middleware(['auth:sanctum'])->group(function () {
             Route::get('/', [OrderController::class, 'index']);
             Route::get('{id}', [OrderController::class, 'showById']);
+            Route::post('{id}/cancel', [OrderController::class, 'cancel']);
         });
 
         Route::get('orders/{token}', [OrderController::class, 'show']);
@@ -113,6 +117,10 @@ Route::middleware([
 
         // اتصل بنا
         Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);
+
+        // الفروع
+        Route::get('branches', [BranchController::class, 'index']);
+        Route::get('branches/{branch:slug}', [BranchController::class, 'show']);
 
         // الصفحات
         Route::get('pages', [PageController::class, 'index']);

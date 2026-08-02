@@ -2,15 +2,12 @@
 
 namespace App\Http\Resources\Tenant;
 
-use App\Models\Setting;
+use App\Helper\CurrencyHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\DB;
 
 class ProductListResource extends JsonResource
 {
-    private static ?array $currencyCache = null;
-
     public function toArray(Request $request): array
     {
         $firstVariant = $this->variants?->first();
@@ -34,43 +31,9 @@ class ProductListResource extends JsonResource
             'is_favorite' => $this->is_favorite ?? false,
             'rating' => $this->whenAggregated('reviews', 'rating', 'avg'),
             // 'reviews_count' => $this->whenCounted('reviews'),
-            'currency' => static::getCurrency(),
+            'currency' => CurrencyHelper::getCurrency(),
         ];
     }
 
-    public static function getCurrency(): ?array
-    {
-        if (static::$currencyCache !== null) {
-            return static::$currencyCache;
-        }
 
-        $currencyCode = Setting::where('key', 'site_currency')->value('value');
-
-        if ($currencyCode) {
-            $row = DB::connection(
-                config('tenancy.database.central_connection', config('database.default'))
-            )
-                ->table('currencies')
-                ->where('code', $currencyCode)
-                ->where('is_active', true)
-                ->first();
-        }
-
-        if (! isset($row) || ! $row) {
-            return static::$currencyCache = [
-                'code' => 'USD',
-                'name' => 'USD',
-                'symbol' => '$',
-            ];
-        }
-
-        $locale = app()->getLocale();
-        $name = json_decode($row->name, true)[$locale] ?? $row->code;
-
-        return static::$currencyCache = [
-            'code' => $row->code,
-            'name' => $name,
-            'symbol' => $row->symbol ?? null,
-        ];
-    }
 }

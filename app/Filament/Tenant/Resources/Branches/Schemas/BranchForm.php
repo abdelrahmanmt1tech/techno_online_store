@@ -2,6 +2,9 @@
 
 namespace App\Filament\Tenant\Resources\Branches\Schemas;
 
+use App\Filament\Forms\Components\Map;
+use App\Filament\Shared\SeoFormOnelanguageSection;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -17,6 +20,7 @@ class BranchForm
                 ->columns(3)
                 ->schema([
                     TextInput::make('name')->label(__('erp.fields.name'))->required()->maxLength(255),
+                    TextInput::make('slug')->label(__('erp.fields.slug'))->maxLength(255),
                     TextInput::make('code')->label(__('erp.fields.code'))->maxLength(50),
                     TextInput::make('phone')->label(__('erp.fields.phone'))->tel()->maxLength(50),
                     TextInput::make('email')->label(__('erp.fields.email'))->email()->maxLength(255),
@@ -27,6 +31,27 @@ class BranchForm
                     Textarea::make('notes')->label(__('erp.fields.notes'))->rows(2)->columnSpanFull(),
                 ])
                 ->columnSpanFull(),
+
+            Section::make(__('erp.fields.location'))
+                ->columns(2)
+                ->schema([
+                    Map::make('location_map')
+                        ->label(__('erp.fields.location_on_map'))
+                        ->defaultLocation(latitude: 30.0444, longitude: 31.2357)
+                        ->showMarker(true)
+                        ->zoom(8)
+                        ->draggable(true)
+                        ->clickable(true)
+                        ->tilesUrl('https://tile.openstreetmap.de/{z}/{x}/{y}.png')
+                        ->dehydrated(false)
+                        ->columnSpanFull(),
+
+                    Hidden::make('latitude'),
+                    Hidden::make('longitude'),
+                ])
+                ->columnSpanFull(),
+
+            SeoFormOnelanguageSection::make()->columnSpanFull(),
         ]);
     }
 }

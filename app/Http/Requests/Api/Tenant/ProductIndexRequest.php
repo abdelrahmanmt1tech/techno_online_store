@@ -18,6 +18,7 @@ class ProductIndexRequest extends FormRequest
             'category_id.*' => 'integer',
             'search' => 'nullable|string|max:255',
             'sort' => 'nullable|string|in:popular,newest,price_high,price_low,top_rated',
+            'rating' => 'nullable|integer|min:1|max:5',
             'per_page' => 'nullable|integer|min:1|max:50',
         ];
     }

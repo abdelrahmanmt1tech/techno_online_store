@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tenant;
 
+use App\Helper\CurrencyHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -62,7 +63,7 @@ class ProductDetailResource extends JsonResource
             'is_favorite' => $this->is_favorite ?? false,
             'rating' => $this->whenAggregated('reviews', 'rating', 'avg'),
             'reviews_count' => $this->whenCounted('reviews'),
-            'currency' => ProductListResource::getCurrency(),
+            'currency' => CurrencyHelper::getCurrency(),
             'seo' => $this->whenLoaded('seo', fn () => $this->seo ? SeoResource::make($this->seo) : null),
         ];
     }

@@ -8,6 +8,7 @@ use App\Models\TenantUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Branch extends Model
@@ -18,11 +19,14 @@ class Branch extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'code',
         'phone',
         'email',
         'address',
         'city',
+        'latitude',
+        'longitude',
         'notes',
         'is_main',
         'is_active',
@@ -33,6 +37,8 @@ class Branch extends Model
     protected $casts = [
         'is_main' => 'boolean',
         'is_active' => 'boolean',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     public function users(): BelongsToMany
@@ -44,5 +50,10 @@ class Branch extends Model
     public function warehouses(): HasMany
     {
         return $this->hasMany(Warehouse::class);
+    }
+
+    public function seo(): MorphOne
+    {
+        return $this->morphOne(Seo::class, 'seoable');
     }
 }
