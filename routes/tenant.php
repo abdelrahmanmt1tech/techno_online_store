@@ -81,6 +81,7 @@ Route::middleware([
         // السلة
         Route::post('cart/items', [CartController::class, 'addItem']);
         Route::get('cart/{token}', [CartController::class, 'show']);
+        Route::get('cart/{token}/count', [CartController::class, 'count']);
         Route::post('cart/{token}/items/{item}', [CartController::class, 'updateItem']);
         Route::delete('cart/{token}/items/{item}', [CartController::class, 'removeItem']);
         Route::post('cart/{token}/governorate', [CartController::class, 'setGovernorate']);

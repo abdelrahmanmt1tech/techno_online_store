@@ -54,6 +54,23 @@ class CartController extends Controller
         return $this->successResponse(new CartResource($cart));
     }
 
+    public function count(string $token)
+    {
+        $cart = Cart::where('token', $token)->first();
+
+        if (! $cart) {
+            return $this->notFoundResponse(__('messages.resource_not_found'));
+        }
+
+        $count = $cart->items()->count();
+
+        if ($count === 0) {
+            $cart->delete();
+        }
+
+        return $this->successResponse(['item_count' => $count]);
+    }
+
     private function handleAddItem(AddCartItemRequest $request, Cart $cart, string $token)
     {
         if ($cart->status !== 'active') {
