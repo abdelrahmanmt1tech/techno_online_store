@@ -41,7 +41,7 @@ class SettingsController extends Controller
             'contact_us_phone' => $settings->get('contact_us_phone')?->value ?? null,
             'terms_and_conditions' => $termsContent,
             'app_domain' => config('app.domain'),
-            'login_link' => config('app.url').'/tenant-login',
+            'login_link' => config('app.url').'tenant-login',
         ]);
     }
 }
