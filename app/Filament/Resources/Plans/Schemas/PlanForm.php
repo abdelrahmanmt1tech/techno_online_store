@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Plans\Schemas;
 
+use App\Models\Currency;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -63,22 +64,17 @@ class PlanForm
                             ->live()
                             ->native(false),
 
-                        Select::make('currency')
+                        Select::make('currency_id')
                             ->label(__('dashboard.currency'))
-                            ->options(fn () => array_merge(
-                                [
-                                    'SAR' => 'SAR (ريال سعودي)',
-                                    'USD' => 'USD (دولار أمريكي)',
-                                    'EUR' => 'EUR (يورو)',
-                                    'GBP' => 'GBP (جنيه إسترليني)',
-                                    'EGP' => 'EGP (جنيه مصري)',
-                                    'AED' => 'AED (درهم إماراتي)',
-                                ],
-                                session()->get('plan_currencies', []),
-                            ))
-                            ->default('SAR')
+                            ->options(fn () => Currency::where('is_active', true)
+                                ->orderBy('sort_order')
+                                ->get()
+                                ->mapWithKeys(fn ($currency) => [
+                                    $currency->id => $currency->code.' ('.$currency->getTranslation('name', app()->getLocale()).')',
+                                ]))
                             ->searchable()
                             ->native(false)
+                            ->required()
                             ->suffixAction(
                                 Action::make('add_currency')
                                     ->icon('heroicon-o-plus-circle')
@@ -100,28 +96,29 @@ class PlanForm
                                             ]),
                                     ])
                                     ->action(function (array $data, $set) {
-                                        $code = $data['code'];
-                                        $name = $data['name'];
+                                        $currency = Currency::firstOrCreate(
+                                            ['code' => $data['code']],
+                                            [
+                                                'name' => ['ar' => $data['name'], 'en' => $data['name']],
+                                                'is_active' => true,
+                                            ]
+                                        );
 
-                                        $currencies = session()->get('plan_currencies', []);
-                                        $currencies[$code] = "$code ($name)";
-                                        session()->put('plan_currencies', $currencies);
-
-                                        $set('currency', $code);
+                                        $set('currency_id', $currency->id);
                                     }),
                             ),
 
                         TextInput::make('price')
                             ->label(__('dashboard.price'))
                             ->numeric()
-                            ->prefix(fn (Get $get) => $get('currency') ?? 'SAR')
+                            ->prefix(fn (Get $get) => Currency::find($get('currency_id'))?->code)
                             ->minValue(0)
                             ->live(),
 
                         TextInput::make('commission_per_order')
                             ->label(__('dashboard.commission_per_order'))
                             ->numeric()
-                            ->prefix(fn (Get $get) => $get('currency') ?? 'SAR')
+                            ->prefix(fn (Get $get) => Currency::find($get('currency_id'))?->code)
                             ->minValue(0)
                             ->live()
                             ->visible(fn (Get $get) => $get('type') === 'commission')

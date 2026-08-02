@@ -36,12 +36,12 @@ class PlansTable
 
                 TextColumn::make('price')
                     ->label(__('dashboard.price'))
-                    ->money(fn ($record) => $record->currency ?? 'SAR')
+                    ->money(fn ($record) => $record->currency?->code ?? 'SAR')
                     ->sortable(),
 
                 TextColumn::make('commission_per_order')
                     ->label(__('dashboard.commission_per_order'))
-                    ->money(fn ($record) => $record->currency ?? 'SAR')
+                    ->money(fn ($record) => $record->currency?->code ?? 'SAR')
                     ->sortable()
                     ->toggleable(),
 
