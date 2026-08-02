@@ -90,6 +90,16 @@ class OpportunityForm
                             ->relationship('campaign', 'name')
                             ->searchable()
                             ->preload(),
+                    Select::make('sale_id')
+                        ->label(__('crm.fields.sale'))
+                        ->relationship('sale', 'document_number')
+                        ->searchable()
+                        ->preload(),
+                    Select::make('sales_invoice_id')
+                        ->label(__('crm.fields.sales_invoice'))
+                        ->relationship('salesInvoice', 'document_number')
+                        ->searchable()
+                        ->preload(),
                     KeyValue::make('meta')
                         ->label(__('crm.fields.meta'))
                         ->columnSpanFull(),
@@ -101,7 +111,7 @@ class OpportunityForm
     {
         $field = $lockClient
             ? Select::make('assigned_to')
-                ->options(User::query()->pluck('name', 'id'))
+                ->options(TenantUser::query()->pluck('name', 'id'))
             : Select::make('assigned_to')
                 ->relationship('assignedTo', 'name');
 

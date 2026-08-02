@@ -33,7 +33,7 @@ class CrmCommissionStatsOverview extends StatsOverviewWidget
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (! $user instanceof TenantUser) {
             return [];
         }
 

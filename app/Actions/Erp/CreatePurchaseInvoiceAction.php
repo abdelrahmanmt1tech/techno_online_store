@@ -10,6 +10,7 @@ use App\Models\Tenant\PurchaseInvoice;
 use App\Models\Tenant\PurchaseInvoiceItem;
 use App\Services\Erp\DocumentNumberService;
 use App\Services\Erp\InvoicePrintSettingsService;
+use App\Services\Accounting\Posting\PostPurchaseInvoiceToJournalService;
 use App\Support\Erp\Decimal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,7 @@ final class CreatePurchaseInvoiceAction
     public function __construct(
         private readonly DocumentNumberService $numbers,
         private readonly InvoicePrintSettingsService $printSettings,
+        private readonly PostPurchaseInvoiceToJournalService $journalPoster,
     ) {}
 
     public function execute(GoodsReceipt $receipt, ?string $invoiceDate = null): PurchaseInvoice
@@ -78,7 +80,10 @@ final class CreatePurchaseInvoiceAction
             $invoice->print_settings_snapshot = $this->printSettings->buildSnapshot();
             $invoice->save();
 
-            return $invoice->fresh('items');
+            $invoice = $invoice->fresh('items');
+            $this->journalPoster->handle($invoice);
+
+            return $invoice;
         });
     }
 }

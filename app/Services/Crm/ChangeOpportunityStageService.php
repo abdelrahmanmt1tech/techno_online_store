@@ -20,7 +20,7 @@ class ChangeOpportunityStageService
     public function handle(
         Opportunity $opportunity,
         OpportunityStage $newStage,
-        User $user,
+        TenantUser $user,
         ?string $notes = null,
         ?array $meta = null,
     ): void {
@@ -55,7 +55,7 @@ class ChangeOpportunityStageService
     public function handleByStageId(
         Opportunity $opportunity,
         int $newStageId,
-        User $user,
+        TenantUser $user,
         ?string $notes = null,
         ?array $meta = null,
     ): void {
@@ -76,7 +76,7 @@ class ChangeOpportunityStageService
     public function recordInitialStage(
         Opportunity $opportunity,
         OpportunityStage $stage,
-        User $user,
+        TenantUser $user,
         ?string $notes = null,
         ?array $meta = null,
     ): void {

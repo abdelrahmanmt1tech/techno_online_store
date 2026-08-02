@@ -18,7 +18,7 @@ final class CustomerReportQuery
      * @param  Builder<Client>  $query
      * @return Builder<Client>
      */
-    public static function tableQuery(User $user, CrmReportFilters $filters): Builder
+    public static function tableQuery(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $branchIds = CrmReportScope::branchIdsForFilters($user, $filters);
 
@@ -60,7 +60,7 @@ final class CustomerReportQuery
      *     by_employee: array<string, int>,
      * }
      */
-    public static function summary(User $user, CrmReportFilters $filters): array
+    public static function summary(TenantUser $user, CrmReportFilters $filters): array
     {
         $base = Client::query();
         CrmReportScope::applyClientFilters($base, $user, $filters);

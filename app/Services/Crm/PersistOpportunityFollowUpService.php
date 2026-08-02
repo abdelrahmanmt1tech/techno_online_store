@@ -16,7 +16,7 @@ class PersistOpportunityFollowUpService
     public function handle(
         OpportunityFollowUp $followUp,
         array $data,
-        User $user,
+        TenantUser $user,
         ?int $opportunityId = null,
     ): OpportunityFollowUp {
         $targetStageId = $data['target_opportunity_stage_id'] ?? null;

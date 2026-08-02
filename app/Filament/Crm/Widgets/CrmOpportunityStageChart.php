@@ -6,10 +6,10 @@ use App\Filament\Concerns\HasTenantFeatureAccess;
 use App\Models\Tenant\Opportunity;
 use App\Models\TenantUser;
 use App\Support\Crm\CrmBranchVisibility;
+use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
-use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
-class CrmOpportunityStageChart extends ApexChartWidget
+class CrmOpportunityStageChart extends ChartWidget
 {
     use HasTenantFeatureAccess;
 
@@ -18,8 +18,6 @@ class CrmOpportunityStageChart extends ApexChartWidget
     protected static ?int $sort = 3;
 
     protected int|string|array $columnSpan = 1;
-
-    protected ?string $pollingInterval = null;
 
     public static function canView(): bool
     {
@@ -31,11 +29,11 @@ class CrmOpportunityStageChart extends ApexChartWidget
         return __('crm.widgets.chart_opportunities_by_stage');
     }
 
-    protected function getOptions(): array
+    protected function getData(): array
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (! $user instanceof TenantUser) {
             return $this->emptyDonut();
         }
 
@@ -58,11 +56,27 @@ class CrmOpportunityStageChart extends ApexChartWidget
         }
 
         return [
-            'chart' => ['type' => 'donut', 'height' => 300],
-            'series' => $series,
+            'datasets' => [[
+                'label' => __('crm.widgets.chart_opportunities_by_stage'),
+                'data' => $series,
+                'backgroundColor' => [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(168, 85, 247, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(20, 184, 166, 0.8)',
+                ],
+                'borderColor' => [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(34, 197, 94, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(168, 85, 247, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(20, 184, 166, 1)',
+                ],
+            ]],
             'labels' => $labels,
-            'legend' => ['position' => 'bottom'],
-            'plotOptions' => ['pie' => ['donut' => ['size' => '60%']]],
         ];
     }
 
@@ -72,10 +86,18 @@ class CrmOpportunityStageChart extends ApexChartWidget
     protected function emptyDonut(): array
     {
         return [
-            'chart' => ['type' => 'donut', 'height' => 300],
-            'series' => [0],
+            'datasets' => [[
+                'label' => __('crm.widgets.chart_opportunities_by_stage'),
+                'data' => [0],
+                'backgroundColor' => ['rgba(209, 213, 219, 0.8)'],
+                'borderColor' => ['rgba(209, 213, 219, 1)'],
+            ]],
             'labels' => [__('crm.widgets.no_data')],
-            'colors' => ['#d1d5db'],
         ];
+    }
+
+    protected function getType(): string
+    {
+        return 'doughnut';
     }
 }

@@ -17,7 +17,7 @@ final class CommissionPaymentCycleCommissionSelector
      * @return Builder<OpportunityCommission>
      */
     public static function buildQuery(
-        User $user,
+        TenantUser $user,
         Carbon $periodFrom,
         Carbon $periodTo,
         ?int $branchId = null,
@@ -54,7 +54,7 @@ final class CommissionPaymentCycleCommissionSelector
      * @return list<OpportunityCommission>
      */
     public static function payableCommissions(
-        User $user,
+        TenantUser $user,
         Carbon $periodFrom,
         Carbon $periodTo,
         ?int $branchId = null,

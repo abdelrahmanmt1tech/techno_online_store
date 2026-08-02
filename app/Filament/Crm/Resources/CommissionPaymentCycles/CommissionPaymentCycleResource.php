@@ -57,7 +57,7 @@ class CommissionPaymentCycleResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && CommissionPaymentCycleAccess::canViewAny($user);
     }
 
@@ -65,7 +65,7 @@ class CommissionPaymentCycleResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof CommissionPaymentCycle
             && CommissionPaymentCycleAccess::canView($user, $record);
     }
@@ -74,7 +74,7 @@ class CommissionPaymentCycleResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && CommissionPaymentCycleAccess::canCreate($user);
     }
 
@@ -82,7 +82,7 @@ class CommissionPaymentCycleResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof CommissionPaymentCycle
             && CommissionPaymentCycleAccess::canUpdate($user, $record);
     }
@@ -91,7 +91,7 @@ class CommissionPaymentCycleResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof CommissionPaymentCycle
             && CommissionPaymentCycleAccess::canDelete($user, $record);
     }
@@ -100,7 +100,7 @@ class CommissionPaymentCycleResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof CommissionPaymentCycle
             && CommissionPaymentCycleAccess::canDelete($user, $record);
     }
@@ -109,7 +109,7 @@ class CommissionPaymentCycleResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof CommissionPaymentCycle
             && CommissionPaymentCycleAccess::canDelete($user, $record);
     }
@@ -121,7 +121,7 @@ class CommissionPaymentCycleResource extends CrmResource
 
         $user = Auth::user();
 
-        if ($user instanceof User) {
+        if ($user instanceof TenantUser) {
             $query->visibleToUser($user);
         }
 
@@ -168,7 +168,7 @@ class CommissionPaymentCycleResource extends CrmResource
 
         $user = Auth::user();
 
-        if ($user instanceof User) {
+        if ($user instanceof TenantUser) {
             $query->visibleToUser($user);
         }
 

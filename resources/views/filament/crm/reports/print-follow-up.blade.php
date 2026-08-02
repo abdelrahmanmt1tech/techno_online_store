@@ -2,9 +2,9 @@
 
 @section('kpi')
     <div>
-        {{ __('dashboard.crm.reports.followup.stats.total') }}: {{ number_format($summary['total'] ?? 0) }} |
-        {{ __('dashboard.crm.reports.followup.stats.overdue') }}: {{ number_format($summary['overdue'] ?? 0) }} |
-        {{ __('dashboard.crm.reports.followup.stats.completed') }}: {{ number_format($summary['completed'] ?? 0) }}
+        {{ __('crm.reports.followup.stats.total') }}: {{ number_format($summary['total'] ?? 0) }} |
+        {{ __('crm.reports.followup.stats.overdue') }}: {{ number_format($summary['overdue'] ?? 0) }} |
+        {{ __('crm.reports.followup.stats.completed') }}: {{ number_format($summary['completed'] ?? 0) }}
     </div>
 @endsection
 
@@ -12,11 +12,11 @@
     <table>
         <thead>
             <tr>
-                <th>{{ __('dashboard.crm.fields.scheduled_at') }}</th>
-                <th>{{ __('dashboard.crm.fields.follow_up_type') }}</th>
-                <th>{{ __('dashboard.crm.fields.assigned_to') }}</th>
-                <th>{{ __('dashboard.crm.fields.opportunity') }}</th>
-                <th>{{ __('dashboard.crm.fields.client') }}</th>
+                <th>{{ __('crm.fields.scheduled_at') }}</th>
+                <th>{{ __('crm.fields.follow_up_type') }}</th>
+                <th>{{ __('crm.fields.assigned_to') }}</th>
+                <th>{{ __('crm.fields.opportunity') }}</th>
+                <th>{{ __('crm.fields.client') }}</th>
             </tr>
         </thead>
         <tbody>

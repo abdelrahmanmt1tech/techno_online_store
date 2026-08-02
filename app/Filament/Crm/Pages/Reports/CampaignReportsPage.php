@@ -55,7 +55,7 @@ class CampaignReportsPage extends CrmPage implements HasTable
     {
         $user = Auth::user();
 
-        return $user instanceof User && CrmReportAccess::canViewCampaignReports($user);
+        return $user instanceof TenantUser && CrmReportAccess::canViewCampaignReports($user);
     }
 
     public function getTitle(): string
@@ -204,7 +204,7 @@ class CampaignReportsPage extends CrmPage implements HasTable
                     ->query(fn (Builder $query): Builder => $query),
                 SelectFilter::make('sales_rep_id')
                     ->label(__('crm.fields.assigned_to'))
-                    ->options(fn (): array => User::query()->orderBy('name')->pluck('name', 'id')->all())
+                    ->options(fn (): array => TenantUser::query()->orderBy('name')->pluck('name', 'id')->all())
                     ->query(fn (Builder $query): Builder => $query),
                 SelectFilter::make('lead_source_id')
                     ->label(__('crm.fields.source'))

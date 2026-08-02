@@ -17,7 +17,7 @@ final class CrmReportScope
      * @param  Builder<Opportunity>  $query
      * @return Builder<Opportunity>
      */
-    public static function applyOpportunityFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    public static function applyOpportunityFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         CrmBranchVisibility::applyOpportunityScope($query, $user);
 
@@ -77,7 +77,7 @@ final class CrmReportScope
      * @param  Builder<OpportunityFollowUp>  $query
      * @return Builder<OpportunityFollowUp>
      */
-    public static function applyFollowUpFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    public static function applyFollowUpFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         $query->whereHas('opportunity', function (Builder $opportunity) use ($user, $filters): void {
             CrmBranchVisibility::applyOpportunityScope($opportunity, $user);
@@ -140,7 +140,7 @@ final class CrmReportScope
      * @param  Builder<Opportunity>  $query
      * @return Builder<Opportunity>
      */
-    public static function applyCampaignOpportunityFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    public static function applyCampaignOpportunityFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         CrmBranchVisibility::applyOpportunityScope($query, $user);
 
@@ -174,7 +174,7 @@ final class CrmReportScope
      * @param  Builder<Campaign>  $query
      * @return Builder<Campaign>
      */
-    public static function applyCampaignFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    public static function applyCampaignFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         if ($filters->campaignStatus !== null) {
             $query->where('status', $filters->campaignStatus);
@@ -221,7 +221,7 @@ final class CrmReportScope
      * @param  Builder<Client>  $query
      * @return Builder<Client>
      */
-    public static function applyClientBranchScope(Builder $query, User $user, CrmReportFilters $filters): Builder
+    public static function applyClientBranchScope(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         $branchIds = self::effectiveBranchIds($user, $filters);
 
@@ -243,7 +243,7 @@ final class CrmReportScope
      * @param  Builder<Client>  $query
      * @return Builder<Client>
      */
-    public static function applyClientFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    public static function applyClientFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         self::applyClientBranchScope($query, $user, $filters);
 
@@ -284,7 +284,7 @@ final class CrmReportScope
      * @param  Builder<Opportunity>  $query
      * @return Builder<Opportunity>
      */
-    protected static function scopedOpportunityExists(Builder $query, User $user, CrmReportFilters $filters): Builder
+    protected static function scopedOpportunityExists(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         CrmBranchVisibility::applyOpportunityScope($query, $user);
 
@@ -302,7 +302,7 @@ final class CrmReportScope
      * @return list<int>|null null = unrestricted (view-all + no filter); [] = deny (no access);
      *                        non-empty list = restrict to these branch ids
      */
-    public static function effectiveBranchIds(User $user, CrmReportFilters $filters): ?array
+    public static function effectiveBranchIds(TenantUser $user, CrmReportFilters $filters): ?array
     {
         if (CrmBranchVisibility::canViewAllBranches($user)) {
             return $filters->branchId !== null ? [$filters->branchId] : null;
@@ -323,7 +323,7 @@ final class CrmReportScope
      *
      * @return list<int>|null
      */
-    public static function branchIdsForFilters(User $user, CrmReportFilters $filters): ?array
+    public static function branchIdsForFilters(TenantUser $user, CrmReportFilters $filters): ?array
     {
         return self::effectiveBranchIds($user, $filters);
     }

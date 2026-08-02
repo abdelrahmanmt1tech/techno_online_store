@@ -127,10 +127,10 @@ class AccountingOperationWriter
         $debit = round((float) collect($entries)->sum(fn (array $row): float => (float) ($row['debit'] ?? 0)), 2);
         $credit = round((float) collect($entries)->sum(fn (array $row): float => (float) ($row['credit'] ?? 0)), 2);
 
-//        if ($debit <= 0 || $credit <= 0 || $debit !== $credit) { todo26
-//            dd([
-//                'entries' => __('dashboard.financial_periods.messages.entries_unbalanced'),
-//            ]);
-//        }
+        if ($debit <= 0 || $credit <= 0 || $debit !== $credit) {
+            throw ValidationException::withMessages([
+                'entries' => __('dashboard.financial_periods.messages.entries_unbalanced'),
+            ]);
+        }
     }
 }

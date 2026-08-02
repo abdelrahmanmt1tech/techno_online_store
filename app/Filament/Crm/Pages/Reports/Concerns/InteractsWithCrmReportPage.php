@@ -23,10 +23,10 @@ trait InteractsWithCrmReportPage
     /** @var array<string, mixed>|null */
     protected ?array $cachedReportSummary = null;
 
-    protected function currentUser(): User
+    protected function currentUser(): TenantUser
     {
         $user = Auth::user();
-        abort_unless($user instanceof User, 403);
+        abort_unless($user instanceof TenantUser, 403);
 
         return $user;
     }

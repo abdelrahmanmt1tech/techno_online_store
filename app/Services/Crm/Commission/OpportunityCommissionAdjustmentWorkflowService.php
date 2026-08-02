@@ -17,7 +17,7 @@ class OpportunityCommissionAdjustmentWorkflowService
 {
     public function create(
         OpportunityCommission $commission,
-        User $user,
+        TenantUser $user,
         CommissionAdjustmentDirection $direction,
         string $amount,
         string $reason,
@@ -84,7 +84,7 @@ class OpportunityCommissionAdjustmentWorkflowService
         });
     }
 
-    public function approve(OpportunityCommissionAdjustment $adjustment, User $user): OpportunityCommissionAdjustment
+    public function approve(OpportunityCommissionAdjustment $adjustment, TenantUser $user): OpportunityCommissionAdjustment
     {
         return DB::transaction(function () use ($adjustment, $user): OpportunityCommissionAdjustment {
             $locked = OpportunityCommissionAdjustment::query()
@@ -155,7 +155,7 @@ class OpportunityCommissionAdjustmentWorkflowService
 
     public function reject(
         OpportunityCommissionAdjustment $adjustment,
-        User $user,
+        TenantUser $user,
         string $rejectionReason,
     ): OpportunityCommissionAdjustment {
         $rejectionReason = trim($rejectionReason);
@@ -205,7 +205,7 @@ class OpportunityCommissionAdjustmentWorkflowService
         });
     }
 
-    public function cancel(OpportunityCommissionAdjustment $adjustment, User $user): OpportunityCommissionAdjustment
+    public function cancel(OpportunityCommissionAdjustment $adjustment, TenantUser $user): OpportunityCommissionAdjustment
     {
         return DB::transaction(function () use ($adjustment, $user): OpportunityCommissionAdjustment {
             $locked = OpportunityCommissionAdjustment::query()

@@ -254,7 +254,7 @@ final class CrmReportFilters
 
     protected static function userLabel(int $id): string
     {
-        return User::query()->whereKey($id)->value('name') ?? (string) $id;
+        return TenantUser::query()->whereKey($id)->value('name') ?? (string) $id;
     }
 
     protected static function leadSourceLabel(int $id): string

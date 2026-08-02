@@ -53,7 +53,7 @@ class CustomerReportsPage extends CrmPage implements HasTable
     {
         $user = Auth::user();
 
-        return $user instanceof User && CrmReportAccess::canViewCustomerReports($user);
+        return $user instanceof TenantUser && CrmReportAccess::canViewCustomerReports($user);
     }
 
     public function getTitle(): string

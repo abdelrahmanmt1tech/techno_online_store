@@ -30,6 +30,7 @@
  - **Tenant** (`/app`, `authGuard('tenant')`) — per-tenant. Discovers `app/Filament/Tenant/{Resources,Pages}/` **and** `app/Filament/Crm/{Resources,Pages,Widgets}`.
  - **CRM** (`/app/crm`, `authGuard('tenant')`) — peer merchant CRM panel (`CrmPanelProvider`). Discovers `app/Filament/Crm/*`; explicitly registers Client, LeadSource, Supplier.
 - CRM + double-entry accounting port notes: [`docs/crm-accounting-port.md`](docs/crm-accounting-port.md). Accounting UI nav group: `__('erp.nav.accounts')` («حسابات وقيود»).
+- **Merchant modules** (per-module subscription; plan packages cancelled as gating model): [`docs/tenant-modules.md`](docs/tenant-modules.md). Gate: `tenant_module_enabled()` / `TenantModuleGate` (always `true` until billing). Auto journal posting only when `tenant_accounting_active()`.
 - **Central DB**: `admins`, `tenants`, `domains`, `permissions`, `roles`, sessions/cache/jobs.
 - **Per-tenant DBs**: `rwadsolu_tenant_{uuid}` (prefix in `config/tenancy.php`). Created synchronously via `CreateDatabase` → `MigrateDatabase`. `SeedTenantDatabase` called from `CreateTenant.php`, not the event pipeline.
 - **Tenant migrations**: `database/migrations/tenant/` (non-default, set in `tenancy.migration_parameters`).

@@ -52,7 +52,7 @@ class EmployeePerformanceReportsPage extends CrmPage implements HasTable
     {
         $user = Auth::user();
 
-        return $user instanceof User && CrmReportAccess::canViewEmployeePerformanceReports($user);
+        return $user instanceof TenantUser && CrmReportAccess::canViewEmployeePerformanceReports($user);
     }
 
     public function getTitle(): string
@@ -142,7 +142,7 @@ class EmployeePerformanceReportsPage extends CrmPage implements HasTable
                     ->numeric(),
                 TextColumn::make('conversion_rate')
                     ->label(__('crm.reports.employee.columns.conversion_rate'))
-                    ->state(fn (User $record): string => EmployeePerformanceReportQuery::conversionRate($record).'%'),
+                    ->state(fn (TenantUser $record): string => EmployeePerformanceReportQuery::conversionRate($record).'%'),
                 TextColumn::make('amount_total')
                     ->label(__('crm.fields.amount'))
                     ->numeric(decimalPlaces: 2),
@@ -151,7 +151,7 @@ class EmployeePerformanceReportsPage extends CrmPage implements HasTable
                     ->numeric(decimalPlaces: 2),
                 TextColumn::make('average_close_days')
                     ->label(__('crm.reports.employee.columns.average_close_days'))
-                    ->state(fn (User $record): string => ($days = EmployeePerformanceReportQuery::averageCloseDays($record)) !== null
+                    ->state(fn (TenantUser $record): string => ($days = EmployeePerformanceReportQuery::averageCloseDays($record)) !== null
                         ? (string) $days
                         : '-'),
                 TextColumn::make('completed_follow_ups_count')
@@ -162,13 +162,13 @@ class EmployeePerformanceReportsPage extends CrmPage implements HasTable
                     ->numeric(),
                 TextColumn::make('effective_commissions')
                     ->label(__('crm.reports.employee.columns.effective_commissions'))
-                    ->state(fn (User $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['effective']),
+                    ->state(fn (TenantUser $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['effective']),
                 TextColumn::make('net_paid')
                     ->label(__('crm.reports.employee.columns.net_paid'))
-                    ->state(fn (User $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['net_paid']),
+                    ->state(fn (TenantUser $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['net_paid']),
                 TextColumn::make('remaining')
                     ->label(__('crm.reports.employee.columns.remaining'))
-                    ->state(fn (User $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['remaining']),
+                    ->state(fn (TenantUser $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['remaining']),
             ])
             ->filters([
                 Filter::make('date_range')
@@ -196,7 +196,7 @@ class EmployeePerformanceReportsPage extends CrmPage implements HasTable
                     ->query(fn (Builder $query): Builder => $query),
                 SelectFilter::make('sales_rep_id')
                     ->label(__('crm.fields.assigned_to'))
-                    ->options(fn (): array => User::query()->orderBy('name')->pluck('name', 'id')->all())
+                    ->options(fn (): array => TenantUser::query()->orderBy('name')->pluck('name', 'id')->all())
                     ->query(fn (Builder $query): Builder => $query),
                 SelectFilter::make('lead_source_id')
                     ->label(__('crm.fields.source'))

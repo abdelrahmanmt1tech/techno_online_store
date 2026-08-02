@@ -22,6 +22,12 @@ use App\Http\Controllers\Api\Tenant\ProfileController;
 use App\Http\Controllers\Api\Tenant\ReviewController;
 use App\Http\Controllers\Api\Tenant\SettingController;
 use App\Http\Controllers\Auth\Tenant\TenantTokenLoginController;
+use App\Http\Controllers\Crm\Reports\CampaignReportPrintController;
+use App\Http\Controllers\Crm\Reports\CustomerReportPrintController;
+use App\Http\Controllers\Crm\Reports\EmployeePerformanceReportPrintController;
+use App\Http\Controllers\Crm\Reports\FollowUpReportPrintController;
+use App\Http\Controllers\Crm\Reports\OpportunityReportPrintController;
+use App\Http\Controllers\Crm\Reports\SourceReportPrintController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -126,4 +132,18 @@ Route::middleware([
         Route::get('pages', [PageController::class, 'index']);
         Route::get('pages/{slug}', [PageController::class, 'show']);
     });
+});
+
+Route::middleware([
+    'web',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+    'auth:tenant',
+])->prefix('crm/reports')->name('crm.reports.')->group(function () {
+    Route::get('customers/print', CustomerReportPrintController::class)->name('customers.print');
+    Route::get('sources/print', SourceReportPrintController::class)->name('sources.print');
+    Route::get('opportunities/print', OpportunityReportPrintController::class)->name('opportunities.print');
+    Route::get('follow-ups/print', FollowUpReportPrintController::class)->name('followups.print');
+    Route::get('campaigns/print', CampaignReportPrintController::class)->name('campaigns.print');
+    Route::get('employees/print', EmployeePerformanceReportPrintController::class)->name('employees.print');
 });

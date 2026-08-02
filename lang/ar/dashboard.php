@@ -1425,6 +1425,20 @@ return array (
             'accounts_center_account_tree_id' => 'الحساب الأب لمراكز الحسابات',
             'income_summary_account_tree_id' => 'حساب ملخص الدخل',
             'retained_earnings_account_tree_id' => 'حساب الأرباح المرحلة',
+            'posting_section' => 'حسابات ترحيل المستندات',
+            'posting_section_description' => 'الحسابات المستخدمة عند الترحيل التلقائي لفواتير البيع/الشراء والمدفوعات إلى دفتر القيود (موديول المحاسبة).',
+            'sales_revenue_account_tree_id' => 'إيرادات المبيعات',
+            'sales_returns_account_tree_id' => 'مردودات المبيعات',
+            'inventory_account_tree_id' => 'المخزون',
+            'cogs_account_tree_id' => 'تكلفة المبيعات',
+            'sales_tax_payable_account_tree_id' => 'ضريبة مبيعات مستحقة',
+            'purchase_tax_receivable_account_tree_id' => 'ضريبة مشتريات مدينة',
+            'default_cash_account_tree_id' => 'النقدية الافتراضية',
+            'default_bank_account_tree_id' => 'البنك الافتراضي',
+            'default_wallet_account_tree_id' => 'المحفظة الافتراضية',
+            'walk_in_ar_account_tree_id' => 'ذمم نقدية / بدون عميل',
+            'missing_posting_account' => 'إعداد حساب الترحيل ناقص: :key',
+            'supplier_account_missing' => 'المورد بلا حساب في الشجرة. احفظ المورد بعد ضبط حساب الموردين الأب.',
         ),
         'general_account_statement' => 
         array (
@@ -1820,5 +1834,14 @@ return array (
     'widgets' => 
     array (
         'not_specified' => 'غير محدد',
+    ),
+    'accounting_posting' => 
+    array (
+        'sales_invoice' => 'فاتورة بيع :number',
+        'sales_invoice_cogs' => 'تكلفة مبيعات لفاتورة :number',
+        'invoice_payment' => 'تحصيل/سداد :number',
+        'purchase_invoice' => 'فاتورة شراء :number',
+        'sales_return' => 'مردود بيع :number',
+        'sales_return_cogs' => 'عكس تكلفة لمردود :number',
     ),
 );

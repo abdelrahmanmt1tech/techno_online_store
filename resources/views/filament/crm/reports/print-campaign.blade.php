@@ -2,8 +2,8 @@
 
 @section('kpi')
     <div>
-        {{ __('dashboard.crm.reports.campaign.stats.campaigns_count') }}: {{ number_format($summary['campaigns_count'] ?? 0) }} |
-        {{ __('dashboard.crm.reports.campaign.stats.expected_roi') }}: {{ \App\Services\Crm\Reports\CrmReportMetrics::displayPercent($summary['expected_roi'] ?? '0.00') }}
+        {{ __('crm.reports.campaign.stats.campaigns_count') }}: {{ number_format($summary['campaigns_count'] ?? 0) }} |
+        {{ __('crm.reports.campaign.stats.expected_roi') }}: {{ \App\Services\Crm\Reports\CrmReportMetrics::displayPercent($summary['expected_roi'] ?? '0.00') }}
     </div>
 @endsection
 
@@ -11,11 +11,11 @@
     <table>
         <thead>
             <tr>
-                <th>{{ __('dashboard.crm.reports.campaign.columns.campaign') }}</th>
-                <th>{{ __('dashboard.crm.reports.campaign.columns.budget') }}</th>
-                <th>{{ __('dashboard.crm.reports.campaign.columns.opportunities_count') }}</th>
-                <th>{{ __('dashboard.crm.reports.campaign.columns.won_count') }}</th>
-                <th>{{ __('dashboard.crm.reports.campaign.columns.expected_roi') }}</th>
+                <th>{{ __('crm.reports.campaign.columns.campaign') }}</th>
+                <th>{{ __('crm.reports.campaign.columns.budget') }}</th>
+                <th>{{ __('crm.reports.campaign.columns.opportunities_count') }}</th>
+                <th>{{ __('crm.reports.campaign.columns.won_count') }}</th>
+                <th>{{ __('crm.reports.campaign.columns.expected_roi') }}</th>
             </tr>
         </thead>
         <tbody>

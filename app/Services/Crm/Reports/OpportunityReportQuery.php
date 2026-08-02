@@ -12,7 +12,7 @@ final class OpportunityReportQuery
     /**
      * @return Builder<Opportunity>
      */
-    public static function tableQuery(User $user, CrmReportFilters $filters): Builder
+    public static function tableQuery(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $query = Opportunity::query()
             ->select('opportunities.*')
@@ -48,7 +48,7 @@ final class OpportunityReportQuery
      *     by_employee: array<string, int>,
      * }
      */
-    public static function summary(User $user, CrmReportFilters $filters): array
+    public static function summary(TenantUser $user, CrmReportFilters $filters): array
     {
         $base = Opportunity::query();
         CrmReportScope::applyOpportunityFilters($base, $user, $filters);

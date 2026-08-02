@@ -36,12 +36,12 @@ final class OpportunityCommissionActions
             ->label(__('crm.commissions.actions.submit'))
             ->icon(Heroicon::PaperAirplane)
             ->color('warning')
-            ->visible(fn (): bool => self::visibleFor($record, fn (User $user, OpportunityCommission $commission): bool => $commission->status === CommissionStatus::DRAFT
+            ->visible(fn (): bool => self::visibleFor($record, fn (TenantUser $user, OpportunityCommission $commission): bool => $commission->status === CommissionStatus::DRAFT
                 && $user->can('crm_commissions.update')
                 && OpportunityCommissionAccess::canUpdate($user, $commission)))
             ->action(function (OpportunityCommission $commission, OpportunityCommissionWorkflowService $workflow): void {
                 $user = Auth::user();
-                abort_unless($user instanceof User, 403);
+                abort_unless($user instanceof TenantUser, 403);
 
                 $workflow->submitForApproval($commission, $user);
 
@@ -59,10 +59,10 @@ final class OpportunityCommissionActions
             ->icon(Heroicon::CheckCircle)
             ->color('success')
             ->requiresConfirmation()
-            ->visible(fn (): bool => self::visibleFor($record, fn (User $user, OpportunityCommission $commission): bool => OpportunityCommissionAccess::canApprove($user, $commission)))
+            ->visible(fn (): bool => self::visibleFor($record, fn (TenantUser $user, OpportunityCommission $commission): bool => OpportunityCommissionAccess::canApprove($user, $commission)))
             ->action(function (OpportunityCommission $commission, OpportunityCommissionWorkflowService $workflow): void {
                 $user = Auth::user();
-                abort_unless($user instanceof User, 403);
+                abort_unless($user instanceof TenantUser, 403);
 
                 $workflow->approve($commission, $user);
 
@@ -79,7 +79,7 @@ final class OpportunityCommissionActions
             ->label(__('crm.commissions.actions.reject'))
             ->icon(Heroicon::XCircle)
             ->color('danger')
-            ->visible(fn (): bool => self::visibleFor($record, fn (User $user, OpportunityCommission $commission): bool => OpportunityCommissionAccess::canReject($user, $commission)))
+            ->visible(fn (): bool => self::visibleFor($record, fn (TenantUser $user, OpportunityCommission $commission): bool => OpportunityCommissionAccess::canReject($user, $commission)))
             ->schema([
                 Textarea::make('reason')
                     ->label(__('crm.commissions.fields.rejection_reason'))
@@ -88,7 +88,7 @@ final class OpportunityCommissionActions
             ])
             ->action(function (OpportunityCommission $commission, array $data, OpportunityCommissionWorkflowService $workflow): void {
                 $user = Auth::user();
-                abort_unless($user instanceof User, 403);
+                abort_unless($user instanceof TenantUser, 403);
 
                 $workflow->reject($commission, $user, (string) $data['reason']);
 
@@ -105,7 +105,7 @@ final class OpportunityCommissionActions
             ->label(__('crm.commissions.actions.cancel'))
             ->icon(Heroicon::NoSymbol)
             ->color('gray')
-            ->visible(fn (): bool => self::visibleFor($record, fn (User $user, OpportunityCommission $commission): bool => OpportunityCommissionAccess::canCancel($user, $commission)))
+            ->visible(fn (): bool => self::visibleFor($record, fn (TenantUser $user, OpportunityCommission $commission): bool => OpportunityCommissionAccess::canCancel($user, $commission)))
             ->schema([
                 Textarea::make('reason')
                     ->label(__('crm.commissions.fields.cancellation_reason'))
@@ -114,7 +114,7 @@ final class OpportunityCommissionActions
             ])
             ->action(function (OpportunityCommission $commission, array $data, OpportunityCommissionWorkflowService $workflow): void {
                 $user = Auth::user();
-                abort_unless($user instanceof User, 403);
+                abort_unless($user instanceof TenantUser, 403);
 
                 $workflow->cancel($commission, $user, (string) $data['reason']);
 
@@ -131,7 +131,7 @@ final class OpportunityCommissionActions
             ->label(__('crm.commissions.actions.recalculate'))
             ->icon(Heroicon::Calculator)
             ->color('info')
-            ->visible(fn (): bool => self::visibleFor($record, fn (User $user, OpportunityCommission $commission): bool => OpportunityCommissionAccess::canRecalculate($user, $commission)))
+            ->visible(fn (): bool => self::visibleFor($record, fn (TenantUser $user, OpportunityCommission $commission): bool => OpportunityCommissionAccess::canRecalculate($user, $commission)))
             ->schema(function (OpportunityCommissionWorkflowService $workflow) use ($record): array {
                 if (! $record instanceof OpportunityCommission) {
                     return [];
@@ -155,7 +155,7 @@ final class OpportunityCommissionActions
             ->modalDescription(__('crm.commissions.confirmations.recalculate'))
             ->action(function (OpportunityCommission $commission, OpportunityCommissionWorkflowService $workflow): void {
                 $user = Auth::user();
-                abort_unless($user instanceof User, 403);
+                abort_unless($user instanceof TenantUser, 403);
 
                 $workflow->recalculate($commission, $user);
 
@@ -170,13 +170,13 @@ final class OpportunityCommissionActions
      * Filament 5 header actions do not inject the page record into visible()/schema() closures.
      * Bind the record explicitly when building actions on View/Edit pages.
      *
-     * @param  callable(User, OpportunityCommission): bool  $check
+     * @param  callable(TenantUser, OpportunityCommission): bool  $check
      */
     private static function visibleFor(?OpportunityCommission $record, callable $check): bool
     {
         $user = Auth::user();
 
-        if (! $record instanceof OpportunityCommission || ! $user instanceof User) {
+        if (! $record instanceof OpportunityCommission || ! $user instanceof TenantUser) {
             return false;
         }
 

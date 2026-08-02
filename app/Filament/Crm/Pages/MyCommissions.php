@@ -50,14 +50,14 @@ class MyCommissions extends CrmPage implements HasTable
     {
         $user = Auth::user();
 
-        return $user instanceof User && OwnCommissionAccess::canViewPage($user);
+        return $user instanceof TenantUser && OwnCommissionAccess::canViewPage($user);
     }
 
     public static function getNavigationBadge(): ?string
     {
         $user = Auth::user();
 
-        if (! $user instanceof User || ! OwnCommissionAccess::canViewPage($user)) {
+        if (! $user instanceof TenantUser || ! OwnCommissionAccess::canViewPage($user)) {
             return null;
         }
 
@@ -81,7 +81,7 @@ class MyCommissions extends CrmPage implements HasTable
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (! $user instanceof TenantUser) {
             return [];
         }
 
@@ -92,7 +92,7 @@ class MyCommissions extends CrmPage implements HasTable
     {
         $user = Auth::user();
 
-        if (! $user instanceof User || ! OwnCommissionAccess::canExport($user)) {
+        if (! $user instanceof TenantUser || ! OwnCommissionAccess::canExport($user)) {
             return [];
         }
 
@@ -107,7 +107,7 @@ class MyCommissions extends CrmPage implements HasTable
     {
         return $table
             ->query(fn (): Builder => OwnCommissionQuery::baseForUser(
-                Auth::user() instanceof User ? Auth::user() : abort(403),
+                Auth::user() instanceof TenantUser ? Auth::user() : abort(403),
             ))
             ->modifyQueryUsing(function (Builder $query): void {
                 $includeHistory = (bool) ($this->tableFilters['include_history']['isActive'] ?? false);

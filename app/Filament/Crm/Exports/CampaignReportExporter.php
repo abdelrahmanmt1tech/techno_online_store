@@ -63,7 +63,7 @@ class CampaignReportExporter extends Exporter
     {
         $user = auth()->user();
 
-        abort_unless($user instanceof User && CrmReportAccess::canExportCampaignReports($user), 403);
+        abort_unless($user instanceof TenantUser && CrmReportAccess::canExportCampaignReports($user), 403);
 
         return $query;
     }

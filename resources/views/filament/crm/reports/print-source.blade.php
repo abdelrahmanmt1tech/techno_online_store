@@ -2,8 +2,8 @@
 
 @section('kpi')
     <div>
-        {{ __('dashboard.crm.reports.source.stats.opportunities_total') }}: {{ number_format($summary['opportunities_total'] ?? 0) }} |
-        {{ __('dashboard.crm.reports.source.stats.conversion_rate') }}: {{ number_format($summary['conversion_rate'] ?? 0, 2) }}%
+        {{ __('crm.reports.source.stats.opportunities_total') }}: {{ number_format($summary['opportunities_total'] ?? 0) }} |
+        {{ __('crm.reports.source.stats.conversion_rate') }}: {{ number_format($summary['conversion_rate'] ?? 0, 2) }}%
     </div>
 @endsection
 
@@ -11,11 +11,11 @@
     <table>
         <thead>
             <tr>
-                <th>{{ __('dashboard.crm.reports.source.columns.source') }}</th>
-                <th>{{ __('dashboard.crm.reports.source.columns.clients_count') }}</th>
-                <th>{{ __('dashboard.crm.reports.source.columns.opportunities_count') }}</th>
-                <th>{{ __('dashboard.crm.reports.source.columns.won_count') }}</th>
-                <th>{{ __('dashboard.crm.reports.source.columns.lost_count') }}</th>
+                <th>{{ __('crm.reports.source.columns.source') }}</th>
+                <th>{{ __('crm.reports.source.columns.clients_count') }}</th>
+                <th>{{ __('crm.reports.source.columns.opportunities_count') }}</th>
+                <th>{{ __('crm.reports.source.columns.won_count') }}</th>
+                <th>{{ __('crm.reports.source.columns.lost_count') }}</th>
             </tr>
         </thead>
         <tbody>

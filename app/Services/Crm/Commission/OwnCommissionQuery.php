@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class OwnCommissionQuery
 {
-    public static function baseForUser(User $user): Builder
+    public static function baseForUser(TenantUser $user): Builder
     {
         return OpportunityCommission::query()
             ->forUser($user->id)
@@ -19,7 +19,7 @@ final class OwnCommissionQuery
     }
 
     public static function forUser(
-        User $user,
+        TenantUser $user,
         bool $includeHistory = false,
         bool $includeDraft = false,
     ): Builder {
@@ -33,7 +33,7 @@ final class OwnCommissionQuery
     ): Builder {
         $user = auth()->user();
 
-        abort_unless($user instanceof User, 403);
+        abort_unless($user instanceof TenantUser, 403);
 
         return self::forUser($user, $includeHistory, $includeDraft);
     }

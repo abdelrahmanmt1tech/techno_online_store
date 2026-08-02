@@ -11,6 +11,7 @@ use App\Models\Tenant\SalesInvoice;
 use App\Models\Tenant\SalesInvoiceItem;
 use App\Services\Erp\DocumentNumberService;
 use App\Services\Erp\InvoicePrintSettingsService;
+use App\Services\Accounting\Posting\PostSalesInvoiceToJournalService;
 use App\Support\Erp\Decimal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,7 @@ final class CreateSalesInvoiceAction
     public function __construct(
         private readonly DocumentNumberService $numbers,
         private readonly InvoicePrintSettingsService $printSettings,
+        private readonly PostSalesInvoiceToJournalService $journalPoster,
     ) {}
 
     /**
@@ -141,7 +143,10 @@ final class CreateSalesInvoiceAction
 
             $this->refreshSaleInvoiceStatus($locked);
 
-            return $invoice->fresh('items');
+            $invoice = $invoice->fresh('items');
+            $this->journalPoster->handle($invoice);
+
+            return $invoice;
         });
     }
 

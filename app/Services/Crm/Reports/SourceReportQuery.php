@@ -13,7 +13,7 @@ final class SourceReportQuery
     /**
      * @return Builder<LeadSource>
      */
-    public static function tableQuery(User $user, CrmReportFilters $filters): Builder
+    public static function tableQuery(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $query = LeadSource::query()->select('lead_sources.*');
 
@@ -25,7 +25,7 @@ final class SourceReportQuery
     /**
      * @param  Builder<LeadSource>  $query
      */
-    protected static function applyAggregates(Builder $query, User $user, CrmReportFilters $filters): void
+    protected static function applyAggregates(Builder $query, TenantUser $user, CrmReportFilters $filters): void
     {
         $query->withCount([
             'clients as clients_count' => fn (Builder $q) => self::applyClientSideFilters($q, $user, $filters),
@@ -56,7 +56,7 @@ final class SourceReportQuery
      *     average_opportunity_amount: float,
      * }
      */
-    public static function summary(User $user, CrmReportFilters $filters): array
+    public static function summary(TenantUser $user, CrmReportFilters $filters): array
     {
         $opportunityBase = Opportunity::query();
         CrmReportScope::applyOpportunityFilters($opportunityBase, $user, self::opportunityFilters($filters));
@@ -110,7 +110,7 @@ final class SourceReportQuery
      * @param  Builder<Client>  $query
      * @return Builder<Client>
      */
-    protected static function applyClientSideFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    protected static function applyClientSideFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         $clientFilters = new CrmReportFilters(
             from: $filters->from,
@@ -130,7 +130,7 @@ final class SourceReportQuery
      * @param  Builder<Opportunity>  $query
      * @return Builder<Opportunity>
      */
-    protected static function applyOpportunitySideFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    protected static function applyOpportunitySideFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         return CrmReportScope::applyOpportunityFilters($query, $user, self::opportunityFilters($filters));
     }

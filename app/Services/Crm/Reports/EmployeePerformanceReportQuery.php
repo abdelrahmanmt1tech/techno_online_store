@@ -23,13 +23,13 @@ final class EmployeePerformanceReportQuery
     }
 
     /**
-     * @return Builder<User>
+     * @return Builder<TenantUser>
      */
-    public static function tableQuery(User $user, CrmReportFilters $filters): Builder
+    public static function tableQuery(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $employeeIds = self::employeeIdsInScope($user, $filters);
 
-        $query = User::query()
+        $query = TenantUser::query()
             ->select('users.*')
             ->whereIn('users.id', $employeeIds);
 
@@ -42,7 +42,7 @@ final class EmployeePerformanceReportQuery
     /**
      * @param  list<int>  $employeeIds
      */
-    protected static function warmCommissionTotalsCache(User $viewer, CrmReportFilters $filters, array $employeeIds): void
+    protected static function warmCommissionTotalsCache(TenantUser $viewer, CrmReportFilters $filters, array $employeeIds): void
     {
         if ($employeeIds === []) {
             self::$commissionTotalsCache = [];
@@ -68,7 +68,7 @@ final class EmployeePerformanceReportQuery
     /**
      * @return array<string, mixed>
      */
-    public static function summary(User $user, CrmReportFilters $filters): array
+    public static function summary(TenantUser $user, CrmReportFilters $filters): array
     {
         $employeeIds = self::employeeIdsInScope($user, $filters);
         $commissionTotals = self::buildCommissionTotals($user, $filters, $employeeIds);
@@ -130,14 +130,14 @@ final class EmployeePerformanceReportQuery
         ];
     }
 
-    public static function conversionRate(User $employee): string
+    public static function conversionRate(TenantUser $employee): string
     {
         $closed = (int) $employee->won_opportunities_count + (int) $employee->lost_opportunities_count;
 
         return CrmReportMetrics::conversionRate((int) $employee->won_opportunities_count, $closed);
     }
 
-    public static function followUpCompletionRate(User $employee): string
+    public static function followUpCompletionRate(TenantUser $employee): string
     {
         $completed = (int) $employee->completed_follow_ups_count;
         $overdue = (int) $employee->overdue_follow_ups_count;
@@ -146,7 +146,7 @@ final class EmployeePerformanceReportQuery
         return CrmReportMetrics::conversionRate($completed, $denominator);
     }
 
-    public static function averageCloseDays(User $employee): ?float
+    public static function averageCloseDays(TenantUser $employee): ?float
     {
         if ($employee->average_close_days === null) {
             return null;
@@ -156,9 +156,9 @@ final class EmployeePerformanceReportQuery
     }
 
     /**
-     * @param  Builder<User>  $query
+     * @param  Builder<TenantUser>  $query
      */
-    protected static function applyAggregates(Builder $query, User $user, CrmReportFilters $filters): void
+    protected static function applyAggregates(Builder $query, TenantUser $user, CrmReportFilters $filters): void
     {
         $query->withCount([
             'salesRepClients as clients_count' => fn (Builder $q) => self::applyClientSideFilters($q, $user, $filters),
@@ -190,7 +190,7 @@ final class EmployeePerformanceReportQuery
     /**
      * @return list<int>
      */
-    protected static function employeeIdsInScope(User $user, CrmReportFilters $filters): array
+    protected static function employeeIdsInScope(TenantUser $user, CrmReportFilters $filters): array
     {
         $fromOpportunities = Opportunity::query()
             ->tap(fn (Builder $q) => CrmReportScope::applyOpportunityFilters($q, $user, $filters))
@@ -225,7 +225,7 @@ final class EmployeePerformanceReportQuery
             ->all();
     }
 
-    protected static function clientsCount(User $user, CrmReportFilters $filters): int
+    protected static function clientsCount(TenantUser $user, CrmReportFilters $filters): int
     {
         $query = Client::query();
         CrmReportScope::applyClientFilters($query, $user, self::clientFilters($filters));
@@ -241,7 +241,7 @@ final class EmployeePerformanceReportQuery
      * @param  list<int>  $employeeIds
      * @return array<int, array{effective: string, net_paid: string, remaining: string}>
      */
-    protected static function buildCommissionTotals(User $viewer, CrmReportFilters $filters, array $employeeIds): array
+    protected static function buildCommissionTotals(TenantUser $viewer, CrmReportFilters $filters, array $employeeIds): array
     {
         if ($employeeIds === []) {
             return [];
@@ -294,7 +294,7 @@ final class EmployeePerformanceReportQuery
      * @param  list<int>  $employeeIds
      * @return array<string, list<string>>
      */
-    protected static function rankings(User $user, CrmReportFilters $filters, array $employeeIds): array
+    protected static function rankings(TenantUser $user, CrmReportFilters $filters, array $employeeIds): array
     {
         if ($employeeIds === []) {
             return [
@@ -305,7 +305,7 @@ final class EmployeePerformanceReportQuery
             ];
         }
 
-        $rows = User::query()
+        $rows = TenantUser::query()
             ->whereIn('users.id', $employeeIds)
             ->tap(fn (Builder $q) => self::applyAggregates($q, $user, $filters))
             ->get();
@@ -313,12 +313,12 @@ final class EmployeePerformanceReportQuery
         $byWon = $rows->sortByDesc('won_opportunities_count')->take(5)->pluck('name')->all();
         $byAgreed = $rows->sortByDesc('agreed_amount_total')->take(5)->pluck('name')->all();
         $byConversion = $rows
-            ->sortByDesc(fn (User $employee): float => (float) self::conversionRate($employee))
+            ->sortByDesc(fn (TenantUser $employee): float => (float) self::conversionRate($employee))
             ->take(5)
             ->pluck('name')
             ->all();
         $byFollowUp = $rows
-            ->sortByDesc(fn (User $employee): float => (float) self::followUpCompletionRate($employee))
+            ->sortByDesc(fn (TenantUser $employee): float => (float) self::followUpCompletionRate($employee))
             ->take(5)
             ->pluck('name')
             ->all();
@@ -335,7 +335,7 @@ final class EmployeePerformanceReportQuery
      * @param  Builder<Client>  $query
      * @return Builder<Client>
      */
-    protected static function applyClientSideFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    protected static function applyClientSideFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         return CrmReportScope::applyClientFilters($query, $user, self::clientFilters($filters));
     }
@@ -344,7 +344,7 @@ final class EmployeePerformanceReportQuery
      * @param  Builder<Opportunity>  $query
      * @return Builder<Opportunity>
      */
-    protected static function applyOpportunitySideFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    protected static function applyOpportunitySideFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         return CrmReportScope::applyOpportunityFilters($query, $user, $filters);
     }
@@ -353,7 +353,7 @@ final class EmployeePerformanceReportQuery
      * @param  Builder<OpportunityFollowUp>  $query
      * @return Builder<OpportunityFollowUp>
      */
-    protected static function applyFollowUpSideFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    protected static function applyFollowUpSideFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         return CrmReportScope::applyFollowUpFilters($query, $user, self::followUpFilters($filters));
     }

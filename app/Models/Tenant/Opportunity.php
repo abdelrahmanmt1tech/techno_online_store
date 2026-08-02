@@ -32,6 +32,8 @@ class Opportunity extends Model
         'first_assigned_to',
         'campaign_id',
         'branch_id',
+        'sale_id',
+        'sales_invoice_id',
         'meta',
     ];
 
@@ -89,6 +91,16 @@ class Opportunity extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function sale(): BelongsTo
+    {
+        return $this->belongsTo(Sale::class);
+    }
+
+    public function salesInvoice(): BelongsTo
+    {
+        return $this->belongsTo(SalesInvoice::class);
     }
 
     public function opportunityFollowUps(): HasMany

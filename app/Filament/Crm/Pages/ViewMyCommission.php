@@ -29,7 +29,7 @@ class ViewMyCommission extends CrmPage
     public function mount(int|string $commission): void
     {
         $user = Auth::user();
-        abort_unless($user instanceof User, 403);
+        abort_unless($user instanceof TenantUser, 403);
 
         $record = OpportunityCommission::query()
             ->forUser($user->id)
@@ -54,7 +54,7 @@ class ViewMyCommission extends CrmPage
     {
         $user = Auth::user();
 
-        return $user instanceof User && OwnCommissionAccess::canViewPage($user);
+        return $user instanceof TenantUser && OwnCommissionAccess::canViewPage($user);
     }
 
     public function getTitle(): string
@@ -68,7 +68,7 @@ class ViewMyCommission extends CrmPage
     {
         $user = Auth::user();
 
-        return $user instanceof User && OwnCommissionAccess::canViewPayments($user);
+        return $user instanceof TenantUser && OwnCommissionAccess::canViewPayments($user);
     }
 
     /**

@@ -586,6 +586,16 @@ class AccountTreesSeeder extends Seeder
             'accounts_center_account_tree_id' => '5100',
             'income_summary_account_tree_id' => '3901',
             'retained_earnings_account_tree_id' => '3103',
+            'sales_revenue_account_tree_id' => '4101',
+            'sales_returns_account_tree_id' => '4191',
+            'inventory_account_tree_id' => '1501',
+            'cogs_account_tree_id' => '5110',
+            'sales_tax_payable_account_tree_id' => '2103',
+            'purchase_tax_receivable_account_tree_id' => '130',
+            'default_cash_account_tree_id' => '1101',
+            'default_bank_account_tree_id' => '1102',
+            'default_wallet_account_tree_id' => '1103',
+            'walk_in_ar_account_tree_id' => '1202',
         ];
 
         foreach ($defaultSettings as $key => $accountCode) {

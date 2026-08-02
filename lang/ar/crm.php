@@ -897,6 +897,8 @@ return array (
         'source' => 'المصدر',
         'account_tree' => 'الحساب (شجرة)',
         'accounts_center' => 'مركز الحسابات',
+        'sale' => 'بيع',
+        'sales_invoice' => 'فاتورة بيع',
     ),
     'hints' => 
     array (

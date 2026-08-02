@@ -12,7 +12,7 @@ class ReassignOpportunityService
     public function handle(
         Opportunity $opportunity,
         ?int $newAssigneeId,
-        User $changedBy,
+        TenantUser $changedBy,
         ?string $notes = null,
     ): void {
         if ($opportunity->assigned_to === $newAssigneeId) {

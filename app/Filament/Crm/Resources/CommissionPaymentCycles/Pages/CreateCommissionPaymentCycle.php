@@ -179,7 +179,7 @@ class CreateCommissionPaymentCycle extends CreateRecord
      */
     public function employeeOptions(): array
     {
-        return User::query()->orderBy('name')->pluck('name', 'id')->all();
+        return TenantUser::query()->orderBy('name')->pluck('name', 'id')->all();
     }
 
     /**

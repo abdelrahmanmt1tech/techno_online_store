@@ -2,8 +2,8 @@
 
 @section('kpi')
     <div>
-        {{ __('dashboard.crm.reports.employee.stats.employees_count') }}: {{ number_format($summary['employees_count'] ?? 0) }} |
-        {{ __('dashboard.crm.reports.employee.stats.effective_commissions_total') }}: {{ $summary['effective_commissions_total'] ?? '0.00' }}
+        {{ __('crm.reports.employee.stats.employees_count') }}: {{ number_format($summary['employees_count'] ?? 0) }} |
+        {{ __('crm.reports.employee.stats.effective_commissions_total') }}: {{ $summary['effective_commissions_total'] ?? '0.00' }}
     </div>
 @endsection
 
@@ -11,11 +11,11 @@
     <table>
         <thead>
             <tr>
-                <th>{{ __('dashboard.crm.reports.employee.columns.employee') }}</th>
-                <th>{{ __('dashboard.crm.reports.employee.columns.won') }}</th>
-                <th>{{ __('dashboard.crm.fields.agreed_amount') }}</th>
-                <th>{{ __('dashboard.crm.reports.employee.columns.effective_commissions') }}</th>
-                <th>{{ __('dashboard.crm.reports.employee.columns.remaining') }}</th>
+                <th>{{ __('crm.reports.employee.columns.employee') }}</th>
+                <th>{{ __('crm.reports.employee.columns.won') }}</th>
+                <th>{{ __('crm.fields.agreed_amount') }}</th>
+                <th>{{ __('crm.reports.employee.columns.effective_commissions') }}</th>
+                <th>{{ __('crm.reports.employee.columns.remaining') }}</th>
             </tr>
         </thead>
         <tbody>

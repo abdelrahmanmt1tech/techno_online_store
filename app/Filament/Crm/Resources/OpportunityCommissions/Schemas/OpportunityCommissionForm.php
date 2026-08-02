@@ -66,7 +66,7 @@ class OpportunityCommissionForm
 
                     Select::make('user_id')
                         ->label(__('crm.commissions.fields.employee'))
-                        ->options(fn (): array => User::query()->orderBy('name')->pluck('name', 'id')->all())
+                        ->options(fn (): array => TenantUser::query()->orderBy('name')->pluck('name', 'id')->all())
                         ->searchable()
                         ->preload()
                         ->required(),

@@ -17,18 +17,18 @@
 </head>
 <body>
     <div class="no-print" style="margin-bottom: 1rem;">
-        <button onclick="window.print()">{{ __('dashboard.crm.reports.actions.print') }}</button>
+        <button onclick="window.print()">{{ __('crm.reports.actions.print') }}</button>
     </div>
     <h1>{{ $reportTitle }}</h1>
     <div class="meta">
-        <div>{{ __('dashboard.crm.reports.print.generated_at') }}: {{ $printedAt->format('Y-m-d H:i') }}</div>
-        <div>{{ __('dashboard.crm.reports.print.generated_by') }}: {{ $printedBy }}</div>
-        <div>{{ __('dashboard.crm.reports.common.row_count') }}: {{ $rowCount }}@if($rowCount >= $maxRows) ({{ __('dashboard.crm.reports.print.row_limit_reached', ['max' => number_format($maxRows)]) }})@endif</div>
+        <div>{{ __('crm.reports.print.generated_at') }}: {{ $printedAt->format('Y-m-d H:i') }}</div>
+        <div>{{ __('crm.reports.print.generated_by') }}: {{ $printedBy }}</div>
+        <div>{{ __('crm.reports.common.row_count') }}: {{ $rowCount }}@if($rowCount >= $maxRows) ({{ __('crm.reports.print.row_limit_reached', ['max' => number_format($maxRows)]) }})@endif</div>
     </div>
 
     @if (! empty($summaryLines))
         <div class="filters">
-            <strong>{{ __('dashboard.crm.reports.print.applied_filters') }}</strong>
+            <strong>{{ __('crm.reports.print.applied_filters') }}</strong>
             <ul>
                 @foreach ($summaryLines as $line)
                     <li>{{ $line }}</li>

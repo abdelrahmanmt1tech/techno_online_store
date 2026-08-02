@@ -111,7 +111,7 @@ class OpportunityFollowUpFormSchema
                 Select::make('next_assigned_to')
                     ->label(__('crm.fields.next_assigned_to'))
                     ->helperText(__('crm.hints.next_assigned_to'))
-                    ->options(fn (): array => User::query()->pluck('name', 'id')->all())
+                    ->options(fn (): array => TenantUser::query()->pluck('name', 'id')->all())
                     ->default(fn (): ?int => Auth::id())
                     ->searchable()
                     ->preload()
@@ -124,7 +124,7 @@ class OpportunityFollowUpFormSchema
                     ->visible(fn (callable $get): bool => self::statusActionIs($get('follow_up_status_id'), FollowUpStatusAction::SCHEDULE_NEXT)),
                 Select::make('assigned_to')
                     ->label(__('crm.fields.assigned_to'))
-                    ->options(fn (): array => User::query()->pluck('name', 'id')->all())
+                    ->options(fn (): array => TenantUser::query()->pluck('name', 'id')->all())
                     ->default(fn (): ?int => Auth::id())
                     ->required()
                     ->searchable()

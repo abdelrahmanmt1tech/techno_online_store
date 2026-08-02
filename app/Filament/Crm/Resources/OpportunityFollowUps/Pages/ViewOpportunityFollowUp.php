@@ -28,7 +28,7 @@ class ViewOpportunityFollowUp extends ViewRecord
                 ->url(fn (): string => OpportunityResource::getUrl('view', ['record' => $this->record->opportunity_id], panel: 'crm')),
             Action::make('view_client')
                 ->label(__('crm.actions.view_client'))
-                ->icon(Heroicon::User)
+                ->icon(Heroicon::TenantUser)
                 ->color('gray')
                 ->visible(fn (): bool => (bool) $this->record->opportunity?->client_id)
                 ->url(fn (): string => ClientResource::getUrl('view', ['record' => $this->record->opportunity->client_id])),

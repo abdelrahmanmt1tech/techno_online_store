@@ -6,10 +6,10 @@ use App\Enums\Crm\CommissionStatus;
 use App\Filament\Concerns\HasTenantFeatureAccess;
 use App\Models\Tenant\OpportunityCommission;
 use App\Models\TenantUser;
+use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
-use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
-class CrmCommissionStatusChart extends ApexChartWidget
+class CrmCommissionStatusChart extends ChartWidget
 {
     use HasTenantFeatureAccess;
 
@@ -18,8 +18,6 @@ class CrmCommissionStatusChart extends ApexChartWidget
     protected static ?int $sort = 5;
 
     protected int|string|array $columnSpan = 1;
-
-    protected ?string $pollingInterval = null;
 
     public static function canView(): bool
     {
@@ -31,11 +29,11 @@ class CrmCommissionStatusChart extends ApexChartWidget
         return __('crm.widgets.chart_commissions_by_status');
     }
 
-    protected function getOptions(): array
+    protected function getData(): array
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (! $user instanceof TenantUser) {
             return $this->emptyDonut();
         }
 
@@ -69,12 +67,13 @@ class CrmCommissionStatusChart extends ApexChartWidget
         }
 
         return [
-            'chart' => ['type' => 'donut', 'height' => 300],
-            'series' => $series,
+            'datasets' => [[
+                'label' => __('crm.widgets.chart_commissions_by_status'),
+                'data' => $series,
+                'backgroundColor' => $colors,
+                'borderColor' => $colors,
+            ]],
             'labels' => $labels,
-            'colors' => $colors,
-            'legend' => ['position' => 'bottom'],
-            'plotOptions' => ['pie' => ['donut' => ['size' => '60%']]],
         ];
     }
 
@@ -84,10 +83,18 @@ class CrmCommissionStatusChart extends ApexChartWidget
     protected function emptyDonut(): array
     {
         return [
-            'chart' => ['type' => 'donut', 'height' => 300],
-            'series' => [0],
+            'datasets' => [[
+                'label' => __('crm.widgets.chart_commissions_by_status'),
+                'data' => [0],
+                'backgroundColor' => ['rgba(209, 213, 219, 0.8)'],
+                'borderColor' => ['rgba(209, 213, 219, 1)'],
+            ]],
             'labels' => [__('crm.widgets.no_data')],
-            'colors' => ['#d1d5db'],
         ];
+    }
+
+    protected function getType(): string
+    {
+        return 'doughnut';
     }
 }

@@ -14,7 +14,7 @@ final class FollowUpReportQuery
     /**
      * @return Builder<OpportunityFollowUp>
      */
-    public static function tableQuery(User $user, CrmReportFilters $filters): Builder
+    public static function tableQuery(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $query = OpportunityFollowUp::query()
             ->select('opportunity_follow_ups.*')
@@ -34,7 +34,7 @@ final class FollowUpReportQuery
     /**
      * @return Builder<OpportunityFollowUp>
      */
-    protected static function baseQuery(User $user, CrmReportFilters $filters): Builder
+    protected static function baseQuery(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $query = OpportunityFollowUp::query();
         CrmReportScope::applyFollowUpFilters($query, $user, $filters);
@@ -45,7 +45,7 @@ final class FollowUpReportQuery
     /**
      * @return array<string, mixed>
      */
-    public static function summary(User $user, CrmReportFilters $filters): array
+    public static function summary(TenantUser $user, CrmReportFilters $filters): array
     {
         $base = self::baseQuery($user, $filters);
 
@@ -129,7 +129,7 @@ final class FollowUpReportQuery
      * @param  Builder<Opportunity>  $query
      * @return Builder<Opportunity>
      */
-    protected static function scopedOpportunities(User $user, CrmReportFilters $filters): Builder
+    protected static function scopedOpportunities(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $query = Opportunity::query();
         CrmReportScope::applyOpportunityFilters($query, $user, self::opportunityFilters($filters));
@@ -145,7 +145,7 @@ final class FollowUpReportQuery
      * @param  Builder<Client>  $query
      * @return Builder<Client>
      */
-    protected static function scopedClients(User $user, CrmReportFilters $filters): Builder
+    protected static function scopedClients(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $query = Client::query();
         CrmReportScope::applyClientFilters($query, $user, self::clientFilters($filters));
@@ -161,7 +161,7 @@ final class FollowUpReportQuery
      * @param  Builder<Opportunity>  $query
      * @return Builder<Opportunity>
      */
-    protected static function scopedOpportunityExists(Builder $query, User $user, CrmReportFilters $filters): Builder
+    protected static function scopedOpportunityExists(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         return CrmReportScope::applyOpportunityFilters($query, $user, self::opportunityFilters($filters));
     }
@@ -170,7 +170,7 @@ final class FollowUpReportQuery
      * @param  Builder<OpportunityFollowUp>  $query
      * @return Builder<OpportunityFollowUp>
      */
-    protected static function applyFollowUpSideFilters(Builder $query, User $user, CrmReportFilters $filters): Builder
+    protected static function applyFollowUpSideFilters(Builder $query, TenantUser $user, CrmReportFilters $filters): Builder
     {
         return CrmReportScope::applyFollowUpFilters($query, $user, $filters);
     }

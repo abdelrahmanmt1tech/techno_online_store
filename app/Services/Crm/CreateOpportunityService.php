@@ -13,7 +13,7 @@ class CreateOpportunityService
         protected ReassignOpportunityService $reassignOpportunityService,
     ) {}
 
-    public function handle(array $data, User $user): Opportunity
+    public function handle(array $data, TenantUser $user): Opportunity
     {
         $assigneeId = $data['assigned_to'] ?? null;
         unset($data['assigned_to'], $data['first_assigned_to']);

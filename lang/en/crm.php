@@ -897,6 +897,8 @@ return array (
         'source' => 'Source',
         'account_tree' => 'Account (COA)',
         'accounts_center' => 'Accounts center',
+        'sale' => 'Sale',
+        'sales_invoice' => 'Sales invoice',
     ),
     'hints' => 
     array (

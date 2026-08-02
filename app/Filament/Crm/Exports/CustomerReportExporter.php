@@ -47,7 +47,7 @@ class CustomerReportExporter extends Exporter
     {
         $user = auth()->user();
 
-        abort_unless($user instanceof User && CrmReportAccess::canExportCustomerReports($user), 403);
+        abort_unless($user instanceof TenantUser && CrmReportAccess::canExportCustomerReports($user), 403);
 
         return $query;
     }

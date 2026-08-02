@@ -22,6 +22,7 @@ use App\Models\Tenant\Warehouse;
 use App\Services\Erp\CommerceQuantityService;
 use App\Services\Erp\DocumentNumberService;
 use App\Services\Erp\FifoCostingService;
+use App\Services\Accounting\Posting\PostSalesReturnToJournalService;
 use App\Support\Erp\Decimal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,7 @@ final class PostSalesReturnAction
         private readonly DocumentNumberService $numbers,
         private readonly FifoCostingService $fifo,
         private readonly CommerceQuantityService $commerce,
+        private readonly PostSalesReturnToJournalService $journalPoster,
     ) {}
 
     public function execute(SalesReturn $salesReturn): SalesReturn
@@ -107,7 +109,10 @@ final class PostSalesReturnAction
 
             $this->refreshSaleStatus($sale);
 
-            return $ret->fresh('items');
+            $ret = $ret->fresh('items');
+            $this->journalPoster->handle($ret);
+
+            return $ret;
         });
     }
 

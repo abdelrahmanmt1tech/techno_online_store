@@ -55,7 +55,7 @@ class OwnCommissionExporter extends Exporter
     {
         $user = auth()->user();
 
-        abort_unless($user instanceof User && OwnCommissionAccess::canExport($user), 403);
+        abort_unless($user instanceof TenantUser && OwnCommissionAccess::canExport($user), 403);
 
         return OwnCommissionQuery::forUser($user, includeHistory: true)
             ->orderByDesc('created_at');

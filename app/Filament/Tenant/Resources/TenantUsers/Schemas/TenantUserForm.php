@@ -30,6 +30,13 @@ class TenantUserForm
                             ->autocomplete('new-email')
                             ->unique(ignoreRecord: true),
 
+                        TextInput::make('commission_percentage')
+                            ->label(__('crm.commissions.fields.commission_percentage'))
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->suffix('%'),
+
                         TextInput::make('password')
                             ->label(__('dashboard.password'))
                             ->password()

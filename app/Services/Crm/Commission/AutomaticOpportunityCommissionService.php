@@ -32,7 +32,7 @@ final class AutomaticOpportunityCommissionService
     public function handleStageTransition(
         Opportunity $opportunity,
         OpportunityStageAction $newAction,
-        ?User $actor,
+        ?TenantUser $actor,
     ): ?OpportunityCommission {
         if ($newAction !== OpportunityStageAction::SUCCESS_CLOSE) {
             return null;
@@ -41,7 +41,7 @@ final class AutomaticOpportunityCommissionService
         return $this->handleWon($opportunity, $actor);
     }
 
-    private function handleWon(Opportunity $opportunity, ?User $actor): ?OpportunityCommission
+    private function handleWon(Opportunity $opportunity, ?TenantUser $actor): ?OpportunityCommission
     {
         $employeeId = $opportunity->assigned_to !== null ? (int) $opportunity->assigned_to : null;
 
@@ -51,9 +51,9 @@ final class AutomaticOpportunityCommissionService
             return null;
         }
 
-        $employee = User::query()->find($employeeId);
+        $employee = TenantUser::query()->find($employeeId);
 
-        if (! $employee instanceof User) {
+        if (! $employee instanceof TenantUser) {
             $this->logSkip($opportunity, 'employee_not_found', $actor, ['employee_id' => $employeeId]);
 
             return null;
@@ -117,7 +117,7 @@ final class AutomaticOpportunityCommissionService
             'updated_by' => $actor?->id,
         ]);
 
-        if ($actor instanceof User) {
+        if ($actor instanceof TenantUser) {
             $metadata = [
                 'opportunity_id' => $opportunity->id,
                 'employee_id' => $employeeId,
@@ -151,7 +151,7 @@ final class AutomaticOpportunityCommissionService
         return $commission;
     }
 
-    private function backfillAgreedAmount(Opportunity $opportunity, ?User $actor): void
+    private function backfillAgreedAmount(Opportunity $opportunity, ?TenantUser $actor): void
     {
         $agreedEmpty = $opportunity->agreed_amount === null || DecimalMath::isZero($opportunity->agreed_amount);
         $amountPositive = $opportunity->amount !== null && DecimalMath::isPositive($opportunity->amount);
@@ -173,7 +173,7 @@ final class AutomaticOpportunityCommissionService
     /**
      * @param  array<string, mixed>  $context
      */
-    private function logSkip(Opportunity $opportunity, string $reason, ?User $actor, array $context = []): void
+    private function logSkip(Opportunity $opportunity, string $reason, ?TenantUser $actor, array $context = []): void
     {
         Log::info('crm.automatic_commission.skipped', array_merge([
             'opportunity_id' => $opportunity->id,

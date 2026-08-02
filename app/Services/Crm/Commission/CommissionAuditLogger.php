@@ -16,7 +16,7 @@ final class CommissionAuditLogger
      */
     public static function log(
         OpportunityCommission $commission,
-        User $user,
+        TenantUser $user,
         string $action,
         array $oldValues = [],
         array $newValues = [],
@@ -32,7 +32,7 @@ final class CommissionAuditLogger
      */
     public static function logFor(
         Model $auditable,
-        User $user,
+        TenantUser $user,
         string $action,
         array $oldValues = [],
         array $newValues = [],

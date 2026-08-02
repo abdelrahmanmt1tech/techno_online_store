@@ -36,27 +36,27 @@ class EmployeePerformanceReportExporter extends Exporter
                 ->label(__('crm.reports.employee.columns.lost')),
             ExportColumn::make('conversion_rate')
                 ->label(__('crm.reports.employee.columns.conversion_rate'))
-                ->state(fn (User $record): string => EmployeePerformanceReportQuery::conversionRate($record)),
+                ->state(fn (TenantUser $record): string => EmployeePerformanceReportQuery::conversionRate($record)),
             ExportColumn::make('amount_total')
                 ->label(__('crm.fields.amount')),
             ExportColumn::make('agreed_amount_total')
                 ->label(__('crm.fields.agreed_amount')),
             ExportColumn::make('average_close_days')
                 ->label(__('crm.reports.employee.columns.average_close_days'))
-                ->state(fn (User $record): ?float => EmployeePerformanceReportQuery::averageCloseDays($record)),
+                ->state(fn (TenantUser $record): ?float => EmployeePerformanceReportQuery::averageCloseDays($record)),
             ExportColumn::make('completed_follow_ups_count')
                 ->label(__('crm.reports.employee.columns.completed_follow_ups')),
             ExportColumn::make('overdue_follow_ups_count')
                 ->label(__('crm.reports.employee.columns.overdue_follow_ups')),
             ExportColumn::make('effective_commissions')
                 ->label(__('crm.reports.employee.columns.effective_commissions'))
-                ->state(fn (User $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['effective']),
+                ->state(fn (TenantUser $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['effective']),
             ExportColumn::make('net_paid')
                 ->label(__('crm.reports.employee.columns.net_paid'))
-                ->state(fn (User $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['net_paid']),
+                ->state(fn (TenantUser $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['net_paid']),
             ExportColumn::make('remaining')
                 ->label(__('crm.reports.employee.columns.remaining'))
-                ->state(fn (User $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['remaining']),
+                ->state(fn (TenantUser $record): string => EmployeePerformanceReportQuery::commissionTotalsFor($record->id)['remaining']),
         ];
     }
 
@@ -64,7 +64,7 @@ class EmployeePerformanceReportExporter extends Exporter
     {
         $user = auth()->user();
 
-        abort_unless($user instanceof User && CrmReportAccess::canExportEmployeePerformanceReports($user), 403);
+        abort_unless($user instanceof TenantUser && CrmReportAccess::canExportEmployeePerformanceReports($user), 403);
 
         return $query;
     }

@@ -30,7 +30,7 @@ class EditCommissionPaymentCycle extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $user = Auth::user();
-        abort_unless($user instanceof User, 403);
+        abort_unless($user instanceof TenantUser, 403);
 
         return app(CommissionPaymentCycleWorkflowService::class)->update($record, $data, $user);
     }

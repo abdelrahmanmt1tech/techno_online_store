@@ -37,7 +37,7 @@ class CommissionPaymentCycleWorkflowService
      * @param  array<string, mixed>  $data
      * @param  list<array{opportunity_commission_id: int, user_id: int, planned_payment_amount: string}>  $allocations
      */
-    public function createDraft(array $data, array $allocations, User $user): CommissionPaymentCycle
+    public function createDraft(array $data, array $allocations, TenantUser $user): CommissionPaymentCycle
     {
         if (! CommissionPaymentCycleAccess::canCreate($user)) {
             abort(403);
@@ -86,7 +86,7 @@ class CommissionPaymentCycleWorkflowService
     /**
      * @param  list<array{opportunity_commission_id: int, user_id: int, planned_payment_amount: string}>  $allocations
      */
-    public function replaceAllocations(CommissionPaymentCycle $cycle, array $allocations, User $user): CommissionPaymentCycle
+    public function replaceAllocations(CommissionPaymentCycle $cycle, array $allocations, TenantUser $user): CommissionPaymentCycle
     {
         if (! CommissionPaymentCycleAccess::canUpdate($user, $cycle)) {
             abort(403);
@@ -134,7 +134,7 @@ class CommissionPaymentCycleWorkflowService
      *
      * @param  array<string, mixed>  $data
      */
-    public function update(CommissionPaymentCycle $cycle, array $data, User $user): CommissionPaymentCycle
+    public function update(CommissionPaymentCycle $cycle, array $data, TenantUser $user): CommissionPaymentCycle
     {
         if (! CommissionPaymentCycleAccess::canUpdate($user, $cycle)) {
             abort(403);
@@ -198,7 +198,7 @@ class CommissionPaymentCycleWorkflowService
         });
     }
 
-    public function submitForApproval(CommissionPaymentCycle $cycle, User $user): CommissionPaymentCycle
+    public function submitForApproval(CommissionPaymentCycle $cycle, TenantUser $user): CommissionPaymentCycle
     {
         if (! CommissionPaymentCycleAccess::canUpdate($user, $cycle)) {
             abort(403);
@@ -235,7 +235,7 @@ class CommissionPaymentCycleWorkflowService
         });
     }
 
-    public function approve(CommissionPaymentCycle $cycle, User $user): CommissionPaymentCycle
+    public function approve(CommissionPaymentCycle $cycle, TenantUser $user): CommissionPaymentCycle
     {
         if (! CommissionPaymentCycleAccess::canApprove($user, $cycle)) {
             abort(403);
@@ -261,7 +261,7 @@ class CommissionPaymentCycleWorkflowService
         });
     }
 
-    public function cancel(CommissionPaymentCycle $cycle, User $user, string $reason): CommissionPaymentCycle
+    public function cancel(CommissionPaymentCycle $cycle, TenantUser $user, string $reason): CommissionPaymentCycle
     {
         if (! CommissionPaymentCycleAccess::canCancel($user, $cycle)) {
             abort(403);
@@ -297,7 +297,7 @@ class CommissionPaymentCycleWorkflowService
     /**
      * @return Collection<int, CommissionPayment>
      */
-    public function executePayments(CommissionPaymentCycle $cycle, User $user)
+    public function executePayments(CommissionPaymentCycle $cycle, TenantUser $user)
     {
         if (! CommissionPaymentCycleAccess::canPay($user, $cycle)) {
             abort(403);
@@ -309,7 +309,7 @@ class CommissionPaymentCycleWorkflowService
     /**
      * @param  list<array{opportunity_commission_id: int, user_id: int, planned_payment_amount: string}>  $allocations
      */
-    private function persistAllocations(CommissionPaymentCycle $cycle, array $allocations, User $user): void
+    private function persistAllocations(CommissionPaymentCycle $cycle, array $allocations, TenantUser $user): void
     {
         $seenCommissionIds = [];
 
@@ -386,7 +386,7 @@ class CommissionPaymentCycleWorkflowService
         };
     }
 
-    private function assertBranchAccess(User $user, ?int $branchId): void
+    private function assertBranchAccess(TenantUser $user, ?int $branchId): void
     {
         if ($branchId === null || CrmBranchVisibility::canViewAllBranches($user)) {
             return;

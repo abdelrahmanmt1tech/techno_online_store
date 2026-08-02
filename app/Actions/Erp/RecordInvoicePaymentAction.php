@@ -10,6 +10,7 @@ use App\Models\Tenant\InvoicePayment;
 use App\Models\Tenant\PurchaseInvoice;
 use App\Models\Tenant\SalesInvoice;
 use App\Services\Erp\DocumentNumberService;
+use App\Services\Accounting\Posting\PostInvoicePaymentToJournalService;
 use App\Support\Erp\Decimal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,10 @@ use Illuminate\Validation\ValidationException;
 
 final class RecordInvoicePaymentAction
 {
-    public function __construct(private readonly DocumentNumberService $numbers) {}
+    public function __construct(
+        private readonly DocumentNumberService $numbers,
+        private readonly PostInvoicePaymentToJournalService $journalPoster,
+    ) {}
 
     public function execute(
         InvoicePayableType $payableType,
@@ -101,6 +105,8 @@ final class RecordInvoicePaymentAction
                 $invoice->status = InvoiceStatus::PartiallyPaid;
             }
             $invoice->save();
+
+            $this->journalPoster->handle($payment);
 
             return $payment;
         });

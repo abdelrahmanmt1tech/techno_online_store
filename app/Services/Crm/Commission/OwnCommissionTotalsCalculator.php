@@ -25,7 +25,7 @@ final class OwnCommissionTotalsCalculator
      *     opportunity_count: int,
      * }
      */
-    public static function forUser(User $user, ?Builder $scopedQuery = null): array
+    public static function forUser(TenantUser $user, ?Builder $scopedQuery = null): array
     {
         $query = $scopedQuery ?? OwnCommissionQuery::forUser($user, includeHistory: true);
 

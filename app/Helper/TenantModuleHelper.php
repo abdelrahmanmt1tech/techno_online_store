@@ -1,0 +1,28 @@
+<?php
+
+use App\Support\Modules\TenantModule;
+use App\Support\Modules\TenantModuleGate;
+
+if (! function_exists('tenant_module_enabled')) {
+    /**
+     * Shared check: is this sellable module available for the current merchant?
+     *
+     * Always true until module billing is wired inside TenantModuleGate::resolve().
+     *
+     * @param  TenantModule|string  $module  store|pos|crm|accounting
+     */
+    function tenant_module_enabled(TenantModule|string $module): bool
+    {
+        return TenantModuleGate::enabled($module);
+    }
+}
+
+if (! function_exists('tenant_accounting_active')) {
+    /**
+     * True when the Accounting module is available — gate for automatic journal posting.
+     */
+    function tenant_accounting_active(): bool
+    {
+        return TenantModuleGate::accountingActive();
+    }
+}

@@ -12,7 +12,7 @@ class CreateNoteService
         Model $noteable,
         string $note,
         bool $isPrivate,
-        User $user,
+        TenantUser $user,
     ): Note {
         return $noteable->notes()->create([
             'created_by' => $user->id,

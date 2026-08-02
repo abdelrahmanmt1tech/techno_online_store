@@ -62,7 +62,7 @@ class OpportunityCommissionResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof OpportunityCommission
             && OpportunityCommissionAccess::canView($user, $record);
     }
@@ -76,7 +76,7 @@ class OpportunityCommissionResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof OpportunityCommission
             && OpportunityCommissionAccess::canUpdate($user, $record);
     }
@@ -85,7 +85,7 @@ class OpportunityCommissionResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof OpportunityCommission
             && OpportunityCommissionAccess::canDelete($user, $record);
     }
@@ -94,7 +94,7 @@ class OpportunityCommissionResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof OpportunityCommission
             && OpportunityCommissionAccess::canRestore($user, $record);
     }
@@ -103,7 +103,7 @@ class OpportunityCommissionResource extends CrmResource
     {
         $user = Auth::user();
 
-        return $user instanceof User
+        return $user instanceof TenantUser
             && $record instanceof OpportunityCommission
             && OpportunityCommissionAccess::canForceDelete($user, $record);
     }
@@ -116,7 +116,7 @@ class OpportunityCommissionResource extends CrmResource
 
         $user = Auth::user();
 
-        if ($user instanceof User) {
+        if ($user instanceof TenantUser) {
             $query->visibleToUser($user);
         }
 
@@ -163,7 +163,7 @@ class OpportunityCommissionResource extends CrmResource
 
         $user = Auth::user();
 
-        if ($user instanceof User) {
+        if ($user instanceof TenantUser) {
             $query->visibleToUser($user);
         }
 

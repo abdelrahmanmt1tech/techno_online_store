@@ -22,6 +22,10 @@ class TenantDataSeeder extends Seeder
     public function run(): void
     {
         (new AccountTreesSeeder)->run();
+        (new LeadSourceSeeder)->run();
+        (new OpportunityStageSeeder)->run();
+        (new FollowUpTypeSeeder)->run();
+        (new FollowUpStatusSeeder)->run();
         $this->seedGovernorates();
         $categories = $this->seedCategories();
         $brands = $this->seedBrands();

@@ -61,7 +61,7 @@ class EditOpportunity extends EditRecord
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (! $user instanceof TenantUser) {
             return;
         }
 

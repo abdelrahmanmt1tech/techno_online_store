@@ -21,7 +21,7 @@ class ApplyFollowUpStatusService
     public function handle(
         OpportunityFollowUp $followUp,
         FollowUpStatus $status,
-        User $user,
+        TenantUser $user,
         ?int $targetStageId = null,
         ?Carbon $nextScheduledAt = null,
         ?array $nextFollowUpDefaults = [],
@@ -49,7 +49,7 @@ class ApplyFollowUpStatusService
 
     protected function handleClose(
         OpportunityFollowUp $followUp,
-        User $user,
+        TenantUser $user,
         string $stageAction,
         array &$meta,
     ): void {
@@ -71,7 +71,7 @@ class ApplyFollowUpStatusService
 
     protected function handleChangeStage(
         OpportunityFollowUp $followUp,
-        User $user,
+        TenantUser $user,
         ?int $targetStageId,
         array &$meta,
     ): void {
@@ -93,7 +93,7 @@ class ApplyFollowUpStatusService
 
     protected function handleScheduleNext(
         OpportunityFollowUp $followUp,
-        User $user,
+        TenantUser $user,
         ?Carbon $nextScheduledAt,
         ?array $nextFollowUpDefaults,
         array &$meta,

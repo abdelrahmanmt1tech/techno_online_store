@@ -23,7 +23,7 @@ class CommissionPaymentService
     /**
      * @return Collection<int, CommissionPayment>
      */
-    public function executeCyclePayments(CommissionPaymentCycle $cycle, User $user): Collection
+    public function executeCyclePayments(CommissionPaymentCycle $cycle, TenantUser $user): Collection
     {
         if (! CommissionPaymentCycleAccess::canPay($user, $cycle)) {
             abort(403);
@@ -73,7 +73,7 @@ class CommissionPaymentService
         });
     }
 
-    public function reversePayment(CommissionPayment $payment, User $user, string $reason): CommissionPayment
+    public function reversePayment(CommissionPayment $payment, TenantUser $user, string $reason): CommissionPayment
     {
         $payment->loadMissing('commissionPaymentCycle', 'opportunityCommission');
 
@@ -197,7 +197,7 @@ class CommissionPaymentService
     private function executeAllocationPayment(
         CommissionPaymentCycle $cycle,
         CommissionPaymentCycleAllocation $allocation,
-        User $user,
+        TenantUser $user,
     ): CommissionPayment {
         $commission = OpportunityCommission::query()
             ->whereKey($allocation->opportunity_commission_id)
@@ -292,7 +292,7 @@ class CommissionPaymentService
         ]);
     }
 
-    private function syncCycleStatus(CommissionPaymentCycle $cycle, User $user): void
+    private function syncCycleStatus(CommissionPaymentCycle $cycle, TenantUser $user): void
     {
         $cycle->refresh();
 

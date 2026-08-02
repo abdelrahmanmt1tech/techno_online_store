@@ -45,6 +45,8 @@ class AccountingSettings extends Page
 
     public function form(Schema $schema): Schema
     {
+        $options = $this->getAccountTreeOptions();
+
         return $schema
             ->components([
                 Section::make(__('dashboard.pages.accounting_settings.section'))
@@ -53,34 +55,54 @@ class AccountingSettings extends Page
                     ->schema([
                         Select::make('clients_account_tree_id')
                             ->label(__('dashboard.pages.accounting_settings.clients_account_tree_id'))
-                            ->options($this->getAccountTreeOptions())
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->options($options)->searchable()->preload()->required(),
                         Select::make('suppliers_account_tree_id')
                             ->label(__('dashboard.pages.accounting_settings.suppliers_account_tree_id'))
-                            ->options($this->getAccountTreeOptions())
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->options($options)->searchable()->preload()->required(),
                         Select::make('accounts_center_account_tree_id')
                             ->label(__('dashboard.pages.accounting_settings.accounts_center_account_tree_id'))
-                            ->options($this->getAccountTreeOptions())
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->options($options)->searchable()->preload()->required(),
                         Select::make('income_summary_account_tree_id')
                             ->label(__('dashboard.pages.accounting_settings.income_summary_account_tree_id'))
-                            ->options($this->getAccountTreeOptions())
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->options($options)->searchable()->preload()->required(),
                         Select::make('retained_earnings_account_tree_id')
                             ->label(__('dashboard.pages.accounting_settings.retained_earnings_account_tree_id'))
-                            ->options($this->getAccountTreeOptions())
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->options($options)->searchable()->preload()->required(),
+                    ]),
+                Section::make(__('dashboard.pages.accounting_settings.posting_section'))
+                    ->description(__('dashboard.pages.accounting_settings.posting_section_description'))
+                    ->columns(2)
+                    ->schema([
+                        Select::make('sales_revenue_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.sales_revenue_account_tree_id'))
+                            ->options($options)->searchable()->preload()->required(),
+                        Select::make('sales_returns_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.sales_returns_account_tree_id'))
+                            ->options($options)->searchable()->preload()->required(),
+                        Select::make('inventory_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.inventory_account_tree_id'))
+                            ->options($options)->searchable()->preload()->required(),
+                        Select::make('cogs_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.cogs_account_tree_id'))
+                            ->options($options)->searchable()->preload()->required(),
+                        Select::make('sales_tax_payable_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.sales_tax_payable_account_tree_id'))
+                            ->options($options)->searchable()->preload(),
+                        Select::make('purchase_tax_receivable_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.purchase_tax_receivable_account_tree_id'))
+                            ->options($options)->searchable()->preload(),
+                        Select::make('default_cash_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.default_cash_account_tree_id'))
+                            ->options($options)->searchable()->preload()->required(),
+                        Select::make('default_bank_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.default_bank_account_tree_id'))
+                            ->options($options)->searchable()->preload()->required(),
+                        Select::make('default_wallet_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.default_wallet_account_tree_id'))
+                            ->options($options)->searchable()->preload()->required(),
+                        Select::make('walk_in_ar_account_tree_id')
+                            ->label(__('dashboard.pages.accounting_settings.walk_in_ar_account_tree_id'))
+                            ->options($options)->searchable()->preload()->required(),
                     ]),
             ])
             ->statePath('data');
@@ -103,22 +125,38 @@ class AccountingSettings extends Page
      */
     protected function getSettingsData(): array
     {
-        $keys = [
-            'clients_account_tree_id',
-            'suppliers_account_tree_id',
-            'accounts_center_account_tree_id',
-            'income_summary_account_tree_id',
-            'retained_earnings_account_tree_id',
-        ];
-
         $data = [];
 
-        foreach ($keys as $key) {
+        foreach ($this->settingKeys() as $key) {
             $value = TenantSetting::getValue($key);
             $data[$key] = $value !== null ? (int) $value : null;
         }
 
         return $data;
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function settingKeys(): array
+    {
+        return [
+            'clients_account_tree_id',
+            'suppliers_account_tree_id',
+            'accounts_center_account_tree_id',
+            'income_summary_account_tree_id',
+            'retained_earnings_account_tree_id',
+            'sales_revenue_account_tree_id',
+            'sales_returns_account_tree_id',
+            'inventory_account_tree_id',
+            'cogs_account_tree_id',
+            'sales_tax_payable_account_tree_id',
+            'purchase_tax_receivable_account_tree_id',
+            'default_cash_account_tree_id',
+            'default_bank_account_tree_id',
+            'default_wallet_account_tree_id',
+            'walk_in_ar_account_tree_id',
+        ];
     }
 
     /**
@@ -128,7 +166,10 @@ class AccountingSettings extends Page
     {
         return AccountTree::query()
             ->orderBy('account_code')
-            ->pluck('account_name', 'id')
+            ->get()
+            ->mapWithKeys(fn (AccountTree $a) => [
+                $a->id => trim(($a->account_code ? $a->account_code.' — ' : '').$a->account_name),
+            ])
             ->all();
     }
 }

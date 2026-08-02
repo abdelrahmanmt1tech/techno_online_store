@@ -69,7 +69,7 @@ final class CommissionCalculator
         return DecimalMath::compare($percentage, self::maxPercentage(), DecimalMath::RATE_SCALE) === 1;
     }
 
-    public static function assertPercentageWithinLimit(string $percentage, ?User $user = null, $commission = null): void
+    public static function assertPercentageWithinLimit(string $percentage, ?TenantUser $user = null, $commission = null): void
     {
         self::assertNonNegative($percentage, 'commission_percentage');
 

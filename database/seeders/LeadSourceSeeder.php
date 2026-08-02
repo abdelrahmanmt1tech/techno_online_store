@@ -18,6 +18,10 @@ class LeadSourceSeeder extends Seeder
             3 => ['ar' => 'الموقع الإلكتروني', 'en' => 'Website'],
             4 => ['ar' => 'إحالة عميل', 'en' => 'Referral'],
             5 => ['ar' => 'اتصال مباشر', 'en' => 'Direct Contact'],
+            6 => ['ar' => 'زيارة مباشرة', 'en' => 'Walk-in'],
+            7 => ['ar' => 'نقطة البيع', 'en' => 'POS'],
+            8 => ['ar' => 'المتاجر الإلكترونية', 'en' => 'Marketplace'],
+            9 => ['ar' => 'الهاتف', 'en' => 'Phone'],
         ];
 
         foreach ($sources as $id => $name) {

@@ -14,7 +14,7 @@ final class CampaignReportQuery
     /**
      * @return Builder<Campaign>
      */
-    public static function tableQuery(User $user, CrmReportFilters $filters): Builder
+    public static function tableQuery(TenantUser $user, CrmReportFilters $filters): Builder
     {
         $query = Campaign::query()->select('campaigns.*');
 
@@ -27,7 +27,7 @@ final class CampaignReportQuery
     /**
      * @param  Builder<Campaign>  $query
      */
-    protected static function applyAggregates(Builder $query, User $user, CrmReportFilters $filters): void
+    protected static function applyAggregates(Builder $query, TenantUser $user, CrmReportFilters $filters): void
     {
         $oppFilters = CrmReportScope::campaignOpportunityFilters($filters);
 
@@ -50,7 +50,7 @@ final class CampaignReportQuery
     /**
      * @return array<string, mixed>
      */
-    public static function summary(User $user, CrmReportFilters $filters): array
+    public static function summary(TenantUser $user, CrmReportFilters $filters): array
     {
         $base = Campaign::query();
         CrmReportScope::applyCampaignFilters($base, $user, $filters);

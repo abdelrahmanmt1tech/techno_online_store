@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 
 class OpportunityCommissionWorkflowService
 {
-    public function canCreateForOpportunity(User $user, Opportunity $opportunity): bool
+    public function canCreateForOpportunity(TenantUser $user, Opportunity $opportunity): bool
     {
         if (! $user->can('crm_commissions.create')) {
             return false;
@@ -38,7 +38,7 @@ class OpportunityCommissionWorkflowService
     /**
      * @param  array<string, mixed>  $data
      */
-    public function create(array $data, User $user): OpportunityCommission
+    public function create(array $data, TenantUser $user): OpportunityCommission
     {
         if (! $user->can('crm_commissions.create')) {
             abort(403);
@@ -86,7 +86,7 @@ class OpportunityCommissionWorkflowService
     /**
      * @param  array<string, mixed>  $data
      */
-    public function update(OpportunityCommission $commission, array $data, User $user): OpportunityCommission
+    public function update(OpportunityCommission $commission, array $data, TenantUser $user): OpportunityCommission
     {
         OpportunityCommissionGuard::ensureCanUpdate($user, $commission);
 
@@ -128,7 +128,7 @@ class OpportunityCommissionWorkflowService
         });
     }
 
-    public function submitForApproval(OpportunityCommission $commission, User $user): OpportunityCommission
+    public function submitForApproval(OpportunityCommission $commission, TenantUser $user): OpportunityCommission
     {
         if (! $user->can('crm_commissions.update') || ! OpportunityCommissionState::isDirectlyEditable($commission)) {
             abort(403);
@@ -164,7 +164,7 @@ class OpportunityCommissionWorkflowService
         });
     }
 
-    public function approve(OpportunityCommission $commission, User $user): OpportunityCommission
+    public function approve(OpportunityCommission $commission, TenantUser $user): OpportunityCommission
     {
         OpportunityCommissionGuard::ensureCanApprove($user, $commission);
 
@@ -190,7 +190,7 @@ class OpportunityCommissionWorkflowService
         });
     }
 
-    public function reject(OpportunityCommission $commission, User $user, string $reason): OpportunityCommission
+    public function reject(OpportunityCommission $commission, TenantUser $user, string $reason): OpportunityCommission
     {
         if (! OpportunityCommissionAccess::canReject($user, $commission)) {
             abort(403);
@@ -224,7 +224,7 @@ class OpportunityCommissionWorkflowService
         });
     }
 
-    public function cancel(OpportunityCommission $commission, User $user, string $reason): OpportunityCommission
+    public function cancel(OpportunityCommission $commission, TenantUser $user, string $reason): OpportunityCommission
     {
         if (! OpportunityCommissionAccess::canCancel($user, $commission)) {
             abort(403);
@@ -277,7 +277,7 @@ class OpportunityCommissionWorkflowService
         ];
     }
 
-    public function recalculate(OpportunityCommission $commission, User $user): OpportunityCommission
+    public function recalculate(OpportunityCommission $commission, TenantUser $user): OpportunityCommission
     {
         if (! OpportunityCommissionAccess::canRecalculate($user, $commission)) {
             abort(403);
@@ -312,7 +312,7 @@ class OpportunityCommissionWorkflowService
     /**
      * @param  array<string, mixed>  $data
      */
-    private function validateFinancialFields(array $data, User $user, ?OpportunityCommission $commission = null): void
+    private function validateFinancialFields(array $data, TenantUser $user, ?OpportunityCommission $commission = null): void
     {
         if (! isset($data['base_amount'], $data['commission_percentage'], $data['commission_amount'])) {
             return;

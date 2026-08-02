@@ -6,11 +6,11 @@ use App\Filament\Concerns\HasTenantFeatureAccess;
 use App\Models\Tenant\Opportunity;
 use App\Models\TenantUser;
 use App\Support\Crm\CrmBranchVisibility;
+use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
-class CrmOpportunitiesTrendChart extends ApexChartWidget
+class CrmOpportunitiesTrendChart extends ChartWidget
 {
     use HasTenantFeatureAccess;
 
@@ -19,8 +19,6 @@ class CrmOpportunitiesTrendChart extends ApexChartWidget
     protected static ?int $sort = 4;
 
     protected int|string|array $columnSpan = 1;
-
-    protected ?string $pollingInterval = null;
 
     public static function canView(): bool
     {
@@ -32,11 +30,11 @@ class CrmOpportunitiesTrendChart extends ApexChartWidget
         return __('crm.widgets.chart_opportunities_trend');
     }
 
-    protected function getOptions(): array
+    protected function getData(): array
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (! $user instanceof TenantUser) {
             return $this->emptyBar();
         }
 
@@ -61,16 +59,23 @@ class CrmOpportunitiesTrendChart extends ApexChartWidget
         }
 
         return [
-            'chart' => ['type' => 'bar', 'height' => 300, 'stacked' => false],
-            'series' => [
-                ['name' => __('crm.widgets.trend_created'), 'data' => $created],
-                ['name' => __('crm.widgets.trend_won'), 'data' => $won],
+            'datasets' => [
+                [
+                    'label' => __('crm.widgets.trend_created'),
+                    'data' => $created,
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.8)',
+                    'borderColor' => 'rgba(59, 130, 246, 1)',
+                    'borderWidth' => 1,
+                ],
+                [
+                    'label' => __('crm.widgets.trend_won'),
+                    'data' => $won,
+                    'backgroundColor' => 'rgba(34, 197, 94, 0.8)',
+                    'borderColor' => 'rgba(34, 197, 94, 1)',
+                    'borderWidth' => 1,
+                ],
             ],
-            'xaxis' => ['categories' => $labels],
-            'colors' => ['#3b82f6', '#22c55e'],
-            'plotOptions' => ['bar' => ['borderRadius' => 4, 'columnWidth' => '55%']],
-            'dataLabels' => ['enabled' => false],
-            'legend' => ['position' => 'bottom'],
+            'labels' => $labels,
         ];
     }
 
@@ -80,9 +85,19 @@ class CrmOpportunitiesTrendChart extends ApexChartWidget
     protected function emptyBar(): array
     {
         return [
-            'chart' => ['type' => 'bar', 'height' => 300],
-            'series' => [['name' => __('crm.widgets.no_data'), 'data' => [0]]],
-            'xaxis' => ['categories' => ['-']],
+            'datasets' => [[
+                'label' => __('crm.widgets.no_data'),
+                'data' => [0],
+                'backgroundColor' => 'rgba(209, 213, 219, 0.8)',
+                'borderColor' => 'rgba(209, 213, 219, 1)',
+                'borderWidth' => 1,
+            ]],
+            'labels' => ['-'],
         ];
+    }
+
+    protected function getType(): string
+    {
+        return 'bar';
     }
 }

@@ -42,7 +42,7 @@ class FollowUpReportExporter extends Exporter
     {
         $user = auth()->user();
 
-        abort_unless($user instanceof User && CrmReportAccess::canExportFollowUpReports($user), 403);
+        abort_unless($user instanceof TenantUser && CrmReportAccess::canExportFollowUpReports($user), 403);
 
         return $query;
     }

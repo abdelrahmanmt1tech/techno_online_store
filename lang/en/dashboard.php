@@ -1424,6 +1424,20 @@ return array (
             'accounts_center_account_tree_id' => 'Accounts centers parent account',
             'income_summary_account_tree_id' => 'Income summary account',
             'retained_earnings_account_tree_id' => 'Retained earnings account',
+            'posting_section' => 'Document posting accounts',
+            'posting_section_description' => 'Accounts used when sales/purchase invoices and payments post automatically to the general ledger (Accounting module).',
+            'sales_revenue_account_tree_id' => 'Sales revenue',
+            'sales_returns_account_tree_id' => 'Sales returns',
+            'inventory_account_tree_id' => 'Inventory',
+            'cogs_account_tree_id' => 'Cost of goods sold',
+            'sales_tax_payable_account_tree_id' => 'Sales tax payable',
+            'purchase_tax_receivable_account_tree_id' => 'Purchase tax receivable',
+            'default_cash_account_tree_id' => 'Default cash',
+            'default_bank_account_tree_id' => 'Default bank',
+            'default_wallet_account_tree_id' => 'Default wallet',
+            'walk_in_ar_account_tree_id' => 'Walk-in / cash AR',
+            'missing_posting_account' => 'Missing posting account setting: :key',
+            'supplier_account_missing' => 'Supplier has no chart-of-account leaf. Save the supplier after configuring suppliers parent account.',
         ),
         'general_account_statement' => 
         array (
@@ -1819,5 +1833,14 @@ return array (
     'widgets' => 
     array (
         'not_specified' => 'Not specified',
+    ),
+    'accounting_posting' => 
+    array (
+        'sales_invoice' => 'Sales invoice :number',
+        'sales_invoice_cogs' => 'COGS for sales invoice :number',
+        'invoice_payment' => 'Invoice payment :number',
+        'purchase_invoice' => 'Purchase invoice :number',
+        'sales_return' => 'Sales return :number',
+        'sales_return_cogs' => 'COGS reverse for sales return :number',
     ),
 );

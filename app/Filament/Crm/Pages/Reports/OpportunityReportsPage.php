@@ -55,7 +55,7 @@ class OpportunityReportsPage extends CrmPage implements HasTable
     {
         $user = Auth::user();
 
-        return $user instanceof User && CrmReportAccess::canViewOpportunityReports($user);
+        return $user instanceof TenantUser && CrmReportAccess::canViewOpportunityReports($user);
     }
 
     public function getTitle(): string

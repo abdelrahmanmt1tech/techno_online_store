@@ -2,9 +2,9 @@
 
 @section('kpi')
     <div>
-        {{ __('dashboard.crm.reports.opportunity.stats.total') }}: {{ number_format($summary['total'] ?? 0) }} |
-        {{ __('dashboard.crm.reports.opportunity.stats.won') }}: {{ number_format($summary['won'] ?? 0) }} |
-        {{ __('dashboard.crm.reports.opportunity.stats.lost') }}: {{ number_format($summary['lost'] ?? 0) }}
+        {{ __('crm.reports.opportunity.stats.total') }}: {{ number_format($summary['total'] ?? 0) }} |
+        {{ __('crm.reports.opportunity.stats.won') }}: {{ number_format($summary['won'] ?? 0) }} |
+        {{ __('crm.reports.opportunity.stats.lost') }}: {{ number_format($summary['lost'] ?? 0) }}
     </div>
 @endsection
 
@@ -12,11 +12,11 @@
     <table>
         <thead>
             <tr>
-                <th>{{ __('dashboard.crm.fields.title') }}</th>
-                <th>{{ __('dashboard.crm.fields.client') }}</th>
-                <th>{{ __('dashboard.crm.fields.amount') }}</th>
-                <th>{{ __('dashboard.crm.fields.agreed_amount') }}</th>
-                <th>{{ __('dashboard.crm.fields.closed_at') }}</th>
+                <th>{{ __('crm.fields.title') }}</th>
+                <th>{{ __('crm.fields.client') }}</th>
+                <th>{{ __('crm.fields.amount') }}</th>
+                <th>{{ __('crm.fields.agreed_amount') }}</th>
+                <th>{{ __('crm.fields.closed_at') }}</th>
             </tr>
         </thead>
         <tbody>

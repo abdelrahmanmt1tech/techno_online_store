@@ -58,7 +58,7 @@ class FollowUpReportsPage extends CrmPage implements HasTable
     {
         $user = Auth::user();
 
-        return $user instanceof User && CrmReportAccess::canViewFollowUpReports($user);
+        return $user instanceof TenantUser && CrmReportAccess::canViewFollowUpReports($user);
     }
 
     public function getTitle(): string
@@ -196,7 +196,7 @@ class FollowUpReportsPage extends CrmPage implements HasTable
                     ->query(fn (Builder $query): Builder => $query),
                 SelectFilter::make('sales_rep_id')
                     ->label(__('crm.fields.assigned_to'))
-                    ->options(fn (): array => User::query()->orderBy('name')->pluck('name', 'id')->all())
+                    ->options(fn (): array => TenantUser::query()->orderBy('name')->pluck('name', 'id')->all())
                     ->query(fn (Builder $query): Builder => $query),
                 SelectFilter::make('follow_up_type_id')
                     ->label(__('crm.fields.follow_up_type'))
