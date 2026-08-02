@@ -173,13 +173,13 @@ class LeadClients extends CrmPage implements HasTable
                             ->send();
                     }),
             ])
-            ->recordUrl(fn (Client $record): string => ClientResource::getUrl('view', ['record' => $record]))
+            ->recordUrl(fn (Client $record): string => ClientResource::getUrl('view', ['record' => $record], panel: 'crm'))
             ->recordActions([
                 ClientCrmActions::viewWorkspaceAction(),
                 Action::make('editLead')
                     ->label(__('crm.actions.edit_client'))
                     ->icon(Heroicon::PencilSquare)
-                    ->url(fn (Client $record): string => ClientResource::getUrl('edit', ['record' => $record])),
+                    ->url(fn (Client $record): string => ClientResource::getUrl('edit', ['record' => $record], panel: 'crm')),
                 Action::make('openOpportunities')
                     ->label(__('crm.actions.view_open_opportunities'))
                     ->icon(Heroicon::Briefcase)

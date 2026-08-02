@@ -21,7 +21,7 @@ class ClientCrmActions
             ->label(__('crm.actions.view_client'))
             ->icon(Heroicon::Eye)
             ->color('gray')
-            ->url(fn (Client $record): string => ClientResource::getUrl('view', ['record' => $record]));
+            ->url(fn (Client $record): string => ClientResource::getUrl('view', ['record' => $record], panel: 'crm'));
     }
 
     /**
@@ -38,12 +38,12 @@ class ClientCrmActions
             'tableFilters' => [
                 'client_id' => ['value' => $record->getKey()],
             ],
-        ]);
+        ], panel: 'crm');
     }
 
     public static function opportunityViewUrl(Opportunity $opportunity): string
     {
-        return OpportunityResource::getUrl('view', ['record' => $opportunity]);
+        return OpportunityResource::getUrl('view', ['record' => $opportunity], panel: 'crm');
     }
 
     public static function formatFollowUpSummary(?OpportunityFollowUp $followUp): string

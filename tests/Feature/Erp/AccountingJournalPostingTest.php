@@ -126,6 +126,115 @@ class AccountingJournalPostingTest extends ErpTestCase
         $this->assertTrue(Decimal::isPositive((string) $invoice->grand_total));
     }
 
+    public function test_purchase_invoice_and_payment_create_balanced_operations(): void
+    {
+        $this->seedPostingChart();
+
+        $supplier = \App\Models\Tenant\Supplier::query()->create([
+            'name' => 'GL Supplier',
+            'is_active' => true,
+        ]);
+        $supplier->accTree();
+
+        $invoice = \App\Models\Tenant\PurchaseInvoice::query()->create([
+            'document_number' => 'PI-GL-1',
+            'supplier_id' => $supplier->id,
+            'invoice_date' => now()->toDateString(),
+            'status' => \App\Enums\Erp\InvoiceStatus::Issued,
+            'subtotal' => 200,
+            'discount_total' => 0,
+            'tax_total' => 0,
+            'grand_total' => 200,
+            'paid_amount' => 0,
+            'due_amount' => 200,
+            'issued_at' => now(),
+            'created_by' => $this->user->id,
+        ]);
+
+        $op = app(\App\Services\Accounting\Posting\PostPurchaseInvoiceToJournalService::class)->handle($invoice);
+        $this->assertNotNull($op);
+        $this->assertEquals(200.0, (float) $op->entries()->sum('debit'));
+        $this->assertEquals(200.0, (float) $op->entries()->sum('credit'));
+
+        $payment = app(RecordInvoicePaymentAction::class)->execute(
+            InvoicePayableType::PurchaseInvoice,
+            $invoice->id,
+            '200',
+            PaymentMethod::BankTransfer,
+        );
+
+        $payOp = Operation::query()->where('reference_no', 'PAY-'.$payment->id)->first();
+        $this->assertNotNull($payOp);
+        $this->assertEquals(200.0, (float) $payOp->entries()->sum('debit'));
+        $this->assertEquals(200.0, (float) $payOp->entries()->sum('credit'));
+    }
+
+    public function test_sales_return_posts_revenue_and_cogs_reversals(): void
+    {
+        $this->seedPostingChart();
+
+        $sale = Sale::query()->create([
+            'document_number' => 'S-RET-1',
+            'branch_id' => $this->branch->id,
+            'status' => SaleStatus::Confirmed,
+            'sale_date' => now()->toDateString(),
+            'currency_code' => 'EGP',
+            'subtotal' => 100,
+            'discount_total' => 0,
+            'tax_total' => 0,
+            'grand_total' => 100,
+            'cost_total' => 40,
+            'created_by' => $this->user->id,
+        ]);
+
+        $saleItem = SaleItem::query()->create([
+            'sale_id' => $sale->id,
+            'source_type' => SaleItemSourceType::Manual->value,
+            'description_snapshot' => 'Item',
+            'quantity' => 2,
+            'unit_price' => 50,
+            'discount' => 0,
+            'tax' => 0,
+            'line_total' => 100,
+            'unit_cost' => 20,
+            'cost_total' => 40,
+            'invoiced_quantity' => 2,
+            'returned_quantity' => 0,
+        ]);
+
+        $ret = \App\Models\Tenant\SalesReturn::query()->create([
+            'document_number' => 'SR-1',
+            'sale_id' => $sale->id,
+            'branch_id' => $this->branch->id,
+            'return_date' => now()->toDateString(),
+            'status' => \App\Enums\Erp\DocumentStatus::Posted,
+            'reason' => 'damaged',
+            'posted_at' => now(),
+            'posted_by' => $this->user->id,
+            'created_by' => $this->user->id,
+        ]);
+
+        \App\Models\Tenant\SalesReturnItem::query()->create([
+            'sales_return_id' => $ret->id,
+            'sale_item_id' => $saleItem->id,
+            'source_type' => SaleItemSourceType::Manual->value,
+            'quantity' => 1,
+            'disposition' => \App\Enums\Erp\ReturnDisposition::Restock->value,
+            'warehouse_id' => $this->warehouse->id,
+        ]);
+
+        $result = app(\App\Services\Accounting\Posting\PostSalesReturnToJournalService::class)
+            ->handle($ret->fresh(['items.saleItem', 'sale']));
+
+        $this->assertNotNull($result['revenue']);
+        $this->assertEquals(50.0, (float) $result['revenue']->entries()->sum('debit'));
+        $this->assertEquals(50.0, (float) $result['revenue']->entries()->sum('credit'));
+
+        $this->assertNotNull($result['cogs']);
+        $this->assertEquals(20.0, (float) $result['cogs']->entries()->sum('debit'));
+        $this->assertEquals(20.0, (float) $result['cogs']->entries()->sum('credit'));
+    }
+
     private function seedPostingChart(): void
     {
         $mk = function (string $code, string $name, string $type = 'debit'): AccountTree {

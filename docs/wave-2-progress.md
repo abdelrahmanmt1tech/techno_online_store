@@ -37,5 +37,15 @@
 - Spatie CRM/accounting permission keys
 - Existing tenants: run AccountTrees posting settings manually or re-seed settings keys if COA already exists (seeder no-ops when tree non-empty)
 
-## Existing tenant note
-If `account_trees` already seeded, new posting TenantSetting keys are **not** auto-filled (empty-only seeder). Set them in Accounting Settings UI or a one-off artisan command later.
+## Test coverage (2026-08-02)
+
+| Suite | Result |
+|---|---|
+| Erp (full filter) | 35 passed |
+| Pos | 31 passed |
+| Hr | 27 passed |
+| AccountingJournalPostingTest | 4 passed (sales/payment/purchase/return + skip) |
+| TenantModuleGateTest | 1 passed |
+| CrmFoundationSmokeTest | 1 passed |
+
+Proposed next: [`docs/wave-3-proposed.md`](wave-3-proposed.md)
