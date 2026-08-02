@@ -33,6 +33,8 @@
 
 **Views audit (2026-08-02):** financial-period opening-entry create/edit blades + `filament.notes-modal` copied; CRM report/print/timeline views present.
 
+**Cleanup:** deleted leftover flyaram stubs `SafesBankBalanceService` + `PaymentCommissionEntryDisplay` (never wired; Payment/SafesBank not ported).
+
 ### 2026-08-02 — Initial bulk port
 
 **Done**
