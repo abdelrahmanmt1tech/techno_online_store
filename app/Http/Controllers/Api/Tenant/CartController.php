@@ -68,7 +68,7 @@ class CartController extends Controller
             $cart->delete();
         }
 
-        return $this->successResponse(['item_count' => $count]);
+        return $this->successResponse($count);
     }
 
     private function handleAddItem(AddCartItemRequest $request, Cart $cart, string $token)
