@@ -15,6 +15,7 @@ class SetGovernorateRequest extends FormRequest
     {
         return [
             'governorate_id' => 'required|exists:governorates,id',
+            'coupon_code' => 'nullable|string|max:50',
         ];
     }
 }

@@ -198,7 +198,32 @@ class CartController extends Controller
             'governorate_id' => $governorate->id,
         ]);
 
-        return $this->successResponse(null, __('messages.success'));
+        $cart->load([
+            'items.product' => fn ($q) => $q->with('media'),
+            'items.variant.options.variation',
+            'governorate',
+        ]);
+
+        $subtotal = $cart->items->sum(fn ($item) => $item->unitPrice() * $item->quantity);
+        $shippingCost = (float) ($governorate->shipping_cost ?? 0);
+
+        $coupon = null;
+        if (! empty($validated['coupon_code'])) {
+            $coupon = Coupon::where('code', strtoupper($validated['coupon_code']))->first();
+        }
+
+        $discount = $coupon ? $coupon->calculateDiscount($subtotal) : 0;
+
+        return $this->successResponse([
+            'governorate_id' => $governorate->id,
+            'governorate_name' => $governorate->name,
+            'coupon_id' => $coupon?->id,
+            'coupon_code' => $coupon?->code,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'shipping_cost' => $shippingCost,
+            'total' => max(0, $subtotal + $shippingCost - $discount),
+        ], __('messages.success'));
     }
 
     public function applyCoupon(ApplyCouponRequest $request, string $token)
@@ -241,6 +266,7 @@ class CartController extends Controller
         }
 
         $discount = $coupon->calculateDiscount($subtotal);
+        $shippingCost = (float) ($cart->governorate?->shipping_cost ?? 0);
 
         return $this->successResponse([
             'code' => $coupon->code,
@@ -248,7 +274,8 @@ class CartController extends Controller
             'value' => $coupon->value,
             'discount' => $discount,
             'subtotal' => $subtotal,
-            'total' => max(0, $subtotal - $discount),
+            'shipping_cost' => $shippingCost,
+            'total' => max(0, $subtotal + $shippingCost - $discount),
         ], 'Coupon applied successfully');
     }
 }
