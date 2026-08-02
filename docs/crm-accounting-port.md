@@ -19,6 +19,17 @@
 
 ## Progress
 
+### 2026-08-02 — Accounting completion wave 1
+
+- [x] AssistantLedger + AccountTreeStatement (Entry-only) + tree action URLs
+- [x] AccountTreesSeeder (empty-only, no IATA) + AccountingSettings + TenantSetting keys
+- [x] TrialBalance + GeneralLedger under `erp.nav.accounts`
+- [x] PartyAccountStatement + Client/Supplier `accTree()` + Filament account fields
+- [x] Cleanup `dd()` / wrong `User` typehints in Accounting services
+- [x] QA doc: [`docs/accounting-crm-qa.md`](accounting-crm-qa.md)
+
+**Still deferred:** invoice/POS → journal posting; Excel/print; Spatie permission keys.
+
 ### 2026-08-02 — Production smoke fixes (store1)
 
 **Bugs fixed**
@@ -50,7 +61,7 @@
 
 1. ApexCharts stub vs ChartWidget rewrite
 2. Port accounting Excel exporters later
-3. AccountTreesSeeder + CRM seeders into tenant pipeline
+3. Wire Sales/Purchase/POS → journal posting (next accounting wave)
 4. Staff `is_admin` gate tightening
 
 ## KEEP / STRIP reminders

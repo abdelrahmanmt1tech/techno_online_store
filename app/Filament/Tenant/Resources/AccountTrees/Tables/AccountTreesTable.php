@@ -2,8 +2,8 @@
 
 namespace App\Filament\Tenant\Resources\AccountTrees\Tables;
 
-use App\Filament\Pages\AccountTreeStatementPage;
-use App\Filament\Pages\AssistantLedger;
+use App\Filament\Tenant\Pages\Accounting\AccountTreeStatementPage;
+use App\Filament\Tenant\Pages\Accounting\AssistantLedger;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;

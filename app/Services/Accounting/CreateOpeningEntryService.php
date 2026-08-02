@@ -24,24 +24,20 @@ class CreateOpeningEntryService
         array $entries,
         ?string $comment = null,
         ?string $referenceNo = null,
-        ?User $user = null,
+        ?TenantUser $user = null,
         ?string $date = null,
         bool $isSystemGenerated = false,
     ) {
         $user ??= Auth::user();
 
         if (! $period->isOpen()) {
-            dd([
-                'financial_period_id' => __('dashboard.financial_periods.messages.period_must_be_open'),
-            ]);
+            throw ValidationException::withMessages(['financial_period_id' => __('dashboard.financial_periods.messages.period_must_be_open')]);
         }
 
         $operationDate = $date ?: $period->start_date->toDateString();
 
         if (! $period->containsDate($operationDate)) {
-            dd([
-                'date' => __('dashboard.financial_periods.messages.date_outside_period'),
-            ]);
+            throw ValidationException::withMessages(['date' => __('dashboard.financial_periods.messages.date_outside_period')]);
         }
 
         return $this->operationWriter->createOperationWithEntries([

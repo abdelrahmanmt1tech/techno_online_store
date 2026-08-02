@@ -21,6 +21,7 @@ class TenantDataSeeder extends Seeder
 {
     public function run(): void
     {
+        (new AccountTreesSeeder)->run();
         $this->seedGovernorates();
         $categories = $this->seedCategories();
         $brands = $this->seedBrands();

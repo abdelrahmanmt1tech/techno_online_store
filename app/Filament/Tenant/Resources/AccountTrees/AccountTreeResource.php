@@ -28,8 +28,8 @@ use Openplain\FilamentTreeView\Fields\IconField;
 use Openplain\FilamentTreeView\Fields\TextField;
 use Openplain\FilamentTreeView\Tree;
 use Filament\Actions\Action;
-use App\Filament\Pages\AccountTreeStatementPage;
-use App\Filament\Pages\AssistantLedger;
+use App\Filament\Tenant\Pages\Accounting\AccountTreeStatementPage;
+use App\Filament\Tenant\Pages\Accounting\AssistantLedger;
 use Illuminate\Support\Facades\Auth;
 
 class AccountTreeResource extends Resource

@@ -34,11 +34,9 @@ class AccountingOperationWriter
                 foreach ($entries as $entry) {
                     $account = AccountTree::query()->findOrFail($entry['account_tree_id']);
                     if (! $account->isPostable()) {
-                        dd([
-                            'account_tree_id' => __('dashboard.financial_periods.messages.parent_account_not_allowed', [
+                        throw ValidationException::withMessages(['account_tree_id' => __('dashboard.financial_periods.messages.parent_account_not_allowed', [
                                 'account' => $account->account_name,
-                            ]),
-                        ]);
+                            ])]);
                     }
 
                    Entry::query()->create([
@@ -55,7 +53,6 @@ class AccountingOperationWriter
                         'branch_id' => $entry['branch_id'] ?? null,
                     ]);
 
-//                    dd($Entry);
                 }
 
                 $this->operationMetadata->refreshOperation($operation);
@@ -67,7 +64,7 @@ class AccountingOperationWriter
     public function reverseOperation(
         Operation $source,
         ?FinancialPeriod $financialPeriod = null,
-        ?User $user = null,
+        ?TenantUser $user = null,
         ?string $notes = null,
         ?string $referenceNo = null,
     ): Operation {
@@ -124,9 +121,7 @@ class AccountingOperationWriter
     public function assertEntriesBalanced(array $entries): void
     {
         if ($entries === []) {
-            dd([
-                'entries' => __('dashboard.financial_periods.messages.entries_required'),
-            ]);
+            throw ValidationException::withMessages(['entries' => __('dashboard.financial_periods.messages.entries_required')]);
         }
 
         $debit = round((float) collect($entries)->sum(fn (array $row): float => (float) ($row['debit'] ?? 0)), 2);

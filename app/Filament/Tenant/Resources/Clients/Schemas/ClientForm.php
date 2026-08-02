@@ -3,6 +3,8 @@
 namespace App\Filament\Tenant\Resources\Clients\Schemas;
 
 use App\Enums\Crm\ClientStage;
+use App\Models\Tenant\AccountTree;
+use App\Models\Tenant\AccountsCenter;
 use App\Models\TenantUser;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -75,6 +77,25 @@ class ClientForm
                                 ->preload(),
                             Toggle::make('is_provisional')
                                 ->label(__('crm.fields.is_provisional')),
+                            Select::make('account_tree_id')
+                                ->label(__('crm.fields.account_tree'))
+                                ->options(fn (): array => AccountTree::query()
+                                    ->orderBy('account_code')
+                                    ->get()
+                                    ->mapWithKeys(fn (AccountTree $a) => [
+                                        $a->id => trim(($a->account_code ? $a->account_code.' — ' : '').$a->account_name),
+                                    ])
+                                    ->all())
+                                ->searchable()
+                                ->preload(),
+                            Select::make('accounts_center_id')
+                                ->label(__('crm.fields.accounts_center'))
+                                ->options(fn (): array => AccountsCenter::query()
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->all())
+                                ->searchable()
+                                ->preload(),
                         ]),
                     ]),
             ]);

@@ -2,6 +2,8 @@
 
 namespace App\Services\Accounting;
 
+use Illuminate\Validation\ValidationException;
+
 use App\Enums\FinancialPeriodStatus;
 use App\Enums\OperationType;
 use App\Enums\PeriodClosingStatus;
@@ -9,12 +11,11 @@ use App\Models\Tenant\AccountTree;
 use App\Models\Tenant\FinancialPeriod;
 use App\Models\Tenant\Operation;
 use App\Models\Tenant\PeriodClosing;
-use App\Models\Setting;
+use App\Models\Tenant\TenantSetting;
 use App\Models\TenantUser;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class CloseFinancialPeriodService
 {
@@ -22,17 +23,14 @@ class CloseFinancialPeriodService
         protected AccountingOperationWriter $operationWriter,
         protected AccountBalanceResolver $balanceResolver,
         protected BuildAccountPeriodBalancesService $buildBalances,
-    ) {
-    }
+    ) {}
 
-    public function handle(FinancialPeriod $period, ?User $user = null, ?string $notes = null): PeriodClosing
+    public function handle(FinancialPeriod $period, ?TenantUser $user = null, ?string $notes = null): PeriodClosing
     {
         $user ??= Auth::user();
 
         if (! $period->isOpen()) {
-            dd([
-                'financial_period_id' => __('dashboard.financial_periods.messages.period_must_be_open'),
-            ]);
+            throw ValidationException::withMessages(['financial_period_id' => __('dashboard.financial_periods.messages.period_must_be_open')]);
         }
 
         $existingCompleted = PeriodClosing::query()
@@ -41,32 +39,22 @@ class CloseFinancialPeriodService
             ->exists();
 
         if ($existingCompleted) {
-            dd([
-                'financial_period_id' => __('dashboard.financial_periods.messages.period_already_closed'),
-            ]);
+            throw ValidationException::withMessages(['financial_period_id' => __('dashboard.financial_periods.messages.period_already_closed')]);
         }
 
-        $incomeSummaryAccountId = (int) (Setting::query()
-            ->where('key', 'income_summary_account_tree_id')
-            ->value('value') ?? 0);
+        $incomeSummaryAccountId = (int) (TenantSetting::getValue('income_summary_account_tree_id') ?? 0);
 
-        $retainedEarningsAccountId = (int) (Setting::query()
-            ->where('key', 'retained_earnings_account_tree_id')
-            ->value('value') ?? 0);
+        $retainedEarningsAccountId = (int) (TenantSetting::getValue('retained_earnings_account_tree_id') ?? 0);
 
         $incomeSummaryAccount = AccountTree::query()->find($incomeSummaryAccountId);
         $retainedEarningsAccount = AccountTree::query()->find($retainedEarningsAccountId);
 
         if (! $incomeSummaryAccount?->isPostable()) {
-            dd([
-                'income_summary_account_tree_id' => __('dashboard.financial_periods.messages.income_summary_account_required'),
-            ]);
+            throw ValidationException::withMessages(['income_summary_account_tree_id' => __('dashboard.financial_periods.messages.income_summary_account_required')]);
         }
 
         if (! $retainedEarningsAccount?->isPostable()) {
-            dd([
-                'retained_earnings_account_tree_id' => __('dashboard.financial_periods.messages.retained_earnings_account_required'),
-            ]);
+            throw ValidationException::withMessages(['retained_earnings_account_tree_id' => __('dashboard.financial_periods.messages.retained_earnings_account_required')]);
         }
 
         $closing = PeriodClosing::query()->firstOrNew([
@@ -271,7 +259,7 @@ class CloseFinancialPeriodService
      */
     protected function collectIncomeStatementBalances(FinancialPeriod $period): array
     {
-        $effectiveDateSql = "COALESCE(entries.day_date, DATE(operations.date))";
+        $effectiveDateSql = 'COALESCE(entries.day_date, DATE(operations.date))';
 
         $rows = DB::table('entries')
             ->join('operations', 'operations.id', '=', 'entries.operation_id')

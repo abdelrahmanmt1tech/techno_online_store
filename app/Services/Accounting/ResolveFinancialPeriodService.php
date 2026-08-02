@@ -50,11 +50,9 @@ class ResolveFinancialPeriodService
         }
 
         if ($this->periodBlocksWrites($period)) {
-            dd([
-                'financial_period_id' => __('dashboard.financial_periods.messages.period_is_closed', [
+            throw ValidationException::withMessages(['financial_period_id' => __('dashboard.financial_periods.messages.period_is_closed', [
                     'period' => $period->name,
-                ]),
-            ]);
+                ])]);
         }
     }
 
@@ -65,9 +63,7 @@ class ResolveFinancialPeriodService
             : $entry->operation()->first(['id', 'financial_period_id', 'date', 'is_locked']);
 
         if ($operation?->is_locked) {
-            dd([
-                'entry' => __('dashboard.financial_periods.messages.operation_locked'),
-            ]);
+            throw ValidationException::withMessages(['entry' => __('dashboard.financial_periods.messages.operation_locked')]);
         }
 
         $this->ensureOperationDateIsWritable(

@@ -44,6 +44,71 @@ class Client extends Customer
         'credit_limit' => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(function (Client $model): void {
+            $model->accTree();
+        });
+    }
+
+    public function accountTree(): BelongsTo
+    {
+        return $this->belongsTo(AccountTree::class, 'account_tree_id');
+    }
+
+    public function accountsCenter(): BelongsTo
+    {
+        return $this->belongsTo(AccountsCenter::class, 'accounts_center_id');
+    }
+
+    /**
+     * Sync leaf account under clients parent from TenantSetting.
+     */
+    public function accTree(): void
+    {
+        if ($this->stage === ClientStage::LEAD) {
+            return;
+        }
+
+        $parentId = TenantSetting::getValue('clients_account_tree_id');
+        if (! $parentId) {
+            return;
+        }
+
+        $displayName = trim((string) $this->name);
+        if ($displayName === '' && ! empty($this->company_name)) {
+            $displayName = trim((string) $this->company_name);
+        }
+        if ($displayName === '' && ! empty($this->gondc_name)) {
+            $displayName = trim((string) $this->gondc_name);
+        }
+        if ($displayName === '') {
+            $displayName = 'عميل #'.$this->id;
+        }
+
+        $acc = AccountTree::updateOrCreate(
+            [
+                'account_code' => 'CLIENT#'.$this->id,
+            ],
+            [
+                'parent_id' => (int) $parentId,
+                'account_name' => $displayName,
+                'account_code' => 'CLIENT#'.$this->id,
+                'account_type' => 'debit',
+                'main_acc_status' => 'sub',
+            ]
+        );
+
+        if ((int) ($this->account_tree_id ?? 0) !== (int) $acc->id) {
+            $this->account_tree_id = $acc->id;
+            $this->saveQuietly();
+        } elseif ((int) ($this->account_tree_id ?? 0) > 0) {
+            AccountTree::query()
+                ->whereKey($this->account_tree_id)
+                ->update(['account_name' => $displayName]);
+        }
+    }
+
     public function leadSource(): BelongsTo
     {
         return $this->belongsTo(LeadSource::class);

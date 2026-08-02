@@ -23,14 +23,12 @@ class ReopenFinancialPeriodService
     ) {
     }
 
-    public function handle(FinancialPeriod $period, ?User $user = null, ?string $notes = null): FinancialPeriod
+    public function handle(FinancialPeriod $period, ?TenantUser $user = null, ?string $notes = null): FinancialPeriod
     {
         $user ??= Auth::user();
 
         if (! $period->canBeReopened()) {
-            dd([
-                'financial_period_id' => __('dashboard.financial_periods.messages.period_cannot_be_reopened'),
-            ]);
+            throw ValidationException::withMessages(['financial_period_id' => __('dashboard.financial_periods.messages.period_cannot_be_reopened')]);
         }
 
         return DB::transaction(function () use ($period, $user, $notes): FinancialPeriod {
@@ -98,7 +96,7 @@ class ReopenFinancialPeriodService
         });
     }
 
-    protected function reverseIfNeeded(Operation $operation, FinancialPeriod $financialPeriod, ?User $user = null, ?string $notes = null): void
+    protected function reverseIfNeeded(Operation $operation, FinancialPeriod $financialPeriod, ?TenantUser $user = null, ?string $notes = null): void
     {
         $alreadyReversed = $operation->childOperations()
             ->where('operation_type', OperationType::REVERSAL)

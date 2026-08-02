@@ -25,26 +25,20 @@ class CarryForwardPeriodService
     ) {
     }
 
-    public function handle(FinancialPeriod $fromPeriod, FinancialPeriod $toPeriod, ?User $user = null, ?string $notes = null): PeriodTransfer
+    public function handle(FinancialPeriod $fromPeriod, FinancialPeriod $toPeriod, ?TenantUser $user = null, ?string $notes = null): PeriodTransfer
     {
         $user ??= Auth::user();
 
         if (! $fromPeriod->isClosed()) {
-            dd([
-                'from_period_id' => __('dashboard.financial_periods.messages.source_period_must_be_closed'),
-            ]);
+            throw ValidationException::withMessages(['from_period_id' => __('dashboard.financial_periods.messages.source_period_must_be_closed')]);
         }
 
         if (! $toPeriod->isOpen()) {
-            dd([
-                'to_period_id' => __('dashboard.financial_periods.messages.target_period_must_be_open'),
-            ]);
+            throw ValidationException::withMessages(['to_period_id' => __('dashboard.financial_periods.messages.target_period_must_be_open')]);
         }
 
         if ($fromPeriod->id === $toPeriod->id) {
-            dd([
-                'to_period_id' => __('dashboard.financial_periods.messages.transfer_requires_distinct_period'),
-            ]);
+            throw ValidationException::withMessages(['to_period_id' => __('dashboard.financial_periods.messages.transfer_requires_distinct_period')]);
         }
 
         $existing = PeriodTransfer::query()
@@ -54,9 +48,7 @@ class CarryForwardPeriodService
             ->exists();
 
         if ($existing) {
-            dd([
-                'to_period_id' => __('dashboard.financial_periods.messages.transfer_already_exists'),
-            ]);
+            throw ValidationException::withMessages(['to_period_id' => __('dashboard.financial_periods.messages.transfer_already_exists')]);
         }
 
         if (! $fromPeriod->balances()->exists()) {
@@ -90,9 +82,7 @@ class CarryForwardPeriodService
         }
 
         if ($entries === []) {
-            dd([
-                'from_period_id' => __('dashboard.financial_periods.messages.no_balances_to_carry_forward'),
-            ]);
+            throw ValidationException::withMessages(['from_period_id' => __('dashboard.financial_periods.messages.no_balances_to_carry_forward')]);
         }
 
         return DB::transaction(function () use ($fromPeriod, $toPeriod, $user, $notes, $entries): PeriodTransfer {

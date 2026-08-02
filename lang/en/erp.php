@@ -105,6 +105,8 @@ return [
         'product_variant_id' => 'Product Variant',
         'tax_number' => 'Tax Number',
         'payment_terms_days' => 'Payment Terms (Days)',
+        'account_tree' => 'Account (COA)',
+        'accounts_center' => 'Accounts center',
         'document_number' => 'Document Number',
         'transaction_type' => 'Transaction Type',
         'status' => 'Status',

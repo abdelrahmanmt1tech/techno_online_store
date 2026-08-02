@@ -105,6 +105,8 @@ return [
         'product_variant_id' => 'متغير المنتج',
         'tax_number' => 'الرقم الضريبي',
         'payment_terms_days' => 'شروط الدفع (أيام)',
+        'account_tree' => 'الحساب (شجرة)',
+        'accounts_center' => 'مركز الحسابات',
         'document_number' => 'رقم المستند',
         'transaction_type' => 'نوع الحركة',
         'status' => 'الحالة',
