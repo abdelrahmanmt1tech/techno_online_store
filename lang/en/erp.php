@@ -6,6 +6,7 @@ return [
         'inventory' => 'Inventory',
         'purchases' => 'Purchases',
         'sales' => 'Sales',
+        'accounts' => 'Accounts & Journals',
     ],
 
     'resources' => [

@@ -47,15 +47,19 @@ class TenantPanelProvider extends PanelProvider
             ])
             ->profile()
             ->discoverResources(in: app_path('Filament/Tenant/Resources'), for: 'App\Filament\Tenant\Resources')
+            ->discoverResources(in: app_path('Filament/Crm/Resources'), for: 'App\Filament\Crm\Resources')
             ->discoverPages(in: app_path('Filament/Tenant/Pages'), for: 'App\Filament\Tenant\Pages')
+            ->discoverPages(in: app_path('Filament/Crm/Pages'), for: 'App\Filament\Crm\Pages')
             ->pages([
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Tenant/Widgets'), for: 'App\Filament\Tenant\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Crm/Widgets'), for: 'App\Filament\Crm\Widgets')
             ->assets([
                 Css::make('custom-stylesheet', resource_path('css/filament-custom.css')),
                 Css::make('whatsapp-ui', resource_path('css/whatsapp-ui.css')),
                 Css::make('messaging-health-dashboard', resource_path('css/messaging-health-dashboard.css')),
+                Css::make('crm-custom-stylesheet', resource_path('css/crm-custom.css')),
             ])
             ->widgets([
                 StoreKpis::class,

@@ -14,6 +14,22 @@ class Customer extends Model
     protected $fillable = [
         'name',
         'user_id',
+        'company_name',
+        'gondc_name',
+        'email',
+        'phone',
+        'tax_number',
+        'commercial_register',
+        'address',
+        'stage',
+        'lead_source_id',
+        'sales_rep_id',
+        'first_followed_by',
+        'commission_amount',
+        'is_provisional',
+        'account_tree_id',
+        'accounts_center_id',
+        'credit_limit',
     ];
 
     public function contacts(): HasMany
@@ -39,12 +55,12 @@ class Customer extends Model
 
     public function primaryEmail(): ?string
     {
-        return $this->primaryContact('email')?->value;
+        return $this->primaryContact('email')?->value ?? $this->email;
     }
 
     public function primaryPhone(): ?string
     {
-        return $this->primaryContact('phone')?->value;
+        return $this->primaryContact('phone')?->value ?? $this->phone;
     }
 
     public function primaryWhatsapp(): ?string

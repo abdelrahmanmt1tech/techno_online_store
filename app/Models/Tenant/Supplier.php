@@ -16,6 +16,7 @@ class Supplier extends Model
 
     protected $fillable = [
         'name',
+        'gondc_name',
         'code',
         'phone',
         'email',
@@ -24,6 +25,8 @@ class Supplier extends Model
         'payment_terms_days',
         'notes',
         'is_active',
+        'account_tree_id',
+        'accounts_center_id',
         'created_by',
         'updated_by',
     ];

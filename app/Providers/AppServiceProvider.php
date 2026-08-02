@@ -3,12 +3,15 @@
 namespace App\Providers;
 
 use App\Http\Responses\Filament\PanelLoginResponse;
+use App\Models\Tenant\Client;
+use App\Models\Tenant\Customer;
 use App\Models\Tenant\MessengerPage;
 use App\Models\Tenant\WhatsAppNumber;
 use App\Observers\Tenant\MessengerPageObserver;
 use App\Observers\Tenant\WhatsAppNumberObserver;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -37,6 +40,11 @@ class AppServiceProvider extends ServiceProvider
             $switcher
                 ->locales(['ar', 'en']);
         });
+
+        Relation::enforceMorphMap([
+            'client' => Client::class,
+            'customer' => Customer::class,
+        ]);
 
         WhatsAppNumber::observe(WhatsAppNumberObserver::class);
         MessengerPage::observe(MessengerPageObserver::class);

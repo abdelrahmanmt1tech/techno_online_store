@@ -37,6 +37,7 @@ class TenantUser extends Authenticatable implements FilamentUser
         'email_verified_at',
         'is_active',
         'is_admin',
+        'commission_percentage',
         'verification_code',
         'verification_code_expires_at',
         'is_verified',
@@ -58,6 +59,7 @@ class TenantUser extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_admin' => 'boolean',
+            'commission_percentage' => 'decimal:2',
             'is_verified' => 'boolean',
             'verification_code_expires_at' => 'datetime',
             'reset_password_token_expires_at' => 'datetime',
@@ -76,7 +78,11 @@ class TenantUser extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $panel->getId() === 'tenant' && $this->is_active;
+        if (! $this->is_active) {
+            return false;
+        }
+
+        return in_array($panel->getId(), ['tenant', 'crm'], true);
     }
 
     public function branches(): BelongsToMany

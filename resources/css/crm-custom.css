@@ -1,0 +1,170 @@
+/* FlyAram CRM — custom theme (loaded via CrmPanelProvider assets) */
+
+:root {
+    --crm-sidebar-gradient: linear-gradient(
+        165deg,
+        #042f2e 0%,
+        #0f766e 35%,
+        #0d9488 65%,
+        #14b8a6 100%
+    );
+    --crm-accent: #5eead4;
+    --crm-accent-soft: #99f6e4;
+    --crm-btn-gradient: linear-gradient(135deg, #0d9488 0%, #0f766e 45%, #059669 100%);
+    --crm-btn-gradient-hover: linear-gradient(135deg, #0f766e 0%, #115e59 45%, #047857 100%);
+    --crm-topbar-bg: linear-gradient(90deg, #f0fdfa 0%, #ecfeff 45%, #f0fdf4 100%);
+    --crm-page-bg: #f4faf9;
+    --crm-ring: rgba(13, 148, 136, 0.35);
+}
+
+.dark {
+    --crm-sidebar-gradient: linear-gradient(
+        165deg,
+        #01201f 0%,
+        #042f2e 35%,
+        #0f3f3c 70%,
+        #115e59 100%
+    );
+    --crm-topbar-bg: linear-gradient(90deg, #0b1220 0%, #042f2e 55%, #0f172a 100%);
+    --crm-page-bg: #041413;
+    --crm-ring: rgba(20, 184, 166, 0.4);
+}
+
+/* ---------- Page & shell ---------- */
+.fi-body {
+    background: var(--crm-page-bg) !important;
+}
+
+/* ---------- Sidebar ---------- */
+.fi-sidebar {
+    background: var(--crm-sidebar-gradient) !important;
+    box-shadow: 4px 0 24px rgba(13, 148, 136, 0.25);
+}
+
+.fi-sidebar-nav {
+    padding: 1rem 0.75rem;
+}
+
+.fi-sidebar-nav-groups {
+    gap: 0.5rem !important;
+}
+
+.fi-sidebar-group-label {
+    color: var(--crm-accent) !important;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+}
+
+.fi-sidebar-item-label {
+    color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-group-btn > .fi-icon {
+    color: var(--crm-accent-soft) !important;
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background: rgba(255, 255, 255, 0.16) !important;
+    box-shadow: inset 3px 0 0 var(--crm-accent);
+    border-radius: 0.6rem;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label,
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover > .fi-sidebar-item-label {
+    color: #fff !important;
+}
+
+.fi-sidebar-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: transparent !important;
+}
+
+/* ---------- Topbar ---------- */
+.fi-topbar {
+    background: var(--crm-topbar-bg) !important;
+    border-bottom: 1px solid rgba(13, 148, 136, 0.14);
+    backdrop-filter: blur(6px);
+}
+
+/* ---------- Primary buttons ---------- */
+.fi-main .fi-btn.fi-color.fi-color-primary:not(.fi-outlined):not(label),
+.fi-modal-window .fi-btn.fi-color.fi-color-primary:not(.fi-outlined):not(label),
+.fi-simple-page .fi-btn.fi-color.fi-color-primary:not(.fi-outlined):not(label) {
+    background: var(--crm-btn-gradient) !important;
+    color: #fff !important;
+    border: none;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+    transition: all 0.2s ease;
+}
+
+.fi-main .fi-btn.fi-color.fi-color-primary:not(.fi-outlined):not(label):hover,
+.fi-modal-window .fi-btn.fi-color.fi-color-primary:not(.fi-outlined):not(label):hover,
+.fi-simple-page .fi-btn.fi-color.fi-color-primary:not(.fi-outlined):not(label):hover {
+    background: var(--crm-btn-gradient-hover) !important;
+    box-shadow: 0 6px 20px rgba(15, 118, 110, 0.45);
+    transform: translateY(-1px);
+}
+
+.fi-main .fi-btn.fi-color.fi-color-primary:not(.fi-outlined):not(label) > .fi-icon {
+    color: #fff !important;
+}
+
+/* ---------- Cards / sections ---------- */
+.fi-section,
+.fi-wi-stats-overview-stat,
+.fi-ta-ctn,
+.fi-fo-component-ctn > .fi-section {
+    border-radius: 0.9rem !important;
+}
+
+.fi-section {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(13, 148, 136, 0.18);
+}
+
+/* ---------- Stats overview cards (dashboard + reports) ---------- */
+.fi-wi-stats-overview-stat {
+    border: 1px solid rgba(13, 148, 136, 0.12);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -18px rgba(13, 148, 136, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.fi-wi-stats-overview-stat::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #14b8a6, #0d9488);
+    opacity: 0.9;
+}
+
+.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06), 0 18px 40px -18px rgba(13, 148, 136, 0.45);
+}
+
+.fi-wi-stats-overview-stat-value {
+    font-weight: 700;
+}
+
+/* ---------- Badges polish ---------- */
+.fi-badge {
+    border-radius: 0.5rem;
+}
+
+/* ---------- Tabs / active indicators ---------- */
+.fi-tabs-item.fi-active {
+    color: #0d9488 !important;
+}
+

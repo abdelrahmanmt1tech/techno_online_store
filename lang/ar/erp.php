@@ -6,6 +6,7 @@ return [
         'inventory' => 'المخزون',
         'purchases' => 'المشتريات',
         'sales' => 'المبيعات',
+        'accounts' => 'حسابات وقيود',
     ],
 
     'resources' => [
