@@ -6,16 +6,13 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Tenant\AccountsCenter;
 use App\Models\Tenant\Branch;
-use App\Models\Tenant\Client;
 use App\Models\Tenant\FinancialPeriod;
-use App\Models\Tenant\Supplier;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
@@ -28,26 +25,15 @@ class OperationForm
     private static function recalculateTotals(Get $get, Set $set): void
     {
         $debit = collect($get('debitEntries') ?? [])
-            ->sum(fn(array $row): float => (float)($row['debit'] ?? 0));
+            ->sum(fn (array $row): float => (float) ($row['debit'] ?? 0));
 
         $credit = collect($get('creditEntries') ?? [])
-            ->sum(fn(array $row): float => (float)($row['credit'] ?? 0));
+            ->sum(fn (array $row): float => (float) ($row['credit'] ?? 0));
 
         $set('total_debit', $debit);
         $set('total_credit', $credit);
     }
 
-    private static function recalculateInvoiceTax(Get $get, Set $set): void
-    {
-        // TaxType / invoice-tax linking not ported — no-op.
-        $taxable = (float) ($get('invoice_taxable_amount') ?? 0);
-        $taxRate = (float) ($get('invoice_tax_rate') ?? 0);
-        $taxValue = round($taxable * ($taxRate / 100), 2);
-        $totalWithTax = round($taxable + $taxValue, 2);
-
-        $set('invoice_tax_value', $taxValue);
-        $set('invoice_total_with_tax', $totalWithTax);
-    }
 
     public static function configure(Schema $schema): Schema
     {
@@ -284,86 +270,6 @@ class OperationForm
                     ])
                     ->columns(1)
                     ->columnSpanFull(),
-
-                Section::make(__('dashboard.resources.operation.invoice_tax_section'))
-                    ->description(__('dashboard.resources.operation.invoice_tax_section_desc'))
-                    ->schema([
-                        Toggle::make('link_with_invoice_tax')
-                            ->label(__('dashboard.resources.operation.link_with_invoice_tax'))
-                            ->inline(false)
-                            ->default(false)
-                            ->live(),
-
-                        Select::make('operation_invoice_type')
-                            ->label(__('dashboard.resources.operation.invoice_type'))
-                            ->options([
-                                'purchase' => __('dashboard.resources.operation.invoice_type_purchase'),
-                                'sale' => __('dashboard.resources.operation.invoice_type_sale'),
-                            ])
-                            ->default('purchase')
-                            ->required()
-                            ->native(false)
-                            ->visible(fn (Get $get): bool => (bool) $get('link_with_invoice_tax')),
-
-                        Select::make('invoice_tax_direction')
-                            ->label(__('dashboard.resources.operation.tax_direction'))
-                            ->options([
-                                'purchase_tax' => __('dashboard.resources.operation.tax_direction_purchase'),
-                                'sales_tax' => __('dashboard.resources.operation.tax_direction_sales'),
-                            ])
-                            ->default('purchase_tax')
-                            ->required()
-                            ->native(false)
-                            ->visible(fn (Get $get): bool => (bool) $get('link_with_invoice_tax')),
-
-                        Select::make('invoice_tax_type_id')
-                            ->label(__('dashboard.resources.operation.tax_type'))
-                            ->options([])
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->native(false)
-                            ->live()
-                            ->afterStateUpdated(fn ($state, Get $get, Set $set) => self::recalculateInvoiceTax($get, $set))
-                            ->visible(fn (Get $get): bool => (bool) $get('link_with_invoice_tax')),
-
-                        TextInput::make('invoice_taxable_amount')
-                            ->label(__('dashboard.resources.operation.taxable_amount_without_tax'))
-                            ->numeric()
-                            ->required()
-                            ->minValue(0.01)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn ($state, Get $get, Set $set) => self::recalculateInvoiceTax($get, $set))
-                            ->visible(fn (Get $get): bool => (bool) $get('link_with_invoice_tax')),
-
-                        TextInput::make('invoice_tax_rate')
-                            ->label(__('dashboard.resources.operation.tax_rate'))
-                            ->numeric()
-                            ->suffix('%')
-                            ->disabled()
-                            ->dehydrated(),
-
-                        TextInput::make('invoice_tax_value')
-                            ->label(__('dashboard.resources.operation.tax_value'))
-                            ->numeric()
-                            ->disabled()
-                            ->dehydrated(),
-
-                        TextInput::make('invoice_total_with_tax')
-                            ->label(__('dashboard.resources.operation.total_with_tax'))
-                            ->numeric()
-                            ->disabled()
-                            ->dehydrated(),
-
-                        Textarea::make('operation_invoice_notes')
-                            ->label(__('dashboard.resources.operation.invoice_notes'))
-                            ->rows(2)
-                            ->columnSpanFull()
-                            ->visible(fn (Get $get): bool => (bool) $get('link_with_invoice_tax')),
-                    ])
-                    ->columns(4)
-                    ->columnSpanFull(),
-
 
             ]);
 

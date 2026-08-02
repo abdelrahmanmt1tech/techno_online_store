@@ -5,12 +5,10 @@ namespace App\Filament\Tenant\Pages\Accounting;
 use App\Models\Tenant\AccountTree;
 use App\Models\Tenant\Branch;
 use App\Models\Tenant\FinancialPeriod;
-use App\Exports\BalanceSheetExport;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
 
 class BalanceSheet extends Page
 {
@@ -211,13 +209,5 @@ class BalanceSheet extends Page
             now()->startOfYear()->startOfDay(),
             now()->endOfDay(),
         ];
-    }
-
-    public function exportExcel(): \Symfony\Component\HttpFoundation\BinaryFileResponse
-    {
-        return Excel::download(
-            new BalanceSheetExport($this->tableData, $this->branches, $this->grandTotals),
-            sprintf('balance-sheet-%s.xlsx', now()->format('Y-m-d-H-i-s')),
-        );
     }
 }

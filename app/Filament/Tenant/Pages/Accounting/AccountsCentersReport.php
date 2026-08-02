@@ -2,9 +2,7 @@
 
 namespace App\Filament\Tenant\Pages\Accounting;
 
-use App\Exports\AccountsCentersReportExport;
 use App\Models\Tenant\AccountsCenterMovement;
-use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -17,8 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Support\Facades\Schema;
 
 class AccountsCentersReport extends Page implements HasTable
 {
@@ -42,16 +39,12 @@ class AccountsCentersReport extends Page implements HasTable
 
     public static function shouldRegisterNavigation(): bool
     {
-        $user = Auth::user();
-
-        return $user?->can('accounts_centers_report.view') ?? false;
+        return Auth::user()?->can('accounts_centers_report.view') ?? false;
     }
 
     public static function canAccess(): bool
     {
-        $user = Auth::user();
-
-        return $user?->can('accounts_centers_report.view') ?? false;
+        return Auth::user()?->can('accounts_centers_report.view') ?? false;
     }
 
     public function getTitle(): string
@@ -70,19 +63,31 @@ class AccountsCentersReport extends Page implements HasTable
 
     public function table(Table $table): Table
     {
+        $hasMovementDate = Schema::hasColumn('accounts_center_movements', 'movement_date');
+
         return $table
-            ->query(function (): Builder {
-                return AccountsCenterMovement::query()
+            ->query(function () use ($hasMovementDate): Builder {
+                $query = AccountsCenterMovement::query()
                     ->select([
                         'accounts_center_id',
                         DB::raw('COALESCE(SUM(amount), 0) AS profit_total'),
                         DB::raw('COUNT(*) AS movements_count'),
                     ])
                     ->with('accountsCenter:id,name,account_tree_id')
-                    ->whereIn('movement_type', ['ticket_profit', 'reservation_commission', 'reservation_margin', 'manual_operation'])
-                    ->whereNotNull('movement_date')
+                    ->whereIn('movement_type', [
+                        'ticket_profit',
+                        'reservation_commission',
+                        'reservation_margin',
+                        'manual_operation',
+                    ])
                     ->groupBy('accounts_center_id')
                     ->orderBy('accounts_center_id');
+
+                if ($hasMovementDate) {
+                    $query->whereNotNull('movement_date');
+                }
+
+                return $query;
             })
             ->columns([
                 TextColumn::make('accountsCenter.name')
@@ -107,49 +112,19 @@ class AccountsCentersReport extends Page implements HasTable
                         DatePicker::make('from')->label(__('dashboard.pages.accounts_centers_report.from_date')),
                         DatePicker::make('to')->label(__('dashboard.pages.accounts_centers_report.to_date')),
                     ])
-                    ->query(function (Builder $query, array $data): Builder {
+                    ->query(function (Builder $query, array $data) use ($hasMovementDate): Builder {
+                        $column = $hasMovementDate ? 'movement_date' : 'created_at';
+
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn (Builder $q, $date): Builder => $q->whereDate('movement_date', '>=', $date),
+                                fn (Builder $q, $date): Builder => $q->whereDate($column, '>=', $date),
                             )
                             ->when(
                                 $data['to'] ?? null,
-                                fn (Builder $q, $date): Builder => $q->whereDate('movement_date', '<=', $date),
+                                fn (Builder $q, $date): Builder => $q->whereDate($column, '<=', $date),
                             );
                     }),
-            ])
-            ->headerActions([
-                Action::make('exportExcel')
-                    ->label(__('dashboard.exports.download_excel'))
-                    ->icon('heroicon-m-arrow-down-tray')
-                    ->color('gray')
-                    ->action(fn () => $this->exportExcel()),
             ]);
-    }
-
-    protected function exportRows(): array
-    {
-        return $this->getFilteredTableQuery()
-            ->get()
-            ->map(fn ($record) => [
-                $record->accountsCenter?->name ?? '',
-                number_format((float) ($record->profit_total ?? 0), 2),
-                (string) ($record->movements_count ?? ''),
-            ])
-            ->all();
-    }
-
-    protected function exportFileName(): string
-    {
-        return __('dashboard.pages.accounts_centers_report.title').' - '.now()->format('Y-m-d');
-    }
-
-    public function exportExcel(): BinaryFileResponse
-    {
-        return Excel::download(
-            new AccountsCentersReportExport($this->exportRows()),
-            $this->exportFileName().'.xlsx',
-        );
     }
 }

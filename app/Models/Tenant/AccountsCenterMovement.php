@@ -5,15 +5,15 @@ namespace App\Models\Tenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccountsCenterMovement extends Model
 {
     use Concerns\BelongsToTenantConnection;
+    use SoftDeletes;
 
     protected $fillable = [
         'accounts_center_id',
-        'ticket_id',
-        'reservation_id',
         'operation_id',
         'linkable_type',
         'linkable_id',
@@ -54,16 +54,6 @@ class AccountsCenterMovement extends Model
         return $this->belongsTo(AccountsCenter::class, 'accounts_center_id');
     }
 
-    public function ticket(): BelongsTo
-    {
-        return $this->belongsTo(Ticket::class);
-    }
-
-    public function reservation(): BelongsTo
-    {
-        return $this->belongsTo(Reservation::class);
-    }
-
     public function operation(): BelongsTo
     {
         return $this->belongsTo(Operation::class);
@@ -74,4 +64,3 @@ class AccountsCenterMovement extends Model
         return $this->morphTo();
     }
 }
-

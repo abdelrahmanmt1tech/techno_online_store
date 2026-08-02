@@ -3,10 +3,8 @@
 namespace App\Filament\Tenant\Pages\Accounting;
 
 use App\Enums\OperationType;
-use App\Filament\Exports\OpeningEntriesExporter;
 use App\Models\Tenant\FinancialPeriod;
 use App\Models\Tenant\Operation;
-use Filament\Actions\ExportAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
@@ -91,11 +89,6 @@ class OpeningEntriesReport extends Page implements HasTable
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query
                         ->when($data['financial_period_id'] ?? null, fn (Builder $q, $id) => $q->where('financial_period_id', $id))),
-            ])
-            ->headerActions([
-                ExportAction::make()
-                    ->label(__('dashboard.pages.account_statement.export_excel'))
-                    ->exporter(OpeningEntriesExporter::class),
             ]);
     }
 }

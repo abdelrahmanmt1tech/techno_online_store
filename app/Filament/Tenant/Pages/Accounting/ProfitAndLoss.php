@@ -4,12 +4,10 @@ namespace App\Filament\Tenant\Pages\Accounting;
 
 use App\Models\Tenant\AccountTree;
 use App\Models\Tenant\FinancialPeriod;
-use App\Exports\ProfitAndLossExport;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ProfitAndLoss extends Page
 {
@@ -175,14 +173,6 @@ class ProfitAndLoss extends Page
             $now->copy()->startOfYear()->startOfDay(),
             $now->copy()->endOfDay(),
         ];
-    }
-
-    public function exportExcel(): \Symfony\Component\HttpFoundation\BinaryFileResponse
-    {
-        return Excel::download(
-            new ProfitAndLossExport($this->tableData, $this->salesTotals),
-            sprintf('profit-and-loss-%s.xlsx', now()->format('Y-m-d-H-i-s')),
-        );
     }
 }
 

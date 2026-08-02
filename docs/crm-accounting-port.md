@@ -19,6 +19,20 @@
 
 ## Progress
 
+### 2026-08-02 — Production smoke fixes (store1)
+
+**Bugs fixed**
+- [x] `Client::onlyTrashed()` — SoftDeletes on `Customer` (+ `deleted_at` from CRM migration)
+- [x] `parent_follow_up_id` — align migration `100500` (rename `parent_id` if present) + content columns
+- [x] `accounts_center_movements.movement_date` / `notes` — migration `100600`
+- [x] Strip Franchise + Branch `account_tree_id` from AccountTreeCleanupPage
+- [x] AccountsCenterDetailsReport: no Franchise/ticket/exporter/widget; safe without movement_date
+- [x] Hide missing Excel exporters (operations, opening entries, period balances, centers, BS/P&L)
+- [x] Accounting Blade views + Tenant `FinancialPeriod` namespace in BS/P&L filters
+- [x] Merge missing `dashboard.*` keys from flyaram into `lang/{ar,en}/dashboard.php` (~285 keys)
+
+**Deploy note:** after pull, run `php artisan tenants:migrate` (or `tenants:sync-permissions --migrate`) so `100500` + `100600` apply on store1.
+
 ### 2026-08-02 — Initial bulk port
 
 **Done**
@@ -30,31 +44,12 @@
 - [x] Strip AccountStatement sync from Operation model + Create/Edit Operation pages
 - [x] Morph map soft aliases `client`/`customer` (not enforceMorphMap — breaks TenantUser and existing FQCNs)
 
-## Test results — 2026-08-02
+## Open decisions
 
-### Passed
-- App boots; panels `tenant` + `crm` + `admin`
-- CRM panel: `/app/crm` (11 resources, 9 pages)
-- Class load 33/33; CommissionPaymentCycle form OK
-- Migrations applied on tenant `db1cbf24-...`
-- CRUD smoke: LeadSource, OpportunityStage, Client, Opportunity, AccountTree, FinancialPeriod, Operation, Entry
-
-### Fixed during testing
-- BOM, IATA client pages, OperationsTable strip, ApexCharts stub (L13)
-- FK name length, `is_final`, financial_periods columns, entries.linkable
-- Entry: removed SafesBank + AccountTax hooks; TenantSetting path
-- PaymentMethod enum for commissions
-
-### Open decisions for product owner
-1. ApexCharts: keep stub / rewrite ChartWidget / wait for L13-compatible package
-2. Accounting exporters (missing classes) — port or remove export buttons
-3. Remove invoice-tax UI from OperationForm entirely
-4. AccountTreesSeeder + CRM seeders into tenant pipeline
-5. Staff filter: tenant user #1 has `is_admin=0` but accesses panels — tighten?
-6. Soft-delete SafesBankBalanceService / PaymentCommissionEntryDisplay files
-
-
-
+1. ApexCharts stub vs ChartWidget rewrite
+2. Port accounting Excel exporters later
+3. AccountTreesSeeder + CRM seeders into tenant pipeline
+4. Staff `is_admin` gate tightening
 
 ## KEEP / STRIP reminders
 

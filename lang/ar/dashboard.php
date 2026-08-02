@@ -1,8 +1,6 @@
 <?php
 
-return [
-
-    // Navigation & Resources
+return array (
     'admins' => 'المشرفين',
     'admin' => 'مشرف',
     'tenant_users' => 'المستخدمين',
@@ -12,8 +10,6 @@ return [
     'login' => 'تسجيل الدخول',
     'roles' => 'الأدوار',
     'role' => 'دور',
-
-    // Form sections & labels
     'admin_details' => 'بيانات المشرف',
     'name' => 'الاسم',
     'email' => 'البريد الإلكتروني',
@@ -29,13 +25,9 @@ return [
     'permissions_list' => 'الصلاحيات',
     'other' => 'أخرى',
     'id' => 'ID',
-
-    // Tenants
     'tenants' => 'المتاجر',
     'tenant' => 'متجر',
     'settings_group' => 'الإعدادات',
-
-    // FAQs
     'faqs' => 'الأسئلة الشائعة',
     'faq' => 'سؤال شائع',
     'faq_details' => 'بيانات السؤال',
@@ -52,7 +44,7 @@ return [
     'tenant_details' => 'بيانات المتجر',
     'tenant_name' => 'اسم المتجر',
     'phone' => 'رقم الهاتف',
-    'country' => 'الدولة',
+    'country' => 'دولة',
     'domain' => 'الدومين',
     'subdomain' => 'الرابط الفرعي',
     'subdomain_help' => 'أحرف إنجليزية صغيرة وأرقام فقط. مثال: store1',
@@ -60,10 +52,7 @@ return [
     'archive' => 'أرشفة',
     'restore' => 'استعادة',
     'archived' => 'مؤرشف',
-    'inactive' => 'غير نشط',
     'created_at' => 'تاريخ الإنشاء',
-
-    // Plans
     'plans' => 'الخطط',
     'plan' => 'خطة',
     'plan_details' => 'بيانات الخطة',
@@ -79,7 +68,7 @@ return [
     'type_subscription' => 'اشتراك',
     'type_subscription_monthly' => 'اشتراك شهري',
     'type_subscription_yearly' => 'اشتراك سنوي',
-    'currency' => 'العملة',
+    'currency' => 'عملة',
     'name_ar' => 'الاسم (عربي)',
     'name_en' => 'الاسم (إنجليزي)',
     'title_ar' => 'العنوان (عربي)',
@@ -92,12 +81,13 @@ return [
     'subscription_period' => 'مدة الاشتراك',
     'monthly' => 'شهري',
     'yearly' => 'سنوي',
-    'currency_code' => 'رمز العملة',
+    'currency_code' => 'كود العملة',
     'nav_intro' => 'مقدمة الموقع',
     'nav_site_content_group' => 'محتوى الموقع',
     'intro_content_section' => 'المحتوى',
     'intro_image_section' => 'الصورة والرابط',
-    'intro_settings' => [
+    'intro_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'title_ar' => 'العنوان (عربي)',
         'title_en' => 'العنوان (إنجليزي)',
@@ -105,12 +95,13 @@ return [
         'description_en' => 'الوصف (إنجليزي)',
         'image' => 'الصورة',
         'link' => 'الرابط',
-    ],
+    ),
     'save' => 'حفظ',
     'nav_statistics' => 'الإحصائيات',
     'statistics_content_section' => 'المحتوى',
     'statistics_items_section' => 'عناصر الإحصائيات',
-    'statistics_settings' => [
+    'statistics_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'title_ar' => 'العنوان (عربي)',
         'title_en' => 'العنوان (إنجليزي)',
@@ -121,17 +112,16 @@ return [
         'item_title_en' => 'عنوان العنصر (إنجليزي)',
         'item_value' => 'القيمة',
         'add_item' => 'إضافة عنصر',
-    ],
+    ),
     'not_authorized' => 'غير مصرح لك',
     'settings_saved_successfully' => 'تم حفظ الإعدادات بنجاح',
     'saved_successfully' => 'تم الحفظ بنجاح',
     'section_title' => 'عنوان السكشن',
-
-    // Training & Support
     'nav_training_support' => 'التدريب والدعم',
     'training_support_content_section' => 'المحتوى',
     'training_support_items_section' => 'العناصر',
-    'training_support_settings' => [
+    'training_support_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -146,7 +136,7 @@ return [
         'item_description_ar' => 'وصف العنصر (عربي)',
         'item_description_en' => 'وصف العنصر (إنجليزي)',
         'item_image' => 'صورة العنصر',
-    ],
+    ),
     'seo_settings' => 'إعدادات SEO',
     'page_header' => 'مقدمة الصفحة',
     'meta_title_ar' => 'عنوان Meta (عربي)',
@@ -165,34 +155,30 @@ return [
     'started_at' => 'تاريخ البداية',
     'expires_at' => 'تاريخ الانتهاء',
     'currency_name' => 'اسم العملة',
-
-    // Permissions groups (admin panel)
-    'permissions_groups' => [
+    'permissions_groups' => 
+    array (
         'roles' => 'الأدوار',
         'tenants' => 'المتاجر',
         'admins' => 'المشرفين',
         'plans' => 'الخطط',
         'contacts' => 'جهات الاتصال',
-    ],
-
-    // Permissions actions
-    'permissions' => [
+    ),
+    'permissions' => 
+    array (
         'view' => 'عرض',
         'create' => 'إضافة',
         'update' => 'تعديل',
         'delete' => 'حذف',
-    ],
-
-    // Products
+    ),
     'products' => 'المنتجات',
-    'product' => 'منتج',
+    'product' => 'المنتج',
     'general' => 'عام',
     'product_information' => 'معلومات المنتج',
     'pricing' => 'التسعير',
     'sku' => 'SKU',
     'sku_helper' => 'رمز المخزون الخاص بالمنتج (اختياري)',
     'categories' => 'التصنيفات',
-    'order' => 'الترتيب',
+    'order' => 'طلب',
     'order_helper' => 'كلما قل الرقم ظهر المنتج في بداية القائمة',
     'price' => 'السعر',
     'sale_price' => 'سعر التخفيض',
@@ -200,8 +186,6 @@ return [
     'expense' => 'التكلفة',
     'profit_margin' => 'هامش الربح',
     'no_profit' => 'لا يوجد ربح',
-
-    // Inventory
     'inventory' => 'المخزون',
     'stock_management' => 'إدارة المخزون',
     'quantity' => 'الكمية',
@@ -209,8 +193,6 @@ return [
     'track_stock_helper' => 'تفعيل تتبع الكمية في المخزون',
     'disable_orders_for_no_stock' => 'تعطيل الطلبات عند نفاد المخزون',
     'disable_orders_for_no_stock_helper' => 'منع العملاء من طلب المنتج عند نفاد الكمية',
-
-    // Product Type
     'product_type' => 'نوع المنتج',
     'type' => 'النوع',
     'physical' => 'مادي',
@@ -223,14 +205,10 @@ return [
     'add_code' => 'إضافة كود',
     'bulk_paste' => 'لصق دفعة واحدة',
     'bulk_paste_helper' => 'أدخل كل كود في سطر منفصل',
-
-    // Gallery
     'gallery' => 'معرض الصور',
     'product_gallery' => 'معرض صور المنتج',
     'images' => 'الصور',
     'gallery_helper' => 'اسحب وأفلت الصور لإعادة الترتيب. أول صورة هي الصورة الرئيسية.',
-
-    // Attributes
     'attributes' => 'الخصائص',
     'product_attributes' => 'خصائص المنتج',
     'attribute_name' => 'اسم الخاصية',
@@ -247,8 +225,6 @@ return [
     'value' => 'القيمة',
     'value_placeholder' => 'مثال: احمر، كبير، قطن',
     'new_attribute' => 'خاصية جديدة',
-
-    // Variants
     'variants' => 'المتغيرات',
     'variants_description' => 'الكود، السعر، الكمية، والصورة لكل تركيبة من التوقيعات.',
     'variants_matrix' => 'مصفوفة المتغيرات',
@@ -261,9 +237,6 @@ return [
     'add_variation' => 'إضافة متغير',
     'add_value' => 'إضافة قيمة',
     'default_variant' => 'افتراضي',
-
-    // Categories
-    'categories' => 'التصنيفات',
     'category' => 'تصنيف',
     'category_details' => 'بيانات التصنيف',
     'category_name' => 'اسم التصنيف',
@@ -274,12 +247,9 @@ return [
     'slug' => 'الرابط المختصر (Slug)',
     'slug_helper' => 'يتم إنشاؤه تلقائياً من الاسم. اتركه فارغاً للإنشاء التلقائي.',
     'image' => 'الصورة',
-    'show_in_header' => 'عرض في الهيدر',
-    'description' => 'الوصف',
+    'show_in_header' => 'إظهار في الهيدر',
     'yes' => 'نعم',
     'no' => 'لا',
-
-    // Themes
     'themes' => 'الثيمات',
     'theme' => 'ثيم',
     'theme_details' => 'بيانات الثيم',
@@ -290,12 +260,11 @@ return [
     'paid' => 'مدفوع',
     'featured' => 'مميز',
     'downloads_count' => 'عدد التحميلات',
-
-    // About Settings
     'nav_about' => 'من نحن',
     'about_content_section' => 'المحتوى',
     'about_features_section' => 'الميزات',
-    'about_settings' => [
+    'about_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -310,12 +279,12 @@ return [
         'feature_description_ar' => 'الوصف (عربي)',
         'feature_description_en' => 'الوصف (إنجليزي)',
         'feature_image' => 'الصورة',
-    ],
-    // AI Services
+    ),
     'nav_ai_services' => 'خدمات الذكاء الاصطناعي',
     'ai_services_content_section' => 'المحتوى',
     'ai_services_items_section' => 'الخدمات',
-    'ai_services_settings' => [
+    'ai_services_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -330,12 +299,12 @@ return [
         'item_description_ar' => 'وصف الخدمة (عربي)',
         'item_description_en' => 'وصف الخدمة (إنجليزي)',
         'item_image' => 'صورة الخدمة',
-    ],
-    // Payment Gateways
+    ),
     'nav_payment_gateways' => 'بوابات الدفع',
     'payment_gateways_content_section' => 'المحتوى',
     'payment_gateways_features_section' => 'المميزات',
-    'payment_gateways_settings' => [
+    'payment_gateways_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -348,12 +317,12 @@ return [
         'add_feature' => 'إضافة ميزة',
         'feature_title_ar' => 'عنوان الميزة (عربي)',
         'feature_title_en' => 'عنوان الميزة (إنجليزي)',
-    ],
-    // Shipping Companies
+    ),
     'nav_shipping_companies' => 'شركات الشحن',
     'shipping_companies_content_section' => 'المحتوى',
     'shipping_companies_features_section' => 'المميزات',
-    'shipping_companies_settings' => [
+    'shipping_companies_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -366,12 +335,12 @@ return [
         'add_feature' => 'إضافة ميزة',
         'feature_title_ar' => 'عنوان الميزة (عربي)',
         'feature_title_en' => 'عنوان الميزة (إنجليزي)',
-    ],
-    // Marketing Channels
+    ),
     'nav_marketing_channels' => 'قنوات التسويق',
     'marketing_channels_content_section' => 'المحتوى',
     'marketing_channels_items_section' => 'القنوات',
-    'marketing_channels_settings' => [
+    'marketing_channels_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -389,23 +358,23 @@ return [
         'item_icon' => 'الأيقونة',
         'add_icon' => 'إضافة أيقونة',
         'link' => 'الرابط',
-    ],
-    // Have Question
+    ),
     'nav_have_question' => 'لديك استفسار؟',
     'have_question_content_section' => 'المحتوى',
-    'have_question_settings' => [
+    'have_question_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'title_ar' => 'العنوان (عربي)',
         'title_en' => 'العنوان (إنجليزي)',
         'description_ar' => 'الوصف (عربي)',
         'description_en' => 'الوصف (إنجليزي)',
         'link' => 'الرابط',
-    ],
-    // Contact Us
+    ),
     'nav_contact_us' => 'تواصل معنا',
     'contact_us_content_section' => 'المحتوى',
     'contact_us_info_section' => 'بيانات التواصل',
-    'contact_us_settings' => [
+    'contact_us_settings' => 
+    array (
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -420,12 +389,12 @@ return [
         'email' => 'البريد الإلكتروني',
         'phone' => 'رقم الهاتف',
         'whatsapp' => 'رقم الواتساب',
-    ],
-    // Footer
+    ),
     'nav_footer' => 'الفوتر',
     'footer_content_section' => 'المحتوى',
     'footer_social_section' => 'روابط السوشيال ميديا',
-    'footer_settings' => [
+    'footer_settings' => 
+    array (
         'logo' => 'لوجو الفوتر',
         'description' => 'الوصف',
         'facebook' => 'فيسبوك',
@@ -434,8 +403,7 @@ return [
         'youtube' => 'يوتيوب',
         'x' => 'X (تويتر)',
         'linkedin' => 'لينكد إن',
-    ],
-    // WhatsApp
+    ),
     'whatsapp_group' => 'واتساب',
     'whatsapp_numbers' => 'أرقام واتساب',
     'whatsapp_number' => 'رقم واتساب',
@@ -522,8 +490,6 @@ return [
     'whatsapp_conversation_open' => 'مفتوحة',
     'whatsapp_conversation_pending' => 'قيد الانتظار',
     'whatsapp_conversation_closed' => 'مغلقة',
-
-    // WhatsApp onboarding (Phase A schema + Phase B connect UI)
     'whatsapp_connection_method' => 'طريقة الربط',
     'whatsapp_connection_method_manual_api_only' => 'API يدوي فقط',
     'whatsapp_connection_method_embedded_signup_api_only' => 'Embedded Signup (API فقط)',
@@ -539,7 +505,6 @@ return [
     'whatsapp_token_source_embedded_signup' => 'Embedded Signup',
     'whatsapp_token_source_system_user' => 'مستخدم نظام',
     'whatsapp_token_source_unknown' => 'غير معروف',
-
     'whatsapp_connect' => 'ربط واتساب',
     'whatsapp_connect_intro' => 'اختر طريقة ربط هذا المتجر بـ WhatsApp Business Cloud API. الربط اليدوي يبقى متاحاً للمسؤولين. Embedded Signup (API فقط) مكتمل برمجياً وبانتظار التحقق برقم حقيقي (تجريبي).',
     'whatsapp_connect_recommended' => 'موصى به',
@@ -632,8 +597,6 @@ return [
     'whatsapp_api_summary_subscribe_waba_apps' => 'اشتراك التطبيق في WABA :waba — :status',
     'whatsapp_api_summary_list_waba_phone_numbers' => 'قائمة أرقام WABA :waba — :status',
     'whatsapp_api_summary_get_phone_number' => 'جلب الرقم :phone — :status',
-
-    // WhatsApp logs & interpretation
     'whatsapp_api_requests' => 'سجل الطلبات الصادرة',
     'whatsapp_api_request' => 'طلب صادر',
     'whatsapp_log_summary' => 'الملخص',
@@ -704,8 +667,6 @@ return [
     'whatsapp_api_duration' => 'المدة',
     'whatsapp_api_request_payload' => 'الطلب المُرسل إلى Meta',
     'whatsapp_api_response_body' => 'رد Meta',
-
-    // Messenger
     'messenger_group' => 'ماسنجر',
     'messenger_pages' => 'صفحات فيسبوك',
     'messenger_page' => 'صفحة فيسبوك',
@@ -770,7 +731,6 @@ return [
     'messenger_reprocess_webhook_success' => 'تمت جدولة إعادة معالجة الويب هوك',
     'messenger_reprocess_webhook_failed' => 'تعذرت إعادة معالجة الويب هوك',
     'messenger_reprocess_webhook_unavailable' => 'لا يمكن إعادة معالجة هذا الحدث لأن الحمولة الأصلية مفقودة أو نوع الحدث لا يدعم إعادة المحاولة.',
-    // Contacts
     'contacts' => 'طلبات التواصل',
     'contact' => 'طلب التواصل',
     'inquiry_type' => 'نوع الاستفسار',
@@ -801,11 +761,10 @@ return [
     'delete_selected' => 'حذف المحدد',
     'update_status' => 'تحديث الحالة',
     'new_status' => 'الحالة الجديدة',
-
-    // General Settings
     'nav_general' => 'الإعدادات العامة',
     'general_settings_section' => 'الإعدادات العامة',
-    'general_settings' => [
+    'general_settings' => 
+    array (
         'site_logo' => 'لوجو الموقع',
         'site_name' => 'اسم الموقع',
         'site_color' => 'لون الموقع',
@@ -842,38 +801,30 @@ return [
         'site_currency' => 'عملة الموقع',
         'lang_en' => 'الإنجليزية',
         'lang_ar' => 'العربية',
-    ],
-
-    // Code Settings
+    ),
     'code_settings_page' => 'إعدادات الأكواد',
     'nav_group_settings' => 'الإعدادات',
     'custom_head_code' => 'كود مخصص في الـ Head',
     'custom_head_code_help' => 'سيتم إضافته قبل إغلاق تاج <head>',
     'custom_footer_code' => 'كود مخصص في الـ Footer',
     'custom_footer_code_help' => 'سيتم إضافته قبل إغلاق تاج <body>',
-
-    // Terms & Conditions
     'nav_terms' => 'الشروط والأحكام',
     'terms_settings_section' => 'الشروط والأحكام',
-    'terms_settings' => [
+    'terms_settings' => 
+    array (
         'terms_ar' => 'الشروط والأحكام (عربي)',
         'terms_en' => 'الشروط والأحكام (إنجليزي)',
-    ],
-
-    // Privacy Policy
+    ),
     'nav_privacy' => 'سياسة الخصوصية',
     'privacy_settings_section' => 'سياسة الخصوصية',
-    'privacy_settings' => [
+    'privacy_settings' => 
+    array (
         'privacy_ar' => 'سياسة الخصوصية (عربي)',
         'privacy_en' => 'سياسة الخصوصية (إنجليزي)',
-    ],
-
-    // Homepage SEO
+    ),
     'homepage_seo' => 'SEO الصفحة الرئيسية',
     'keywords_placeholder' => 'اضغط Enter بعد كل كلمة لإضافتها',
     'keywords_hint' => 'افصل بين الكلمات بفاصلة',
-
-    // Blogs
     'blogs' => 'المقالات',
     'blog' => 'مقالة',
     'blog_details' => 'بيانات المقالة',
@@ -892,7 +843,6 @@ return [
     'content_ar' => 'المحتوى (عربي)',
     'content_en' => 'المحتوى (إنجليزي)',
     'nav_blog_management' => 'إدارة المقالات',
-
     'messenger_api_requests' => 'سجل الطلبات الصادرة',
     'messenger_api_request' => 'طلب صادر',
     'messenger_api_operation' => 'العملية',
@@ -971,8 +921,6 @@ return [
     'messenger_api_duration' => 'المدة',
     'messenger_api_request_payload' => 'الطلب المُرسل إلى Meta',
     'messenger_api_response_body' => 'رد Meta',
-
-    // Forgot Password
     'forgot_password' => 'نسيت كلمة المرور؟',
     'forgot_password_email_heading' => 'لقد تلقينا طلبًا لإعادة تعيين كلمة المرور.',
     'forgot_password_otp_label' => 'رمز التحقق',
@@ -995,9 +943,8 @@ return [
     'forgot_password_reset_success' => 'تمت إعادة تعيين كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.',
     'forgot_password_reset_failed' => 'حدث خطأ. يرجى المحاولة مرة أخرى.',
     'back_to_login' => 'العودة لتسجيل الدخول',
-
-    // Dashboard Widgets
-    'widget' => [
+    'widget' => 
+    array (
         'total_tenants' => 'إجمالي المتاجر',
         'tenants_desc' => ':active نشط, :new جديد في 30 يوم',
         'total_themes' => 'إجمالي القوالب',
@@ -1043,9 +990,9 @@ return [
         'webhook_events_trend' => 'اتجاه أحداث الويب هوك (30 يوم)',
         'whatsapp_events' => 'أحداث واتساب',
         'messenger_events' => 'أحداث ماسنجر',
-    ],
-
-    'lite' => [
+    ),
+    'lite' => 
+    array (
         'group' => 'لوحة التحكم',
         'perm_sales' => 'عرض لوحة المبيعات',
         'perm_pos' => 'عرض لوحة نقاط البيع',
@@ -1100,14 +1047,11 @@ return [
         'col_employee' => 'الموظف',
         'col_check_in' => 'الحضور',
         'col_late_minutes' => 'تأخير (د)',
-    ],
-
-    // المتجر (السلة، الطلبات، الكوبونات، المحافظات)
+    ),
     'store_group' => 'المتجر',
     'governorate' => 'المحافظة',
     'governorates' => 'المحافظات',
     'shipping_cost' => 'تكلفة الشحن',
-    'order' => 'طلب',
     'orders' => 'الطلبات',
     'order_number' => 'رقم الطلب',
     'customer_name' => 'اسم العميل',
@@ -1131,10 +1075,6 @@ return [
     'per_user_limit' => 'الحد لكل عميل',
     'usage_limits' => 'حدود الاستخدام',
     'starts_at' => 'تاريخ البدء',
-    'expires_at' => 'تاريخ الانتهاء',
-    'created_at' => 'تاريخ الإنشاء',
-    'update_status' => 'تحديث الحالة',
-    'pending' => 'قيد الانتظار',
     'confirmed' => 'مؤكد',
     'processing' => 'قيد المعالجة',
     'shipped' => 'تم الشحن',
@@ -1144,7 +1084,6 @@ return [
     'governorate_name' => 'اسم المحافظة',
     'order_details' => 'تفاصيل الطلب',
     'customer_info' => 'معلومات العميل',
-    'pricing' => 'التسعير',
     'order_items' => 'عناصر الطلب',
     'notes' => 'ملاحظات',
     'governorate_details' => 'بيانات المحافظة',
@@ -1155,21 +1094,13 @@ return [
     'no_orders_desc' => 'لم يتم تقديم أي طلبات بعد.',
     'no_coupons' => 'لا توجد كوبونات',
     'no_coupons_desc' => 'لم يتم إنشاء أي كوبونات بعد.',
-    'yes' => 'نعم',
-    'no' => 'لا',
-    'product' => 'المنتج',
     'variant' => 'النوع',
     'options' => 'الخيارات',
     'unit_price' => 'سعر الوحدة',
     'add_item' => 'إضافة عنصر',
     'add_category' => 'إضافة قسم',
-    'sort_order' => 'ترتيب العرض',
-    'items_count' => 'عدد العناصر',
-    'total_quantity' => 'الكمية الإجمالية',
-    'pricing_summary' => 'ملخص الأسعار',
+    'sort_order' => 'الترتيب',
     'no_items' => 'لا توجد عناصر',
-
-    // العملاء
     'customer' => 'العميل',
     'customers' => 'العملاء',
     'create_customer' => 'إنشاء عميل',
@@ -1182,7 +1113,6 @@ return [
     'no_customers_desc' => 'لم يتم إضافة أي عملاء بعد.',
     'linked_user' => 'المستخدم المربوط',
     'whatsapp' => 'واتساب',
-    // Messaging Health Dashboard (Phase H)
     'messaging_operations_group' => 'عمليات المنصة',
     'messaging_health' => 'صحة المراسلة',
     'messaging_health_overview' => 'نظرة عامة',
@@ -1255,8 +1185,6 @@ return [
     'messaging_health_state_pending' => 'معلّق',
     'messaging_health_state_unknown' => 'غير معروف',
     'close' => 'إغلاق',
-
-    // Meta Integrations Reset
     'meta_reset_nav' => 'إعادة تعيين تكاملات Meta',
     'meta_reset_title' => 'إعادة تعيين تكاملات Meta',
     'meta_reset_badge_dangerous' => 'عملية خطرة',
@@ -1324,34 +1252,21 @@ return [
     'cash' => 'نقدي',
     'online' => 'إلكتروني',
     'unpaid' => 'غير مدفوع',
-
-    // Countries
-    'country' => 'دولة',
     'countries' => 'الدول',
     'no_countries' => 'لا توجد دول',
     'no_countries_desc' => 'أضف دولة للبدء.',
     'country_details' => 'بيانات الدولة',
-    'name_ar' => 'الاسم (عربي)',
-    'name_en' => 'الاسم (إنجليزي)',
-    'currency_name' => 'اسم العملة',
     'currency_name_ar' => 'اسم العملة (عربي)',
     'currency_name_en' => 'اسم العملة (إنجليزي)',
     'currency_symbol' => 'رمز العملة',
     'phone_code' => 'رمز الهاتف',
     'icon' => 'الأيقونة',
     'locale' => 'اللغة',
-    'sort_order' => 'الترتيب',
     'country_code' => 'كود الدولة',
-
-    // Currencies
-    'currency' => 'عملة',
     'currencies' => 'العملات',
     'no_currencies' => 'لا توجد عملات',
     'no_currencies_desc' => 'أضف عملة للبدء.',
     'currency_details' => 'بيانات العملة',
-    'currency_code' => 'كود العملة',
-
-    // المراجعات
     'reviews' => 'المراجعات',
     'review' => 'مراجعة',
     'reviews_user' => 'المستخدم',
@@ -1363,8 +1278,6 @@ return [
     'no_reviews' => 'لا توجد مراجعات',
     'review_not_eligible' => 'يمكنك مراجعة المنتجات فقط من الطلبات المسلّمة.',
     'review_already_exists' => 'لقد قمت بمراجعة هذا المنتج بالفعل.',
-
-    // الملف الشخصي
     'profile' => 'الملف الشخصي',
     'profile_name' => 'الاسم',
     'profile_email' => 'البريد الإلكتروني',
@@ -1377,8 +1290,6 @@ return [
     'profile_current_password_incorrect' => 'كلمة المرور الحالية غير صحيحة.',
     'profile_password_updated' => 'تم تحديث كلمة المرور بنجاح.',
     'profile_updated' => 'تم تحديث الملف الشخصي بنجاح.',
-
-    // مُنشئ الصفحة الرئيسية
     'home_section_builder' => 'الصفحة الرئيسية',
     'home_sections' => 'أقسام الصفحة الرئيسية',
     'select_tenant' => 'اختر المتجر',
@@ -1394,31 +1305,25 @@ return [
     'section_type_best_sellers' => 'الأكثر مبيعاً',
     'section_type_deals' => 'عروض لا تُفوّت',
     'section_type_testimonials' => 'آراء العملاء',
-    // البانر الرئيسي
     'hero_title' => 'العنوان',
     'hero_subtitle' => 'العنوان الفرعي',
     'hero_button_text' => 'نص الزر',
     'hero_button_url' => 'رابط الزر',
     'hero_background_image' => 'صورة الخلفية',
-    // قسم التصنيفات
     'categories_title' => 'العنوان',
     'categories_display_type' => 'نوع العرض',
     'categories_display_grid' => 'شبكة',
     'categories_display_slider' => 'سلايدر',
     'categories_select' => 'اختر التصنيفات',
-    // وصل حديثاً
     'new_arrivals_title' => 'العنوان',
     'new_arrivals_subtitle' => 'العنوان الفرعي',
     'new_arrivals_products_count' => 'عدد المنتجات',
-    // الأكثر مبيعاً
     'best_sellers_title' => 'العنوان',
     'best_sellers_subtitle' => 'العنوان الفرعي',
     'best_sellers_products_count' => 'عدد المنتجات',
-    // عروض لا تُفوّت
     'deals_title' => 'العنوان',
     'deals_subtitle' => 'العنوان الفرعي',
     'deals_products_count' => 'عدد المنتجات',
-    // آراء العملاء
     'testimonials_title' => 'العنوان',
     'testimonials_subtitle' => 'العنوان الفرعي',
     'testimonials_items' => 'آراء العملاء',
@@ -1428,9 +1333,99 @@ return [
     'testimonial_review' => 'الرأي',
     'testimonial_customer_image' => 'صورة العميل',
     'testimonial_rating' => 'التقييم',
-
-    // الصفحات
-    'pages' => 'الصفحات',
+    'pages' => 
+    array (
+        'account_statement' => 
+        array (
+            'export_excel' => 'تحميل اكسيل',
+            'print_report' => 'طباعة التقرير',
+            'sum_balance' => 'الرصيد الإجمالي',
+            'sum_credit' => 'إجمالي الدائن',
+            'sum_debit' => 'إجمالي المدين',
+        ),
+        'account_tree_cleanup' => 
+        array (
+            'account_code' => 'رمز الحساب',
+            'account_name' => 'اسم الحساب',
+            'delete_action' => 'تنظيف / حذف',
+            'delete_modal_description' => 'اختر نوع الحذف المطلوب لهذا الحساب.',
+            'delete_modal_heading' => 'تأكيد عملية التنظيف',
+            'delete_mode' => 'وضع الحذف',
+            'delete_mode_tree_entries_desc' => 'حذف الحساب + جميع التفرعات + كل القيود اليومية حتى آخر Node',
+            'delete_mode_tree_only' => 'حذف سجل حساب الشجرة فقط (بدون حذف القيود أو التفرعات)',
+            'delete_success' => 'تم تنفيذ عملية التنظيف بنجاح.',
+            'deleted_link_types' => 'أنواع السجلات المحذوفة المرتبطة',
+            'disable_action' => 'تعطيل الحساب',
+            'disable_modal_description' => 'سيتم إخفاء الحساب من إدخال القيود الجديدة.',
+            'disable_modal_heading' => 'تأكيد تعطيل الحساب',
+            'disable_success' => 'تم تحديث حالة الحساب بنجاح.',
+            'enable_action' => 'تفعيل الحساب',
+            'enable_modal_description' => 'سيعود الحساب للظهور في إدخال القيود.',
+            'enable_modal_heading' => 'تأكيد تفعيل الحساب',
+            'entries_count' => 'عدد القيود اليومية',
+            'nav' => 'تنظيف شجرة الحسابات',
+            'sub_accounts_count' => 'عدد التفرعات',
+            'title' => 'تنظيف شجرة الحسابات المرتبطة بسجلات محذوفة',
+            'type_accounts_center' => 'مركز حساب محذوف',
+            'type_client' => 'عميل محذوف',
+            'type_supplier' => 'مورد محذوف',
+        ),
+        'accounts_center_details_report' => 
+        array (
+            'account_center' => 'مركز الحساب',
+            'date' => 'التاريخ',
+            'entity_branch' => 'فرع',
+            'entity_client' => 'عميل',
+            'entity_id' => 'رقم الجهة',
+            'entity_supplier' => 'مورد',
+            'entity_type' => 'نوع الجهة',
+            'from_date' => 'من تاريخ',
+            'movement_commission' => 'حجز (عمولة)',
+            'movement_manual_operation' => 'قيد يدوي',
+            'movement_margin' => 'حجز (فرق بيع/شراء)',
+            'movement_ticket_profit' => 'تذكرة (profit_amount)',
+            'nav' => 'تفاصيل مركز الحسابات',
+            'notes' => 'ملاحظات',
+            'profit' => 'الربح',
+            'profit_source' => 'مصدر الربح',
+            'title' => 'تقرير مراكز الحسابات (تفصيلي)',
+            'to_date' => 'إلى تاريخ',
+        ),
+        'accounts_centers_report' => 
+        array (
+            'account_center' => 'مركز الحساب',
+            'from_date' => 'من تاريخ',
+            'movements_count' => 'عدد الحركات',
+            'nav' => 'تقرير مراكز الحسابات',
+            'title' => 'تقرير مراكز الحسابات (إجمالي)',
+            'to_date' => 'إلى تاريخ',
+            'total_profits' => 'إجمالي الأرباح (تذاكر + حجوزات)',
+        ),
+        'balance_sheet' => 
+        array (
+            'nav' => 'الميزانية العمومية',
+            'title' => 'الميزانية العمومية',
+        ),
+        'general_account_statement' => 
+        array (
+            'print' => 'طباعة التقرير',
+        ),
+        'opening_entries_report' => 
+        array (
+            'nav' => 'تقرير القيود الافتتاحية',
+            'title' => 'تقرير القيود الافتتاحية',
+        ),
+        'period_balances_snapshot_report' => 
+        array (
+            'nav' => 'لقطات أرصدة الفترات',
+            'title' => 'تقرير لقطات أرصدة الفترات',
+        ),
+        'profit_and_loss' => 
+        array (
+            'nav' => 'قائمة الأرباح والخسائر',
+            'title' => 'قائمة الأرباح والخسائر (P&L)',
+        ),
+    ),
     'page' => 'صفحة',
     'page_details' => 'بيانات الصفحة',
     'page_title' => 'العنوان',
@@ -1438,11 +1433,8 @@ return [
     'page_content' => 'المحتوى',
     'page_image' => 'الصورة',
     'page_active' => 'نشط',
-    'show_in_header' => 'إظهار في الهيدر',
     'show_in_footer' => 'إظهار في الفوتر',
     'page_sort_order' => 'ترتيب العرض',
-
-    // الثيمات
     'themes_group' => 'الثيمات',
     'browse_themes' => 'تصفح الثيمات',
     'theme_preview' => 'معاينة',
@@ -1462,10 +1454,250 @@ return [
     'theme_confirm_subscribe_yes' => 'اشتراك',
     'cancel' => 'إلغاء',
     'theme_no_themes' => 'لا توجد ثيمات تطابق فلترك',
-
-    // المفضلة
     'removed_from_favorites' => 'تمت الإزالة من المفضلة',
     'added_to_favorites' => 'تمت الإضافة إلى المفضلة',
     'favorites_fetched_successfully' => 'تم جلب المفضلات بنجاح',
     'product_not_found' => 'المنتج غير موجود',
-];
+    'exports' => 
+    array (
+        'download_excel' => 'تحميل اكسيل',
+    ),
+    'fields' => 
+    array (
+        'branch' => 'الفرع',
+        'description' => 'الوصف',
+        'email' => 'البريد الإلكتروني',
+        'from_date' => 'من تاريخ',
+        'lead_source' => 'مصدر العميل المحتمل',
+        'name' => 'الاسم',
+        'name_ar' => 'الاسم بالعربي',
+        'name_en' => 'الاسم بالإنجليزية',
+        'phone' => 'الهاتف',
+        'sales_rep' => 'مندوب المبيعات',
+        'to_date' => 'إلى تاريخ',
+        'whatsapp' => 'واتساب',
+    ),
+    'financial_periods' => 
+    array (
+        'messages' => 
+        array (
+            'carry_forward_comment' => 'ترحيل من :from إلى :to',
+            'carry_forward_line' => 'ترحيل رصيد افتتاحي للحساب: :account',
+            'date_outside_period' => 'التاريخ المحدد خارج نطاق الفترة المالية.',
+            'entries_required' => 'يجب إدخال سطر محاسبي واحد على الأقل.',
+            'entries_unbalanced' => 'يجب أن يبقى القيد متوازنًا، بحيث يساوي إجمالي المدين إجمالي الدائن.',
+            'entry_locked' => 'هذا السطر مقفل ولا يمكن تعديله.',
+            'expense_closing_comment' => 'إقفال المصروفات للفترة :period',
+            'expense_closing_line' => 'إقفال حساب المصروف: :account',
+            'income_summary_account_required' => 'يجب ضبط حساب ملخص الدخل بشكل صحيح قبل إغلاق الفترة.',
+            'income_summary_line' => 'تسوية ملخص الدخل',
+            'no_balances_to_carry_forward' => 'لم يتم العثور على أرصدة ميزانية عمومية قابلة للترحيل.',
+            'opening_entry_comment' => 'قيد افتتاحي للفترة :period',
+            'operation_locked' => 'هذه العملية مقفلة ولا يمكن تعديلها.',
+            'parent_account_not_allowed' => 'الحساب :account ليس حسابًا نهائيًا قابلًا للترحيل.',
+            'period_already_closed' => 'تم إغلاق هذه الفترة المالية بالفعل.',
+            'period_cannot_be_reopened' => 'لا يمكن إعادة فتح هذه الفترة المالية في وضعها الحالي.',
+            'period_is_closed' => 'الفترة المالية :period مغلقة ولا تقبل أي تعديل.',
+            'period_must_be_open' => 'يجب أن تكون الفترة المالية مفتوحة قبل تنفيذ هذا الإجراء.',
+            'profit_loss_comment' => 'إقفال الأرباح والخسائر للفترة :period',
+            'profit_loss_transfer_line' => 'ترحيل صافي النتيجة إلى الأرباح المبقاة',
+            'reopen_reversal_comment' => 'عكس قيود إعادة الفتح للفترة :period',
+            'retained_earnings_account_required' => 'يجب ضبط حساب الأرباح المبقاة بشكل صحيح قبل إغلاق الفترة.',
+            'retained_earnings_line' => 'سطر الأرباح المبقاة',
+            'revenue_closing_comment' => 'إقفال الإيرادات للفترة :period',
+            'revenue_closing_line' => 'إقفال حساب الإيراد: :account',
+            'reversal_comment' => 'عكس العملية رقم :operation',
+            'reversal_entry_notes' => 'عكس العملية رقم :operation',
+            'source_period_must_be_closed' => 'يجب إغلاق الفترة المصدر قبل تنفيذ الترحيل.',
+            'target_period_must_be_open' => 'يجب أن تكون الفترة الهدف مفتوحة قبل تنفيذ الترحيل.',
+            'transfer_already_exists' => 'يوجد ترحيل مكتمل مسبقًا بين هاتين الفترتين.',
+            'transfer_requires_distinct_period' => 'الترحيل يتطلب فترتين ماليتين مختلفتين.',
+        ),
+    ),
+    'resources' => 
+    array (
+        'account_tree' => 
+        array (
+            'account_code' => 'كود الحساب',
+            'account_name' => 'اسم الحساب',
+            'account_statement' => 'كشف حساب',
+            'account_type' => 'نوع الحساب',
+            'assistant_ledger' => 'دفتر الأستاذ المساعد',
+            'branch' => 'الفرع',
+            'disable_account' => 'تعطيل الحساب',
+            'disabled_no' => 'نشط',
+            'disabled_status' => 'حالة التعطيل',
+            'disabled_yes' => 'معطل',
+            'enable_account' => 'تفعيل الحساب',
+            'level' => 'المستوى',
+            'main' => 'رئيسي',
+            'main_sub' => 'رئيسي / فرعي',
+            'model_label' => 'شجره الحسابات',
+            'nav' => 'شجره الحسابات',
+            'order' => 'الترتيب',
+            'parent_account' => 'الحساب الرئيسى',
+            'plural_model_label' => 'شجره الحسابات',
+            'statement' => 'قائمة الدخل / الميزانية العمومية',
+            'statement_general' => 'ميزانية عمومية',
+            'statement_income' => 'قائمة دخل',
+            'statement_none' => 'لا يظهر في أي منهما',
+            'sub' => 'فرعي',
+        ),
+        'accounts_center' => 
+        array (
+            'account_tree' => 'حساب الشجرة',
+            'model_label' => 'مركز حساب',
+            'move_entries_to_new_tree' => 'نقل القيود إلى حساب الشجرة الجديد',
+            'move_entries_to_new_tree_help' => 'عند التفعيل وتغيير حساب الشجرة، سيتم تحديث قيود اليومية المرتبطة بالحساب القديم إلى الحساب الجديد.',
+            'name' => 'الاسم',
+            'nav' => 'مراكز الحسابات',
+            'plural_model_label' => 'مراكز الحسابات',
+            'profit_total' => 'إجمالي الأرباح (من التذاكر)',
+            'section_data' => 'بيانات مركز الحساب',
+        ),
+        'client' => 
+        array (
+            'model_label' => 'عميل',
+            'nav_group' => 'الكيانات',
+            'plural_model_label' => 'العملاء',
+        ),
+        'financial_period' => 
+        array (
+            'account' => 'الحساب',
+            'account_code' => 'كود الحساب',
+            'add_opening_entry' => 'إضافة سطر افتتاحي',
+            'balance_side' => 'جهة الرصيد',
+            'balances_count' => 'لقطات الأرصدة',
+            'balances_title' => 'Snapshot الأرصدة المعتمدة للفترة :period',
+            'carry_forward' => 'الترحيل للفترة التالية',
+            'carry_forward_success' => 'تم تنفيذ الترحيل بنجاح.',
+            'close' => 'إغلاق الفترة',
+            'close_success' => 'تم إغلاق الفترة المالية بنجاح.',
+            'closed_at' => 'تاريخ الإغلاق',
+            'closing_credit' => 'إقفالي دائن',
+            'closing_debit' => 'إقفالي مدين',
+            'closings_count' => 'الإقفالات',
+            'code' => 'الرمز',
+            'comment' => 'البيان',
+            'create_opening_entry' => 'إنشاء قيد افتتاحي',
+            'current_only' => 'الحالية فقط',
+            'end_date' => 'تاريخ النهاية',
+            'is_current' => 'الفترة الحالية',
+            'model_label' => 'الفترة المالية',
+            'movement_credit' => 'حركة دائن',
+            'movement_debit' => 'حركة مدين',
+            'name' => 'الاسم',
+            'nav' => 'الفترات المالية',
+            'net_balance' => 'صافي الرصيد',
+            'non_current_only' => 'غير الحالية فقط',
+            'notes' => 'ملاحظات',
+            'opening_credit' => 'افتتاحي دائن',
+            'opening_debit' => 'افتتاحي مدين',
+            'opening_entries' => 'سطور القيد الافتتاحي',
+            'opening_entry_failed' => 'تعذر حفظ القيد الافتتاحي',
+            'opening_entry_no_lines' => 'أضف سطرًا واحدًا صالحًا على الأقل للقيد الافتتاحي.',
+            'opening_entry_row_amount_required' => 'كل سطر يجب أن يحتوي على مبلغ مدين أو دائن أكبر من صفر.',
+            'opening_entry_section' => 'تفاصيل القيد الافتتاحي',
+            'opening_entry_success' => 'تم إنشاء القيد الافتتاحي بنجاح.',
+            'opening_entry_title' => 'إنشاء قيد افتتاحي للفترة :period',
+            'opening_entry_validation_title' => 'تعذّر التحقق من القيد الافتتاحي',
+            'operations_count' => 'العمليات',
+            'parent_period' => 'الفترة الأم',
+            'plural_model_label' => 'الفترات المالية',
+            'reference_no' => 'المرجع',
+            'reopen' => 'إعادة فتح الفترة',
+            'reopen_success' => 'تمت إعادة فتح الفترة المالية بنجاح.',
+            'reopened_at' => 'تاريخ إعادة الفتح',
+            'section_main' => 'بيانات الفترة المالية',
+            'section_summary' => 'ملخص الفترة',
+            'start_date' => 'تاريخ البداية',
+            'status' => 'الحالة',
+            'target_period' => 'الفترة الهدف',
+            'transfers_count' => 'الترحيلات',
+            'view_balances' => 'عرض Snapshot الأرصدة',
+        ),
+        'lead_source' => 
+        array (
+            'clients_count' => 'العملاء',
+            'model_label' => 'مصدر عميل محتمل',
+            'nav_group' => 'الكيانات',
+            'opportunities_count' => 'الفرص',
+            'performance' => 'الأداء',
+            'plural_model_label' => 'مصادر العملاء المحتملين',
+            'total' => 'الإجمالي',
+            'won_agreed_amount_total' => 'إجمالي السعر المتفق عليه (الناجحة)',
+            'won_opportunities_count' => 'الفرص الناجحة',
+        ),
+        'operation' => 
+        array (
+            'account' => 'الحساب',
+            'account_type' => 'نوع الحساب',
+            'accounts_center' => 'مركز الحسابات',
+            'accounts_centers_entries' => 'حركات مراكز الحسابات',
+            'accounts_centers_section' => 'تأثير القيد على مراكز الحسابات',
+            'accounts_centers_section_desc' => 'اختياري: أضف مركز حسابات واحدًا أو أكثر مع مدين/دائن مستقل لربطها بالقيد.',
+            'add_accounts_center_entry' => 'إضافة حركة مركز حسابات',
+            'add_credit' => 'اضف دائن',
+            'add_debit' => 'اضف مدين',
+            'balance_validation' => 'يجب أن يكون إجمالي المدين مساويًا لإجمالي الدائن قبل الحفظ.',
+            'branch' => 'الفرع',
+            'comment_label' => 'بيان عام للعملية',
+            'credit' => 'دائن',
+            'credit_side' => 'الجانب الدائن',
+            'date' => 'التاريخ',
+            'debit' => 'مدين',
+            'debit_side' => 'الجانب المدين',
+            'disabled_account_not_allowed' => 'لا يمكن استخدام حساب معطّل في إدخال قيد جديد.',
+            'entity' => 'الجهة',
+            'entity_placeholder' => 'اختر الجهة أولاً من نوع الجهة',
+            'entries' => 'القيود',
+            'entry_type' => 'نوع السطر',
+            'financial_period' => 'الفترة المالية',
+            'invoice_notes' => 'ملاحظات الفاتورة',
+            'invoice_tax_section' => 'الربط مع الفاتورة والضرائب',
+            'invoice_tax_section_desc' => 'اختياري: عند التفعيل سيتم إنشاء فاتورة وسجل ضريبة مرتبطين بهذا القيد.',
+            'invoice_type' => 'نوع الفاتورة',
+            'invoice_type_purchase' => 'مشتريات',
+            'invoice_type_sale' => 'مبيعات',
+            'is_locked' => 'مقفول',
+            'is_posted' => 'مرحل',
+            'is_system_generated' => 'مولد من النظام',
+            'link_with_invoice_tax' => 'ربط القيد بفاتورة/ضريبة',
+            'lock' => 'قفل العملية',
+            'manual_accounts_center_movement_note' => 'حركة مركز حسابات من قيد يدوي',
+            'model_label' => 'القيود المحاسبيه',
+            'nav' => 'القيود المحاسبيه',
+            'notes' => 'البيان',
+            'operation_no' => 'رقم العملية',
+            'operation_type' => 'نوع العملية',
+            'plural_model_label' => 'القيود المحاسبيه',
+            'posted_at' => 'تاريخ الترحيل',
+            'section_entries' => 'القيود',
+            'section_main' => 'بيانات العملية',
+            'settlement_adjustment' => 'قيد تسوية',
+            'settlement_normal' => 'قيد عادي',
+            'source_operation' => 'العملية المصدر',
+            'tax_direction' => 'اتجاه الضريبة',
+            'tax_direction_purchase' => 'ضريبة مشتريات',
+            'tax_direction_sales' => 'ضريبة مبيعات',
+            'tax_rate' => 'نسبة الضريبة',
+            'tax_type' => 'نوع الضريبة',
+            'tax_value' => 'قيمة الضريبة',
+            'taxable_amount_without_tax' => 'القيمة بدون ضريبة',
+            'total_credit' => 'اجمالي الدائن',
+            'total_debit' => 'اجمالي المدين',
+            'total_with_tax' => 'الإجمالي شامل الضريبة',
+            'unlock' => 'فك قفل العملية',
+            'value' => 'القيمة',
+        ),
+    ),
+    'sidebar' => 
+    array (
+        'clients' => 'العملاء',
+        'lead_sources' => 'مصادر العملاء المحتملين',
+    ),
+    'widgets' => 
+    array (
+        'not_specified' => 'غير محدد',
+    ),
+);

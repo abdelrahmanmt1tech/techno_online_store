@@ -135,11 +135,14 @@ return new class extends Migration
             $table->foreignId('follow_up_status_id')->nullable()->constrained('follow_up_statuses')->nullOnDelete();
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('parent_id')->nullable()->constrained('opportunity_follow_ups')->nullOnDelete();
-            $table->string('title')->nullable();
-            $table->text('description')->nullable();
+            $table->foreignId('parent_follow_up_id')->nullable()->constrained('opportunity_follow_ups')->nullOnDelete();
+            $table->timestamp('next_follow_up_at')->nullable();
             $table->timestamp('scheduled_at')->nullable();
             $table->timestamp('completed_at')->nullable();
+            $table->longText('offer_text')->nullable();
+            $table->longText('customer_reply')->nullable();
+            $table->text('internal_notes')->nullable();
+            $table->json('meta')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -6,10 +6,7 @@ use App\Models\Tenant\AccountsCenter;
 use App\Models\Tenant\AccountsCenterMovement;
 use App\Models\Tenant\Branch;
 use App\Models\Tenant\Client;
-use App\Models\Franchise;
 use App\Models\Tenant\Supplier;
-use App\Filament\Exports\AccountsCenterDetailsReportExporter;
-use Filament\Actions\ExportAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
@@ -22,6 +19,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class AccountsCenterDetailsReport extends Page implements HasTable
 {
@@ -39,10 +37,6 @@ class AccountsCenterDetailsReport extends Page implements HasTable
 
     protected static ?string $navigationLabel = null;
 
-    public ?string $fromDate = null;
-    public ?string $toDate = null;
-    public ?int $accountsCenterId = null;
-
     public static function getNavigationLabel(): string
     {
         return __('dashboard.pages.accounts_center_details_report.nav');
@@ -55,14 +49,12 @@ class AccountsCenterDetailsReport extends Page implements HasTable
 
     public static function shouldRegisterNavigation(): bool
     {
-        $user = Auth::user();
-        return $user?->can('accounts_center_details_report.view') ?? false;
+        return Auth::user()?->can('accounts_center_details_report.view') ?? false;
     }
 
     public static function canAccess(): bool
     {
-        $user = Auth::user();
-        return $user?->can('accounts_center_details_report.view') ?? false;
+        return Auth::user()?->can('accounts_center_details_report.view') ?? false;
     }
 
     public function getTitle(): string
@@ -70,52 +62,31 @@ class AccountsCenterDetailsReport extends Page implements HasTable
         return __('dashboard.pages.accounts_center_details_report.title');
     }
 
-    public function mount(): void
-    {
-        $this->syncWidgetFiltersFromTableFilters();
-    }
-
-    public function updatedTableFilters(): void
-    {
-        $this->syncWidgetFiltersFromTableFilters();
-        parent::updatedTableFilters();
-    }
-
-    public function getReportWidgets(): array
-    {
-        return [
-            \App\Filament\Widgets\AccountsCenterDetailsStatsOverview::class,
-        ];
-    }
-
-    protected function syncWidgetFiltersFromTableFilters(): void
-    {
-        $center = $this->tableFilters['center'] ?? [];
-        $dateRange = $this->tableFilters['date_range'] ?? [];
-
-        $this->accountsCenterId = filled($center['accounts_center_id'] ?? null)
-            ? (int) $center['accounts_center_id']
-            : null;
-        $this->fromDate = $dateRange['from'] ?? null;
-        $this->toDate = $dateRange['to'] ?? null;
-    }
-
     public function table(Table $table): Table
     {
+        $hasMovementDate = Schema::hasColumn('accounts_center_movements', 'movement_date');
+        $hasNotes = Schema::hasColumn('accounts_center_movements', 'notes');
+
         return $table
-            ->query(function (): Builder {
-                return AccountsCenterMovement::query()
-                    ->with([
-                        'accountsCenter:id,name',
-                        'ticket:id,ticket_number_core,ticket_type_code',
+            ->query(function () use ($hasMovementDate): Builder {
+                $query = AccountsCenterMovement::query()
+                    ->with(['accountsCenter:id,name'])
+                    ->whereIn('movement_type', [
+                        'ticket_profit',
+                        'reservation_commission',
+                        'reservation_margin',
+                        'manual_operation',
                     ])
-                    ->whereIn('movement_type', ['ticket_profit', 'reservation_commission', 'reservation_margin', 'manual_operation'])
-                    ->whereNotNull('movement_date')
-                    ->orderByDesc('movement_date')
                     ->orderByDesc('id');
+
+                if ($hasMovementDate) {
+                    $query->whereNotNull('movement_date')->orderByDesc('movement_date');
+                }
+
+                return $query;
             })
             ->columns([
-                TextColumn::make('movement_date')
+                TextColumn::make($hasMovementDate ? 'movement_date' : 'created_at')
                     ->label(__('dashboard.pages.accounts_center_details_report.date'))
                     ->date()
                     ->sortable(),
@@ -125,18 +96,12 @@ class AccountsCenterDetailsReport extends Page implements HasTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('ticket.ticket_number_core')
-                    ->label(__('dashboard.pages.accounts_center_details_report.ticket'))
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('linkable_type')
                     ->label(__('dashboard.pages.accounts_center_details_report.entity_type'))
                     ->formatStateUsing(fn ($state) => match ($state) {
-                        Client::class => __('dashboard.pages.accounts_center_details_report.entity_client'),
-                        Branch::class => __('dashboard.pages.accounts_center_details_report.entity_branch'),
-                        Franchise::class => __('dashboard.pages.accounts_center_details_report.entity_franchise'),
-                        Supplier::class => __('dashboard.pages.accounts_center_details_report.entity_supplier'),
+                        Client::class, 'App\\Models\\Client' => __('dashboard.pages.accounts_center_details_report.entity_client'),
+                        Branch::class, 'App\\Models\\Branch' => __('dashboard.pages.accounts_center_details_report.entity_branch'),
+                        Supplier::class, 'App\\Models\\Supplier' => __('dashboard.pages.accounts_center_details_report.entity_supplier'),
                         default => $state ?: '—',
                     })
                     ->toggleable(),
@@ -147,12 +112,10 @@ class AccountsCenterDetailsReport extends Page implements HasTable
 
                 TextColumn::make('amount')
                     ->label(__('dashboard.pages.accounts_center_details_report.profit'))
-                    // راجع docs/accounts-center-rfd-movements.md — تجنب Intl مع locale عربي (وهم سالب على موجب).
                     ->numeric(decimalPlaces: 2, decimalSeparator: '.', thousandsSeparator: ',')
                     ->color(fn ($state) => ((float) $state) >= 0 ? 'success' : 'danger')
                     ->sortable()
-                ->summarize(Sum::make())
-                ,
+                    ->summarize(Sum::make()),
 
                 TextColumn::make('movement_type')
                     ->label(__('dashboard.pages.accounts_center_details_report.profit_source'))
@@ -166,11 +129,12 @@ class AccountsCenterDetailsReport extends Page implements HasTable
                     })
                     ->toggleable(),
 
-                TextColumn::make('notes')
+                TextColumn::make($hasNotes ? 'notes' : 'id')
                     ->label(__('dashboard.pages.accounts_center_details_report.notes'))
                     ->wrap()
                     ->limit(80)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->visible($hasNotes),
             ])
             ->filters([
                 Filter::make('center')
@@ -190,23 +154,19 @@ class AccountsCenterDetailsReport extends Page implements HasTable
                         DatePicker::make('from')->label(__('dashboard.pages.accounts_center_details_report.from_date')),
                         DatePicker::make('to')->label(__('dashboard.pages.accounts_center_details_report.to_date')),
                     ])
-                    ->query(function (Builder $query, array $data): Builder {
+                    ->query(function (Builder $query, array $data) use ($hasMovementDate): Builder {
+                        $column = $hasMovementDate ? 'movement_date' : 'created_at';
+
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn (Builder $q, $date): Builder => $q->whereDate('movement_date', '>=', $date),
+                                fn (Builder $q, $date): Builder => $q->whereDate($column, '>=', $date),
                             )
                             ->when(
                                 $data['to'] ?? null,
-                                fn (Builder $q, $date): Builder => $q->whereDate('movement_date', '<=', $date),
+                                fn (Builder $q, $date): Builder => $q->whereDate($column, '<=', $date),
                             );
                     }),
-            ])
-            ->headerActions([
-                ExportAction::make()
-                 ->label(__('dashboard.pages.account_statement.export_excel'))
-                    ->exporter(AccountsCenterDetailsReportExporter::class),
             ]);
     }
 }
-

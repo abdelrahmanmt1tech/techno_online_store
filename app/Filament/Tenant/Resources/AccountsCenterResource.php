@@ -2,7 +2,6 @@
 
 namespace App\Filament\Tenant\Resources;
 
-use App\Filament\Exports\AccountsCenterExporter;
 use App\Filament\Tenant\Resources\AccountsCenterResource\Pages;
 use App\Models\Tenant\AccountsCenter;
 use App\Models\Tenant\AccountTree;
@@ -12,8 +11,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ExportAction;
-use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
@@ -190,35 +187,39 @@ class AccountsCenterResource extends Resource
             ])
             ->filters([
                 Filter::make('date_range')
-                ->schema([
-                    DatePicker::make('from')->label(__('dashboard.pages.accounts_centers_report.from_date')),
-                    DatePicker::make('to')->label(__('dashboard.pages.accounts_centers_report.to_date')),
+                    ->schema([
+                        DatePicker::make('from')->label(__('dashboard.pages.accounts_centers_report.from_date')),
+                        DatePicker::make('to')->label(__('dashboard.pages.accounts_centers_report.to_date')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
+                        $column = \Illuminate\Support\Facades\Schema::hasColumn('accounts_center_movements', 'movement_date')
+                            ? 'movement_date'
+                            : 'created_at';
+
                         return $query
-                        ->when(
-                            $data['from'] ?? null,
-                            fn (Builder $q, $date): Builder => $q->whereHas('movements', fn (Builder $mq) => $mq->whereDate('movement_date', '>=', $date)),
+                            ->when(
+                                $data['from'] ?? null,
+                                fn (Builder $q, $date): Builder => $q->whereHas(
+                                    'movements',
+                                    fn (Builder $mq) => $mq->whereDate($column, '>=', $date)
+                                ),
                             )
                             ->when(
                                 $data['to'] ?? null,
-                                fn (Builder $q, $date): Builder => $q->whereHas('movements', fn (Builder $mq) => $mq->whereDate('movement_date', '<=', $date)),
-                                );
-                                }),
-                  TrashedFilter::make(),
-
-                         ])
+                                fn (Builder $q, $date): Builder => $q->whereHas(
+                                    'movements',
+                                    fn (Builder $mq) => $mq->whereDate($column, '<=', $date)
+                                ),
+                            );
+                    }),
+                TrashedFilter::make(),
+            ])
             ->headerActions([
-                ExportAction::make()
-                    ->label(__('dashboard.pages.account_statement.export_excel'))
-                    ->exporter(AccountsCenterExporter::class)
-                    ->columnMappingColumns(3)
-                    ->authorize(fn (): bool => Auth::user()?->can('accounts_centers.export') ?? false),
-
                 Action::make('printReport')
                     ->label(__('dashboard.pages.account_statement.print_report'))
                     ->icon('heroicon-o-printer')
                     ->color('gray')
+                    ->visible(fn (): bool => \Illuminate\Support\Facades\Route::has('reports.accounts-centers.print'))
                     ->authorize(fn (): bool => Auth::user()?->can('accounts_centers.view') ?? false)
                     ->url(fn (): string => static::getAccountsCenterPrintUrl())
                     ->openUrlInNewTab(),
@@ -235,11 +236,6 @@ class AccountsCenterResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
-                        ->exporter(AccountsCenterExporter::class)
-                        ->enableVisibleTableColumnsByDefault()
-                        ->columnMappingColumns(3)
-                        ->authorize(fn (): bool => Auth::user()?->can('accounts_centers.export_bulk') ?? false),
                     DeleteBulkAction::make()
                         ->authorize(fn (): bool => Auth::user()?->can('accounts_centers.delete_bulk') ?? false),
                     RestoreBulkAction::make()

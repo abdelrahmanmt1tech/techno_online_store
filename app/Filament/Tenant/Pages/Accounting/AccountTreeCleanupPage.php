@@ -4,11 +4,10 @@ namespace App\Filament\Tenant\Pages\Accounting;
 
 use App\Models\Tenant\AccountTree;
 use App\Models\Tenant\AccountsCenter;
-use App\Models\Tenant\Branch;
 use App\Models\Tenant\Client;
 use App\Models\Tenant\Entry;
-use App\Models\Franchise;
 use App\Models\Tenant\Supplier;
+use Illuminate\Support\Facades\Schema;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -74,25 +73,21 @@ class AccountTreeCleanupPage extends Page implements HasTable
     {
         return $table
             ->query(function (): Builder {
-                $deletedBranchTreeIds = Branch::onlyTrashed()->whereNotNull('account_tree_id')->select('account_tree_id');
                 $deletedClientTreeIds = Client::onlyTrashed()->whereNotNull('account_tree_id')->select('account_tree_id');
-                $deletedSupplierTreeIds = Supplier::onlyTrashed()->whereNotNull('account_tree_id')->select('account_tree_id');
-                $deletedFranchiseTreeIds = Franchise::onlyTrashed()->whereNotNull('account_tree_id')->select('account_tree_id');
+                $deletedSupplierTreeIds = Schema::hasColumn('suppliers', 'deleted_at')
+                    ? Supplier::onlyTrashed()->whereNotNull('account_tree_id')->select('account_tree_id')
+                    : Supplier::query()->whereRaw('0 = 1')->select('account_tree_id');
                 $deletedAccountsCenterTreeIds = AccountsCenter::onlyTrashed()->whereNotNull('account_tree_id')->select('account_tree_id');
 
                 return AccountTree::query()
                     ->where(function (Builder $query) use (
-                        $deletedBranchTreeIds,
                         $deletedClientTreeIds,
                         $deletedSupplierTreeIds,
-                        $deletedFranchiseTreeIds,
                         $deletedAccountsCenterTreeIds
                     ): Builder {
                         return $query
-                            ->whereIn('id', $deletedBranchTreeIds)
-                            ->orWhereIn('id', $deletedClientTreeIds)
+                            ->whereIn('id', $deletedClientTreeIds)
                             ->orWhereIn('id', $deletedSupplierTreeIds)
-                            ->orWhereIn('id', $deletedFranchiseTreeIds)
                             ->orWhereIn('id', $deletedAccountsCenterTreeIds);
                     })
                     ->withCount(['entries', 'subAccounts'])
@@ -283,17 +278,12 @@ class AccountTreeCleanupPage extends Page implements HasTable
     {
         $types = [];
 
-        if (Branch::onlyTrashed()->where('account_tree_id', $record->id)->exists()) {
-            $types[] = __('dashboard.pages.account_tree_cleanup.type_branch');
-        }
         if (Client::onlyTrashed()->where('account_tree_id', $record->id)->exists()) {
             $types[] = __('dashboard.pages.account_tree_cleanup.type_client');
         }
-        if (Supplier::onlyTrashed()->where('account_tree_id', $record->id)->exists()) {
+        if (Schema::hasColumn('suppliers', 'deleted_at')
+            && Supplier::onlyTrashed()->where('account_tree_id', $record->id)->exists()) {
             $types[] = __('dashboard.pages.account_tree_cleanup.type_supplier');
-        }
-        if (Franchise::onlyTrashed()->where('account_tree_id', $record->id)->exists()) {
-            $types[] = __('dashboard.pages.account_tree_cleanup.type_franchise');
         }
         if (AccountsCenter::onlyTrashed()->where('account_tree_id', $record->id)->exists()) {
             $types[] = __('dashboard.pages.account_tree_cleanup.type_accounts_center');
