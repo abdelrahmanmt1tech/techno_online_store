@@ -9,6 +9,7 @@ use App\Enums\Crm\CommissionType;
 use App\Services\Crm\Commission\CommissionAdjustmentCalculator;
 use App\Support\Crm\CrmBranchVisibility;
 use App\Support\Money\DecimalMath;
+use App\Models\TenantUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -166,7 +167,7 @@ class OpportunityCommission extends Model
         return $query->whereIn('branch_id', $branchIds);
     }
 
-    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    public function scopeVisibleToUser(Builder $query, TenantUser $user): Builder
     {
         return CrmBranchVisibility::applyCommissionScope($query, $user);
     }

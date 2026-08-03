@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\TenantUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,7 +31,7 @@ class Note extends Model
         return $this->morphTo();
     }
 
-    public function scopeVisibleTo(Builder $query, User $user): Builder
+    public function scopeVisibleTo(Builder $query, TenantUser $user): Builder
     {
         return $query->where(function (Builder $q) use ($user): void {
             $q->where('is_private', false)

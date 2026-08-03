@@ -3,6 +3,7 @@
 namespace App\Models\Tenant;
 
 use App\Enums\Crm\CommissionPaymentCycleStatus;
+use App\Models\TenantUser;
 use App\Support\Crm\CrmBranchVisibility;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -84,7 +85,7 @@ class CommissionPaymentCycle extends Model
         return $query->whereIn('branch_id', $branchIds);
     }
 
-    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    public function scopeVisibleToUser(Builder $query, TenantUser $user): Builder
     {
         return CrmBranchVisibility::applyCycleScope($query, $user);
     }

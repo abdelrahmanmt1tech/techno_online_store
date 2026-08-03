@@ -3,6 +3,7 @@
 namespace App\Models\Tenant;
 
 use App\Enums\Crm\CommissionPaymentEntryType;
+use App\Models\TenantUser;
 use App\Support\Crm\CrmBranchVisibility;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -94,7 +95,7 @@ class CommissionPayment extends Model
         return $this->hasMany(self::class, 'reverses_payment_id');
     }
 
-    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    public function scopeVisibleToUser(Builder $query, TenantUser $user): Builder
     {
         return CrmBranchVisibility::applyPaymentScope($query, $user);
     }
