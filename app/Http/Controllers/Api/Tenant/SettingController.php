@@ -75,7 +75,7 @@ class SettingController extends Controller
 
         return $this->successResponse([
             'header_logo' => $fileUrl($get('site_logo')),
-            'theme_name' => $get('theme_name') ?? 'theme-default',
+            'theme_name' => $get('theme_name') ?? 'Online Store',
             'primary_color' => $get('primary_color'),
             'secondary_color' => $get('secondary_color'),
             'web_favicon' => $fileUrl($get('web_favicon')),

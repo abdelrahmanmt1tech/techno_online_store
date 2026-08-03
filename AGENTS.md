@@ -120,6 +120,8 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 
 | File | Purpose |
 |---|---|
+| [`docs/crm-accounting-port.md`](docs/crm-accounting-port.md) | CRM + double-entry accounting port |
+| [`docs/tenant-modules.md`](docs/tenant-modules.md) | Merchant module gating model (`tenant_module_enabled()`) |
 | [`docs/commerce-core.md`](docs/commerce-core.md) | Shared catalog, UnifiedSalesEngine, POS foundation |
 | [`docs/pos-runtime.md`](docs/pos-runtime.md) | POS session lifecycle, cash flow, guard, receipts, shift reports |
 | [`docs/pos-interface.md`](docs/pos-interface.md) | POS Blade + Vue terminal, routes, checkout/suspend/close flows |
