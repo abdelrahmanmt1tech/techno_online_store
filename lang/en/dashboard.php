@@ -767,8 +767,9 @@ return array (
     'general_settings' => 
     array (
         'site_logo' => 'Site Logo',
-        'site_name' => 'Site Name',
-        'site_color' => 'Site Color',
+        'theme_name' => 'Theme Name',
+        'primary_color' => 'Primary Color',
+        'secondary_color' => 'Secondary Color',
         'admin_favicon' => 'Admin Panel Favicon',
         'web_favicon' => 'Website Favicon',
         'dashboard_logo' => 'Dashboard Logo',

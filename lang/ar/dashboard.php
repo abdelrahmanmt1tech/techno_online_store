@@ -767,8 +767,9 @@ return array (
     'general_settings' => 
     array (
         'site_logo' => 'لوجو الموقع',
-        'site_name' => 'اسم الموقع',
-        'site_color' => 'لون الموقع',
+        'theme_name' => 'اسم الثيم',
+        'primary_color' => 'اللون الأساسي',
+        'secondary_color' => 'اللون الثانوي',
         'admin_favicon' => 'أيقونة لوحة التحكم',
         'web_favicon' => 'أيقونة الموقع',
         'dashboard_logo' => 'لوجو لوحة التحكم',

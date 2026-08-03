@@ -15,8 +15,9 @@ class SettingController extends Controller
     {
         $keys = [
             'site_logo',
-            'site_name',
-            'site_color',
+            'theme_name',
+            'primary_color',
+            'secondary_color',
             'web_favicon',
             'site_font',
             'site_language',
@@ -74,8 +75,9 @@ class SettingController extends Controller
 
         return $this->successResponse([
             'header_logo' => $fileUrl($get('site_logo')),
-            'site_name' => $get('site_name'),
-            'site_color' => $get('site_color'),
+            'theme_name' => $get('theme_name'),
+            'primary_color' => $get('primary_color'),
+            'secondary_color' => $get('secondary_color'),
             'web_favicon' => $fileUrl($get('web_favicon')),
             'site_font' => $get('site_font'),
             'site_language' => $get('site_language'),

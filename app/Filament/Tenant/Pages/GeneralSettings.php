@@ -95,13 +95,16 @@ class GeneralSettings extends Page
                                 ->image()
                                 ->directory('general'),
 
-                            TextInput::make('site_name')
-                                ->label(__('dashboard.general_settings.site_name'))
+                            TextInput::make('theme_name')
+                                ->label(__('dashboard.general_settings.theme_name'))
                                 ->maxLength(255)
                                 ->columnSpan(1),
 
-                            ColorPicker::make('site_color')
-                                ->label(__('dashboard.general_settings.site_color')),
+                            ColorPicker::make('primary_color')
+                                ->label(__('dashboard.general_settings.primary_color')),
+
+                            ColorPicker::make('secondary_color')
+                                ->label(__('dashboard.general_settings.secondary_color')),
 
                             Select::make('site_font')
                                 ->label(__('dashboard.general_settings.site_font'))
@@ -257,8 +260,9 @@ class GeneralSettings extends Page
     {
         $valueKeys = [
             'site_logo',
-            'site_name',
-            'site_color',
+            'theme_name',
+            'primary_color',
+            'secondary_color',
             'admin_favicon',
             'web_favicon',
             'dashboard_logo',
