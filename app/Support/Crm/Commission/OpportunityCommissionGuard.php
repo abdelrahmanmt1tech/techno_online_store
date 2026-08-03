@@ -13,49 +13,49 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 final class OpportunityCommissionGuard
 {
-    public static function ensureCanUpdate(User $user, OpportunityCommission $commission): void
+    public static function ensureCanUpdate(TenantUser $user, OpportunityCommission $commission): void
     {
         if (! OpportunityCommissionAccess::canUpdate($user, $commission)) {
             throw new HttpException(403);
         }
     }
 
-    public static function ensureCanApprove(User $user, OpportunityCommission $commission): void
+    public static function ensureCanApprove(TenantUser $user, OpportunityCommission $commission): void
     {
         if (! OpportunityCommissionAccess::canApprove($user, $commission)) {
             throw new HttpException(403);
         }
     }
 
-    public static function ensureCanReject(User $user, OpportunityCommission $commission): void
+    public static function ensureCanReject(TenantUser $user, OpportunityCommission $commission): void
     {
         if (! OpportunityCommissionAccess::canReject($user, $commission)) {
             throw new HttpException(403);
         }
     }
 
-    public static function ensureCanCancel(User $user, OpportunityCommission $commission): void
+    public static function ensureCanCancel(TenantUser $user, OpportunityCommission $commission): void
     {
         if (! OpportunityCommissionAccess::canCancel($user, $commission)) {
             throw new HttpException(403);
         }
     }
 
-    public static function ensureCanRecalculate(User $user, OpportunityCommission $commission): void
+    public static function ensureCanRecalculate(TenantUser $user, OpportunityCommission $commission): void
     {
         if (! OpportunityCommissionAccess::canRecalculate($user, $commission)) {
             throw new HttpException(403);
         }
     }
 
-    public static function ensureCanCreateAdjustment(User $user, OpportunityCommission $commission): void
+    public static function ensureCanCreateAdjustment(TenantUser $user, OpportunityCommission $commission): void
     {
         if (! OpportunityCommissionAccess::canCreateAdjustment($user, $commission)) {
             throw new HttpException(403);
         }
     }
 
-    public static function ensureCanCreateForOpportunity(User $user, Opportunity $opportunity): void
+    public static function ensureCanCreateForOpportunity(TenantUser $user, Opportunity $opportunity): void
     {
         if (! $user->can('crm_commissions.create')) {
             throw new HttpException(403);

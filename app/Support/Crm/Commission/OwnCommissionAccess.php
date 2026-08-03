@@ -10,12 +10,12 @@ use App\Models\TenantUser;
  */
 final class OwnCommissionAccess
 {
-    public static function canViewPage(User $user): bool
+    public static function canViewPage(TenantUser $user): bool
     {
         return $user->can('crm_own_commissions.view');
     }
 
-    public static function canViewCommission(User $user, OpportunityCommission $commission): bool
+    public static function canViewCommission(TenantUser $user, OpportunityCommission $commission): bool
     {
         if (! self::canViewPage($user)) {
             return false;
@@ -24,12 +24,12 @@ final class OwnCommissionAccess
         return (int) $commission->user_id === (int) $user->id;
     }
 
-    public static function canViewPayments(User $user): bool
+    public static function canViewPayments(TenantUser $user): bool
     {
         return $user->can('crm_own_commission_payments.view');
     }
 
-    public static function canExport(User $user): bool
+    public static function canExport(TenantUser $user): bool
     {
         return $user->can('crm_own_commissions.export');
     }

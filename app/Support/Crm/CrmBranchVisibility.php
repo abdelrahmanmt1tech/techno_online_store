@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class CrmBranchVisibility
 {
-    public static function canViewAllBranches(User $user): bool
+    public static function canViewAllBranches(TenantUser $user): bool
     {
         return $user->can('crm_reports.view_all_branches');
     }
@@ -19,7 +19,7 @@ class CrmBranchVisibility
     /**
      * @return list<int>
      */
-    public static function branchIdsFor(User $user): array
+    public static function branchIdsFor(TenantUser $user): array
     {
         return $user->branches()
             ->pluck('branches.id')
@@ -27,7 +27,7 @@ class CrmBranchVisibility
             ->all();
     }
 
-    public static function commissionVisibleTo(User $user, OpportunityCommission $commission): bool
+    public static function commissionVisibleTo(TenantUser $user, OpportunityCommission $commission): bool
     {
         if (self::canViewAllBranches($user)) {
             return true;
@@ -46,7 +46,7 @@ class CrmBranchVisibility
         return in_array((int) $commission->branch_id, $branchIds, true);
     }
 
-    public static function paymentVisibleTo(User $user, CommissionPayment $payment): bool
+    public static function paymentVisibleTo(TenantUser $user, CommissionPayment $payment): bool
     {
         if (self::canViewAllBranches($user)) {
             return true;
@@ -71,7 +71,7 @@ class CrmBranchVisibility
         return self::commissionVisibleTo($user, $payment->opportunityCommission);
     }
 
-    public static function cycleVisibleTo(User $user, CommissionPaymentCycle $cycle): bool
+    public static function cycleVisibleTo(TenantUser $user, CommissionPaymentCycle $cycle): bool
     {
         if (self::canViewAllBranches($user)) {
             return true;
@@ -111,7 +111,7 @@ class CrmBranchVisibility
      * @param  Builder<OpportunityCommission>  $query
      * @return Builder<OpportunityCommission>
      */
-    public static function applyCommissionScope(Builder $query, User $user): Builder
+    public static function applyCommissionScope(Builder $query, TenantUser $user): Builder
     {
         if (self::canViewAllBranches($user)) {
             return $query;
@@ -130,7 +130,7 @@ class CrmBranchVisibility
      * @param  Builder<CommissionPayment>  $query
      * @return Builder<CommissionPayment>
      */
-    public static function applyPaymentScope(Builder $query, User $user): Builder
+    public static function applyPaymentScope(Builder $query, TenantUser $user): Builder
     {
         if (self::canViewAllBranches($user)) {
             return $query;
@@ -155,7 +155,7 @@ class CrmBranchVisibility
      * @param  Builder<CommissionPaymentCycle>  $query
      * @return Builder<CommissionPaymentCycle>
      */
-    public static function applyCycleScope(Builder $query, User $user): Builder
+    public static function applyCycleScope(Builder $query, TenantUser $user): Builder
     {
         if (self::canViewAllBranches($user)) {
             return $query;
@@ -200,7 +200,7 @@ class CrmBranchVisibility
      * @param  Builder<Opportunity>  $query
      * @return Builder<Opportunity>
      */
-    public static function applyOpportunityScope(Builder $query, User $user): Builder
+    public static function applyOpportunityScope(Builder $query, TenantUser $user): Builder
     {
         if (self::canViewAllBranches($user)) {
             return $query;

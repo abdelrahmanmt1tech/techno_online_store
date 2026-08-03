@@ -11,13 +11,13 @@ use App\Support\Crm\CrmBranchVisibility;
  */
 final class CommissionPaymentAccess
 {
-    public static function canViewAny(User $user): bool
+    public static function canViewAny(TenantUser $user): bool
     {
         return $user->can('crm_own_commission_payments.view')
             || $user->can('crm_commission_payment_cycles.view_any');
     }
 
-    public static function canView(User $user, CommissionPayment $payment): bool
+    public static function canView(TenantUser $user, CommissionPayment $payment): bool
     {
         $isOwner = (int) $payment->user_id === (int) $user->id;
 
@@ -29,7 +29,7 @@ final class CommissionPaymentAccess
             && CrmBranchVisibility::paymentVisibleTo($user, $payment);
     }
 
-    public static function canReversePayment(User $user, CommissionPayment $payment): bool
+    public static function canReversePayment(TenantUser $user, CommissionPayment $payment): bool
     {
         return $user->can('crm_commission_payment_cycles.reverse_payment')
             && CrmBranchVisibility::paymentVisibleTo($user, $payment);

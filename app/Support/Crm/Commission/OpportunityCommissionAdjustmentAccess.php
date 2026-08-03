@@ -10,7 +10,7 @@ use App\Support\Crm\CrmBranchVisibility;
 
 final class OpportunityCommissionAdjustmentAccess
 {
-    public static function canView(User $user, OpportunityCommissionAdjustment $adjustment): bool
+    public static function canView(TenantUser $user, OpportunityCommissionAdjustment $adjustment): bool
     {
         if (! $user->can('crm_commissions.view_adjustments')) {
             return false;
@@ -25,14 +25,14 @@ final class OpportunityCommissionAdjustmentAccess
         return CrmBranchVisibility::commissionVisibleTo($user, $adjustment->commission);
     }
 
-    public static function canCreate(User $user, OpportunityCommission $commission): bool
+    public static function canCreate(TenantUser $user, OpportunityCommission $commission): bool
     {
         return $user->can('crm_commissions.create_adjustment')
             && CrmBranchVisibility::commissionVisibleTo($user, $commission)
             && OpportunityCommissionState::allowsAdjustment($commission);
     }
 
-    public static function canApprove(User $user, OpportunityCommissionAdjustment $adjustment): bool
+    public static function canApprove(TenantUser $user, OpportunityCommissionAdjustment $adjustment): bool
     {
         if (! $user->can('crm_commissions.approve_adjustment')) {
             return false;
@@ -51,7 +51,7 @@ final class OpportunityCommissionAdjustmentAccess
         return CrmBranchVisibility::commissionVisibleTo($user, $adjustment->commission);
     }
 
-    public static function canReject(User $user, OpportunityCommissionAdjustment $adjustment): bool
+    public static function canReject(TenantUser $user, OpportunityCommissionAdjustment $adjustment): bool
     {
         if (! $user->can('crm_commissions.reject_adjustment')) {
             return false;
@@ -70,7 +70,7 @@ final class OpportunityCommissionAdjustmentAccess
         return CrmBranchVisibility::commissionVisibleTo($user, $adjustment->commission);
     }
 
-    public static function canCancel(User $user, OpportunityCommissionAdjustment $adjustment): bool
+    public static function canCancel(TenantUser $user, OpportunityCommissionAdjustment $adjustment): bool
     {
         if (! $user->can('crm_commissions.cancel_adjustment')) {
             return false;
