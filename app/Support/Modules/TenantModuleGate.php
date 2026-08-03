@@ -2,17 +2,20 @@
 
 namespace App\Support\Modules;
 
+use App\Models\Tenant;
+use App\Models\TenantPackage;
+
 /**
  * Single reference point for “is this module available for the current tenant?”.
  *
- * IMPORTANT — stop here until billing is ready:
- * - Do not scatter subscription/plan checks across Filament resources or Actions.
  * - Always call {@see self::enabled()} / {@see tenant_module_enabled()}.
- * - Until real module subscriptions exist, every module returns true.
- *
- * Later: replace the body of {@see self::resolve()} only (tenant subscription rows,
- * central billing API, cache, etc.). Auto journal posting must also go through
- * {@see self::accountingActive()} so GL posts run only when Accounting is on.
+ * - Gating is strict in production: a merchant with no active package gets no
+ *   modules. During development the whole app is open via
+ *   `config('app.bypass_permissions')` (true outside production).
+ * - Modules come from the tenant's active `tenant_packages` rows: a full
+ *   package grants every module, a partial package grants its single module.
+ * - Auto journal posting must also go through {@see self::accountingActive()}
+ *   so GL posts run only when Accounting is on.
  */
 final class TenantModuleGate
 {
@@ -71,15 +74,45 @@ final class TenantModuleGate
     }
 
     /**
-     * REFERENCE HOOK — change only this method when module subscriptions go live.
-     *
-     * Current behaviour: always true (all modules open during development).
+     * Real gating against the current tenant's active packages.
      */
     private static function resolve(TenantModule $module): bool
     {
-        // TODO(modules-billing): look up active per-module subscription for tenant($module).
-        // Until then every module is available.
-        return true;
+        if (config('app.bypass_permissions')) {
+            return true;
+        }
+
+        $enabled = once(fn () => self::enabledModulesForCurrentTenant());
+
+        return in_array($module, $enabled, true);
+    }
+
+    /**
+     * Modules granted by the current tenant's active packages.
+     *
+     * @return list<string>
+     */
+    private static function enabledModulesForCurrentTenant(): array
+    {
+        $tenant = tenant();
+
+        if (! $tenant instanceof Tenant) {
+            return [];
+        }
+
+        $modules = [];
+
+        $tenant->packages()
+            ->active()
+            ->with('package')
+            ->get()
+            ->each(function (TenantPackage $tenantPackage) use (&$modules): void {
+                if ($tenantPackage->package) {
+                    $modules = array_merge($modules, $tenantPackage->package->enabledModules());
+                }
+            });
+
+        return array_values(array_unique($modules));
     }
 
     private static function normalize(TenantModule|string $module): TenantModule

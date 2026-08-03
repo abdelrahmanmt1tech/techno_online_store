@@ -77,7 +77,23 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
-    'domain_url' => env('DOMAIN_URL', 'http://localhost'),
+    'domain_url' => (function () {
+        $url = env('DOMAIN_URL', env('APP_URL', 'http://localhost'));
+
+        $parts = parse_url($url);
+
+        if (! isset($parts['host'])) {
+            return $url;
+        }
+
+        $segments = explode('.', $parts['host']);
+
+        if (count($segments) > 2) {
+            array_shift($segments);
+        }
+
+        return ($parts['scheme'] ?? 'http').'://'.implode('.', $segments).(isset($parts['port']) ? ':'.$parts['port'] : '');
+    })(),
 
     'domain' => env('APP_DOMAIN'),
 

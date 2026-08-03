@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\Plans\Tables;
+namespace App\Filament\Resources\Packages\Tables;
 
+use App\Models\Package;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -11,52 +12,39 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
-class PlansTable
+class PackagesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('order')
+            ->defaultSort('sort')
             ->columns([
-                TextColumn::make('order')
-                    ->label('#')
-                    ->sortable(),
+                // TextColumn::make('sort')
+                //     ->label('#')
+                //     ->sortable(),
 
                 TextColumn::make('name')
                     ->label(__('dashboard.name'))
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('type')
-                    ->label(__('dashboard.type'))
+                TextColumn::make('module')
+                    ->label(__('dashboard.module'))
                     ->badge()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => __("dashboard.$state"))
-                    ->color(fn ($state) => $state === 'commission' ? 'success' : 'info'),
+                    ->state(fn (Package $record) => $record->is_full_package
+                        ? __('dashboard.full_package')
+                        : ($record->module ? __('modules.'.$record->module) : null))
+                    ->color(fn (Package $record) => $record->is_full_package ? 'success' : 'info'),
 
-                TextColumn::make('price')
-                    ->label(__('dashboard.price'))
-                    ->money(fn ($record) => $record->currency?->code ?? 'SAR')
+                TextColumn::make('trials_duration')
+                    ->label(__('dashboard.trials_duration'))
                     ->sortable(),
 
-                TextColumn::make('commission_per_order')
-                    ->label(__('dashboard.commission_per_order'))
-                    ->money(fn ($record) => $record->currency?->code ?? 'SAR')
-                    ->sortable()
-                    ->toggleable(),
-
-                TextColumn::make('subscription_period')
-                    ->label(__('dashboard.subscription_period'))
-                    ->badge()
-                    ->sortable()
-                    ->toggleable()
-                    ->formatStateUsing(fn ($state) => __("dashboard.$state"))
-                    ->color(fn ($state) => $state === 'monthly' ? 'warning' : 'info'),
-
-                TextColumn::make('features_count')
-                    ->label(__('dashboard.features'))
-                    ->counts('features')
-                    ->sortable(),
+                // TextColumn::make('prices_count')
+                //     ->label(__('dashboard.package_prices'))
+                //     ->counts('prices')
+                //     ->sortable(),
 
                 ToggleColumn::make('is_active')
                     ->label(__('dashboard.active')),
@@ -68,11 +56,13 @@ class PlansTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('type')
-                    ->label(__('dashboard.type'))
+                SelectFilter::make('module')
+                    ->label(__('dashboard.module'))
                     ->options([
-                        'commission' => __('dashboard.commission'),
-                        'subscription' => __('dashboard.subscription'),
+                        'store' => __('modules.store'),
+                        'pos' => __('modules.pos'),
+                        'crm' => __('modules.crm'),
+                        'accounting' => __('modules.accounting'),
                     ]),
 
                 SelectFilter::make('is_active')

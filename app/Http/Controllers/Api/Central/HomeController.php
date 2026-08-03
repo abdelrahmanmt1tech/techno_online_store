@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Api\Central;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Central\CategoryResource;
 use App\Http\Resources\Central\FaqResource;
-use App\Http\Resources\Central\PlanResource;
+use App\Http\Resources\Central\PackageResource;
 use App\Http\Resources\Central\ThemeResource;
 use App\Models\Category;
 use App\Models\Faq;
-use App\Models\Plan;
+use App\Models\Package;
 use App\Models\Setting;
 use App\Models\Theme;
 use App\Traits\ApiResponse;
@@ -151,10 +151,10 @@ class HomeController extends Controller
             return $data();
         };
 
-        $plans = PlanResource::collection(
-            Plan::where('is_active', true)
-                ->orderBy('order')
-                ->with(['features', 'currency'])
+        $packages = PackageResource::collection(
+            Package::where('is_active', true)
+                ->orderBy('sort')
+                ->with(['prices.country', 'prices.currency'])
                 ->get()
         );
 
@@ -203,7 +203,7 @@ class HomeController extends Controller
             'plans' => [
                 'title' => $getLocaleValue('plans_title'),
                 'description' => $getLocaleValue('plans_description'),
-                'items' => $plans,
+                'items' => $packages,
             ],
             'payment_gateways' => $whenActive('payment_gateways_section_active', fn () => [
                 'small_title' => $getLocaleValue('payment_gateways_small_title'),

@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Api\Front;
 
+use App\Models\Country;
+use App\Models\Currency;
 use App\Models\Faq;
-use App\Models\Plan;
-use App\Models\PlanFeature;
+use App\Models\Package;
+use App\Models\PackagePrice;
 use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -157,39 +159,77 @@ class HomeControllerTest extends TestCase
         $response->assertJsonPath('data.statistics.items.0.value', 150);
     }
 
-    public function test_it_returns_only_active_plans_with_features(): void
+    public function test_it_returns_only_active_packages_with_prices(): void
     {
         app()->setLocale('en');
 
         Setting::create(['key' => 'intro_section_active', 'value' => '1']);
 
-        $activePlan = Plan::factory()->create(['order' => 1]);
-        PlanFeature::factory()->for($activePlan)->create([
-            'name' => ['en' => 'Feature A', 'ar' => 'ميزة أ'],
-            'order' => 1,
-        ]);
-        PlanFeature::factory()->for($activePlan)->create([
-            'name' => ['en' => 'Feature B', 'ar' => 'ميزة ب'],
-            'order' => 2,
+        $country = Country::create([
+            'name' => ['ar' => 'السعودية', 'en' => 'Saudi Arabia'],
+            'country_code' => 'SA',
+            'currency_code' => 'SAR',
+            'is_active' => true,
+            'sort_order' => 1,
         ]);
 
-        Plan::factory()->inactive()->create(['order' => 2]);
+        $currency = Currency::create([
+            'name' => ['ar' => 'ريال', 'en' => 'Saudi Riyal'],
+            'code' => 'SAR',
+            'symbol' => 'SAR',
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
 
-        $activePlan2 = Plan::factory()->create(['order' => 0, 'is_active' => true]);
-        PlanFeature::factory()->for($activePlan2)->create([
-            'name' => ['en' => 'Feature C', 'ar' => 'ميزة ج'],
-            'order' => 1,
+        $activePackage = Package::create([
+            'module' => 'store',
+            'is_full_package' => false,
+            'name' => ['ar' => 'باقة المتجر', 'en' => 'Store Package'],
+            'trials_duration' => 0,
+            'sort' => 1,
+            'is_active' => true,
+        ]);
+        PackagePrice::create([
+            'package_id' => $activePackage->id,
+            'country_id' => $country->id,
+            'currency_id' => $currency->id,
+            'price' => 99.99,
+            'duration' => 1,
+            'duration_type' => 'month',
+        ]);
+
+        Package::create([
+            'module' => 'pos',
+            'is_full_package' => false,
+            'name' => ['ar' => 'باقة نقاط البيع', 'en' => 'POS Package'],
+            'trials_duration' => 0,
+            'sort' => 2,
+            'is_active' => false,
+        ]);
+
+        $activePackage2 = Package::create([
+            'module' => null,
+            'is_full_package' => true,
+            'name' => ['ar' => 'الباقة الشاملة', 'en' => 'Full Package'],
+            'trials_duration' => 7,
+            'sort' => 0,
+            'is_active' => true,
         ]);
 
         $response = $this->getJson('/api/home');
 
         $response->assertOk();
-        $plans = $response->json('data.plans.items');
-        $this->assertCount(2, $plans);
-        $this->assertEquals($activePlan2->id, $plans[0]['id']);
-        $this->assertEquals($activePlan->id, $plans[1]['id']);
-        $this->assertCount(2, $plans[1]['features']);
-        $this->assertEquals('Feature A', $plans[1]['features'][0]['name']);
+        $packages = $response->json('data.plans.items');
+        $this->assertCount(2, $packages);
+        $this->assertEquals($activePackage2->id, $packages[0]['id']);
+        $this->assertTrue($packages[0]['is_full_package']);
+        $this->assertEquals($activePackage->id, $packages[1]['id']);
+        $this->assertEquals('store', $packages[1]['module']);
+        $this->assertCount(1, $packages[1]['prices']);
+        $this->assertEquals(99.99, $packages[1]['prices'][0]['price']);
+        $this->assertEquals('SAR', $packages[1]['prices'][0]['currency_code']);
+        $this->assertEquals(1, $packages[1]['prices'][0]['duration']);
+        $this->assertEquals('month', $packages[1]['prices'][0]['duration_type']);
     }
 
     public function test_it_returns_only_active_faqs_without_faqable(): void
@@ -198,7 +238,7 @@ class HomeControllerTest extends TestCase
 
         $faq1 = Faq::factory()->create(['order' => 1]);
         Faq::factory()->inactive()->create(['order' => 2]);
-        Faq::factory()->forModel('App\Models\Plan', 1)->create(['order' => 3]);
+        Faq::factory()->forModel('App\Models\Package', 1)->create(['order' => 3]);
 
         $response = $this->getJson('/api/home');
 

@@ -5,9 +5,10 @@ namespace Database\Seeders;
 use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\Category;
+use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Faq;
-use App\Models\Plan;
+use App\Models\Package;
 use App\Models\Setting;
 use App\Models\Tag;
 use App\Models\Theme;
@@ -17,7 +18,7 @@ class HomePageDataSeeder extends Seeder
 {
     public function run(): void
     {
-        if (Plan::exists()) {
+        if (Package::exists()) {
             return;
         }
 
@@ -210,68 +211,112 @@ class HomePageDataSeeder extends Seeder
             }
         }
 
-        // ── Plans with features ──
+        // ── Packages with prices ──
 
-        $sarCurrencyId = optional(Currency::where('code', 'SAR')->first())->id;
+        $sarCountry = Country::where('country_code', 'SA')->first()
+            ?? Country::where('is_active', true)->orderBy('sort_order')->first();
+        $egpCountry = Country::where('country_code', 'EG')->first()
+            ?? $sarCountry;
 
-        $basic = Plan::create([
-            'name' => ['ar' => 'خطة أساسية', 'en' => 'Basic Plan'],
-            'title' => ['ar' => 'الخطة الأساسية', 'en' => 'Basic Plan'],
-            'description' => ['ar' => 'انطلق مع متجرك الإلكتروني بأقل التكاليف', 'en' => 'Launch your online store with minimal costs'],
-            'type' => 'subscription',
-            'price' => 99,
-            'currency_id' => $sarCurrencyId,
-            'subscription_period' => 'monthly',
-            'is_active' => true,
-            'order' => 1,
-        ]);
+        $sarCurrency = Currency::where('code', 'SAR')->first()
+            ?? Currency::where('is_active', true)->orderBy('sort_order')->first();
+        $egpCurrency = Currency::where('code', 'EGP')->first()
+            ?? $sarCurrency;
 
-        $basic->features()->createMany([
-            ['name' => ['ar' => 'منتجات غير محدودة', 'en' => 'Unlimited Products'], 'is_active' => true, 'order' => 1],
-            ['name' => ['ar' => 'استضافة مجانية', 'en' => 'Free Hosting'], 'is_active' => true, 'order' => 2],
-            ['name' => ['ar' => 'دعم فني', 'en' => 'Technical Support'], 'is_active' => true, 'order' => 3],
-            ['name' => ['ar' => 'تقارير أساسية', 'en' => 'Basic Reports'], 'is_active' => true, 'order' => 4],
-        ]);
+        if (! $sarCountry || ! $sarCurrency) {
+            return;
+        }
 
-        $pro = Plan::create([
-            'name' => ['ar' => 'خطة احترافية', 'en' => 'Pro Plan'],
-            'title' => ['ar' => 'الخطة الاحترافية', 'en' => 'Pro Plan'],
-            'description' => ['ar' => 'لمتجر متكامل مع مميزات متقدمة', 'en' => 'For a full-featured store with advanced features'],
-            'type' => 'subscription',
-            'price' => 199,
-            'currency_id' => $sarCurrencyId,
-            'subscription_period' => 'monthly',
-            'is_active' => true,
-            'order' => 2,
-        ]);
+        $packageSpecs = [
+            [
+                'name' => ['ar' => 'باقة المتجر', 'en' => 'Store Package'],
+                'desc' => ['ar' => 'متجر إلكتروني متكامل مع كل أساسيات التجارة', 'en' => 'Full online store with all commerce essentials'],
+                'module' => 'store',
+                'sort' => 1,
+                'trials_duration' => 7,
+                'prices' => [
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 99, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 990, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 499, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 4990, 'duration' => 1, 'duration_type' => 'year'],
+                ],
+            ],
+            [
+                'name' => ['ar' => 'باقة نقاط البيع', 'en' => 'POS Package'],
+                'desc' => ['ar' => 'نظام نقاط بيع مع سحوبات وكاشير وصرف', 'en' => 'Point of sale with cash drawers, sessions and payouts'],
+                'module' => 'pos',
+                'sort' => 2,
+                'trials_duration' => 7,
+                'prices' => [
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 49, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 490, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 249, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 2490, 'duration' => 1, 'duration_type' => 'year'],
+                ],
+            ],
+            [
+                'name' => ['ar' => 'باقة إدارة العملاء', 'en' => 'CRM Package'],
+                'desc' => ['ar' => 'عملاء، مصادر عملاء، وموردون', 'en' => 'Clients, lead sources and suppliers'],
+                'module' => 'crm',
+                'sort' => 3,
+                'trials_duration' => 7,
+                'prices' => [
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 79, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 790, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 399, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 3990, 'duration' => 1, 'duration_type' => 'year'],
+                ],
+            ],
+            [
+                'name' => ['ar' => 'باقة المحاسبة', 'en' => 'Accounting Package'],
+                'desc' => ['ar' => 'محاسبة القيد المزدوج مع الترحيل التلقائي', 'en' => 'Double-entry accounting with auto journal posting'],
+                'module' => 'accounting',
+                'sort' => 4,
+                'trials_duration' => 7,
+                'prices' => [
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 129, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 1290, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 649, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 6490, 'duration' => 1, 'duration_type' => 'year'],
+                ],
+            ],
+            [
+                'name' => ['ar' => 'الباقة الشاملة', 'en' => 'Full Package'],
+                'desc' => ['ar' => 'كل الوحدات: المتجر، نقاط البيع، إدارة العملاء، والمحاسبة', 'en' => 'All modules: store, POS, CRM and accounting'],
+                'module' => null,
+                'is_full_package' => true,
+                'sort' => 5,
+                'trials_duration' => 14,
+                'prices' => [
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 299, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 2990, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 1499, 'duration' => 1, 'duration_type' => 'month'],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 14990, 'duration' => 1, 'duration_type' => 'year'],
+                ],
+            ],
+        ];
 
-        $pro->features()->createMany([
-            ['name' => ['ar' => 'جميع مميزات الخطة الأساسية', 'en' => 'All Basic Plan Features'], 'is_active' => true, 'order' => 1],
-            ['name' => ['ar' => 'استخدام API', 'en' => 'API Access'], 'is_active' => true, 'order' => 2],
-            ['name' => ['ar' => 'تقارير متقدمة', 'en' => 'Advanced Reports'], 'is_active' => true, 'order' => 3],
-            ['name' => ['ar' => 'نطاق مخصص', 'en' => 'Custom Domain'], 'is_active' => true, 'order' => 4],
-            ['name' => ['ar' => 'أولوية الدعم الفني', 'en' => 'Priority Support'], 'is_active' => true, 'order' => 5],
-        ]);
+        foreach ($packageSpecs as $spec) {
+            $package = Package::create([
+                'module' => $spec['module'] ?? null,
+                'is_full_package' => $spec['is_full_package'] ?? false,
+                'name' => $spec['name'],
+                'desc' => $spec['desc'] ?? null,
+                'trials_duration' => $spec['trials_duration'] ?? 7,
+                'sort' => $spec['sort'] ?? 0,
+                'is_active' => true,
+            ]);
 
-        $enterprise = Plan::create([
-            'name' => ['ar' => 'خطة مؤسسات', 'en' => 'Enterprise Plan'],
-            'title' => ['ar' => 'خطة المؤسسات', 'en' => 'Enterprise Plan'],
-            'description' => ['ar' => 'للشركات الكبيرة التي تحتاج حلول متكاملة', 'en' => 'For large companies needing comprehensive solutions'],
-            'type' => 'subscription',
-            'price' => 499,
-            'currency_id' => $sarCurrencyId,
-            'subscription_period' => 'monthly',
-            'is_active' => true,
-            'order' => 3,
-        ]);
-
-        $enterprise->features()->createMany([
-            ['name' => ['ar' => 'جميع مميزات الخطة الاحترافية', 'en' => 'All Pro Plan Features'], 'is_active' => true, 'order' => 1],
-            ['name' => ['ar' => 'دعم أولويات مخصصة', 'en' => 'Dedicated Priority Support'], 'is_active' => true, 'order' => 2],
-            ['name' => ['ar' => 'استشارات تقنية', 'en' => 'Technical Consulting'], 'is_active' => true, 'order' => 3],
-            ['name' => ['ar' => 'تدريب فريق', 'en' => 'Team Training'], 'is_active' => true, 'order' => 4],
-            ['name' => ['ar' => 'SLA 99.9%', 'en' => '99.9% SLA'], 'is_active' => true, 'order' => 5],
-        ]);
+            foreach ($spec['prices'] as $p) {
+                $package->prices()->create([
+                    'country_id' => $p['country']->id,
+                    'currency_id' => $p['currency']->id,
+                    'price' => $p['price'],
+                    'duration' => $p['duration'],
+                    'duration_type' => $p['duration_type'],
+                ]);
+            }
+        }
 
         // ── FAQ (general, not attached to any model) ──
 

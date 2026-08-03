@@ -1,7 +1,7 @@
 # Tenant modules (per-module subscription)
 
-**Status:** reference stub — billing not wired yet  
-**Decision date:** 2026-08-02
+**Status:** wired to `packages` gating (initial billing wiring)  
+**Decision date:** 2026-08-02 / 2026-08-03
 
 ## Product decision
 
@@ -13,7 +13,7 @@
   - `crm` — إدارة العملاء
   - `accounting` — المحاسبة
 
-Central `Plan` / `TenantSubscription` UI may still exist historically; **do not** use them for feature gating going forward. All availability checks go through the shared gate below.
+Central `Plan` / `TenantSubscription` UI was removed with the `packages` migration; **do not** reintroduce them for feature gating. All availability checks go through the shared gate below.
 
 ## Shared gate (the only place to change later)
 
@@ -31,9 +31,15 @@ TenantModuleGate::accountingActive();         // alias helper: tenant_accounting
 
 ### Current behaviour
 
-`TenantModuleGate::resolve()` **always returns `true`** for every module until real per-module subscription lookup is implemented.
+Modules are granted from the current tenant's **active `tenant_packages`** rows:
 
-**Stop / resume point:** when billing is ready, edit **only** `TenantModuleGate::resolve()` (and optionally cache). Do not invent parallel checks in Filament `canAccess()`, Actions, or nav.
+- A package with `is_full_package = true` grants **all** modules.
+- A partial package (`module = store|pos|crm|accounting`) grants **its single** module.
+- A package counts as active when `status` is `trial`/`active` **and** `expires_at` is in the future (trial counts because `expires_at` is computed after the trial).
+- No active package → **no modules** (strict gating).
+- `config('app.bypass_permissions')` (true outside production) opens every module for development.
+
+The lookup lives in `TenantModuleGate::resolve()` / `enabledModulesForCurrentTenant()` — do not invent parallel checks in Filament `canAccess()`, Actions, or nav.
 
 ## Automatic journal posting
 
@@ -59,8 +65,12 @@ if (! tenant_accounting_active()) {
 | Accounting nav + period close | `tenant_module_enabled('accounting')` |
 | `PostSalesInvoiceToJournalService` etc. | `tenant_accounting_active()` at the top |
 
-Do **not** mass-wire these yet unless a wave explicitly asks — the stub returning `true` is enough as the reference hook.
+Do **not** mass-wire these yet unless a wave explicitly asks — the package wiring is the reference hook and existing callers already use the helpers.
 
 ## Wave 2 implication
 
 Wave 2 auto-post services must call `tenant_accounting_active()` before writing journals. CRM↔commerce bridge features should check both source modules when relevant (e.g. CRM + Store).
+
+## Data model
+
+See `docs/subscriptions-packages-plan.md` for the `packages` / `prices` / `tenant_packages` tables, the Filament `Packages` resource, and the `/api/home` `packages` response.

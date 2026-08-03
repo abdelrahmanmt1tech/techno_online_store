@@ -44,7 +44,7 @@
 
 ### Routes
 
-- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `POST tenants`.
+- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `GET packages` (active packages + prices; `?country_id=` filters prices), `POST tenants` (accepts `package_ids[]` for multiple packages; legacy `package_id` still supported).
 - **Tenant API** (`routes/tenant.php`): Auth (register/verify/login/logout/forgot-password), products, categories, governorates, contacts, cart CRUD, coupon apply, checkout (OTP flow), orders, favorites, profile, reviews, home, pages. **Do not register `GET /` here** — it overwrites the central landing and `PreventAccessFromCentralDomains` returns 404 on central domains.
 - **Public web** (`routes/web.php`): Landing (`/` + `/platform`), legal pages, WhatsApp/Messenger webhooks, tenant login, forgot-password OTP flow, WhatsApp/Messenger onboarding (central domain middleware).
 - **GitHub Actions** (no test CI): `deploy.yml` runs on `dev` push, `deploy-production.yml` on `main` push / `workflow_dispatch`. Both SSH into the server and deploy there. No tests run in CI.
@@ -53,9 +53,9 @@
 
 Admin resources under `app/Filament/Resources/`, tenant under `app/Filament/Tenant/Resources/`. Each has `Pages/`, `Schemas/`, `Tables/` subdirectories.
 
-- **Admin resources** (17): Admins, Roles, Tenants, Plans, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
+- **Admin resources** (16): Admins, Roles, Tenants, Packages, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
 - **Admin pages** (18): 13 settings pages (General, About, AiServices, Code, ContactUs, Footer, HaveQuestion, Intro, MarketingChannels, PaymentGateways, ShippingCompanies, Statistics, TrainingSupport) + MessagingHealthDashboard, MetaIntegrationsReset, WhatsAppInboxPage, WhatsAppTemplatesPage, MessengerInboxPage
-- **Admin widgets**: AdminKpis, TenantsTrend, TenantSubscriptionStatusPie, WhatsAppStatusPie, MessengerStatusPie, WebhookEventsTrend
+- **Admin widgets**: AdminKpis, TenantsTrend, WhatsAppStatusPie, MessengerStatusPie, WebhookEventsTrend
 - **Tenant resources** (57 dirs): store (Categories, Products, Brands, Reviews, Coupons, Customers, Contacts, Governorates, Orders, Pages, TenantUsers, Roles) — messaging (WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, WhatsAppContacts, MessengerPages, MessengerWebhookEvents, MessengerApiRequests) — ERP (Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, InvoicePayments, InvoicePrintSettings, StockTransactions/{Receipt,Issue,Transfer,Adjustment,Damage}, StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns) — POS (PosRegisters, PosSettings, PosPaymentMethods, CashDrawers, CashierSessions, CashMovements) — HR (HrEmployees, HrDepartments, HrJobTitles, HrAttendanceSchedules, HrAttendanceRecords, HrAttendanceLocations, HrPayrollPeriods, HrSettings) — CRM/accounting (Clients, LeadSources, AccountTrees, AccountsCenterResource, FinancialPeriods, Operations)
 - **Tenant pages** (13): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage, HomeSectionBuilder, BrowseThemesPage, Dashboard, GeneralSettings, FooterSettings, ContactUsSettings, CodeSettings, HrAttendanceSummaryPage, HrPayrollSummaryPage
 - **Tenant widgets**: StoreKpis, OrdersTrend, OrderStatusPie + Dashboard Lite (sales/POS/inventory/HR stats, sales chart, short lists) — see [`docs/dashboard-lite.md`](docs/dashboard-lite.md)

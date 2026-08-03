@@ -40,11 +40,13 @@ class StoreTenantRequest extends FormRequest
             'country_id' => 'nullable|exists:countries,id',
             'currency_id' => 'nullable|exists:currencies,id',
 
-            'plan_id' => 'nullable|exists:plans,id',
+            'package_id' => 'nullable|exists:packages,id',
+            'package_ids' => 'nullable|array',
+            'package_ids.*' => 'exists:packages,id',
             'price' => 'nullable|numeric|min:0',
-            'currency' => 'nullable|string|size:3',
+            'duration' => 'nullable|integer|min:1',
+            'duration_type' => 'nullable|in:day,month,year',
             'started_at' => 'nullable|date',
-            'expires_at' => 'nullable|date|after_or_equal:started_at',
         ];
     }
 }
