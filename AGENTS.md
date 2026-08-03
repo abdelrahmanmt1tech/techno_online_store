@@ -20,8 +20,11 @@
 | `php artisan db:seed --class=AdminSeeder` | Super admin (`admin@gmail.com` / `password`) + syncs permissions |
 | `php artisan db:seed --class=HomePageDataSeeder` | Settings, plans, FAQs, categories, themes, blog data |
 | `php artisan tenants:sync-permissions` | Sync permissions to all tenant DBs (`--migrate` also runs tenant migrations) |
+| `php artisan tenants:sync-credentials` | Push `email`/`password` from `TenantUser` to tenant-db `users` |
 | `php artisan hr:mark-absent` | Mark employees absent after schedule end (hourly via scheduler) |
+| `php artisan whatsapp:onboarding-sessions:cleanup` | Expire stale WhatsApp onboarding sessions |
 | `php artisan test --filter=Erp` | Run only ERP tests |
+| `php artisan test --filter=CommerceAndSale` | Run ERP↔commerce stock-isolation test |
 
 ## Architecture
 
@@ -53,7 +56,7 @@ Admin resources under `app/Filament/Resources/`, tenant under `app/Filament/Tena
 - **Admin resources** (17): Admins, Roles, Tenants, Plans, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
 - **Admin pages** (18): 13 settings pages (General, About, AiServices, Code, ContactUs, Footer, HaveQuestion, Intro, MarketingChannels, PaymentGateways, ShippingCompanies, Statistics, TrainingSupport) + MessagingHealthDashboard, MetaIntegrationsReset, WhatsAppInboxPage, WhatsAppTemplatesPage, MessengerInboxPage
 - **Admin widgets**: AdminKpis, TenantsTrend, TenantSubscriptionStatusPie, WhatsAppStatusPie, MessengerStatusPie, WebhookEventsTrend
-- **Tenant resources** (51 dirs): store (Categories, Products, Brands, Reviews, Coupons, Customers, Contacts, Governorates, Orders, Pages, TenantUsers, Roles) — messaging (WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, WhatsAppContacts, MessengerPages, MessengerWebhookEvents, MessengerApiRequests) — ERP (Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, InvoicePayments, InvoicePrintSettings, StockTransactions/{Receipt,Issue,Transfer,Adjustment,Damage}, StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns) — POS (PosRegisters, PosSettings, PosPaymentMethods, CashDrawers, CashierSessions, CashMovements) — HR (HrEmployees, HrDepartments, HrJobTitles, HrAttendanceSchedules, HrAttendanceRecords, HrAttendanceLocations, HrPayrollPeriods, HrSettings)
+- **Tenant resources** (57 dirs): store (Categories, Products, Brands, Reviews, Coupons, Customers, Contacts, Governorates, Orders, Pages, TenantUsers, Roles) — messaging (WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, WhatsAppContacts, MessengerPages, MessengerWebhookEvents, MessengerApiRequests) — ERP (Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, InvoicePayments, InvoicePrintSettings, StockTransactions/{Receipt,Issue,Transfer,Adjustment,Damage}, StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns) — POS (PosRegisters, PosSettings, PosPaymentMethods, CashDrawers, CashierSessions, CashMovements) — HR (HrEmployees, HrDepartments, HrJobTitles, HrAttendanceSchedules, HrAttendanceRecords, HrAttendanceLocations, HrPayrollPeriods, HrSettings) — CRM/accounting (Clients, LeadSources, AccountTrees, AccountsCenterResource, FinancialPeriods, Operations)
 - **Tenant pages** (13): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage, HomeSectionBuilder, BrowseThemesPage, Dashboard, GeneralSettings, FooterSettings, ContactUsSettings, CodeSettings, HrAttendanceSummaryPage, HrPayrollSummaryPage
 - **Tenant widgets**: StoreKpis, OrdersTrend, OrderStatusPie + Dashboard Lite (sales/POS/inventory/HR stats, sales chart, short lists) — see [`docs/dashboard-lite.md`](docs/dashboard-lite.md)
 - **Shared components**: `app/Filament/Shared/` (WhatsApp/, Messenger/, SeoFormSection.php, SeoFormOnelanguageSection.php)
@@ -77,7 +80,7 @@ FIFO inventory + purchases/sales/invoices in **tenant DB only**. Docs: [`docs/er
 
 ## Permissions
 
-Defined in `app/Helper/PermissionsArray.php` (admin) and `app/Helper/TenantPermissionsArray.php` (tenant). Auto-loaded via `composer.json` `files` array (also loads `app/Helper/SeoHelper.php`). Keys follow `{group}.{action}` (e.g., `tenants.view`).
+Defined in `app/Helper/PermissionsArray.php` (admin) and `app/Helper/TenantPermissionsArray.php` (tenant). Auto-loaded via `composer.json` `files` array (also loads `app/Helper/SeoHelper.php` and `app/Helper/TenantModuleHelper.php`). Keys follow `{group}.{action}` (e.g., `tenants.view`).
 
 - **Dev bypass**: `BYPASS_PERMISSIONS=true` (default when `APP_ENV !== 'production'`) bypasses all `Gate`/`can()` checks. Do **not** add new permission keys or `can*()` checks until pre-production.
 - **Meta Integration Reset**: Gated by `config('meta.integration_reset_enabled')` (env `META_INTEGRATION_RESET_ENABLED`). Any new Meta integration table must register in `MetaIntegrationResetRegistry`; update [`docs/meta-integrations-reset.md`](docs/meta-integrations-reset.md) accordingly.
