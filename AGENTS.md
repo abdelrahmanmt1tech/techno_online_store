@@ -127,6 +127,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 | [`docs/pos-interface.md`](docs/pos-interface.md) | POS Blade + Vue terminal, routes, checkout/suspend/close flows |
 | [`docs/hr-lite.md`](docs/hr-lite.md) | HR Lite: employees, attendance geofence, simple payroll |
 | [`docs/dashboard-lite.md`](docs/dashboard-lite.md) | Tenant Dashboard Lite metrics and permissions |
+| [`docs/tenant-navigation-sidebar.md`](docs/tenant-navigation-sidebar.md) | Central Tenant sidebar ordering, grouping, and collapsed-navigation behavior |
 | [`docs/erp-core-architecture.md`](docs/erp-core-architecture.md) | FIFO inventory, purchases/sales/invoices; commerce↔ERP rules |
 | [`docs/erp-invoice-printing.md`](docs/erp-invoice-printing.md) | Browser print-ready invoices, settings singleton, snapshots |
 | [`docs/whatsapp-messaging-module.md`](docs/whatsapp-messaging-module.md) | WhatsApp Cloud API module |

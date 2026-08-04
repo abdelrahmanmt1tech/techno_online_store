@@ -141,7 +141,6 @@ class TenantNavigationBuilder
 
             $groups[] = NavigationGroup::make()
                 ->label($this->groupLabel($groupKey))
-                ->icon($this->groupIcon($groupKey))
                 ->collapsed()
                 ->items($items);
         }
@@ -362,19 +361,5 @@ class TenantNavigationBuilder
     private function groupLabel(string $groupKey): string
     {
         return __('tenant_navigation.groups.' . $groupKey);
-    }
-
-    private function groupIcon(string $groupKey): string
-    {
-        return match ($groupKey) {
-            'sales_pos' => 'heroicon-o-calculator',
-            'purchases_suppliers' => 'heroicon-o-truck',
-            'inventory_management' => 'heroicon-o-archive-box',
-            'finance_accounting' => 'heroicon-o-banknotes',
-            'crm_marketing' => 'heroicon-o-users',
-            'ecommerce_website' => 'heroicon-o-shopping-bag',
-            'human_resources' => 'heroicon-o-briefcase',
-            'settings_admin' => 'heroicon-o-cog-6-tooth',
-        };
     }
 }
