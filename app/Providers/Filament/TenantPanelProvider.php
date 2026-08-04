@@ -133,6 +133,12 @@ class TenantPanelProvider extends PanelProvider
                     'hr/payroll-employees/{payrollEmployee}/slip',
                     SalarySlipPrintController::class,
                 )->name('hr.payroll.slip');
-            });
+            })
+
+            ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('20rem')
+        
+
+            ;
     }
 }
