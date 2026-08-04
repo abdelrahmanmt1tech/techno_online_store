@@ -469,9 +469,6 @@ BUTTON TEXT COLOR FIX
     color: var(--gray-400, #9ca3af);
 }
 
-.fi-sidebar-item-label {
-    font-size: 12px;
-}
 
 
 :root svg.fi-sidebar-item-icon {
@@ -719,4 +716,6 @@ BUTTON TEXT COLOR FIX
 [dir="rtl"] .subscriptions-table th {
     text-align: right;
 }
+.fi-sidebar-item-label {
+    font-size: 12px;
 }
