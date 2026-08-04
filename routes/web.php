@@ -84,7 +84,7 @@ Route::prefix('messenger/onboarding')
  });
 
  Route::get('/seed-packages', function () {
-    Artisan::call('db:seed', ['--class' => 'PackagesSeeder', '--force' => true]);
+    Artisan::call('migrate', ['--force' => true]);
 
     return nl2br(Artisan::output());
  });
