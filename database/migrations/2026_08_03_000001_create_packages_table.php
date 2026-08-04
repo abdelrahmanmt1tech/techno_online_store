@@ -15,7 +15,7 @@ return new class extends Migration
             $table->boolean('is_full_package')->default(false);
             $table->json('name');
             $table->json('desc')->nullable();
-            $table->unsignedInteger('trials_duration')->default(0);
+            $table->unsignedInteger('trials_duration')->default(14);
             $table->unsignedInteger('sort')->default(0);
             $table->boolean('is_active')->default(true);
 

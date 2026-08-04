@@ -15,16 +15,13 @@ return new class extends Migration
             $table->foreignId('country_id')->constrained()->cascadeOnDelete();
             $table->foreignId('currency_id')->constrained()->cascadeOnDelete();
 
-            $table->decimal('price', 12, 2)->default(0);
-            $table->unsignedInteger('duration');
-            $table->enum('duration_type', ['day', 'month', 'year']);
+            $table->decimal('price_monthly', 12, 2)->default(0);
+            $table->decimal('price_yearly', 12, 2)->default(0);
+            $table->boolean('is_default')->default(false);
 
             $table->timestamps();
 
-            $table->unique(
-                ['package_id', 'country_id', 'currency_id', 'duration', 'duration_type'],
-                'prices_unique'
-            );
+            $table->unique(['package_id', 'country_id', 'currency_id'], 'prices_unique');
         });
     }
 
