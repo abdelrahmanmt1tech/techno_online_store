@@ -50,6 +50,7 @@ font-size: 0.75rem;
 letter-spacing: 1px;
 text-transform: uppercase;
 }
+/* Groups */
 
 /* =========================
 DARK MODE
@@ -468,6 +469,21 @@ BUTTON TEXT COLOR FIX
     color: var(--gray-400, #9ca3af);
 }
 
+.fi-sidebar-item-label {
+    font-size: 12px;
+}
+
+
+:root svg.fi-sidebar-item-icon {
+    height: 16px;
+    width: 16px;
+}
+
+
+:root{
+    --spacing: .20rem;
+}
+
 /* ========== My Subscriptions ========== */
 
 .subscriptions-page {
@@ -702,4 +718,5 @@ BUTTON TEXT COLOR FIX
 
 [dir="rtl"] .subscriptions-table th {
     text-align: right;
+}
 }
