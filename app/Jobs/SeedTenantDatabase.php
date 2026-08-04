@@ -41,7 +41,7 @@ class SeedTenantDatabase
             $role = setupStoreAdminRole();
             $user->assignRole($role);
 
-            (new TenantDataSeeder)->run();
+            // (new TenantDataSeeder)->run();
         });
 
         if ($email) {
