@@ -14,7 +14,7 @@ class PackagePriceResource extends JsonResource
         return [
             'id' => $this->id,
             'country_id' => $this->country_id,
-            'country_name' => $this->country?->getTranslation('name', $locale),
+            'country_name' => $this->country?->name,
             'currency_id' => $this->currency_id,
             'currency_code' => $this->currency?->code,
             'currency_symbol' => $this->currency?->symbol,

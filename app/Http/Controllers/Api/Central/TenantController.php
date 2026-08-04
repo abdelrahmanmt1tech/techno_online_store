@@ -25,11 +25,16 @@ class TenantController extends Controller
         $startedAt = isset($data['started_at']) ? Carbon::parse($data['started_at']) : now();
         $centralDomain = parse_url(config('app.domain_url'), PHP_URL_HOST) ?? 'localhost';
 
+        $period = $data['period'];
+        $isYearly = $period === 'yearly';
+        $durationType = $isYearly ? 'year' : 'month';
+
         $tenant = Tenant::create(Arr::except($data, [
             'subdomain',
             'password',
             'password_confirmation',
             'started_at',
+            'period',
             'packages',
         ]));
 
@@ -45,12 +50,11 @@ class TenantController extends Controller
                 ? $startedAt->copy()->addDays($package->trials_duration)
                 : null;
 
-            $period = $item['period'] ?? 'monthly';
-            $durationType = $period === 'yearly' ? 'year' : 'month';
+            $amount = $isYearly ? $price->price_yearly : $price->price_monthly;
 
             $tenant->packages()->create([
                 'package_id' => $package->id,
-                'price' => $period === 'yearly' ? $price->price_yearly : $price->price_monthly,
+                'price' => $amount,
                 'currency_id' => $price->currency_id,
                 'duration' => 1,
                 'duration_type' => $durationType,

@@ -30,14 +30,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Test Store\",\n  \"email\": \"store@example.com\",\n  \"phone\": \"123456789\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"test-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"offline\",\n  \"terms_accepted\": 1,\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1,\n      \"period\": \"monthly\"\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
+              "raw": "{\n  \"name\": \"Test Store\",\n  \"email\": \"store@example.com\",\n  \"phone\": \"123456789\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"test-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"offline\",\n  \"terms_accepted\": 1,\n  \"period\": \"monthly\",\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
             },
-            "description": "Each entry in `packages` selects a package, one of its prices (`price_id`), and a `period` (`monthly` or `yearly`). The chosen price + period drive price, currency, duration, duration type, and expiry. `price_id` must belong to its `package_id` (validated in `StoreTenantRequest`)."
+              "description": "`period` (`monthly` or `yearly`) is sent once at the top level and applies to all selected packages. Each entry in `packages` selects a package and one of its prices (`price_id`). The chosen period + price drive price, currency, duration, duration type, and expiry. `price_id` must belong to its `package_id` (validated in `StoreTenantRequest`). The response echoes each attached subscription with its resolved `period`, `price`, and dates."
           },
           "response": [
             {
               "name": "Success (201)",
-              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Test Store\",\n    \"email\": \"store@example.com\",\n    \"phone\": \"123456789\",\n    \"domain\": \"test-store.localhost\"\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Test Store\",\n    \"email\": \"store@example.com\",\n    \"phone\": \"123456789\",\n    \"domain\": \"test-store.localhost\",\n    \"packages\": [\n      {\n        \"package_id\": 1,\n        \"package_name\": \"Starter\",\n        \"period\": \"monthly\",\n        \"price\": \"49.00\",\n        \"currency_code\": \"USD\",\n        \"trial_ends_at\": \"2026-08-18T00:00:00.000000Z\",\n        \"expires_at\": \"2026-09-04T00:00:00.000000Z\"\n      }\n    ]\n  }\n}"
             }
           ]
         },
@@ -56,14 +56,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Multi Store\",\n  \"email\": \"multi@example.com\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"multi-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"online\",\n  \"terms_accepted\": 1,\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1,\n      \"period\": \"monthly\"\n    },\n    {\n      \"package_id\": 2,\n      \"price_id\": 4,\n      \"period\": \"yearly\"\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
+              "raw": "{\n  \"name\": \"Multi Store\",\n  \"email\": \"multi@example.com\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"multi-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"online\",\n  \"terms_accepted\": 1,\n  \"period\": \"yearly\",\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1\n    },\n    {\n      \"package_id\": 2,\n      \"price_id\": 4\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
             },
-            "description": "Attach several packages at once, each with its own selected price."
+            "description": "Attach several packages at once. A single top-level `period` (`yearly`) applies to every package, so all subscriptions resolve to their yearly price."
           },
           "response": [
             {
               "name": "Success (201)",
-              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"id\": 2,\n    \"name\": \"Multi Store\",\n    \"email\": \"multi@example.com\",\n    \"phone\": null,\n    \"domain\": \"multi-store.localhost\"\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"id\": 2,\n    \"name\": \"Multi Store\",\n    \"email\": \"multi@example.com\",\n    \"phone\": null,\n    \"domain\": \"multi-store.localhost\",\n    \"packages\": [\n      {\n        \"package_id\": 1,\n        \"package_name\": \"Starter\",\n        \"period\": \"yearly\",\n        \"price\": \"490.00\",\n        \"currency_code\": \"USD\",\n        \"trial_ends_at\": \"2026-08-18T00:00:00.000000Z\",\n        \"expires_at\": \"2027-08-04T00:00:00.000000Z\"\n      },\n      {\n        \"package_id\": 2,\n        \"package_name\": \"Pro\",\n        \"period\": \"yearly\",\n        \"price\": \"980.00\",\n        \"currency_code\": \"USD\",\n        \"trial_ends_at\": \"2026-08-18T00:00:00.000000Z\",\n        \"expires_at\": \"2027-08-04T00:00:00.000000Z\"\n      }\n    ]\n  }\n}"
             }
           ]
         },
@@ -84,12 +84,12 @@
               "mode": "raw",
               "raw": "{\n  \"name\": \"\",\n  \"email\": \"not-an-email\",\n  \"password\": \"123\",\n  \"password_confirmation\": \"456\",\n  \"subdomain\": \"INVALID_UPPERCASE\",\n  \"payment_method\": \"cash-on-delivery\",\n  \"terms_accepted\": \"maybe\",\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 999\n    }\n  ]\n}"
             },
-            "description": "Fails `StoreTenantRequest` rules. Notable rules: `packages` required (min 1), each `packages.*.package_id` must exist, each `packages.*.price_id` must exist and belong to its package (`dashboard.invalid_package_price`), `payment_method` must be `online` or `offline`, `terms_accepted` must be boolean (0/1), password min 8 + confirmed, subdomain lowercase alnum+dash unique per domain."
+            "description": "Fails `StoreTenantRequest` rules. Notable rules: `period` (top level) required and must be `monthly` or `yearly`, `packages` required (min 1), each `packages.*.package_id` must exist, each `packages.*.price_id` must exist and belong to its package (`dashboard.invalid_package_price`), `payment_method` must be `online` or `offline`, `terms_accepted` must be boolean (0/1), password min 8 + confirmed, subdomain lowercase alnum+dash unique per domain."
           },
           "response": [
             {
               "name": "Unprocessable Entity (422)",
-              "body": "{\n  \"message\": \"The given data was invalid.\",\n  \"errors\": {\n    \"name\": [\"The name field is required.\"],\n    \"email\": [\"The email field must be a valid email address.\"],\n    \"password\": [\"The password field must be at least 8 characters.\", \"The password field confirmation does not match.\"],\n    \"subdomain\": [\"The subdomain format is invalid.\"],\n    \"payment_method\": [\"The selected payment method is invalid.\"],\n    \"terms_accepted\": [\"The terms accepted field must be true or false.\"],\n    \"packages.0.price_id\": [\"The selected price does not belong to the selected package.\"]\n  }\n}"
+              "body": "{\n  \"message\": \"The given data was invalid.\",\n  \"errors\": {\n    \"name\": [\"The name field is required.\"],\n    \"email\": [\"The email field must be a valid email address.\"],\n    \"password\": [\"The password field must be at least 8 characters.\", \"The password field confirmation does not match.\"],\n    \"subdomain\": [\"The subdomain format is invalid.\"],\n    \"payment_method\": [\"The selected payment method is invalid.\"],\n    \"terms_accepted\": [\"The terms accepted field must be true or false.\"],\n    \"period\": [\"The period field is required.\"],\n    \"packages.0.price_id\": [\"The selected price does not belong to the selected package.\"]\n  }\n}"
             }
           ]
         }

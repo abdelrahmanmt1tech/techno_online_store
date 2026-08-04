@@ -4,6 +4,7 @@ namespace App\Http\Requests\Central;
 
 use App\Models\PackagePrice;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 use Stancl\Tenancy\Database\Models\Domain;
 
 class StoreTenantRequest extends FormRequest
@@ -44,29 +45,39 @@ class StoreTenantRequest extends FormRequest
             'payment_method' => 'required|string|in:online,offline',
             'terms_accepted' => 'required|boolean',
 
+            'period' => 'required|string|in:monthly,yearly',
+
             'packages' => 'required|array|min:1',
             'packages.*.package_id' => 'required|integer|exists:packages,id',
-            'packages.*.period' => 'required|string|in:monthly,yearly',
-            'packages.*.price_id' => [
-                'required',
-                'integer',
-                'exists:prices,id',
-                function (string $attribute, mixed $value, \Closure $fail): void {
-                    $index = (int) str_replace(['packages.', '.price_id'], '', $attribute);
-                    $packageId = $this->input("packages.{$index}.package_id");
-
-                    if (! $packageId) {
-                        return;
-                    }
-
-                    $price = PackagePrice::find($value);
-
-                    if (! $price || $price->package_id != $packageId) {
-                        $fail(__('dashboard.invalid_package_price'));
-                    }
-                },
-            ],
+            'packages.*.price_id' => 'required|integer|exists:prices,id',
             'started_at' => 'nullable|date',
         ];
+    }
+
+    /**
+     * Generalized cross-field check: every package's `price_id` must belong to
+     * its own `package_id`.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            foreach ($this->input('packages', []) as $index => $item) {
+                $priceId = $item['price_id'] ?? null;
+                $packageId = $item['package_id'] ?? null;
+
+                if (! $priceId || ! $packageId) {
+                    continue;
+                }
+
+                $price = PackagePrice::find($priceId);
+
+                if ($price && $price->package_id != $packageId) {
+                    $validator->errors()->add(
+                        "packages.{$index}.price_id",
+                        __('dashboard.invalid_package_price')
+                    );
+                }
+            }
+        });
     }
 }
