@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Tenants\RelationManagers;
 
 use App\Models\Currency;
 use App\Models\Package;
+use App\Models\PackagePrice;
 use Carbon\Carbon;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -48,10 +50,10 @@ class PackagesRelationManager extends RelationManager
                     ->schema([
                         Select::make('package_id')
                             ->label(__('dashboard.package'))
-                            ->options(fn() => Package::where('is_active', true)
+                            ->options(fn () => Package::where('is_active', true)
                                 ->orderBy('sort')
                                 ->get()
-                                ->mapWithKeys(fn($package) => [
+                                ->mapWithKeys(fn ($package) => [
                                     $package->id => $package->getTranslation('name', app()->getLocale()),
                                 ]))
                             ->searchable()
@@ -73,6 +75,8 @@ class PackagesRelationManager extends RelationManager
 
                                 $startedAt = $get('started_at') ? Carbon::parse($get('started_at')) : now();
 
+                                $set('price_option', $packagePrice?->id);
+
                                 if ($packagePrice) {
                                     $set('price', $packagePrice->price);
                                     $set('currency_id', $packagePrice->currency_id);
@@ -91,6 +95,15 @@ class PackagesRelationManager extends RelationManager
                             })
                             ->columnSpan(1),
 
+                        Select::make('price_option')
+                            ->label(__('dashboard.package_price'))
+                            ->options(fn (Get $get) => $this->getPriceOptions($get))
+                            ->searchable()
+                            ->native(false)
+                            ->live()
+                            ->afterStateUpdated(fn ($state, $set, $get) => $this->applyPriceOption($state, $set, $get))
+                            ->columnSpan(1),
+
                         TextInput::make('price')
                             ->label(__('dashboard.price'))
                             ->numeric()
@@ -101,11 +114,11 @@ class PackagesRelationManager extends RelationManager
 
                         Select::make('currency_id')
                             ->label(__('dashboard.currency'))
-                            ->options(fn() => Currency::where('is_active', true)
+                            ->options(fn () => Currency::where('is_active', true)
                                 ->orderBy('sort_order')
                                 ->get()
-                                ->mapWithKeys(fn($currency) => [
-                                    $currency->id => $currency->code . ' (' . $currency->getTranslation('name', app()->getLocale()) . ')',
+                                ->mapWithKeys(fn ($currency) => [
+                                    $currency->id => $currency->code.' ('.$currency->getTranslation('name', app()->getLocale()).')',
                                 ]))
                             ->searchable()
                             ->native(false)
@@ -122,7 +135,7 @@ class PackagesRelationManager extends RelationManager
                             ->default('month')
                             ->required()
                             ->live()
-                            ->afterStateUpdated(fn($state, $set, $get) => $this->syncExpiry($set, $get))
+                            ->afterStateUpdated(fn ($state, $set, $get) => $this->syncExpiry($set, $get))
                             ->columnSpan(1),
 
                         TextInput::make('duration')
@@ -132,7 +145,7 @@ class PackagesRelationManager extends RelationManager
                             ->default(1)
                             ->required()
                             ->live()
-                            ->afterStateUpdated(fn($state, $set, $get) => $this->syncExpiry($set, $get))
+                            ->afterStateUpdated(fn ($state, $set, $get) => $this->syncExpiry($set, $get))
                             ->columnSpan(1),
 
                         DateTimePicker::make('started_at')
@@ -140,7 +153,7 @@ class PackagesRelationManager extends RelationManager
                             ->default(now())
                             ->required()
                             ->live()
-                            ->afterStateUpdated(fn($state, $set, $get) => $this->syncExpiry($set, $get))
+                            ->afterStateUpdated(fn ($state, $set, $get) => $this->syncExpiry($set, $get))
                             ->columnSpan(1),
 
                         DateTimePicker::make('trial_ends_at')
@@ -153,6 +166,66 @@ class PackagesRelationManager extends RelationManager
                     ])
                     ->columnSpanFull(),
             ]);
+    }
+
+    private function getPriceOptions(Get $get): array
+    {
+        $packageId = $get('package_id');
+
+        if (! $packageId) {
+            return [];
+        }
+
+        $package = Package::with('prices.currency')->find($packageId);
+
+        if (! $package) {
+            return [];
+        }
+
+        $tenant = $this->getOwnerRecord();
+
+        $prices = $package->prices
+            ->when(
+                $tenant?->country_id,
+                fn ($prices) => $prices->where('country_id', $tenant->country_id),
+            );
+
+        if ($prices->isEmpty()) {
+            $prices = $package->prices;
+        }
+
+        return $prices
+            ->sortBy('duration')
+            ->mapWithKeys(function (PackagePrice $price) {
+                $label = $price->duration.' '.__("dashboard.{$price->duration_type}");
+
+                if ($price->currency) {
+                    $label .= ' - '.number_format((float) $price->price, 2).' '.$price->currency->code;
+                }
+
+                return [$price->id => $label];
+            })
+            ->all();
+    }
+
+    private function applyPriceOption(mixed $state, $set, $get): void
+    {
+        if (! $state) {
+            return;
+        }
+
+        $price = PackagePrice::find($state);
+
+        if (! $price) {
+            return;
+        }
+
+        $set('price', $price->price);
+        $set('currency_id', $price->currency_id);
+        $set('duration_type', $price->duration_type);
+        $set('duration', $price->duration);
+
+        $this->syncExpiry($set, $get);
     }
 
     private function resolveExpiry(Carbon $startedAt, int $duration, string $durationType): string
@@ -195,12 +268,12 @@ class PackagesRelationManager extends RelationManager
 
                 TextColumn::make('price')
                     ->label(__('dashboard.price'))
-                    ->money(fn($record) => $record->currency?->code ?? 'SAR')
+                    ->money(fn ($record) => $record->currency?->code ?? 'SAR')
                     ->sortable(),
 
                 TextColumn::make('duration')
                     ->label(__('dashboard.duration'))
-                    ->formatStateUsing(fn($state, $record) => $state . ' ' . __("dashboard.{$record->duration_type}"))
+                    ->formatStateUsing(fn ($state, $record) => $state.' '.__("dashboard.{$record->duration_type}"))
                     ->sortable(),
 
                 TextColumn::make('started_at')
@@ -222,8 +295,8 @@ class PackagesRelationManager extends RelationManager
                     ->label(__('dashboard.status'))
                     ->badge()
                     ->sortable()
-                    ->formatStateUsing(fn(string $state): string => __("dashboard.{$state}"))
-                    ->color(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => __("dashboard.{$state}"))
+                    ->color(fn (string $state): string => match ($state) {
                         'trial' => 'info',
                         'active' => 'success',
                         'expired' => 'danger',

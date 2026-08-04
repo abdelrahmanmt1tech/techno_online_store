@@ -1,6 +1,6 @@
 <?php
 
-return array (
+return [
     'admins' => 'المشرفين',
     'admin' => 'مشرف',
     'tenant_users' => 'المستخدمين',
@@ -50,6 +50,7 @@ return array (
     'subdomain' => 'الرابط الفرعي',
     'subdomain_help' => 'أحرف إنجليزية صغيرة وأرقام فقط. مثال: store1',
     'domain_taken' => 'هذا الرابط مستخدم بالفعل',
+    'invalid_package_price' => 'السعر المحدد لا يخص الباقة المختارة',
     'archive' => 'أرشفة',
     'restore' => 'استعادة',
     'archived' => 'مؤرشف',
@@ -97,8 +98,7 @@ return array (
     'nav_site_content_group' => 'محتوى الموقع',
     'intro_content_section' => 'المحتوى',
     'intro_image_section' => 'الصورة والرابط',
-    'intro_settings' => 
-    array (
+    'intro_settings' => [
         'section_active' => 'القسم نشط',
         'title_ar' => 'العنوان (عربي)',
         'title_en' => 'العنوان (إنجليزي)',
@@ -106,13 +106,12 @@ return array (
         'description_en' => 'الوصف (إنجليزي)',
         'image' => 'الصورة',
         'link' => 'الرابط',
-    ),
+    ],
     'save' => 'حفظ',
     'nav_statistics' => 'الإحصائيات',
     'statistics_content_section' => 'المحتوى',
     'statistics_items_section' => 'عناصر الإحصائيات',
-    'statistics_settings' => 
-    array (
+    'statistics_settings' => [
         'section_active' => 'القسم نشط',
         'title_ar' => 'العنوان (عربي)',
         'title_en' => 'العنوان (إنجليزي)',
@@ -123,7 +122,7 @@ return array (
         'item_title_en' => 'عنوان العنصر (إنجليزي)',
         'item_value' => 'القيمة',
         'add_item' => 'إضافة عنصر',
-    ),
+    ],
     'not_authorized' => 'غير مصرح لك',
     'settings_saved_successfully' => 'تم حفظ الإعدادات بنجاح',
     'saved_successfully' => 'تم الحفظ بنجاح',
@@ -131,8 +130,7 @@ return array (
     'nav_training_support' => 'التدريب والدعم',
     'training_support_content_section' => 'المحتوى',
     'training_support_items_section' => 'العناصر',
-    'training_support_settings' => 
-    array (
+    'training_support_settings' => [
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -147,7 +145,7 @@ return array (
         'item_description_ar' => 'وصف العنصر (عربي)',
         'item_description_en' => 'وصف العنصر (إنجليزي)',
         'item_image' => 'صورة العنصر',
-    ),
+    ],
     'seo_settings' => 'إعدادات SEO',
     'page_header' => 'مقدمة الصفحة',
     'meta_title_ar' => 'عنوان Meta (عربي)',
@@ -170,21 +168,19 @@ return array (
     'expired' => 'منتهي',
     'no_packages' => 'لا توجد باقات',
     'currency_name' => 'اسم العملة',
-    'permissions_groups' => 
-    array (
+    'permissions_groups' => [
         'roles' => 'الأدوار',
         'tenants' => 'المتاجر',
         'admins' => 'المشرفين',
         'plans' => 'الخطط',
         'contacts' => 'جهات الاتصال',
-    ),
-    'permissions' => 
-    array (
+    ],
+    'permissions' => [
         'view' => 'عرض',
         'create' => 'إضافة',
         'update' => 'تعديل',
         'delete' => 'حذف',
-    ),
+    ],
     'products' => 'المنتجات',
     'product' => 'المنتج',
     'general' => 'عام',
@@ -196,6 +192,7 @@ return array (
     'order' => 'طلب',
     'order_helper' => 'كلما قل الرقم ظهر المنتج في بداية القائمة',
     'price' => 'السعر',
+    'package_price' => 'سعر الباقة',
     'sale_price' => 'سعر التخفيض',
     'sale_price_helper' => 'السعر بعد التخفيض (اختياري)',
     'expense' => 'التكلفة',
@@ -278,8 +275,7 @@ return array (
     'nav_about' => 'من نحن',
     'about_content_section' => 'المحتوى',
     'about_features_section' => 'الميزات',
-    'about_settings' => 
-    array (
+    'about_settings' => [
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -294,12 +290,11 @@ return array (
         'feature_description_ar' => 'الوصف (عربي)',
         'feature_description_en' => 'الوصف (إنجليزي)',
         'feature_image' => 'الصورة',
-    ),
+    ],
     'nav_ai_services' => 'خدمات الذكاء الاصطناعي',
     'ai_services_content_section' => 'المحتوى',
     'ai_services_items_section' => 'الخدمات',
-    'ai_services_settings' => 
-    array (
+    'ai_services_settings' => [
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -314,12 +309,11 @@ return array (
         'item_description_ar' => 'وصف الخدمة (عربي)',
         'item_description_en' => 'وصف الخدمة (إنجليزي)',
         'item_image' => 'صورة الخدمة',
-    ),
+    ],
     'nav_payment_gateways' => 'بوابات الدفع',
     'payment_gateways_content_section' => 'المحتوى',
     'payment_gateways_features_section' => 'المميزات',
-    'payment_gateways_settings' => 
-    array (
+    'payment_gateways_settings' => [
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -332,12 +326,11 @@ return array (
         'add_feature' => 'إضافة ميزة',
         'feature_title_ar' => 'عنوان الميزة (عربي)',
         'feature_title_en' => 'عنوان الميزة (إنجليزي)',
-    ),
+    ],
     'nav_shipping_companies' => 'شركات الشحن',
     'shipping_companies_content_section' => 'المحتوى',
     'shipping_companies_features_section' => 'المميزات',
-    'shipping_companies_settings' => 
-    array (
+    'shipping_companies_settings' => [
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -350,12 +343,11 @@ return array (
         'add_feature' => 'إضافة ميزة',
         'feature_title_ar' => 'عنوان الميزة (عربي)',
         'feature_title_en' => 'عنوان الميزة (إنجليزي)',
-    ),
+    ],
     'nav_marketing_channels' => 'قنوات التسويق',
     'marketing_channels_content_section' => 'المحتوى',
     'marketing_channels_items_section' => 'القنوات',
-    'marketing_channels_settings' => 
-    array (
+    'marketing_channels_settings' => [
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -373,23 +365,21 @@ return array (
         'item_icon' => 'الأيقونة',
         'add_icon' => 'إضافة أيقونة',
         'link' => 'الرابط',
-    ),
+    ],
     'nav_have_question' => 'لديك استفسار؟',
     'have_question_content_section' => 'المحتوى',
-    'have_question_settings' => 
-    array (
+    'have_question_settings' => [
         'section_active' => 'القسم نشط',
         'title_ar' => 'العنوان (عربي)',
         'title_en' => 'العنوان (إنجليزي)',
         'description_ar' => 'الوصف (عربي)',
         'description_en' => 'الوصف (إنجليزي)',
         'link' => 'الرابط',
-    ),
+    ],
     'nav_contact_us' => 'تواصل معنا',
     'contact_us_content_section' => 'المحتوى',
     'contact_us_info_section' => 'بيانات التواصل',
-    'contact_us_settings' => 
-    array (
+    'contact_us_settings' => [
         'section_active' => 'القسم نشط',
         'small_title_ar' => 'العنوان الصغير (عربي)',
         'small_title_en' => 'العنوان الصغير (إنجليزي)',
@@ -404,12 +394,11 @@ return array (
         'email' => 'البريد الإلكتروني',
         'phone' => 'رقم الهاتف',
         'whatsapp' => 'رقم الواتساب',
-    ),
+    ],
     'nav_footer' => 'الفوتر',
     'footer_content_section' => 'المحتوى',
     'footer_social_section' => 'روابط السوشيال ميديا',
-    'footer_settings' => 
-    array (
+    'footer_settings' => [
         'logo' => 'لوجو الفوتر',
         'description' => 'الوصف',
         'facebook' => 'فيسبوك',
@@ -418,7 +407,7 @@ return array (
         'youtube' => 'يوتيوب',
         'x' => 'X (تويتر)',
         'linkedin' => 'لينكد إن',
-    ),
+    ],
     'whatsapp_group' => 'واتساب',
     'whatsapp_numbers' => 'أرقام واتساب',
     'whatsapp_number' => 'رقم واتساب',
@@ -778,8 +767,7 @@ return array (
     'new_status' => 'الحالة الجديدة',
     'nav_general' => 'الإعدادات العامة',
     'general_settings_section' => 'الإعدادات العامة',
-    'general_settings' => 
-    array (
+    'general_settings' => [
         'site_logo' => 'لوجو الموقع',
         'theme_name' => 'اسم الثيم',
         'primary_color' => 'اللون الأساسي',
@@ -817,7 +805,7 @@ return array (
         'site_currency' => 'عملة الموقع',
         'lang_en' => 'الإنجليزية',
         'lang_ar' => 'العربية',
-    ),
+    ],
     'code_settings_page' => 'إعدادات الأكواد',
     'nav_group_settings' => 'الإعدادات',
     'custom_head_code' => 'كود مخصص في الـ Head',
@@ -826,18 +814,16 @@ return array (
     'custom_footer_code_help' => 'سيتم إضافته قبل إغلاق تاج <body>',
     'nav_terms' => 'الشروط والأحكام',
     'terms_settings_section' => 'الشروط والأحكام',
-    'terms_settings' => 
-    array (
+    'terms_settings' => [
         'terms_ar' => 'الشروط والأحكام (عربي)',
         'terms_en' => 'الشروط والأحكام (إنجليزي)',
-    ),
+    ],
     'nav_privacy' => 'سياسة الخصوصية',
     'privacy_settings_section' => 'سياسة الخصوصية',
-    'privacy_settings' => 
-    array (
+    'privacy_settings' => [
         'privacy_ar' => 'سياسة الخصوصية (عربي)',
         'privacy_en' => 'سياسة الخصوصية (إنجليزي)',
-    ),
+    ],
     'homepage_seo' => 'SEO الصفحة الرئيسية',
     'registration_terms' => 'شروط التسجيل',
     'registration_terms_content' => 'نص شروط التسجيل',
@@ -962,8 +948,7 @@ return array (
     'forgot_password_reset_success' => 'تمت إعادة تعيين كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.',
     'forgot_password_reset_failed' => 'حدث خطأ. يرجى المحاولة مرة أخرى.',
     'back_to_login' => 'العودة لتسجيل الدخول',
-    'widget' => 
-    array (
+    'widget' => [
         'total_tenants' => 'إجمالي المتاجر',
         'tenants_desc' => ':active نشط, :new جديد في 30 يوم',
         'total_themes' => 'إجمالي القوالب',
@@ -1009,9 +994,8 @@ return array (
         'webhook_events_trend' => 'اتجاه أحداث الويب هوك (30 يوم)',
         'whatsapp_events' => 'أحداث واتساب',
         'messenger_events' => 'أحداث ماسنجر',
-    ),
-    'lite' => 
-    array (
+    ],
+    'lite' => [
         'group' => 'لوحة التحكم',
         'perm_sales' => 'عرض لوحة المبيعات',
         'perm_pos' => 'عرض لوحة نقاط البيع',
@@ -1066,7 +1050,7 @@ return array (
         'col_employee' => 'الموظف',
         'col_check_in' => 'الحضور',
         'col_late_minutes' => 'تأخير (د)',
-    ),
+    ],
     'store_group' => 'المتجر',
     'governorate' => 'المحافظة',
     'governorates' => 'المحافظات',
@@ -1352,18 +1336,15 @@ return array (
     'testimonial_review' => 'الرأي',
     'testimonial_customer_image' => 'صورة العميل',
     'testimonial_rating' => 'التقييم',
-    'pages' => 
-    array (
-        'account_statement' => 
-        array (
+    'pages' => [
+        'account_statement' => [
             'export_excel' => 'تحميل اكسيل',
             'print_report' => 'طباعة التقرير',
             'sum_balance' => 'الرصيد الإجمالي',
             'sum_credit' => 'إجمالي الدائن',
             'sum_debit' => 'إجمالي المدين',
-        ),
-        'account_tree_cleanup' => 
-        array (
+        ],
+        'account_tree_cleanup' => [
             'account_code' => 'رمز الحساب',
             'account_name' => 'اسم الحساب',
             'delete_action' => 'تنظيف / حذف',
@@ -1388,9 +1369,8 @@ return array (
             'type_accounts_center' => 'مركز حساب محذوف',
             'type_client' => 'عميل محذوف',
             'type_supplier' => 'مورد محذوف',
-        ),
-        'accounts_center_details_report' => 
-        array (
+        ],
+        'accounts_center_details_report' => [
             'account_center' => 'مركز الحساب',
             'date' => 'التاريخ',
             'entity_branch' => 'فرع',
@@ -1409,9 +1389,8 @@ return array (
             'profit_source' => 'مصدر الربح',
             'title' => 'تقرير مراكز الحسابات (تفصيلي)',
             'to_date' => 'إلى تاريخ',
-        ),
-        'accounts_centers_report' => 
-        array (
+        ],
+        'accounts_centers_report' => [
             'account_center' => 'مركز الحساب',
             'from_date' => 'من تاريخ',
             'movements_count' => 'عدد الحركات',
@@ -1419,9 +1398,8 @@ return array (
             'title' => 'تقرير مراكز الحسابات (إجمالي)',
             'to_date' => 'إلى تاريخ',
             'total_profits' => 'إجمالي الأرباح (تذاكر + حجوزات)',
-        ),
-        'balance_sheet' => 
-        array (
+        ],
+        'balance_sheet' => [
             'nav' => 'الميزانية العمومية',
             'title' => 'الميزانية العمومية',
             'account_name' => 'اسم الحساب',
@@ -1431,9 +1409,8 @@ return array (
             'section_total' => 'إجمالي القسم',
             'grand_total' => 'الإجمالي العام',
             'no_data' => 'لا توجد بيانات لعرضها.',
-        ),
-        'accounting_settings' => 
-        array (
+        ],
+        'accounting_settings' => [
             'nav' => 'إعدادات الحسابات',
             'title' => 'إعدادات الحسابات',
             'section' => 'ربط الحسابات الافتراضية',
@@ -1457,23 +1434,19 @@ return array (
             'walk_in_ar_account_tree_id' => 'ذمم نقدية / بدون عميل',
             'missing_posting_account' => 'إعداد حساب الترحيل ناقص: :key',
             'supplier_account_missing' => 'المورد بلا حساب في الشجرة. احفظ المورد بعد ضبط حساب الموردين الأب.',
-        ),
-        'general_account_statement' => 
-        array (
+        ],
+        'general_account_statement' => [
             'print' => 'طباعة التقرير',
-        ),
-        'opening_entries_report' => 
-        array (
+        ],
+        'opening_entries_report' => [
             'nav' => 'تقرير القيود الافتتاحية',
             'title' => 'تقرير القيود الافتتاحية',
-        ),
-        'period_balances_snapshot_report' => 
-        array (
+        ],
+        'period_balances_snapshot_report' => [
             'nav' => 'لقطات أرصدة الفترات',
             'title' => 'تقرير لقطات أرصدة الفترات',
-        ),
-        'profit_and_loss' => 
-        array (
+        ],
+        'profit_and_loss' => [
             'nav' => 'قائمة الأرباح والخسائر',
             'title' => 'قائمة الأرباح والخسائر (P&L)',
             'description' => 'البيان',
@@ -1484,9 +1457,8 @@ return array (
             'sales_total_label' => 'إجمالي المبيعات (للـ %)',
             'section_total' => 'إجمالي :name',
             'no_data' => 'لا توجد بيانات لعرضها.',
-        ),
-        'assistant_ledger' => 
-        array (
+        ],
+        'assistant_ledger' => [
             'title' => 'دفتر الأستاذ المساعد',
             'title_with_name' => 'دفتر الأستاذ المساعد - :name',
             'date' => 'التاريخ',
@@ -1496,9 +1468,8 @@ return array (
             'credit' => 'دائن',
             'from_date' => 'من تاريخ',
             'to_date' => 'إلى تاريخ',
-        ),
-        'account_tree_statement' => 
-        array (
+        ],
+        'account_tree_statement' => [
             'title' => 'كشف حساب',
             'title_with_name' => 'كشف حساب - :name',
             'date' => 'التاريخ',
@@ -1530,9 +1501,8 @@ return array (
             'error_same_account' => 'الحساب المقابل لا يمكن أن يكون نفس الحساب الحالي.',
             'operation_created' => 'تم إنشاء القيد بنجاح.',
             'quick_entry' => 'قيد سريع',
-        ),
-        'general_ledger' => 
-        array (
+        ],
+        'general_ledger' => [
             'nav' => 'دفتر الأستاذ العام',
             'title' => 'دفتر الأستاذ العام (General Ledger)',
             'entry_date' => 'تاريخ القيد',
@@ -1546,9 +1516,8 @@ return array (
             'entity_id' => 'رقم الجهة',
             'from_date' => 'من تاريخ',
             'to_date' => 'إلى تاريخ',
-        ),
-        'trial_balance' => 
-        array (
+        ],
+        'trial_balance' => [
             'nav' => 'ميزان المراجعة',
             'title' => 'ميزان المراجعة (Trial Balance)',
             'account_code' => 'كود الحساب',
@@ -1560,9 +1529,8 @@ return array (
             'to_date' => 'إلى تاريخ',
             'entity_optional' => 'الجهة (اختياري)',
             'name' => 'الاسم',
-        ),
-        'party_account_statement' => 
-        array (
+        ],
+        'party_account_statement' => [
             'nav' => 'كشف ذمم',
             'title' => 'كشف حساب عميل / مورد',
             'date' => 'التاريخ',
@@ -1575,8 +1543,8 @@ return array (
             'credit' => 'دائن',
             'from_date' => 'من تاريخ',
             'to_date' => 'إلى تاريخ',
-        ),
-    ),
+        ],
+    ],
     'page' => 'صفحة',
     'cms_page' => 'صفحة',
     'cms_pages' => 'الصفحات',
@@ -1607,16 +1575,28 @@ return array (
     'theme_confirm_subscribe_yes' => 'اشتراك',
     'cancel' => 'إلغاء',
     'theme_no_themes' => 'لا توجد ثيمات تطابق فلترك',
+    'subscriptions_group' => 'الاشتراكات',
+    'my_subscriptions' => 'باقاتي واشتراكاتي',
+    'current_plan' => 'الباقة الحالية',
+    'no_active_package' => 'لا توجد باقة نشطة حالياً',
+    'status_trial' => 'تجريبي',
+    'status_active' => 'نشط',
+    'status_expired' => 'منتهي',
+    'status_cancelled' => 'ملغي',
+    'period' => 'الفترة',
+    'enabled_modules' => 'الوحدات المفعلة',
+    'subscription_history' => 'سجل الاشتراكات',
+    'package_name' => 'الباقة',
+    'theme_subscription' => 'اشتراك الثيم',
+    'no_active_theme' => 'لا يوجد اشتراك ثيم نشط',
     'removed_from_favorites' => 'تمت الإزالة من المفضلة',
     'added_to_favorites' => 'تمت الإضافة إلى المفضلة',
     'favorites_fetched_successfully' => 'تم جلب المفضلات بنجاح',
     'product_not_found' => 'المنتج غير موجود',
-    'exports' => 
-    array (
+    'exports' => [
         'download_excel' => 'تحميل اكسيل',
-    ),
-    'fields' => 
-    array (
+    ],
+    'fields' => [
         'branch' => 'الفرع',
         'description' => 'الوصف',
         'email' => 'البريد الإلكتروني',
@@ -1629,11 +1609,9 @@ return array (
         'sales_rep' => 'مندوب المبيعات',
         'to_date' => 'إلى تاريخ',
         'whatsapp' => 'واتساب',
-    ),
-    'financial_periods' => 
-    array (
-        'messages' => 
-        array (
+    ],
+    'financial_periods' => [
+        'messages' => [
             'carry_forward_comment' => 'ترحيل من :from إلى :to',
             'carry_forward_line' => 'ترحيل رصيد افتتاحي للحساب: :account',
             'date_outside_period' => 'التاريخ المحدد خارج نطاق الفترة المالية.',
@@ -1665,12 +1643,10 @@ return array (
             'target_period_must_be_open' => 'يجب أن تكون الفترة الهدف مفتوحة قبل تنفيذ الترحيل.',
             'transfer_already_exists' => 'يوجد ترحيل مكتمل مسبقًا بين هاتين الفترتين.',
             'transfer_requires_distinct_period' => 'الترحيل يتطلب فترتين ماليتين مختلفتين.',
-        ),
-    ),
-    'resources' => 
-    array (
-        'account_tree' => 
-        array (
+        ],
+    ],
+    'resources' => [
+        'account_tree' => [
             'account_code' => 'كود الحساب',
             'account_name' => 'اسم الحساب',
             'account_statement' => 'كشف حساب',
@@ -1695,9 +1671,8 @@ return array (
             'statement_income' => 'قائمة دخل',
             'statement_none' => 'لا يظهر في أي منهما',
             'sub' => 'فرعي',
-        ),
-        'accounts_center' => 
-        array (
+        ],
+        'accounts_center' => [
             'account_tree' => 'حساب الشجرة',
             'model_label' => 'مركز حساب',
             'move_entries_to_new_tree' => 'نقل القيود إلى حساب الشجرة الجديد',
@@ -1707,15 +1682,13 @@ return array (
             'plural_model_label' => 'مراكز الحسابات',
             'profit_total' => 'إجمالي الأرباح (من التذاكر)',
             'section_data' => 'بيانات مركز الحساب',
-        ),
-        'client' => 
-        array (
+        ],
+        'client' => [
             'model_label' => 'عميل',
             'nav_group' => 'الكيانات',
             'plural_model_label' => 'العملاء',
-        ),
-        'financial_period' => 
-        array (
+        ],
+        'financial_period' => [
             'account' => 'الحساب',
             'account_code' => 'كود الحساب',
             'add_opening_entry' => 'إضافة سطر افتتاحي',
@@ -1768,9 +1741,8 @@ return array (
             'target_period' => 'الفترة الهدف',
             'transfers_count' => 'الترحيلات',
             'view_balances' => 'عرض Snapshot الأرصدة',
-        ),
-        'lead_source' => 
-        array (
+        ],
+        'lead_source' => [
             'clients_count' => 'العملاء',
             'model_label' => 'مصدر عميل محتمل',
             'nav_group' => 'الكيانات',
@@ -1780,9 +1752,8 @@ return array (
             'total' => 'الإجمالي',
             'won_agreed_amount_total' => 'إجمالي السعر المتفق عليه (الناجحة)',
             'won_opportunities_count' => 'الفرص الناجحة',
-        ),
-        'operation' => 
-        array (
+        ],
+        'operation' => [
             'account' => 'الحساب',
             'account_type' => 'نوع الحساب',
             'accounts_center' => 'مركز الحسابات',
@@ -1842,24 +1813,21 @@ return array (
             'total_with_tax' => 'الإجمالي شامل الضريبة',
             'unlock' => 'فك قفل العملية',
             'value' => 'القيمة',
-        ),
-    ),
-    'sidebar' => 
-    array (
+        ],
+    ],
+    'sidebar' => [
         'clients' => 'العملاء',
         'lead_sources' => 'مصادر العملاء المحتملين',
-    ),
-    'widgets' => 
-    array (
+    ],
+    'widgets' => [
         'not_specified' => 'غير محدد',
-    ),
-    'accounting_posting' => 
-    array (
+    ],
+    'accounting_posting' => [
         'sales_invoice' => 'فاتورة بيع :number',
         'sales_invoice_cogs' => 'تكلفة مبيعات لفاتورة :number',
         'invoice_payment' => 'تحصيل/سداد :number',
         'purchase_invoice' => 'فاتورة شراء :number',
         'sales_return' => 'مردود بيع :number',
         'sales_return_cogs' => 'عكس تكلفة لمردود :number',
-    ),
-);
+    ],
+];

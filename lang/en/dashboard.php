@@ -1,6 +1,6 @@
 <?php
 
-return array (
+return [
     'admins' => 'Admins',
     'admin' => 'Admin',
     'tenant_users' => 'Users',
@@ -50,6 +50,7 @@ return array (
     'subdomain' => 'Subdomain',
     'subdomain_help' => 'Lowercase letters and numbers only. e.g. store1',
     'domain_taken' => 'This domain is already taken',
+    'invalid_package_price' => 'The selected price does not belong to the selected package',
     'archive' => 'Archive',
     'restore' => 'Restore',
     'archived' => 'Archived',
@@ -97,8 +98,7 @@ return array (
     'nav_site_content_group' => 'Site Content',
     'intro_content_section' => 'Content',
     'intro_image_section' => 'Image & Link',
-    'intro_settings' => 
-    array (
+    'intro_settings' => [
         'section_active' => 'Section Active',
         'title_ar' => 'Title (Arabic)',
         'title_en' => 'Title (English)',
@@ -106,13 +106,12 @@ return array (
         'description_en' => 'Description (English)',
         'image' => 'Image',
         'link' => 'Link',
-    ),
+    ],
     'save' => 'Save',
     'nav_statistics' => 'Statistics',
     'statistics_content_section' => 'Content',
     'statistics_items_section' => 'Statistics Items',
-    'statistics_settings' => 
-    array (
+    'statistics_settings' => [
         'section_active' => 'Section Active',
         'title_ar' => 'Title (Arabic)',
         'title_en' => 'Title (English)',
@@ -123,7 +122,7 @@ return array (
         'item_title_en' => 'Item Title (English)',
         'item_value' => 'Value',
         'add_item' => 'Add Item',
-    ),
+    ],
     'not_authorized' => 'Not authorized',
     'settings_saved_successfully' => 'Settings saved successfully',
     'saved_successfully' => 'Saved successfully',
@@ -131,8 +130,7 @@ return array (
     'nav_training_support' => 'Training & Support',
     'training_support_content_section' => 'Content',
     'training_support_items_section' => 'Items',
-    'training_support_settings' => 
-    array (
+    'training_support_settings' => [
         'section_active' => 'Section Active',
         'small_title_ar' => 'Small Title (Arabic)',
         'small_title_en' => 'Small Title (English)',
@@ -147,7 +145,7 @@ return array (
         'item_description_ar' => 'Item Description (Arabic)',
         'item_description_en' => 'Item Description (English)',
         'item_image' => 'Item Image',
-    ),
+    ],
     'seo_settings' => 'SEO Settings',
     'page_header' => 'Page Header',
     'meta_title_ar' => 'Meta Title (Arabic)',
@@ -170,21 +168,19 @@ return array (
     'expired' => 'Expired',
     'no_packages' => 'No Packages',
     'currency_name' => 'Currency Name',
-    'permissions_groups' => 
-    array (
+    'permissions_groups' => [
         'roles' => 'Roles',
         'tenants' => 'Stores',
         'admins' => 'Admins',
         'plans' => 'Plans',
         'contacts' => 'Contacts',
-    ),
-    'permissions' => 
-    array (
+    ],
+    'permissions' => [
         'view' => 'View',
         'create' => 'Create',
         'update' => 'Update',
         'delete' => 'Delete',
-    ),
+    ],
     'products' => 'Products',
     'product' => 'Product',
     'general' => 'General',
@@ -196,6 +192,7 @@ return array (
     'order' => 'Order',
     'order_helper' => 'Lower numbers appear first',
     'price' => 'Price',
+    'package_price' => 'Package Price',
     'sale_price' => 'Sale Price',
     'sale_price_helper' => 'Discounted price (optional)',
     'expense' => 'Expense',
@@ -278,8 +275,7 @@ return array (
     'nav_about' => 'About Us',
     'about_content_section' => 'Content',
     'about_features_section' => 'Features',
-    'about_settings' => 
-    array (
+    'about_settings' => [
         'section_active' => 'Section Active',
         'small_title_ar' => 'Small Title (Arabic)',
         'small_title_en' => 'Small Title (English)',
@@ -294,12 +290,11 @@ return array (
         'feature_description_ar' => 'Description (Arabic)',
         'feature_description_en' => 'Description (English)',
         'feature_image' => 'Image',
-    ),
+    ],
     'nav_ai_services' => 'AI Services',
     'ai_services_content_section' => 'Content',
     'ai_services_items_section' => 'Services',
-    'ai_services_settings' => 
-    array (
+    'ai_services_settings' => [
         'section_active' => 'Section Active',
         'small_title_ar' => 'Small Title (Arabic)',
         'small_title_en' => 'Small Title (English)',
@@ -314,12 +309,11 @@ return array (
         'item_description_ar' => 'Service Description (Arabic)',
         'item_description_en' => 'Service Description (English)',
         'item_image' => 'Service Image',
-    ),
+    ],
     'nav_payment_gateways' => 'Payment Gateways',
     'payment_gateways_content_section' => 'Content',
     'payment_gateways_features_section' => 'Features',
-    'payment_gateways_settings' => 
-    array (
+    'payment_gateways_settings' => [
         'section_active' => 'Section Active',
         'small_title_ar' => 'Small Title (Arabic)',
         'small_title_en' => 'Small Title (English)',
@@ -332,12 +326,11 @@ return array (
         'add_feature' => 'Add Feature',
         'feature_title_ar' => 'Feature Title (Arabic)',
         'feature_title_en' => 'Feature Title (English)',
-    ),
+    ],
     'nav_shipping_companies' => 'Shipping Companies',
     'shipping_companies_content_section' => 'Content',
     'shipping_companies_features_section' => 'Features',
-    'shipping_companies_settings' => 
-    array (
+    'shipping_companies_settings' => [
         'section_active' => 'Section Active',
         'small_title_ar' => 'Small Title (Arabic)',
         'small_title_en' => 'Small Title (English)',
@@ -350,12 +343,11 @@ return array (
         'add_feature' => 'Add Feature',
         'feature_title_ar' => 'Feature Title (Arabic)',
         'feature_title_en' => 'Feature Title (English)',
-    ),
+    ],
     'nav_marketing_channels' => 'Marketing Channels',
     'marketing_channels_content_section' => 'Content',
     'marketing_channels_items_section' => 'Channels',
-    'marketing_channels_settings' => 
-    array (
+    'marketing_channels_settings' => [
         'section_active' => 'Section Active',
         'small_title_ar' => 'Small Title (Arabic)',
         'small_title_en' => 'Small Title (English)',
@@ -373,23 +365,21 @@ return array (
         'item_icon' => 'Icon',
         'add_icon' => 'Add Icon',
         'link' => 'Link',
-    ),
+    ],
     'nav_have_question' => 'Have a Question?',
     'have_question_content_section' => 'Content',
-    'have_question_settings' => 
-    array (
+    'have_question_settings' => [
         'section_active' => 'Section Active',
         'title_ar' => 'Title (Arabic)',
         'title_en' => 'Title (English)',
         'description_ar' => 'Description (Arabic)',
         'description_en' => 'Description (English)',
         'link' => 'Link',
-    ),
+    ],
     'nav_contact_us' => 'Contact Us',
     'contact_us_content_section' => 'Content',
     'contact_us_info_section' => 'Contact Info',
-    'contact_us_settings' => 
-    array (
+    'contact_us_settings' => [
         'section_active' => 'Section Active',
         'small_title_ar' => 'Small Title (Arabic)',
         'small_title_en' => 'Small Title (English)',
@@ -404,12 +394,11 @@ return array (
         'email' => 'Email',
         'phone' => 'Phone Number',
         'whatsapp' => 'WhatsApp Number',
-    ),
+    ],
     'nav_footer' => 'Footer',
     'footer_content_section' => 'Content',
     'footer_social_section' => 'Social Media Links',
-    'footer_settings' => 
-    array (
+    'footer_settings' => [
         'logo' => 'Footer Logo',
         'description' => 'Description',
         'facebook' => 'Facebook',
@@ -418,7 +407,7 @@ return array (
         'youtube' => 'YouTube',
         'x' => 'X (Twitter)',
         'linkedin' => 'LinkedIn',
-    ),
+    ],
     'whatsapp_group' => 'WhatsApp',
     'whatsapp_numbers' => 'WhatsApp Numbers',
     'whatsapp_number' => 'WhatsApp Number',
@@ -778,8 +767,7 @@ return array (
     'new_status' => 'New Status',
     'nav_general' => 'General Settings',
     'general_settings_section' => 'General Settings',
-    'general_settings' => 
-    array (
+    'general_settings' => [
         'site_logo' => 'Site Logo',
         'theme_name' => 'Theme Name',
         'primary_color' => 'Primary Color',
@@ -817,7 +805,7 @@ return array (
         'site_currency' => 'Site Currency',
         'lang_en' => 'English',
         'lang_ar' => 'Arabic',
-    ),
+    ],
     'code_settings_page' => 'Code Settings',
     'nav_group_settings' => 'Settings',
     'custom_head_code' => 'Custom Head Code',
@@ -826,18 +814,16 @@ return array (
     'custom_footer_code_help' => 'Will be added before the closing </body> tag',
     'nav_terms' => 'Terms & Conditions',
     'terms_settings_section' => 'Terms & Conditions',
-    'terms_settings' => 
-    array (
+    'terms_settings' => [
         'terms_ar' => 'Terms & Conditions (Arabic)',
         'terms_en' => 'Terms & Conditions (English)',
-    ),
+    ],
     'nav_privacy' => 'Privacy Policy',
     'privacy_settings_section' => 'Privacy Policy',
-    'privacy_settings' => 
-    array (
+    'privacy_settings' => [
         'privacy_ar' => 'Privacy Policy (Arabic)',
         'privacy_en' => 'Privacy Policy (English)',
-    ),
+    ],
     'homepage_seo' => 'Homepage SEO',
     'registration_terms' => 'Registration Terms',
     'registration_terms_content' => 'Registration Terms Content',
@@ -962,8 +948,7 @@ return array (
     'forgot_password_reset_success' => 'Password has been reset successfully. You can now log in.',
     'forgot_password_reset_failed' => 'Something went wrong. Please try again.',
     'back_to_login' => 'Back to Login',
-    'widget' => 
-    array (
+    'widget' => [
         'total_tenants' => 'Total Stores',
         'tenants_desc' => ':active active, :new new in 30 days',
         'total_themes' => 'Total Themes',
@@ -1009,9 +994,8 @@ return array (
         'webhook_events_trend' => 'Webhook Events Trend (30 days)',
         'whatsapp_events' => 'WhatsApp Events',
         'messenger_events' => 'Messenger Events',
-    ),
-    'lite' => 
-    array (
+    ],
+    'lite' => [
         'group' => 'Dashboard',
         'perm_sales' => 'View sales dashboard',
         'perm_pos' => 'View POS dashboard',
@@ -1066,7 +1050,7 @@ return array (
         'col_employee' => 'Employee',
         'col_check_in' => 'Check-in',
         'col_late_minutes' => 'Late (min)',
-    ),
+    ],
     'store_group' => 'Store',
     'governorate' => 'Governorate',
     'governorates' => 'Governorates',
@@ -1351,18 +1335,15 @@ return array (
     'testimonial_review' => 'Review',
     'testimonial_customer_image' => 'Customer Photo',
     'testimonial_rating' => 'Rating',
-    'pages' => 
-    array (
-        'account_statement' => 
-        array (
+    'pages' => [
+        'account_statement' => [
             'export_excel' => 'Download Excel',
             'print_report' => 'Print report',
             'sum_balance' => 'Total Balance',
             'sum_credit' => 'Total Credit',
             'sum_debit' => 'Total Debit',
-        ),
-        'account_tree_cleanup' => 
-        array (
+        ],
+        'account_tree_cleanup' => [
             'account_code' => 'Account Code',
             'account_name' => 'Account Name',
             'delete_action' => 'Cleanup / Delete',
@@ -1387,9 +1368,8 @@ return array (
             'type_accounts_center' => 'Deleted accounts center',
             'type_client' => 'Deleted client',
             'type_supplier' => 'Deleted supplier',
-        ),
-        'accounts_center_details_report' => 
-        array (
+        ],
+        'accounts_center_details_report' => [
             'account_center' => 'Account Center',
             'date' => 'Date',
             'entity_branch' => 'Branch',
@@ -1408,9 +1388,8 @@ return array (
             'profit_source' => 'Profit Source',
             'title' => 'Accounts Centers Report (Detailed)',
             'to_date' => 'To Date',
-        ),
-        'accounts_centers_report' => 
-        array (
+        ],
+        'accounts_centers_report' => [
             'account_center' => 'Account Center',
             'from_date' => 'From Date',
             'movements_count' => 'Movements Count',
@@ -1418,9 +1397,8 @@ return array (
             'title' => 'Accounts Centers Report (Summary)',
             'to_date' => 'To Date',
             'total_profits' => 'Total Profits (Tickets + Reservations)',
-        ),
-        'balance_sheet' => 
-        array (
+        ],
+        'balance_sheet' => [
             'nav' => 'Balance Sheet',
             'title' => 'Balance Sheet',
             'account_name' => 'Account Name',
@@ -1430,9 +1408,8 @@ return array (
             'section_total' => 'Section Total',
             'grand_total' => 'Grand Total',
             'no_data' => 'No data to display.',
-        ),
-        'accounting_settings' => 
-        array (
+        ],
+        'accounting_settings' => [
             'nav' => 'Accounting Settings',
             'title' => 'Accounting Settings',
             'section' => 'Default account mapping',
@@ -1456,23 +1433,19 @@ return array (
             'walk_in_ar_account_tree_id' => 'Walk-in / cash AR',
             'missing_posting_account' => 'Missing posting account setting: :key',
             'supplier_account_missing' => 'Supplier has no chart-of-account leaf. Save the supplier after configuring suppliers parent account.',
-        ),
-        'general_account_statement' => 
-        array (
+        ],
+        'general_account_statement' => [
             'print' => 'Print report',
-        ),
-        'opening_entries_report' => 
-        array (
+        ],
+        'opening_entries_report' => [
             'nav' => 'Opening Entries Report',
             'title' => 'Opening Entries Report',
-        ),
-        'period_balances_snapshot_report' => 
-        array (
+        ],
+        'period_balances_snapshot_report' => [
             'nav' => 'Period Snapshot Balances',
             'title' => 'Period Snapshot Balances Report',
-        ),
-        'profit_and_loss' => 
-        array (
+        ],
+        'profit_and_loss' => [
             'nav' => 'Profit and Loss',
             'title' => 'Profit and Loss (P&L)',
             'description' => 'Description',
@@ -1483,9 +1456,8 @@ return array (
             'sales_total_label' => 'Total Sales (for %)',
             'section_total' => 'Total :name',
             'no_data' => 'No data to display.',
-        ),
-        'assistant_ledger' => 
-        array (
+        ],
+        'assistant_ledger' => [
             'title' => 'Assistant Ledger',
             'title_with_name' => 'Assistant Ledger - :name',
             'date' => 'Date',
@@ -1495,9 +1467,8 @@ return array (
             'credit' => 'Credit',
             'from_date' => 'From Date',
             'to_date' => 'To Date',
-        ),
-        'account_tree_statement' => 
-        array (
+        ],
+        'account_tree_statement' => [
             'title' => 'Account Statement',
             'title_with_name' => 'Account Statement - :name',
             'date' => 'Date',
@@ -1529,9 +1500,8 @@ return array (
             'error_same_account' => 'Counterpart account cannot be the same as the current account.',
             'operation_created' => 'Entry created successfully.',
             'quick_entry' => 'Quick entry',
-        ),
-        'general_ledger' => 
-        array (
+        ],
+        'general_ledger' => [
             'nav' => 'General Ledger',
             'title' => 'General Ledger',
             'entry_date' => 'Entry Date',
@@ -1545,9 +1515,8 @@ return array (
             'entity_id' => 'Entity ID',
             'from_date' => 'From Date',
             'to_date' => 'To Date',
-        ),
-        'trial_balance' => 
-        array (
+        ],
+        'trial_balance' => [
             'nav' => 'Trial Balance',
             'title' => 'Trial Balance',
             'account_code' => 'Account Code',
@@ -1559,9 +1528,8 @@ return array (
             'to_date' => 'To Date',
             'entity_optional' => 'Entity (optional)',
             'name' => 'Name',
-        ),
-        'party_account_statement' => 
-        array (
+        ],
+        'party_account_statement' => [
             'nav' => 'Party statement',
             'title' => 'Client / Supplier statement',
             'date' => 'Date',
@@ -1574,8 +1542,8 @@ return array (
             'credit' => 'Credit',
             'from_date' => 'From date',
             'to_date' => 'To date',
-        ),
-    ),
+        ],
+    ],
     'page' => 'Page',
     'cms_page' => 'Page',
     'cms_pages' => 'Pages',
@@ -1606,16 +1574,28 @@ return array (
     'theme_confirm_subscribe_yes' => 'Subscribe',
     'cancel' => 'Cancel',
     'theme_no_themes' => 'No themes match your filters',
+    'subscriptions_group' => 'Subscriptions',
+    'my_subscriptions' => 'My Packages & Subscriptions',
+    'current_plan' => 'Current Plan',
+    'no_active_package' => 'No active package',
+    'status_trial' => 'Trial',
+    'status_active' => 'Active',
+    'status_expired' => 'Expired',
+    'status_cancelled' => 'Cancelled',
+    'period' => 'Period',
+    'enabled_modules' => 'Enabled Modules',
+    'subscription_history' => 'Subscription History',
+    'package_name' => 'Package',
+    'theme_subscription' => 'Theme Subscription',
+    'no_active_theme' => 'No active theme subscription',
     'removed_from_favorites' => 'Removed from favorites',
     'added_to_favorites' => 'Added to favorites',
     'favorites_fetched_successfully' => 'Favorites fetched successfully',
     'product_not_found' => 'Product not found',
-    'exports' => 
-    array (
+    'exports' => [
         'download_excel' => 'Download Excel',
-    ),
-    'fields' => 
-    array (
+    ],
+    'fields' => [
         'branch' => 'Branch',
         'description' => 'Description',
         'email' => 'Email',
@@ -1628,11 +1608,9 @@ return array (
         'sales_rep' => 'Sales Representative',
         'to_date' => 'To Date',
         'whatsapp' => 'WhatsApp',
-    ),
-    'financial_periods' => 
-    array (
-        'messages' => 
-        array (
+    ],
+    'financial_periods' => [
+        'messages' => [
             'carry_forward_comment' => 'Carry forward from :from to :to',
             'carry_forward_line' => 'Carry-forward opening balance for account: :account',
             'date_outside_period' => 'The selected date is outside the financial period range.',
@@ -1664,12 +1642,10 @@ return array (
             'target_period_must_be_open' => 'The target period must be open before carry-forward.',
             'transfer_already_exists' => 'A completed carry-forward already exists for these periods.',
             'transfer_requires_distinct_period' => 'Carry-forward requires two different financial periods.',
-        ),
-    ),
-    'resources' => 
-    array (
-        'account_tree' => 
-        array (
+        ],
+    ],
+    'resources' => [
+        'account_tree' => [
             'account_code' => 'Account Code',
             'account_name' => 'Account Name',
             'account_statement' => 'Account Statement',
@@ -1694,9 +1670,8 @@ return array (
             'statement_income' => 'Income Statement',
             'statement_none' => 'Not shown in either',
             'sub' => 'Sub',
-        ),
-        'accounts_center' => 
-        array (
+        ],
+        'accounts_center' => [
             'account_tree' => 'Tree Account',
             'model_label' => 'Accounts Center',
             'move_entries_to_new_tree' => 'Move journal entries to the new tree account',
@@ -1706,15 +1681,13 @@ return array (
             'plural_model_label' => 'Accounts Centers',
             'profit_total' => 'Total Profit (from tickets)',
             'section_data' => 'Accounts Center Data',
-        ),
-        'client' => 
-        array (
+        ],
+        'client' => [
             'model_label' => 'Client',
             'nav_group' => 'Entities',
             'plural_model_label' => 'Clients',
-        ),
-        'financial_period' => 
-        array (
+        ],
+        'financial_period' => [
             'account' => 'Account',
             'account_code' => 'Account Code',
             'add_opening_entry' => 'Add Opening Line',
@@ -1767,9 +1740,8 @@ return array (
             'target_period' => 'Target Period',
             'transfers_count' => 'Transfers',
             'view_balances' => 'View Balance Snapshot',
-        ),
-        'lead_source' => 
-        array (
+        ],
+        'lead_source' => [
             'clients_count' => 'Clients',
             'model_label' => 'Lead Source',
             'nav_group' => 'Entities',
@@ -1779,9 +1751,8 @@ return array (
             'total' => 'Total',
             'won_agreed_amount_total' => 'Won Agreed Amount',
             'won_opportunities_count' => 'Won Opportunities',
-        ),
-        'operation' => 
-        array (
+        ],
+        'operation' => [
             'account' => 'Account',
             'account_type' => 'Account Type',
             'accounts_center' => 'Accounts Center',
@@ -1841,24 +1812,21 @@ return array (
             'total_with_tax' => 'Total with Tax',
             'unlock' => 'Unlock Operation',
             'value' => 'Amount',
-        ),
-    ),
-    'sidebar' => 
-    array (
+        ],
+    ],
+    'sidebar' => [
         'clients' => 'Clients',
         'lead_sources' => 'Lead Sources',
-    ),
-    'widgets' => 
-    array (
+    ],
+    'widgets' => [
         'not_specified' => 'Not specified',
-    ),
-    'accounting_posting' => 
-    array (
+    ],
+    'accounting_posting' => [
         'sales_invoice' => 'Sales invoice :number',
         'sales_invoice_cogs' => 'COGS for sales invoice :number',
         'invoice_payment' => 'Invoice payment :number',
         'purchase_invoice' => 'Purchase invoice :number',
         'sales_return' => 'Sales return :number',
         'sales_return_cogs' => 'COGS reverse for sales return :number',
-    ),
-);
+    ],
+];

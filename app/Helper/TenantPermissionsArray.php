@@ -266,6 +266,14 @@ function tenantPermissionsArray(): array
             ],
         ],
 
+        // ── My Subscriptions (Sort: 58) ──
+        [
+            'name' => 'dashboard.my_subscriptions',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'subscriptions.view'],
+            ],
+        ],
+
         // ══════════════════════════════════════════════
         // ══ جروب: Settings ══
         // ══════════════════════════════════════════════

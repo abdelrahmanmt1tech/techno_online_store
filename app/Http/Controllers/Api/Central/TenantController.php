@@ -10,6 +10,7 @@ use App\Models\PackagePrice;
 use App\Models\Tenant;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class TenantController extends Controller
 {
@@ -21,65 +22,42 @@ class TenantController extends Controller
 
         $subdomain = $data['subdomain'] ?? null;
         $password = $data['password'] ?? null;
-        unset($data['subdomain'], $data['password'], $data['password_confirmation']);
-
-        $packageIds = collect([
-            ...($data['package_ids'] ?? []),
-            $data['package_id'] ?? null,
-        ])
-            ->filter()
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->values()
-            ->all();
-        unset($data['package_id'], $data['package_ids']);
-
         $startedAt = isset($data['started_at']) ? Carbon::parse($data['started_at']) : now();
-        unset($data['started_at']);
-
         $centralDomain = parse_url(config('app.domain_url'), PHP_URL_HOST) ?? 'localhost';
 
-        $tenant = Tenant::create($data);
+        $tenant = Tenant::create(Arr::except($data, [
+            'subdomain',
+            'password',
+            'password_confirmation',
+            'started_at',
+            'packages',
+        ]));
 
         if ($subdomain) {
             $tenant->createDomain($subdomain.'.'.$centralDomain);
         }
 
-        if (filled($packageIds)) {
-            $packages = Package::whereIn('id', $packageIds)->get()->keyBy('id');
+        foreach ($data['packages'] as $item) {
+            $package = Package::find($item['package_id']);
+            $price = PackagePrice::find($item['price_id']);
 
-            foreach ($packageIds as $packageId) {
-                $package = $packages->get($packageId);
+            $trialEndsAt = $package->trials_duration
+                ? $startedAt->copy()->addDays($package->trials_duration)
+                : null;
 
-                if (! $package) {
-                    continue;
-                }
-
-                $price = $this->resolvePackagePrice($packageId, $tenant);
-
-                $duration = $data['duration'] ?? $price?->duration ?? 1;
-                $durationType = $data['duration_type'] ?? $price?->duration_type ?? 'month';
-                $currencyId = $data['currency_id'] ?? $price?->currency_id;
-                $amount = $data['price'] ?? $price?->price ?? 0;
-
-                $trialEndsAt = $package->trials_duration
-                    ? $startedAt->copy()->addDays($package->trials_duration)
-                    : null;
-
-                $tenant->packages()->create([
-                    'package_id' => $packageId,
-                    'price' => $amount,
-                    'currency_id' => $currencyId,
-                    'duration' => $duration,
-                    'duration_type' => $durationType,
-                    'started_at' => $startedAt,
-                    'trial_ends_at' => $trialEndsAt,
-                    'expires_at' => ($trialEndsAt ?? $startedAt)
-                        ->copy()
-                        ->{"add{$durationType}s"}($duration),
-                    'status' => 'active',
-                ]);
-            }
+            $tenant->packages()->create([
+                'package_id' => $package->id,
+                'price' => $price->price,
+                'currency_id' => $price->currency_id,
+                'duration' => $price->duration,
+                'duration_type' => $price->duration_type,
+                'started_at' => $startedAt,
+                'trial_ends_at' => $trialEndsAt,
+                'expires_at' => ($trialEndsAt ?? $startedAt)
+                    ->copy()
+                    ->{"add{$price->duration_type}s"}($price->duration),
+                'status' => 'active',
+            ]);
         }
 
         app(SeedTenantDatabase::class, [
@@ -94,36 +72,5 @@ class TenantController extends Controller
             'phone' => $tenant->phone,
             'domain' => $subdomain ? $subdomain.'.'.$centralDomain : null,
         ], __('messages.resource_created_successfully'));
-    }
-
-    private function resolvePackagePrice(int $packageId, Tenant $tenant): ?PackagePrice
-    {
-        $query = PackagePrice::where('package_id', $packageId);
-
-        $countryId = $tenant->country_id;
-        $currencyId = $tenant->currency_id;
-
-        if ($countryId && $currencyId) {
-            $exact = (clone $query)->where('country_id', $countryId)->where('currency_id', $currencyId)->first();
-            if ($exact) {
-                return $exact;
-            }
-        }
-
-        if ($countryId) {
-            $byCountry = (clone $query)->where('country_id', $countryId)->first();
-            if ($byCountry) {
-                return $byCountry;
-            }
-        }
-
-        if ($currencyId) {
-            $byCurrency = (clone $query)->where('currency_id', $currencyId)->first();
-            if ($byCurrency) {
-                return $byCurrency;
-            }
-        }
-
-        return (clone $query)->first();
     }
 }
