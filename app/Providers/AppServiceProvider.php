@@ -7,8 +7,10 @@ use App\Models\Tenant\Client;
 use App\Models\Tenant\Customer;
 use App\Models\Tenant\MessengerPage;
 use App\Models\Tenant\WhatsAppNumber;
+use App\Models\TenantPackage;
 use App\Observers\Tenant\MessengerPageObserver;
 use App\Observers\Tenant\WhatsAppNumberObserver;
+use App\Observers\TenantPackageObserver;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -51,5 +53,6 @@ class AppServiceProvider extends ServiceProvider
 
         WhatsAppNumber::observe(WhatsAppNumberObserver::class);
         MessengerPage::observe(MessengerPageObserver::class);
+        TenantPackage::observe(TenantPackageObserver::class);
     }
 }

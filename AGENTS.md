@@ -35,7 +35,7 @@
 - CRM + double-entry accounting port notes: [`docs/crm-accounting-port.md`](docs/crm-accounting-port.md). Accounting UI nav group: `__('erp.nav.accounts')` («حسابات وقيود»).
 - **Merchant modules** (per-module subscription; plan packages cancelled as gating model): [`docs/tenant-modules.md`](docs/tenant-modules.md). Gate: `tenant_module_enabled()` / `TenantModuleGate` (always `true` until billing). Auto journal posting only when `tenant_accounting_active()`.
 - **Central DB**: `admins`, `tenants`, `domains`, `permissions`, `roles`, sessions/cache/jobs.
-- **Per-tenant DBs**: `rwadsolu_tenant_{uuid}` (prefix in `config/tenancy.php`). Created synchronously via `CreateDatabase` → `MigrateDatabase`. `SeedTenantDatabase` called from `CreateTenant.php`, not the event pipeline.
+- **Per-tenant DBs**: `rwadsolu_tenant_{uuid}` (prefix in `config/tenancy.php`). Created synchronously via `CreateDatabase` → `MigrateDatabase`. `SeedTenantDatabase` (a **queued** job, `ShouldQueue`) is dispatched from `CreateTenant.php` and the API controller, not run in the event pipeline.
 - **Tenant migrations**: `database/migrations/tenant/` (non-default, set in `tenancy.migration_parameters`).
 - **Auth models**: `App\Models\Admin` (`$guard_name='admin'`, central) and `App\Models\TenantUser` (`$guard_name='tenant'`, `$connection='tenant'`). Both use spatie `HasRoles`.
 - **Shared login**: Both panels use `App\Filament\Auth\Login` (custom panel resolver in `app/Support/FilamentPanelResolver.php`).
@@ -150,7 +150,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Work lands on `dev` (old
 - **Never** run `migrate:fresh`, `db:wipe`, `migrate:refresh`, or any destructive DB command without asking the user first.
 - **Do not set `SESSION_DOMAIN` to a value with a port** (e.g., `localhost:8000`).
 - `composer run dev` uses `npx concurrently` (needs Node) and `php artisan pail` (needs `pcntl` — not available on Windows). Run the other 3 processes manually if on Windows.
-- Tenant seeding (`SeedTenantDatabase`) and `setupStoreAdminRole()` run from `CreateTenant.php`, not the event pipeline.
+- Tenant seeding (`SeedTenantDatabase`) is dispatched as a queued job from `CreateTenant.php` and the API controller, not run in the event pipeline.
 - Deploy workflows delete `public/css/app/{custom-stylesheet,whatsapp-ui,messaging-health-dashboard,meta-integrations-reset,crm-custom-stylesheet,accounting-reports}.css` and back up `public/.htaccess` before `git checkout`/`reset --hard` to avoid merge conflicts with generated/server files.
 - Production deploy (`deploy-production.yml`) additionally runs `CountrySeeder` + `CurrencySeeder` and `tenants:sync-permissions --migrate`.
 - `composer.json` `post-autoload-dump` runs `filament:upgrade` — may fail if Filament assets aren't published.

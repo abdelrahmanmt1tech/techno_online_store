@@ -120,8 +120,8 @@ class PackageForm
                                                 ]))
                                             ->searchable()
                                             ->native(false)
-                                            ->required()
-                                            ->suffixAction(self::addCurrencyAction()),
+                                            ->required(),
+                                            // ->suffixAction(self::addCurrencyAction()),
 
                                         TextInput::make('price')
                                             ->label(__('dashboard.price'))

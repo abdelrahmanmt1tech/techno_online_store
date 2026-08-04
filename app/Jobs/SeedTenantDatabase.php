@@ -2,12 +2,19 @@
 
 namespace App\Jobs;
 
+use App\Mail\TenantWelcomeMail;
 use App\Models\Tenant;
 use App\Models\TenantUserCredential;
 use Database\Seeders\TenantDataSeeder;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
-class SeedTenantDatabase
+class SeedTenantDatabase implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(
         protected Tenant $tenant,
         protected ?string $password = null,
@@ -16,16 +23,15 @@ class SeedTenantDatabase
     public function handle(): void
     {
         $email = null;
+        $password = $this->password ?? 'password';
 
-        $this->tenant->run(function () use (&$email) {
+        $this->tenant->run(function () use (&$email, $password) {
             $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
             $subdomain = str_replace('.'.$centralDomain, '', $this->tenant->domains()->first()?->domain ?? '');
 
             $email = $this->tenant->email ?? 'admin@'.($subdomain ?: $this->tenant->id).'.'.$centralDomain;
 
             $userClass = config('auth.providers.tenant_users.model');
-
-            $password = $this->password ?? 'password';
 
             $user = $userClass::updateOrCreate(
                 ['email' => $email],
@@ -41,7 +47,9 @@ class SeedTenantDatabase
             $role = setupStoreAdminRole();
             $user->assignRole($role);
 
-            // (new TenantDataSeeder)->run();
+            DB::transaction(function (): void {
+                (new TenantDataSeeder)->run();
+            });
         });
 
         if ($email) {
@@ -49,6 +57,26 @@ class SeedTenantDatabase
                 ['email' => $email],
                 ['tenant_id' => $this->tenant->id]
             );
+
+            $this->sendWelcomeMail($email, $password);
         }
+    }
+
+    protected function sendWelcomeMail(string $email, string $password): void
+    {
+        $domain = $this->tenant->domains()->first()?->domain;
+
+        if (! $domain) {
+            return;
+        }
+
+        $scheme = parse_url(config('app.url'), PHP_URL_SCHEME) ?? 'https';
+
+        Mail::to($email)->send(new TenantWelcomeMail(
+            tenantName: $this->tenant->name,
+            email: $email,
+            password: $password,
+            loginUrl: $scheme.'://'.$domain.'/app/login',
+        ));
     }
 }

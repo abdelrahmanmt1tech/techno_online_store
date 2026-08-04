@@ -60,10 +60,7 @@ class TenantController extends Controller
             ]);
         }
 
-        app(SeedTenantDatabase::class, [
-            'tenant' => $tenant,
-            'password' => $password,
-        ])->handle();
+        SeedTenantDatabase::dispatch($tenant, $password);
 
         return $this->createdResponse([
             'id' => $tenant->id,

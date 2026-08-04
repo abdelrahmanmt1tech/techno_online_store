@@ -17,7 +17,7 @@ class CreateTenant extends CreateRecord
         $password = $data['password'] ?? null;
         unset($data['subdomain'], $data['password'], $data['password_confirmation']);
 
-        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+        $centralDomain = parse_url(config('app.domain_url'), PHP_URL_HOST) ?? 'localhost';
 
         $tenantClass = static::getModel();
         $tenant = new $tenantClass($data);
@@ -27,10 +27,7 @@ class CreateTenant extends CreateRecord
             $tenant->createDomain($subdomain.'.'.$centralDomain);
         }
 
-        app(SeedTenantDatabase::class, [
-            'tenant' => $tenant,
-            'password' => $password,
-        ])->handle();
+        SeedTenantDatabase::dispatch($tenant, $password);
 
         return $tenant;
     }
