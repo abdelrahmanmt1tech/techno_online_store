@@ -15,10 +15,11 @@ use App\Http\Controllers\Tenant\Pos\PosApiController;
 use App\Http\Controllers\Tenant\Pos\PosPageController;
 use App\Http\Middleware\EnsureTenantIsInitialized;
 use App\Http\Middleware\TenantAuthenticateSession;
+use App\Support\Filament\TenantNavigationBuilder;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationItem;
+use Filament\Navigation\NavigationBuilder;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
@@ -55,6 +56,9 @@ class TenantPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Tenant/Widgets'), for: 'App\Filament\Tenant\Widgets')
             ->discoverWidgets(in: app_path('Filament/Crm/Widgets'), for: 'App\Filament\Crm\Widgets')
+            ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
+                return app(TenantNavigationBuilder::class)->build($builder);
+            })
             ->assets([
                 Css::make('custom-stylesheet', resource_path('css/filament-custom.css')),
                 Css::make('whatsapp-ui', resource_path('css/whatsapp-ui.css')),
@@ -66,20 +70,6 @@ class TenantPanelProvider extends PanelProvider
                 StoreKpis::class,
                 OrdersTrend::class,
                 OrderStatusPie::class,
-            ])
-            ->navigationItems([
-                NavigationItem::make('POS')
-                    ->label(fn (): string => __('commerce.nav.pos_terminal'))
-                    ->icon('heroicon-o-calculator')
-                    ->url(fn (): string => url('/app/pos'))
-                    ->group(fn (): string => __('commerce.nav.pos'))
-                    ->sort(10),
-                NavigationItem::make('HR Attendance')
-                    ->label(fn (): string => __('hr.nav.my_attendance'))
-                    ->icon('heroicon-o-finger-print')
-                    ->url(fn (): string => url('/app/hr/attendance'))
-                    ->group(fn (): string => __('hr.nav.hr'))
-                    ->sort(10),
             ])
             ->persistentMiddleware([
                 InitializeTenancyByDomain::class,
@@ -143,6 +133,12 @@ class TenantPanelProvider extends PanelProvider
                     'hr/payroll-employees/{payrollEmployee}/slip',
                     SalarySlipPrintController::class,
                 )->name('hr.payroll.slip');
-            });
+            })
+
+            ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('20rem')
+        
+
+            ;
     }
 }
