@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Packages\Tables;
 
 use App\Models\Package;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -78,8 +77,6 @@ class PackagesTable
             ->recordActions([
                 EditAction::make()
                     ->visible(fn ($record) => Auth::user()->can('plans.update')),
-                DeleteAction::make()
-                    ->visible(fn ($record) => Auth::user()->can('plans.delete')),
             ]);
     }
 }

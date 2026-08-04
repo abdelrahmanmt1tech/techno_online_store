@@ -46,7 +46,7 @@ class PackageResource extends Resource
 
     public static function canCreate(): bool
     {
-        return Auth::user()->can('plans.create');
+        return false;
     }
 
     public static function canEdit(Model $record): bool
@@ -56,7 +56,7 @@ class PackageResource extends Resource
 
     public static function canDelete(Model $record): bool
     {
-        return Auth::user()->can('plans.delete');
+        return false;
     }
 
     public static function form(Schema $schema): Schema

@@ -3,9 +3,7 @@
 namespace App\Filament\Resources\Packages\Pages;
 
 use App\Filament\Resources\Packages\PackageResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Illuminate\Support\Facades\Auth;
 
 class ListPackages extends ListRecords
 {
@@ -13,9 +11,6 @@ class ListPackages extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make()
-                ->visible(fn () => Auth::user()->can('plans.create')),
-        ];
+        return [];
     }
 }

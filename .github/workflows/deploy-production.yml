@@ -198,6 +198,7 @@ jobs:
 
                 "${PHP}" artisan db:seed --class=CountrySeeder --force
                 "${PHP}" artisan db:seed --class=CurrencySeeder --force
+                "${PHP}" artisan db:seed --class=PackagesSeeder --force
 
                 echo "========== TENANT MIGRATIONS AND PERMISSIONS =========="
 
