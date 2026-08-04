@@ -1,0 +1,99 @@
+{
+  "info": {
+    "name": "Techno Online Store - Create Tenant (Packages) API",
+    "description": "Create a new merchant tenant and attach subscription packages, each with a selected price.\n\nBase URL: {{base_url}}/api\n\nSet `base_url` variable in Postman, e.g. `http://localhost:8000`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Tenants",
+      "item": [
+        {
+          "name": "Create Tenant with One Package + Price",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/tenants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Store\",\n  \"email\": \"store@example.com\",\n  \"phone\": \"123456789\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"test-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"offline\",\n  \"terms_accepted\": 1,\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
+            },
+            "description": "Each entry in `packages` selects a package and one of its prices (`price_id`). The chosen price drives price, currency, duration, duration type, and expiry. `price_id` must belong to its `package_id` (validated in `StoreTenantRequest`)."
+          },
+          "response": [
+            {
+              "name": "Success (201)",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Test Store\",\n    \"email\": \"store@example.com\",\n    \"phone\": \"123456789\",\n    \"domain\": \"test-store.localhost\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Tenant with Multiple Packages",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/tenants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Multi Store\",\n  \"email\": \"multi@example.com\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"multi-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"online\",\n  \"terms_accepted\": 1,\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1\n    },\n    {\n      \"package_id\": 2,\n      \"price_id\": 4\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
+            },
+            "description": "Attach several packages at once, each with its own selected price."
+          },
+          "response": [
+            {
+              "name": "Success (201)",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Resource created successfully.\",\n  \"data\": {\n    \"id\": 2,\n    \"name\": \"Multi Store\",\n    \"email\": \"multi@example.com\",\n    \"phone\": null,\n    \"domain\": \"multi-store.localhost\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Validation Error (422)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/tenants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tenants"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"email\": \"not-an-email\",\n  \"password\": \"123\",\n  \"password_confirmation\": \"456\",\n  \"subdomain\": \"INVALID_UPPERCASE\",\n  \"payment_method\": \"cash-on-delivery\",\n  \"terms_accepted\": \"maybe\",\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 999\n    }\n  ]\n}"
+            },
+            "description": "Fails `StoreTenantRequest` rules. Notable rules: `packages` required (min 1), each `packages.*.package_id` must exist, each `packages.*.price_id` must exist and belong to its package (`dashboard.invalid_package_price`), `payment_method` must be `online` or `offline`, `terms_accepted` must be boolean (0/1), password min 8 + confirmed, subdomain lowercase alnum+dash unique per domain."
+          },
+          "response": [
+            {
+              "name": "Unprocessable Entity (422)",
+              "body": "{\n  \"message\": \"The given data was invalid.\",\n  \"errors\": {\n    \"name\": [\"The name field is required.\"],\n    \"email\": [\"The email field must be a valid email address.\"],\n    \"password\": [\"The password field must be at least 8 characters.\", \"The password field confirmation does not match.\"],\n    \"subdomain\": [\"The subdomain format is invalid.\"],\n    \"payment_method\": [\"The selected payment method is invalid.\"],\n    \"terms_accepted\": [\"The terms accepted field must be true or false.\"],\n    \"packages.0.price_id\": [\"The selected price does not belong to the selected package.\"]\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

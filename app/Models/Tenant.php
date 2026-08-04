@@ -23,6 +23,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'phone',
         'country_id',
         'currency_id',
+        'payment_method',
+        'terms_accepted',
         'is_active',
     ];
 
@@ -30,6 +32,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return array_merge(parent::casts(), [
             'is_active' => 'boolean',
+            'terms_accepted' => 'boolean',
         ]);
     }
 
@@ -42,6 +45,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'phone',
             'country_id',
             'currency_id',
+            'payment_method',
+            'terms_accepted',
             'is_active',
         ];
     }
