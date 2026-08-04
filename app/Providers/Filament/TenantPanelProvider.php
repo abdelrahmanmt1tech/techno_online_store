@@ -136,8 +136,8 @@ class TenantPanelProvider extends PanelProvider
             })
 
             ->sidebarCollapsibleOnDesktop()
-            ->sidebarWidth('20rem')
-        
+            ->sidebarWidth('15rem')
+
 
             ;
     }
