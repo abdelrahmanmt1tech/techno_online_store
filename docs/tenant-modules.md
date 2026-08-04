@@ -59,7 +59,7 @@ if (! tenant_accounting_active()) {
 
 | Area | Check |
 |---|---|
-| CRM panel / CRM resources nav | `tenant_module_enabled('crm')` |
+| CRM panel / CRM resources nav | `tenant_module_enabled('crm')` ✅ wired (CRM resources/pages/widgets via `HasTenantFeatureAccess` + `EnsureCrmModuleActive` middleware on `/app/crm`) |
 | POS routes / PosRegisters | `tenant_module_enabled('pos')` |
 | Storefront admin resources (optional) | `tenant_module_enabled('store')` |
 | Accounting nav + period close | `tenant_module_enabled('accounting')` |

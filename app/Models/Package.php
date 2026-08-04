@@ -19,6 +19,7 @@ class Package extends Model
         'is_full_package',
         'name',
         'desc',
+        'image',
         'trials_duration',
         'sort',
         'is_active',

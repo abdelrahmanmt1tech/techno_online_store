@@ -6,6 +6,7 @@ use App\Models\Country;
 use App\Models\Currency;
 use App\Support\Modules\TenantModule;
 use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -49,12 +50,12 @@ class PackageForm
 
                         Select::make('module')
                             ->label(__('dashboard.module'))
-                            ->options(fn() => collect(TenantModule::cases())
-                                ->mapWithKeys(fn(TenantModule $module) => [
+                            ->options(fn () => collect(TenantModule::cases())
+                                ->mapWithKeys(fn (TenantModule $module) => [
                                     $module->value => $module->label(),
                                 ]))
                             ->native(false)
-                            ->hidden(fn(Get $get) => (bool) $get('is_full_package'))
+                            ->hidden(fn (Get $get) => (bool) $get('is_full_package'))
                             ->columnSpan(1),
 
                         TextInput::make('trials_duration')
@@ -74,6 +75,12 @@ class PackageForm
                             ->label(__('dashboard.active'))
                             ->default(true)
                             ->columnSpan(1),
+
+                        FileUpload::make('image')
+                            ->label(__('dashboard.image'))
+                            ->image()
+                            ->directory('packages')
+                            ->columnSpan(3),
                     ])
                     ->columnSpanFull(),
 
@@ -91,10 +98,10 @@ class PackageForm
                                     ->schema([
                                         Select::make('country_id')
                                             ->label(__('dashboard.country'))
-                                            ->options(fn() => Country::where('is_active', true)
+                                            ->options(fn () => Country::where('is_active', true)
                                                 ->orderBy('sort_order')
                                                 ->get()
-                                                ->mapWithKeys(fn($country) => [
+                                                ->mapWithKeys(fn ($country) => [
                                                     $country->id => $country->getTranslation('name', app()->getLocale()),
                                                 ]))
                                             ->searchable()
@@ -112,21 +119,21 @@ class PackageForm
 
                                         Select::make('currency_id')
                                             ->label(__('dashboard.currency'))
-                                            ->options(fn() => Currency::where('is_active', true)
+                                            ->options(fn () => Currency::where('is_active', true)
                                                 ->orderBy('sort_order')
                                                 ->get()
-                                                ->mapWithKeys(fn($currency) => [
-                                                    $currency->id => $currency->code . ' (' . $currency->getTranslation('name', app()->getLocale()) . ')',
+                                                ->mapWithKeys(fn ($currency) => [
+                                                    $currency->id => $currency->code.' ('.$currency->getTranslation('name', app()->getLocale()).')',
                                                 ]))
                                             ->searchable()
                                             ->native(false)
                                             ->required(),
-                                            // ->suffixAction(self::addCurrencyAction()),
+                                        // ->suffixAction(self::addCurrencyAction()),
 
                                         TextInput::make('price')
                                             ->label(__('dashboard.price'))
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => Currency::find($get('currency_id'))?->code)
+                                            ->prefix(fn (Get $get) => Currency::find($get('currency_id'))?->code)
                                             ->minValue(0)
                                             ->required(),
 

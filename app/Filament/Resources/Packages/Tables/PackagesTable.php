@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Packages\Tables;
 use App\Models\Package;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -19,9 +20,10 @@ class PackagesTable
         return $table
             ->defaultSort('sort')
             ->columns([
-                // TextColumn::make('sort')
-                //     ->label('#')
-                //     ->sortable(),
+                ImageColumn::make('image')
+                    ->label(__('dashboard.image'))
+                    ->disk('public')
+                    ->circular(),
 
                 TextColumn::make('name')
                     ->label(__('dashboard.name'))
