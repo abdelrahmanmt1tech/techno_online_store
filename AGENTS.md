@@ -44,7 +44,7 @@
 
 ### Routes
 
-- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `GET packages` (active packages + prices; `?country_id=` filters prices), `POST tenants` (accepts `package_ids[]` for multiple packages; legacy `package_id` still supported).
+- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `GET packages` (active packages + prices; `?country_id=` filters prices), `POST tenants` (accepts `packages[]` = `[{package_id, price_id}]`, one price per selected package).
 - **Tenant API** (`routes/tenant.php`): Auth (register/verify/login/logout/forgot-password), products, categories, governorates, contacts, cart CRUD, coupon apply, checkout (OTP flow), orders, favorites, profile, reviews, home, pages. **Do not register `GET /` here** — it overwrites the central landing and `PreventAccessFromCentralDomains` returns 404 on central domains.
 - **Public web** (`routes/web.php`): Landing (`/` + `/platform`), legal pages, WhatsApp/Messenger webhooks, tenant login, forgot-password OTP flow, WhatsApp/Messenger onboarding (central domain middleware).
 - **GitHub Actions** (no test CI): `deploy.yml` runs on `dev` push, `deploy-production.yml` on `main` push / `workflow_dispatch`. Both SSH into the server and deploy there. No tests run in CI.
@@ -53,11 +53,11 @@
 
 Admin resources under `app/Filament/Resources/`, tenant under `app/Filament/Tenant/Resources/`. Each has `Pages/`, `Schemas/`, `Tables/` subdirectories.
 
-- **Admin resources** (16): Admins, Roles, Tenants, Packages, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
+- **Admin resources** (17): Admins, Roles, Tenants, Packages, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
 - **Admin pages** (18): 13 settings pages (General, About, AiServices, Code, ContactUs, Footer, HaveQuestion, Intro, MarketingChannels, PaymentGateways, ShippingCompanies, Statistics, TrainingSupport) + MessagingHealthDashboard, MetaIntegrationsReset, WhatsAppInboxPage, WhatsAppTemplatesPage, MessengerInboxPage
 - **Admin widgets**: AdminKpis, TenantsTrend, WhatsAppStatusPie, MessengerStatusPie, WebhookEventsTrend
 - **Tenant resources** (57 dirs): store (Categories, Products, Brands, Reviews, Coupons, Customers, Contacts, Governorates, Orders, Pages, TenantUsers, Roles) — messaging (WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, WhatsAppContacts, MessengerPages, MessengerWebhookEvents, MessengerApiRequests) — ERP (Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, InvoicePayments, InvoicePrintSettings, StockTransactions/{Receipt,Issue,Transfer,Adjustment,Damage}, StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns) — POS (PosRegisters, PosSettings, PosPaymentMethods, CashDrawers, CashierSessions, CashMovements) — HR (HrEmployees, HrDepartments, HrJobTitles, HrAttendanceSchedules, HrAttendanceRecords, HrAttendanceLocations, HrPayrollPeriods, HrSettings) — CRM/accounting (Clients, LeadSources, AccountTrees, AccountsCenterResource, FinancialPeriods, Operations)
-- **Tenant pages** (13): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage, HomeSectionBuilder, BrowseThemesPage, Dashboard, GeneralSettings, FooterSettings, ContactUsSettings, CodeSettings, HrAttendanceSummaryPage, HrPayrollSummaryPage
+- **Tenant pages** (26): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage, HomeSectionBuilder, BrowseThemesPage, Dashboard, GeneralSettings, FooterSettings, ContactUsSettings, CodeSettings, HrAttendanceSummaryPage, HrPayrollSummaryPage + `Accounting/` report pages (BalanceSheet, ProfitAndLoss, TrialBalance, GeneralLedger, AccountsCentersReport, AccountsCenterDetailsReport, AccountTreeStatementPage, AccountTreeCleanupPage, PartyAccountStatement, AssistantLedger, OpeningEntriesReport, PeriodBalancesSnapshotReport, AccountingSettings)
 - **Tenant widgets**: StoreKpis, OrdersTrend, OrderStatusPie + Dashboard Lite (sales/POS/inventory/HR stats, sales chart, short lists) — see [`docs/dashboard-lite.md`](docs/dashboard-lite.md)
 - **Shared components**: `app/Filament/Shared/` (WhatsApp/, Messenger/, SeoFormSection.php, SeoFormOnelanguageSection.php)
 - Navigation labels: `__('dashboard.*')` in `lang/{ar,en}/dashboard.php`. ERP: `__('erp.*')` in `lang/{ar,en}/erp.php`.
@@ -104,7 +104,7 @@ Use `asset('storage/tenant'.tenant('id').'/'.$model->file)` — never `asset('st
 
 ## Commerce Core (Shared Catalog + Sales Engine + POS Foundation)
 
-Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/erp-next-phase`.
+Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Work lands on `dev` (older `feature/*` branches merged).
 
 - **Single catalog**: extend existing `products` / variants / categories — do **not** create parallel product tables for ERP/POS.
 - **UnifiedSalesEngine** (`App\Services\Commerce\UnifiedSalesEngine`): one path for confirm/invoice/payment/return/suspend across Store/ERP/POS/API channels. Delegates to existing ERP Actions.
@@ -135,8 +135,11 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 | [`docs/messaging-health-dashboard.md`](docs/messaging-health-dashboard.md) | Admin central registry/webhook diagnostics |
 | [`docs/meta-integrations-reset.md`](docs/meta-integrations-reset.md) | Destructive wipe of Meta integration data |
 | [`docs/tenancy-summary.md`](docs/tenancy-summary.md) | Tenancy architecture |
+| [`docs/deployment-cwp.md`](docs/deployment-cwp.md) | Manual CWP shared-hosting deployment notes |
+| [`docs/subscriptions-packages-plan.md`](docs/subscriptions-packages-plan.md) | Packages / subscriptions / billing plan |
 | [`PLAN.md`](PLAN.md) | Cart/orders/checkout specification (Arabic) |
 | [`docs/frontend-api.postman_collection.json`](docs/frontend-api.postman_collection.json) | Public API endpoints |
+| [`docs/tenant-create-api.postman_collection.json`](docs/tenant-create-api.postman_collection.json) | Create-tenant / packages API endpoints |
 | [`docs/tenant-auth-api.postman_collection.json`](docs/tenant-auth-api.postman_collection.json) | Tenant auth API endpoints |
 | [`docs/tenant-orders-api.postman_collection.json`](docs/tenant-orders-api.postman_collection.json) | Tenant orders API endpoints |
 | [`docs/favorites-api.postman_collection.json`](docs/favorites-api.postman_collection.json) | Favorites API endpoints |
@@ -148,6 +151,6 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Branch work on `feature/
 - **Do not set `SESSION_DOMAIN` to a value with a port** (e.g., `localhost:8000`).
 - `composer run dev` uses `npx concurrently` (needs Node) and `php artisan pail` (needs `pcntl` — not available on Windows). Run the other 3 processes manually if on Windows.
 - Tenant seeding (`SeedTenantDatabase`) and `setupStoreAdminRole()` run from `CreateTenant.php`, not the event pipeline.
-- Deploy workflows delete `public/css/app/{custom-stylesheet,whatsapp-ui,messaging-health-dashboard,meta-integrations-reset}.css` and back up `public/.htaccess` before `git checkout`/`reset --hard` to avoid merge conflicts with generated/server files.
+- Deploy workflows delete `public/css/app/{custom-stylesheet,whatsapp-ui,messaging-health-dashboard,meta-integrations-reset,crm-custom-stylesheet,accounting-reports}.css` and back up `public/.htaccess` before `git checkout`/`reset --hard` to avoid merge conflicts with generated/server files.
 - Production deploy (`deploy-production.yml`) additionally runs `CountrySeeder` + `CurrencySeeder` and `tenants:sync-permissions --migrate`.
 - `composer.json` `post-autoload-dump` runs `filament:upgrade` — may fail if Filament assets aren't published.

@@ -73,7 +73,11 @@ class TenantControllerTest extends TestCase
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
             'subdomain' => 'test-store',
-            'package_id' => $package->id,
+            'payment_method' => 'offline',
+            'terms_accepted' => true,
+            'packages' => [
+                ['package_id' => $package->id, 'price_id' => $package->prices()->first()->id],
+            ],
             'started_at' => now()->toDateTimeString(),
         ]);
 
@@ -88,6 +92,8 @@ class TenantControllerTest extends TestCase
         $this->assertDatabaseHas('tenants', [
             'name' => 'Test Store',
             'email' => 'store@example.com',
+            'payment_method' => 'offline',
+            'terms_accepted' => true,
         ]);
 
         $tenantId = $response->json('data.id');
@@ -149,6 +155,21 @@ class TenantControllerTest extends TestCase
         $response->assertJsonValidationErrors(['password']);
     }
 
+    public function test_it_validates_payment_method_and_terms_accepted(): void
+    {
+        $response = $this->postJson('/api/tenants', [
+            'name' => 'Store',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+            'subdomain' => 'my-store',
+            'payment_method' => 'cash-on-delivery',
+            'terms_accepted' => 'maybe',
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['payment_method', 'terms_accepted']);
+    }
+
     public function test_it_validates_package_exists(): void
     {
         $response = $this->postJson('/api/tenants', [
@@ -156,11 +177,13 @@ class TenantControllerTest extends TestCase
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
             'subdomain' => 'my-store',
-            'package_id' => 999,
+            'packages' => [
+                ['package_id' => 999, 'price_id' => 999],
+            ],
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['package_id']);
+        $response->assertJsonValidationErrors(['packages.0.package_id']);
     }
 
     public function test_it_creates_tenant_with_multiple_packages(): void
@@ -173,7 +196,12 @@ class TenantControllerTest extends TestCase
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
             'subdomain' => 'multi-store',
-            'package_ids' => [$package1->id, $package2->id],
+            'payment_method' => 'offline',
+            'terms_accepted' => true,
+            'packages' => [
+                ['package_id' => $package1->id, 'price_id' => $package1->prices()->first()->id],
+                ['package_id' => $package2->id, 'price_id' => $package2->prices()->first()->id],
+            ],
             'started_at' => now()->toDateTimeString(),
         ]);
 
@@ -199,18 +227,22 @@ class TenantControllerTest extends TestCase
         ]);
     }
 
-    public function test_it_validates_package_ids_exists(): void
+    public function test_it_requires_price_for_each_package(): void
     {
+        $package = $this->makePackage();
+
         $response = $this->postJson('/api/tenants', [
             'name' => 'Store',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
             'subdomain' => 'my-store',
-            'package_ids' => [999],
+            'packages' => [
+                ['package_id' => $package->id],
+            ],
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['package_ids.0']);
+        $response->assertJsonValidationErrors(['packages.0.price_id']);
     }
 
     public function test_it_computes_trial_and_expiry_from_package(): void
@@ -223,7 +255,11 @@ class TenantControllerTest extends TestCase
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
             'subdomain' => 'trial-store',
-            'package_id' => $package->id,
+            'payment_method' => 'offline',
+            'terms_accepted' => true,
+            'packages' => [
+                ['package_id' => $package->id, 'price_id' => $package->prices()->first()->id],
+            ],
             'started_at' => $startedAt->toDateTimeString(),
         ]);
 
@@ -237,6 +273,67 @@ class TenantControllerTest extends TestCase
             'trial_ends_at' => $startedAt->copy()->addDays(14)->toDateTimeString(),
             'expires_at' => $startedAt->copy()->addDays(14)->addMonth()->toDateTimeString(),
         ]);
+    }
+
+    public function test_it_uses_selected_price_for_package(): void
+    {
+        $package = $this->makePackage();
+
+        $firstPrice = $package->prices()->first();
+
+        $selectedPrice = PackagePrice::create([
+            'package_id' => $package->id,
+            'country_id' => $firstPrice->country_id,
+            'currency_id' => $firstPrice->currency_id,
+            'price' => 499.99,
+            'duration' => 12,
+            'duration_type' => 'month',
+        ]);
+
+        $response = $this->postJson('/api/tenants', [
+            'name' => 'Priced Store',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+            'subdomain' => 'priced-store',
+            'payment_method' => 'offline',
+            'terms_accepted' => true,
+            'packages' => [
+                ['package_id' => $package->id, 'price_id' => $selectedPrice->id],
+            ],
+        ]);
+
+        $response->assertCreated();
+
+        $tenantId = $response->json('data.id');
+
+        $this->assertDatabaseHas('tenant_packages', [
+            'tenant_id' => $tenantId,
+            'package_id' => $package->id,
+            'price' => 499.99,
+            'duration' => 12,
+            'duration_type' => 'month',
+        ]);
+    }
+
+    public function test_it_validates_price_belongs_to_selected_package(): void
+    {
+        $package1 = $this->makePackage(['sort' => 1]);
+        $package2 = $this->makePackage(['module' => 'pos', 'sort' => 2]);
+
+        $priceOfPackage2 = $package2->prices()->first();
+
+        $response = $this->postJson('/api/tenants', [
+            'name' => 'Store',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+            'subdomain' => 'my-store',
+            'packages' => [
+                ['package_id' => $package1->id, 'price_id' => $priceOfPackage2->id],
+            ],
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['packages.0.price_id']);
     }
 
     public function test_packages_endpoint_returns_only_active_packages(): void

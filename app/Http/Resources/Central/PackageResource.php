@@ -29,16 +29,7 @@ class PackageResource extends JsonResource
                     ['country_id', 'asc'],
                     ['duration', 'asc'],
                 ])
-                ->map(fn ($price) => [
-                    'country_id' => $price->country_id,
-                    'country_name' => $price->country?->getTranslation('name', $locale),
-                    'currency_id' => $price->currency_id,
-                    'currency_code' => $price->currency?->code,
-                    'currency_symbol' => $price->currency?->symbol,
-                    'price' => (float) $price->price,
-                    'duration' => $price->duration,
-                    'duration_type' => $price->duration_type,
-                ])
+                ->map(fn ($price) => new PackagePriceResource($price))
                 ->values(),
         ];
     }

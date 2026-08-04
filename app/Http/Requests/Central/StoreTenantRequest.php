@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Central;
 
+use App\Models\PackagePrice;
 use Illuminate\Foundation\Http\FormRequest;
 use Stancl\Tenancy\Database\Models\Domain;
 
@@ -40,12 +41,30 @@ class StoreTenantRequest extends FormRequest
             'country_id' => 'nullable|exists:countries,id',
             'currency_id' => 'nullable|exists:currencies,id',
 
-            'package_id' => 'nullable|exists:packages,id',
-            'package_ids' => 'nullable|array',
-            'package_ids.*' => 'exists:packages,id',
-            'price' => 'nullable|numeric|min:0',
-            'duration' => 'nullable|integer|min:1',
-            'duration_type' => 'nullable|in:day,month,year',
+            'payment_method' => 'required|string|in:online,offline',
+            'terms_accepted' => 'required|boolean',
+
+            'packages' => 'required|array|min:1',
+            'packages.*.package_id' => 'required|integer|exists:packages,id',
+            'packages.*.price_id' => [
+                'required',
+                'integer',
+                'exists:prices,id',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $index = (int) str_replace(['packages.', '.price_id'], '', $attribute);
+                    $packageId = $this->input("packages.{$index}.package_id");
+
+                    if (! $packageId) {
+                        return;
+                    }
+
+                    $price = PackagePrice::find($value);
+
+                    if (! $price || $price->package_id != $packageId) {
+                        $fail(__('dashboard.invalid_package_price'));
+                    }
+                },
+            ],
             'started_at' => 'nullable|date',
         ];
     }
