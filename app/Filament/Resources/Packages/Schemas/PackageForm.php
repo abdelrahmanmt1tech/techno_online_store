@@ -14,6 +14,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class PackageForm
@@ -62,7 +63,7 @@ class PackageForm
                             ->label(__('dashboard.trials_duration'))
                             ->numeric()
                             ->minValue(0)
-                            ->default(0)
+                            ->default(14)
                             ->columnSpan(1),
 
                         TextInput::make('sort')
@@ -108,6 +109,19 @@ class PackageForm
                                             ->native(false)
                                             ->required()
                                             ->live()
+                                            ->disableOptionWhen(function (string $value, Get $get): bool {
+                                                $currentCountryId = $get('country_id');
+
+                                                $selectedCountries = collect($get('../../') ?? [])
+                                                    ->pluck('country_id')
+                                                    ->filter()
+                                                    ->unique()
+                                                    ->map(fn ($id) => (string) $id)
+                                                    ->all();
+
+                                                return in_array($value, $selectedCountries, true)
+                                                    && $value !== (string) $currentCountryId;
+                                            })
                                             ->afterStateUpdated(function ($state, $set) {
                                                 $currency = Country::find($state)?->currency;
 
@@ -130,32 +144,36 @@ class PackageForm
                                             ->required(),
                                         // ->suffixAction(self::addCurrencyAction()),
 
-                                        TextInput::make('price')
-                                            ->label(__('dashboard.price'))
+                                        TextInput::make('price_monthly')
+                                            ->label(__('dashboard.price_monthly'))
                                             ->numeric()
                                             ->prefix(fn (Get $get) => Currency::find($get('currency_id'))?->code)
                                             ->minValue(0)
                                             ->required(),
 
-                                        Grid::make(2)
-                                            ->schema([
-                                                Select::make('duration_type')
-                                                    ->label(__('dashboard.duration_type'))
-                                                    ->options([
-                                                        // 'day' => __('dashboard.day'),
-                                                        'month' => __('dashboard.month'),
-                                                        'year' => __('dashboard.year'),
-                                                    ])
-                                                    ->native(false)
-                                                    ->default('month')
-                                                    ->required(),
-                                                TextInput::make('duration')
-                                                    ->label(__('dashboard.duration'))
-                                                    ->numeric()
-                                                    ->minValue(1)
-                                                    ->default(1)
-                                                    ->required(),
-                                            ]),
+                                        TextInput::make('price_yearly')
+                                            ->label(__('dashboard.price_yearly'))
+                                            ->numeric()
+                                            ->prefix(fn (Get $get) => Currency::find($get('currency_id'))?->code)
+                                            ->minValue(0)
+                                            ->required(),
+
+                                        Toggle::make('is_default')
+                                            ->label(__('dashboard.is_default'))
+                                            ->default(false)
+                                            ->live()
+                                            ->afterStateUpdated(function (bool $state, Get $get, Set $set) {
+                                                if (! $state) {
+                                                    return;
+                                                }
+
+                                                foreach (array_keys($get('../../') ?? []) as $key) {
+                                                    $set("../../{$key}/is_default", false);
+                                                }
+
+                                                $set('is_default', true);
+                                            })
+                                            ->columnSpanFull(),
                                     ]),
                             ])
                             ->addActionLabel(__('dashboard.add_price')),

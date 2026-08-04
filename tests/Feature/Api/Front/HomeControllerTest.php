@@ -193,9 +193,9 @@ class HomeControllerTest extends TestCase
             'package_id' => $activePackage->id,
             'country_id' => $country->id,
             'currency_id' => $currency->id,
-            'price' => 99.99,
-            'duration' => 1,
-            'duration_type' => 'month',
+            'price_monthly' => 99.99,
+            'price_yearly' => 999.99,
+            'is_default' => true,
         ]);
 
         Package::create([
@@ -226,10 +226,10 @@ class HomeControllerTest extends TestCase
         $this->assertEquals($activePackage->id, $packages[1]['id']);
         $this->assertEquals('store', $packages[1]['module']);
         $this->assertCount(1, $packages[1]['prices']);
-        $this->assertEquals(99.99, $packages[1]['prices'][0]['price']);
+        $this->assertEquals(99.99, $packages[1]['prices'][0]['price_monthly']);
+        $this->assertEquals(999.99, $packages[1]['prices'][0]['price_yearly']);
+        $this->assertTrue($packages[1]['prices'][0]['is_default']);
         $this->assertEquals('SAR', $packages[1]['prices'][0]['currency_code']);
-        $this->assertEquals(1, $packages[1]['prices'][0]['duration']);
-        $this->assertEquals('month', $packages[1]['prices'][0]['duration_type']);
     }
 
     public function test_it_returns_only_active_faqs_without_faqable(): void

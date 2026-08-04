@@ -13,16 +13,17 @@ class PackagePrice extends Model
         'package_id',
         'country_id',
         'currency_id',
-        'price',
-        'duration',
-        'duration_type',
+        'price_monthly',
+        'price_yearly',
+        'is_default',
     ];
 
     protected function casts(): array
     {
         return [
-            'price' => 'decimal:2',
-            'duration' => 'integer',
+            'price_monthly' => 'decimal:2',
+            'price_yearly' => 'decimal:2',
+            'is_default' => 'boolean',
         ];
     }
 

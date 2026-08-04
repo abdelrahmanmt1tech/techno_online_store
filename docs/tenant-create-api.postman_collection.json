@@ -30,9 +30,9 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Test Store\",\n  \"email\": \"store@example.com\",\n  \"phone\": \"123456789\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"test-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"offline\",\n  \"terms_accepted\": 1,\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
+              "raw": "{\n  \"name\": \"Test Store\",\n  \"email\": \"store@example.com\",\n  \"phone\": \"123456789\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"test-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"offline\",\n  \"terms_accepted\": 1,\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1,\n      \"period\": \"monthly\"\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
             },
-            "description": "Each entry in `packages` selects a package and one of its prices (`price_id`). The chosen price drives price, currency, duration, duration type, and expiry. `price_id` must belong to its `package_id` (validated in `StoreTenantRequest`)."
+            "description": "Each entry in `packages` selects a package, one of its prices (`price_id`), and a `period` (`monthly` or `yearly`). The chosen price + period drive price, currency, duration, duration type, and expiry. `price_id` must belong to its `package_id` (validated in `StoreTenantRequest`)."
           },
           "response": [
             {
@@ -56,7 +56,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Multi Store\",\n  \"email\": \"multi@example.com\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"multi-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"online\",\n  \"terms_accepted\": 1,\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1\n    },\n    {\n      \"package_id\": 2,\n      \"price_id\": 4\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
+              "raw": "{\n  \"name\": \"Multi Store\",\n  \"email\": \"multi@example.com\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"subdomain\": \"multi-store\",\n  \"country_id\": 1,\n  \"currency_id\": 1,\n  \"payment_method\": \"online\",\n  \"terms_accepted\": 1,\n  \"packages\": [\n    {\n      \"package_id\": 1,\n      \"price_id\": 1,\n      \"period\": \"monthly\"\n    },\n    {\n      \"package_id\": 2,\n      \"price_id\": 4,\n      \"period\": \"yearly\"\n    }\n  ],\n  \"started_at\": \"2026-08-04T00:00:00\"\n}"
             },
             "description": "Attach several packages at once, each with its own selected price."
           },

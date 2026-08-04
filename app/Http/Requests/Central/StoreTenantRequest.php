@@ -46,6 +46,7 @@ class StoreTenantRequest extends FormRequest
 
             'packages' => 'required|array|min:1',
             'packages.*.package_id' => 'required|integer|exists:packages,id',
+            'packages.*.period' => 'required|string|in:monthly,yearly',
             'packages.*.price_id' => [
                 'required',
                 'integer',

@@ -11,6 +11,15 @@ class PackageResource extends JsonResource
     {
         $locale = app()->getLocale();
 
+        $prices = $this->prices->when(
+            $request->filled('country_id'),
+            fn ($prices) => $prices->where('country_id', (int) $request->country_id)
+        );
+
+        if ($prices->isEmpty()) {
+            $prices = $this->prices->where('is_default', true);
+        }
+
         return [
             'id' => $this->id,
             'module' => $this->module,
@@ -21,15 +30,8 @@ class PackageResource extends JsonResource
             'trials_duration' => $this->trials_duration,
             'sort' => $this->sort,
             'is_active' => $this->is_active,
-            'prices' => $this->prices
-                ->when(
-                    $request->filled('country_id'),
-                    fn ($prices) => $prices->where('country_id', (int) $request->country_id)
-                )
-                ->sortBy([
-                    ['country_id', 'asc'],
-                    ['duration', 'asc'],
-                ])
+            'prices' => $prices
+                ->sortBy('country_id')
                 ->map(fn ($price) => new PackagePriceResource($price))
                 ->values(),
         ];

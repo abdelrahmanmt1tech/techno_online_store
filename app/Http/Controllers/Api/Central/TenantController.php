@@ -45,17 +45,20 @@ class TenantController extends Controller
                 ? $startedAt->copy()->addDays($package->trials_duration)
                 : null;
 
+            $period = $item['period'] ?? 'monthly';
+            $durationType = $period === 'yearly' ? 'year' : 'month';
+
             $tenant->packages()->create([
                 'package_id' => $package->id,
-                'price' => $price->price,
+                'price' => $period === 'yearly' ? $price->price_yearly : $price->price_monthly,
                 'currency_id' => $price->currency_id,
-                'duration' => $price->duration,
-                'duration_type' => $price->duration_type,
+                'duration' => 1,
+                'duration_type' => $durationType,
                 'started_at' => $startedAt,
                 'trial_ends_at' => $trialEndsAt,
                 'expires_at' => ($trialEndsAt ?? $startedAt)
                     ->copy()
-                    ->{"add{$price->duration_type}s"}($price->duration),
+                    ->{"add{$durationType}s"}(1),
                 'status' => 'active',
             ]);
         }

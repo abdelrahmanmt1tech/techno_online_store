@@ -7,7 +7,6 @@ use App\Models\Currency;
 use App\Models\Package;
 use App\Models\PackagePrice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class TenantControllerTest extends TestCase
@@ -54,9 +53,9 @@ class TenantControllerTest extends TestCase
             'package_id' => $package->id,
             'country_id' => $country->id,
             'currency_id' => $currency->id,
-            'price' => 99.99,
-            'duration' => 1,
-            'duration_type' => 'month',
+            'price_monthly' => 99.99,
+            'price_yearly' => 999.99,
+            'is_default' => true,
         ]);
 
         return $package->fresh();
@@ -76,7 +75,7 @@ class TenantControllerTest extends TestCase
             'payment_method' => 'offline',
             'terms_accepted' => true,
             'packages' => [
-                ['package_id' => $package->id, 'price_id' => $package->prices()->first()->id],
+                ['package_id' => $package->id, 'price_id' => $package->prices()->first()->id, 'period' => 'monthly'],
             ],
             'started_at' => now()->toDateTimeString(),
         ]);
@@ -178,7 +177,7 @@ class TenantControllerTest extends TestCase
             'password_confirmation' => 'secret123',
             'subdomain' => 'my-store',
             'packages' => [
-                ['package_id' => 999, 'price_id' => 999],
+                ['package_id' => 999, 'price_id' => 999, 'period' => 'monthly'],
             ],
         ]);
 
@@ -199,8 +198,8 @@ class TenantControllerTest extends TestCase
             'payment_method' => 'offline',
             'terms_accepted' => true,
             'packages' => [
-                ['package_id' => $package1->id, 'price_id' => $package1->prices()->first()->id],
-                ['package_id' => $package2->id, 'price_id' => $package2->prices()->first()->id],
+                ['package_id' => $package1->id, 'price_id' => $package1->prices()->first()->id, 'period' => 'monthly'],
+                ['package_id' => $package2->id, 'price_id' => $package2->prices()->first()->id, 'period' => 'yearly'],
             ],
             'started_at' => now()->toDateTimeString(),
         ]);
@@ -237,7 +236,7 @@ class TenantControllerTest extends TestCase
             'password_confirmation' => 'secret123',
             'subdomain' => 'my-store',
             'packages' => [
-                ['package_id' => $package->id],
+                ['package_id' => $package->id, 'period' => 'monthly'],
             ],
         ]);
 
@@ -258,7 +257,7 @@ class TenantControllerTest extends TestCase
             'payment_method' => 'offline',
             'terms_accepted' => true,
             'packages' => [
-                ['package_id' => $package->id, 'price_id' => $package->prices()->first()->id],
+                ['package_id' => $package->id, 'price_id' => $package->prices()->first()->id, 'period' => 'monthly'],
             ],
             'started_at' => $startedAt->toDateTimeString(),
         ]);
@@ -285,9 +284,9 @@ class TenantControllerTest extends TestCase
             'package_id' => $package->id,
             'country_id' => $firstPrice->country_id,
             'currency_id' => $firstPrice->currency_id,
-            'price' => 499.99,
-            'duration' => 12,
-            'duration_type' => 'month',
+            'price_monthly' => 499.99,
+            'price_yearly' => 4999.99,
+            'is_default' => false,
         ]);
 
         $response = $this->postJson('/api/tenants', [
@@ -298,7 +297,7 @@ class TenantControllerTest extends TestCase
             'payment_method' => 'offline',
             'terms_accepted' => true,
             'packages' => [
-                ['package_id' => $package->id, 'price_id' => $selectedPrice->id],
+                ['package_id' => $package->id, 'price_id' => $selectedPrice->id, 'period' => 'yearly'],
             ],
         ]);
 
@@ -309,9 +308,9 @@ class TenantControllerTest extends TestCase
         $this->assertDatabaseHas('tenant_packages', [
             'tenant_id' => $tenantId,
             'package_id' => $package->id,
-            'price' => 499.99,
-            'duration' => 12,
-            'duration_type' => 'month',
+            'price' => 4999.99,
+            'duration' => 1,
+            'duration_type' => 'year',
         ]);
     }
 
@@ -328,7 +327,7 @@ class TenantControllerTest extends TestCase
             'password_confirmation' => 'secret123',
             'subdomain' => 'my-store',
             'packages' => [
-                ['package_id' => $package1->id, 'price_id' => $priceOfPackage2->id],
+                ['package_id' => $package1->id, 'price_id' => $priceOfPackage2->id, 'period' => 'monthly'],
             ],
         ]);
 
@@ -338,12 +337,12 @@ class TenantControllerTest extends TestCase
 
     public function test_packages_endpoint_returns_only_active_packages(): void
     {
-        Http::fake();
+        $package = $this->makePackage(['module' => 'store', 'sort' => 1]);
+        $countryId = $package->prices()->first()->country_id;
 
-        $this->makePackage(['module' => 'store', 'sort' => 1]);
         $this->makePackage(['module' => 'pos', 'sort' => 2, 'is_active' => false]);
 
-        $response = $this->getJson('/api/packages');
+        $response = $this->getJson('/api/packages?country_id='.$countryId);
 
         $response->assertOk();
         $response->assertJsonPath('success', true);
@@ -352,15 +351,24 @@ class TenantControllerTest extends TestCase
         $this->assertCount(1, $packages);
         $this->assertEquals('store', $packages[0]['module']);
         $this->assertCount(1, $packages[0]['prices']);
-        $this->assertEquals(99.99, $packages[0]['prices'][0]['price']);
+        $this->assertEquals(99.99, $packages[0]['prices'][0]['price_monthly']);
+        $this->assertEquals(999.99, $packages[0]['prices'][0]['price_yearly']);
+        $this->assertTrue($packages[0]['prices'][0]['is_default']);
         $this->assertEquals('SAR', $packages[0]['prices'][0]['currency_code']);
-        $this->assertEquals('month', $packages[0]['prices'][0]['duration_type']);
     }
 
-    public function test_packages_endpoint_filters_prices_by_detected_country(): void
+    public function test_packages_endpoint_requires_country_id(): void
     {
-        Http::fake();
+        $this->makePackage(['module' => 'store', 'sort' => 1]);
 
+        $response = $this->getJson('/api/packages');
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['country_id']);
+    }
+
+    public function test_packages_endpoint_filters_prices_by_country(): void
+    {
         $sa = Country::create([
             'name' => ['ar' => 'السعودية', 'en' => 'Saudi Arabia'],
             'country_code' => 'SA',
@@ -399,29 +407,25 @@ class TenantControllerTest extends TestCase
             'package_id' => $package->id,
             'country_id' => $eg->id,
             'currency_id' => $egCurrency->id,
-            'price' => 150.0,
-            'duration' => 1,
-            'duration_type' => 'year',
+            'price_monthly' => 150.0,
+            'price_yearly' => 1500.0,
+            'is_default' => false,
         ]);
 
-        $response = $this->withHeader('CF-IPCountry', 'SA')->getJson('/api/packages');
+        $response = $this->getJson('/api/packages?country_id='.$eg->id);
 
         $response->assertOk();
 
         $packages = $response->json('data');
         $this->assertCount(1, $packages);
         $this->assertCount(1, $packages[0]['prices']);
-        $this->assertEquals($sa->id, $packages[0]['prices'][0]['country_id']);
-        $this->assertEquals('SAR', $packages[0]['prices'][0]['currency_code']);
-        $this->assertEquals(99.99, $packages[0]['prices'][0]['price']);
+        $this->assertEquals($eg->id, $packages[0]['prices'][0]['country_id']);
+        $this->assertEquals('EGP', $packages[0]['prices'][0]['currency_code']);
+        $this->assertEquals(150.0, $packages[0]['prices'][0]['price_monthly']);
     }
 
-    public function test_packages_endpoint_falls_back_to_all_prices_when_country_unknown(): void
+    public function test_packages_endpoint_falls_back_to_default_price_when_country_has_no_price(): void
     {
-        Http::fake([
-            'ip-api.com/*' => Http::response(['status' => 'success', 'countryCode' => 'US'], 200),
-        ]);
-
         $sa = Country::create([
             'name' => ['ar' => 'السعودية', 'en' => 'Saudi Arabia'],
             'country_code' => 'SA',
@@ -438,9 +442,17 @@ class TenantControllerTest extends TestCase
             'sort_order' => 1,
         ]);
 
-        $package = $this->makePackage(['country' => $sa, 'currency' => $saCurrency]);
+        $eg = Country::create([
+            'name' => ['ar' => 'مصر', 'en' => 'Egypt'],
+            'country_code' => 'EG',
+            'currency_code' => 'EGP',
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
 
-        $response = $this->getJson('/api/packages');
+        $this->makePackage(['country' => $sa, 'currency' => $saCurrency]);
+
+        $response = $this->getJson('/api/packages?country_id='.$eg->id);
 
         $response->assertOk();
 
@@ -448,5 +460,6 @@ class TenantControllerTest extends TestCase
         $this->assertCount(1, $packages);
         $this->assertCount(1, $packages[0]['prices']);
         $this->assertEquals($sa->id, $packages[0]['prices'][0]['country_id']);
+        $this->assertEquals(99.99, $packages[0]['prices'][0]['price_monthly']);
     }
 }

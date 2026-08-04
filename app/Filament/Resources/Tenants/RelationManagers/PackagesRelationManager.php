@@ -69,23 +69,33 @@ class PackagesRelationManager extends RelationManager
 
                                 $tenant = $this->getOwnerRecord();
 
-                                $packagePrice = $package->prices
-                                    ->firstWhere('country_id', $tenant?->country_id)
-                                    ?? $package->prices->first();
+                                $candidatePrices = $package->prices
+                                    ->when(
+                                        $tenant?->country_id,
+                                        fn ($prices) => $prices->where('country_id', $tenant->country_id),
+                                    );
+
+                                if ($candidatePrices->isEmpty()) {
+                                    $candidatePrices = $package->prices;
+                                }
+
+                                $packagePrice = $candidatePrices->sortByDesc('is_default')->first();
 
                                 $startedAt = $get('started_at') ? Carbon::parse($get('started_at')) : now();
+                                $period = $get('period') ?? 'monthly';
+                                $durationType = $period === 'yearly' ? 'year' : 'month';
 
                                 $set('price_option', $packagePrice?->id);
 
                                 if ($packagePrice) {
-                                    $set('price', $packagePrice->price);
+                                    $set('price', $period === 'yearly' ? $packagePrice->price_yearly : $packagePrice->price_monthly);
                                     $set('currency_id', $packagePrice->currency_id);
-                                    $set('duration_type', $packagePrice->duration_type);
-                                    $set('duration', $packagePrice->duration);
+                                    $set('duration', 1);
+                                    $set('duration_type', $durationType);
                                     $set('expires_at', $this->resolveExpiry(
                                         $startedAt,
-                                        $packagePrice->duration,
-                                        $packagePrice->duration_type,
+                                        1,
+                                        $durationType,
                                     ));
                                 }
 
@@ -122,6 +132,19 @@ class PackagesRelationManager extends RelationManager
                                 ]))
                             ->searchable()
                             ->native(false)
+                            ->columnSpan(1),
+
+                        Select::make('period')
+                            ->label(__('dashboard.period'))
+                            ->options([
+                                'monthly' => __('dashboard.monthly'),
+                                'yearly' => __('dashboard.yearly'),
+                            ])
+                            ->native(false)
+                            ->default('monthly')
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(fn ($state, $set, $get) => $this->applyPriceOption($get('price_option'), $set, $get))
                             ->columnSpan(1),
 
                         Select::make('duration_type')
@@ -195,12 +218,13 @@ class PackagesRelationManager extends RelationManager
         }
 
         return $prices
-            ->sortBy('duration')
+            ->sortByDesc('is_default')
             ->mapWithKeys(function (PackagePrice $price) {
-                $label = $price->duration.' '.__("dashboard.{$price->duration_type}");
+                $label = number_format((float) $price->price_monthly, 2).' '.__('dashboard.monthly')
+                    .' / '.number_format((float) $price->price_yearly, 2).' '.__('dashboard.yearly');
 
                 if ($price->currency) {
-                    $label .= ' - '.number_format((float) $price->price, 2).' '.$price->currency->code;
+                    $label .= ' - '.$price->currency->code;
                 }
 
                 return [$price->id => $label];
@@ -220,10 +244,13 @@ class PackagesRelationManager extends RelationManager
             return;
         }
 
-        $set('price', $price->price);
+        $period = $get('period') ?? 'monthly';
+        $durationType = $period === 'yearly' ? 'year' : 'month';
+
+        $set('price', $period === 'yearly' ? $price->price_yearly : $price->price_monthly);
         $set('currency_id', $price->currency_id);
-        $set('duration_type', $price->duration_type);
-        $set('duration', $price->duration);
+        $set('duration', 1);
+        $set('duration_type', $durationType);
 
         $this->syncExpiry($set, $get);
     }

@@ -44,7 +44,7 @@
 
 ### Routes
 
-- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `GET packages` (active packages + prices; `?country_id=` filters prices), `POST tenants` (accepts `packages[]` = `[{package_id, price_id}]`, one price per selected package).
+- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `GET packages` (active packages; `?country_id=` **required**, falls back to the `is_default` price when the country has no price), `POST tenants` (accepts `packages[]` = `[{package_id, price_id, period}]`, `period` = `monthly`/`yearly`, one price per selected package).
 - **Tenant API** (`routes/tenant.php`): Auth (register/verify/login/logout/forgot-password), products, categories, governorates, contacts, cart CRUD, coupon apply, checkout (OTP flow), orders, favorites, profile, reviews, home, pages. **Do not register `GET /` here** — it overwrites the central landing and `PreventAccessFromCentralDomains` returns 404 on central domains.
 - **Public web** (`routes/web.php`): Landing (`/` + `/platform`), legal pages, WhatsApp/Messenger webhooks, tenant login, forgot-password OTP flow, WhatsApp/Messenger onboarding (central domain middleware).
 - **GitHub Actions** (no test CI): `deploy.yml` runs on `dev` push, `deploy-production.yml` on `main` push / `workflow_dispatch`. Both SSH into the server and deploy there. No tests run in CI.

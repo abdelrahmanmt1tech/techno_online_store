@@ -233,12 +233,10 @@ class HomePageDataSeeder extends Seeder
                 'desc' => ['ar' => 'متجر إلكتروني متكامل مع كل أساسيات التجارة', 'en' => 'Full online store with all commerce essentials'],
                 'module' => 'store',
                 'sort' => 1,
-                'trials_duration' => 7,
+                'trials_duration' => 14,
                 'prices' => [
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 99, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 990, 'duration' => 1, 'duration_type' => 'year'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 499, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 4990, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price_monthly' => 99, 'price_yearly' => 990, 'is_default' => true],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price_monthly' => 499, 'price_yearly' => 4990, 'is_default' => false],
                 ],
             ],
             [
@@ -246,12 +244,10 @@ class HomePageDataSeeder extends Seeder
                 'desc' => ['ar' => 'نظام نقاط بيع مع سحوبات وكاشير وصرف', 'en' => 'Point of sale with cash drawers, sessions and payouts'],
                 'module' => 'pos',
                 'sort' => 2,
-                'trials_duration' => 7,
+                'trials_duration' => 14,
                 'prices' => [
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 49, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 490, 'duration' => 1, 'duration_type' => 'year'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 249, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 2490, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price_monthly' => 49, 'price_yearly' => 490, 'is_default' => true],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price_monthly' => 249, 'price_yearly' => 2490, 'is_default' => false],
                 ],
             ],
             [
@@ -259,12 +255,10 @@ class HomePageDataSeeder extends Seeder
                 'desc' => ['ar' => 'عملاء، مصادر عملاء، وموردون', 'en' => 'Clients, lead sources and suppliers'],
                 'module' => 'crm',
                 'sort' => 3,
-                'trials_duration' => 7,
+                'trials_duration' => 14,
                 'prices' => [
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 79, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 790, 'duration' => 1, 'duration_type' => 'year'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 399, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 3990, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price_monthly' => 79, 'price_yearly' => 790, 'is_default' => true],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price_monthly' => 399, 'price_yearly' => 3990, 'is_default' => false],
                 ],
             ],
             [
@@ -272,12 +266,10 @@ class HomePageDataSeeder extends Seeder
                 'desc' => ['ar' => 'محاسبة القيد المزدوج مع الترحيل التلقائي', 'en' => 'Double-entry accounting with auto journal posting'],
                 'module' => 'accounting',
                 'sort' => 4,
-                'trials_duration' => 7,
+                'trials_duration' => 14,
                 'prices' => [
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 129, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 1290, 'duration' => 1, 'duration_type' => 'year'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 649, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 6490, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price_monthly' => 129, 'price_yearly' => 1290, 'is_default' => true],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price_monthly' => 649, 'price_yearly' => 6490, 'is_default' => false],
                 ],
             ],
             [
@@ -288,10 +280,8 @@ class HomePageDataSeeder extends Seeder
                 'sort' => 5,
                 'trials_duration' => 14,
                 'prices' => [
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 299, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price' => 2990, 'duration' => 1, 'duration_type' => 'year'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 1499, 'duration' => 1, 'duration_type' => 'month'],
-                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price' => 14990, 'duration' => 1, 'duration_type' => 'year'],
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price_monthly' => 299, 'price_yearly' => 2990, 'is_default' => true],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price_monthly' => 1499, 'price_yearly' => 14990, 'is_default' => false],
                 ],
             ],
         ];
@@ -302,7 +292,7 @@ class HomePageDataSeeder extends Seeder
                 'is_full_package' => $spec['is_full_package'] ?? false,
                 'name' => $spec['name'],
                 'desc' => $spec['desc'] ?? null,
-                'trials_duration' => $spec['trials_duration'] ?? 7,
+                'trials_duration' => $spec['trials_duration'] ?? 14,
                 'sort' => $spec['sort'] ?? 0,
                 'is_active' => true,
             ]);
@@ -311,9 +301,9 @@ class HomePageDataSeeder extends Seeder
                 $package->prices()->create([
                     'country_id' => $p['country']->id,
                     'currency_id' => $p['currency']->id,
-                    'price' => $p['price'],
-                    'duration' => $p['duration'],
-                    'duration_type' => $p['duration_type'],
+                    'price_monthly' => $p['price_monthly'],
+                    'price_yearly' => $p['price_yearly'],
+                    'is_default' => $p['is_default'] ?? false,
                 ]);
             }
         }
