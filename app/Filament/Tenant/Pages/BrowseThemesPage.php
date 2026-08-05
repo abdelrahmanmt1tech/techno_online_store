@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Pages;
 use App\Models\Category;
 use App\Models\TenantThemeSubscription;
 use App\Models\Theme;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -176,6 +177,6 @@ class BrowseThemesPage extends Page
 
     public static function canAccess(): bool
     {
-        return Auth::user()->can('themes.browse');
+        return tenant_module_enabled(TenantModule::Store) && Auth::user()->can('themes.browse');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Pages\Accounting;
 use App\Models\Tenant\AccountTree;
 use App\Models\Tenant\Branch;
 use App\Models\Tenant\FinancialPeriod;
+use App\Support\Modules\TenantModule;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Carbon;
@@ -34,13 +35,13 @@ class BalanceSheet extends Page
     public static function shouldRegisterNavigation(): bool
     {
         $user = Auth::user();
-        return $user?->can('balance_sheet.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && ($user?->can('balance_sheet.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
         $user = Auth::user();
-        return $user?->can('balance_sheet.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && ($user?->can('balance_sheet.view') ?? false);
     }
 
 

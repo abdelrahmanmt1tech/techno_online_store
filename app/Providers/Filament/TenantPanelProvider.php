@@ -14,6 +14,7 @@ use App\Http\Controllers\Tenant\Hr\SalarySlipPrintController;
 use App\Http\Controllers\Tenant\Pos\PosApiController;
 use App\Http\Controllers\Tenant\Pos\PosPageController;
 use App\Http\Middleware\EnsureTenantIsInitialized;
+use App\Http\Middleware\EnsureTenantModuleActive;
 use App\Http\Middleware\TenantAuthenticateSession;
 use App\Support\Filament\TenantNavigationBuilder;
 use Filament\Http\Middleware\Authenticate;
@@ -92,36 +93,40 @@ class TenantPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->authenticatedRoutes(function () {
-                Route::get(
-                    'erp/sales-invoices/{salesInvoice}/print',
-                    SalesInvoicePrintController::class,
-                )->name('erp.sales-invoices.print');
+                Route::middleware([EnsureTenantModuleActive::class.':store,pos'])->group(function () {
+                    Route::get(
+                        'erp/sales-invoices/{salesInvoice}/print',
+                        SalesInvoicePrintController::class,
+                    )->name('erp.sales-invoices.print');
 
-                Route::get(
-                    'erp/purchase-invoices/{purchaseInvoice}/print',
-                    PurchaseInvoicePrintController::class,
-                )->name('erp.purchase-invoices.print');
+                    Route::get(
+                        'erp/purchase-invoices/{purchaseInvoice}/print',
+                        PurchaseInvoicePrintController::class,
+                    )->name('erp.purchase-invoices.print');
+                });
 
-                Route::get('pos', PosPageController::class)->name('pos');
-                Route::get('pos/receipt/{sale}', [PosApiController::class, 'receipt'])->name('pos.receipt');
+                Route::middleware([EnsureTenantModuleActive::class.':pos'])->group(function () {
+                    Route::get('pos', PosPageController::class)->name('pos');
+                    Route::get('pos/receipt/{sale}', [PosApiController::class, 'receipt'])->name('pos.receipt');
 
-                Route::prefix('pos/api')->name('pos.api.')->group(function () {
-                    Route::get('bootstrap', [PosApiController::class, 'bootstrap'])->name('bootstrap');
-                    Route::get('products', [PosApiController::class, 'products'])->name('products');
-                    Route::get('barcode', [PosApiController::class, 'barcode'])->name('barcode');
-                    Route::get('customers', [PosApiController::class, 'customers'])->name('customers');
-                    Route::post('customers', [PosApiController::class, 'storeCustomer'])->name('customers.store');
-                    Route::post('session/open', [PosApiController::class, 'openSession'])->name('session.open');
-                    Route::get('session/status', [PosApiController::class, 'sessionStatus'])->name('session.status');
-                    Route::post('session/close', [PosApiController::class, 'closeSession'])->name('session.close');
-                    Route::get('session/summary', [PosApiController::class, 'shiftSummary'])->name('session.summary');
-                    Route::post('cash-in', [PosApiController::class, 'cashIn'])->name('cash-in');
-                    Route::post('cash-out', [PosApiController::class, 'cashOut'])->name('cash-out');
-                    Route::post('checkout', [PosApiController::class, 'checkout'])->name('checkout');
-                    Route::post('suspend', [PosApiController::class, 'suspend'])->name('suspend');
-                    Route::get('suspended', [PosApiController::class, 'suspended'])->name('suspended');
-                    Route::post('suspended/{sale}/resume', [PosApiController::class, 'resume'])->name('suspended.resume');
-                    Route::post('suspended/{sale}/cancel', [PosApiController::class, 'cancelSuspended'])->name('suspended.cancel');
+                    Route::prefix('pos/api')->name('pos.api.')->group(function () {
+                        Route::get('bootstrap', [PosApiController::class, 'bootstrap'])->name('bootstrap');
+                        Route::get('products', [PosApiController::class, 'products'])->name('products');
+                        Route::get('barcode', [PosApiController::class, 'barcode'])->name('barcode');
+                        Route::get('customers', [PosApiController::class, 'customers'])->name('customers');
+                        Route::post('customers', [PosApiController::class, 'storeCustomer'])->name('customers.store');
+                        Route::post('session/open', [PosApiController::class, 'openSession'])->name('session.open');
+                        Route::get('session/status', [PosApiController::class, 'sessionStatus'])->name('session.status');
+                        Route::post('session/close', [PosApiController::class, 'closeSession'])->name('session.close');
+                        Route::get('session/summary', [PosApiController::class, 'shiftSummary'])->name('session.summary');
+                        Route::post('cash-in', [PosApiController::class, 'cashIn'])->name('cash-in');
+                        Route::post('cash-out', [PosApiController::class, 'cashOut'])->name('cash-out');
+                        Route::post('checkout', [PosApiController::class, 'checkout'])->name('checkout');
+                        Route::post('suspend', [PosApiController::class, 'suspend'])->name('suspend');
+                        Route::get('suspended', [PosApiController::class, 'suspended'])->name('suspended');
+                        Route::post('suspended/{sale}/resume', [PosApiController::class, 'resume'])->name('suspended.resume');
+                        Route::post('suspended/{sale}/cancel', [PosApiController::class, 'cancelSuspended'])->name('suspended.cancel');
+                    });
                 });
 
                 Route::get('hr/attendance', [EmployeeAttendanceController::class, 'page'])->name('hr.attendance');

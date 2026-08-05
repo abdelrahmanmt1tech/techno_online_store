@@ -72,9 +72,16 @@ If you want to rename a group or a custom label, edit:
 - `lang/ar/tenant_navigation.php`
 - `lang/en/tenant_navigation.php`
 
-### Notes
+### Module gating
 
-- This customization changes sidebar presentation only.
-- It does not add new permissions.
-- It does not replace existing resource/page authorization.
-- Hidden items that do not register navigation remain hidden.
+Sidebar entries are filtered by sellable modules before render (`TenantModuleGate` / `tenant_module_any_enabled()`).
+
+Examples:
+
+- Products + categories → `store` **or** `pos`
+- POS terminal + POS resources → `pos`
+- Storefront ecommerce → `store`
+- CRM / messaging → `crm`
+- Finance & accounting → `accounting`
+
+See [`docs/tenant-modules.md`](tenant-modules.md) for the full ownership map.

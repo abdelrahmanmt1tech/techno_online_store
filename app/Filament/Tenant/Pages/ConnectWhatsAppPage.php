@@ -4,6 +4,7 @@ namespace App\Filament\Tenant\Pages;
 
 use App\Filament\Shared\WhatsApp\Concerns\ChecksWhatsAppPermissions;
 use App\Filament\Tenant\Resources\WhatsAppNumbers\WhatsAppNumberResource;
+use App\Support\Modules\TenantModule;
 use App\WhatsApp\Enums\WhatsAppConnectionMethod;
 use App\WhatsApp\Onboarding\WhatsAppOnboardingStateService;
 use BackedEnum;
@@ -40,7 +41,7 @@ class ConnectWhatsAppPage extends Page
 
     public static function canAccess(): bool
     {
-        return static::canWhatsAppPermission('whatsapp.manage_numbers');
+        return tenant_module_enabled(TenantModule::Crm) && static::canWhatsAppPermission('whatsapp.manage_numbers');
     }
 
     public function isCoexistenceConfigured(): bool

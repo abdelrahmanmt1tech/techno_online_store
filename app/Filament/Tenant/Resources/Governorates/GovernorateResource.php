@@ -46,7 +46,7 @@ class GovernorateResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('governorates.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Store) && (Auth::user()->can('governorates.view'));
     }
 
     public static function canCreate(): bool

@@ -57,17 +57,17 @@ class OperationResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->can('operations.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('operations.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('operations.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('operations.view') ?? false);
     }
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->can('operations.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('operations.view') ?? false);
     }
 
     public static function canView($record): bool

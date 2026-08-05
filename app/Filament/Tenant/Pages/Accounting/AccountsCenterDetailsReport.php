@@ -7,6 +7,7 @@ use App\Models\Tenant\AccountsCenterMovement;
 use App\Models\Tenant\Branch;
 use App\Models\Tenant\Client;
 use App\Models\Tenant\Supplier;
+use App\Support\Modules\TenantModule;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
@@ -49,12 +50,12 @@ class AccountsCenterDetailsReport extends Page implements HasTable
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->can('accounts_center_details_report.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && (Auth::user()?->can('accounts_center_details_report.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('accounts_center_details_report.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && (Auth::user()?->can('accounts_center_details_report.view') ?? false);
     }
 
     public function getTitle(): string

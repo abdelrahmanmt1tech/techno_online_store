@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Tenant\FavoriteController;
 use App\Http\Controllers\Api\Tenant\FooterController;
 use App\Http\Controllers\Api\Tenant\GovernorateController;
 use App\Http\Controllers\Api\Tenant\HomeController;
+use App\Http\Controllers\Api\Tenant\ModuleController;
 use App\Http\Controllers\Api\Tenant\OrderController;
 use App\Http\Controllers\Api\Tenant\PageController;
 use App\Http\Controllers\Api\Tenant\ProductController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Crm\Reports\EmployeePerformanceReportPrintController;
 use App\Http\Controllers\Crm\Reports\FollowUpReportPrintController;
 use App\Http\Controllers\Crm\Reports\OpportunityReportPrintController;
 use App\Http\Controllers\Crm\Reports\SourceReportPrintController;
+use App\Http\Middleware\EnsureTenantModuleActive;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -56,27 +58,6 @@ Route::middleware([
             Route::post('reset-password', [PasswordResetController::class, 'resetPassword']);
         });
 
-        // المنتجات (عام)
-        Route::get('products', [ProductController::class, 'index']);
-        Route::get('products/{slug}', [ProductController::class, 'show']);
-        Route::get('products/{slug}/similar', [ProductController::class, 'similar']);
-
-        // التصنيفات (عام)
-        Route::get('categories', [CategoryController::class, 'index']);
-        Route::get('categories/{slug}', [CategoryController::class, 'show']);
-
-        // المحافظات (عام)
-        Route::get('governorates', [GovernorateController::class, 'index']);
-
-        // جهات الاتصال
-        Route::post('contacts', [ContactController::class, 'store']);
-
-        // المفضلة
-        Route::prefix('favorites')->middleware(['auth:sanctum'])->group(function () {
-            Route::post('/', [FavoriteController::class, 'toggle']);
-            Route::get('/', [FavoriteController::class, 'getFavorites']);
-        });
-
         // الملف الشخصي
         Route::prefix('profile')->middleware(['auth:sanctum'])->group(function () {
             Route::get('/', [ProfileController::class, 'show']);
@@ -84,53 +65,80 @@ Route::middleware([
             Route::post('/password', [ProfileController::class, 'updatePassword']);
         });
 
-        // السلة
-        Route::post('cart/items', [CartController::class, 'addItem']);
-        Route::get('cart/{token}', [CartController::class, 'show']);
-        Route::get('cart/{token}/count', [CartController::class, 'count']);
-        Route::post('cart/{token}/items/{item}', [CartController::class, 'updateItem']);
-        Route::delete('cart/{token}/items/{item}', [CartController::class, 'removeItem']);
-        Route::post('cart/{token}/governorate', [CartController::class, 'setGovernorate']);
+        // حالة الموديولات — متاحة دائمًا حتى لو المتجر غير مشترك
+        Route::get('modules', [ModuleController::class, 'index']);
+        Route::get('modules/store', [ModuleController::class, 'store']);
 
-        // الكوبونات
-        Route::post('cart/{token}/coupon', [CartController::class, 'applyCoupon']);
+        Route::middleware([EnsureTenantModuleActive::class.':store'])->group(function () {
+            // المنتجات (عام) — واجهة المتجر الإلكترونية
+            Route::get('products', [ProductController::class, 'index']);
+            Route::get('products/{slug}', [ProductController::class, 'show']);
+            Route::get('products/{slug}/similar', [ProductController::class, 'similar']);
 
-        // إتمام الطلب والتتبع
-        Route::post('cart/{token}/checkout/send-otp', [CheckoutOtpController::class, 'sendOtp']);
-        Route::post('cart/{token}/checkout/verify', [CheckoutOtpController::class, 'verifyAndCheckout']);
-        Route::post('checkout/{token}', [CheckoutController::class, 'store']);
+            // التصنيفات (عام)
+            Route::get('categories', [CategoryController::class, 'index']);
+            Route::get('categories/{slug}', [CategoryController::class, 'show']);
 
-        Route::prefix('my-orders')->middleware(['auth:sanctum'])->group(function () {
-            Route::get('/', [OrderController::class, 'index']);
-            Route::get('{id}', [OrderController::class, 'showById']);
-            Route::post('{id}/cancel', [OrderController::class, 'cancel']);
+            // المحافظات (عام)
+            Route::get('governorates', [GovernorateController::class, 'index']);
+
+            // جهات الاتصال
+            Route::post('contacts', [ContactController::class, 'store']);
+
+            // المفضلة
+            Route::prefix('favorites')->middleware(['auth:sanctum'])->group(function () {
+                Route::post('/', [FavoriteController::class, 'toggle']);
+                Route::get('/', [FavoriteController::class, 'getFavorites']);
+            });
+
+            // السلة
+            Route::post('cart/items', [CartController::class, 'addItem']);
+            Route::get('cart/{token}', [CartController::class, 'show']);
+            Route::get('cart/{token}/count', [CartController::class, 'count']);
+            Route::post('cart/{token}/items/{item}', [CartController::class, 'updateItem']);
+            Route::delete('cart/{token}/items/{item}', [CartController::class, 'removeItem']);
+            Route::post('cart/{token}/governorate', [CartController::class, 'setGovernorate']);
+
+            // الكوبونات
+            Route::post('cart/{token}/coupon', [CartController::class, 'applyCoupon']);
+
+            // إتمام الطلب والتتبع
+            Route::post('cart/{token}/checkout/send-otp', [CheckoutOtpController::class, 'sendOtp']);
+            Route::post('cart/{token}/checkout/verify', [CheckoutOtpController::class, 'verifyAndCheckout']);
+            Route::post('checkout/{token}', [CheckoutController::class, 'store']);
+
+            Route::prefix('my-orders')->middleware(['auth:sanctum'])->group(function () {
+                Route::get('/', [OrderController::class, 'index']);
+                Route::get('{id}', [OrderController::class, 'showById']);
+                Route::post('{id}/cancel', [OrderController::class, 'cancel']);
+            });
+
+            Route::get('orders/{token}', [OrderController::class, 'show']);
+
+            // المراجعات
+            Route::post('reviews', [ReviewController::class, 'store'])->middleware('auth:sanctum');
+            Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
+
+            // الصفحة الرئيسية
+            Route::get('home', HomeController::class);
+
+            // الإعدادات
+            Route::get('settings', SettingController::class);
+
+            // الفوتر
+            Route::get('footer', FooterController::class);
+
+            // اتصل بنا
+            Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);
+
+            // الفروع
+            Route::get('branches', [BranchController::class, 'index']);
+            Route::get('branches/{branch:slug}', [BranchController::class, 'show']);
+
+            // الصفحات
+            Route::get('pages', [PageController::class, 'index']);
+            Route::get('pages/{slug}', [PageController::class, 'show']);
         });
-
-        Route::get('orders/{token}', [OrderController::class, 'show']);
-
-        // المراجعات
-        Route::post('reviews', [ReviewController::class, 'store'])->middleware('auth:sanctum');
-        Route::get('products/{slug}/reviews', [ReviewController::class, 'index']);
-
-        // الصفحة الرئيسية
-        Route::get('home', HomeController::class);
-
-        // الإعدادات
-        Route::get('settings', SettingController::class);
-
-        // الفوتر
-        Route::get('footer', FooterController::class);
-
-        // اتصل بنا
-        Route::get('contact-us/page-data', [ContactController::class, 'contactUs']);
-
-        // الفروع
-        Route::get('branches', [BranchController::class, 'index']);
-        Route::get('branches/{branch:slug}', [BranchController::class, 'show']);
-
-        // الصفحات
-        Route::get('pages', [PageController::class, 'index']);
-        Route::get('pages/{slug}', [PageController::class, 'show']);
     });
 });
 
@@ -139,6 +147,7 @@ Route::middleware([
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
     'auth:tenant',
+    EnsureTenantModuleActive::class.':crm',
 ])->prefix('crm/reports')->name('crm.reports.')->group(function () {
     Route::get('customers/print', CustomerReportPrintController::class)->name('customers.print');
     Route::get('sources/print', SourceReportPrintController::class)->name('sources.print');

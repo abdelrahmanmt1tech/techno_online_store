@@ -55,17 +55,17 @@ class FinancialPeriodResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->can('financial_periods.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('financial_periods.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('financial_periods.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('financial_periods.view') ?? false);
     }
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->can('financial_periods.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('financial_periods.view') ?? false);
     }
 
     public static function canView($record): bool

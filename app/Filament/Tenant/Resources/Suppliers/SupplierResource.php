@@ -46,7 +46,7 @@ class SupplierResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('erp.suppliers.view');
+        return tenant_module_any_enabled(\App\Support\Modules\TenantModule::Store, \App\Support\Modules\TenantModule::Pos, \App\Support\Modules\TenantModule::Crm) && (Auth::user()->can('erp.suppliers.view'));
     }
 
     public static function canCreate(): bool

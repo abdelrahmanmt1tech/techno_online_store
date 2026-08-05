@@ -43,7 +43,7 @@ class StockMovementResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('erp.stock_movements.view');
+        return tenant_module_any_enabled(\App\Support\Modules\TenantModule::Store, \App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.stock_movements.view'));
     }
 
     public static function canCreate(): bool

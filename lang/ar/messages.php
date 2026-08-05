@@ -9,4 +9,5 @@ return [
     'successfully' => 'تم بنجاح',
     'review_not_eligible' => 'يمكنك مراجعة المنتجات فقط من الطلبات المسلّمة.',
     'review_already_exists' => 'لقد قمت بمراجعة هذا المنتج بالفعل.',
+    'module_not_available' => 'هذه الوحدة غير متاحة لاشتراك المتجر الحالي.',
 ];

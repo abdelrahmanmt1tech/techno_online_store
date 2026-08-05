@@ -18,10 +18,11 @@
 
 **الملف:** `app/Filament/Concerns/HasTenantFeatureAccess.php`
 
-- استبدال `return true;` بـ:
+- استبدال stub `return true;` بـ:
   ```php
   return tenant_module_enabled(TenantModule::Crm);
   ```
+- **تم التنفيذ (2026-08-05):** البوابة فعّالة؛ Client/LeadSource يمتدان `CrmResource`؛ لوحة `/app/crm` تستخدم `EnsureTenantModuleActive:crm`.
 - سطر واحد يقفل تلقائيًا:
   - الـ 8 رويسورسات عبر `CrmResource::canViewAny()` / `shouldRegisterNavigation()`.
   - الـ 9 صفحات عبر `CrmPage::canAccess()`.

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Tenant\Resources\Clients;
 
+use App\Filament\Crm\CrmResource;
 use App\Filament\Tenant\Resources\Clients\RelationManagers\ClientNotesRelationManager;
 use App\Filament\Tenant\Resources\Clients\RelationManagers\ClientOpportunitiesRelationManager;
 use App\Filament\Tenant\Resources\Clients\Pages\CreateClient;
@@ -13,7 +14,6 @@ use App\Filament\Tenant\Resources\Clients\Schemas\ClientInfolist;
 use App\Filament\Tenant\Resources\Clients\Tables\ClientsTable;
 use App\Models\Tenant\Client;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
@@ -21,23 +21,20 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
-class ClientResource extends Resource
+class ClientResource extends CrmResource
 {
     protected static ?string $model = Client::class;
 
-//    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
     protected static ?string $recordTitleAttribute = 'name';
-
-
-
 
     protected static ?string $slug = 'clients';
 
     protected static ?int $navigationSort = 40;
 
     protected static ?string $navigationLabel = null;
+
     protected static ?string $pluralModelLabel = null;
+
     protected static ?string $modelLabel = null;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
@@ -62,57 +59,52 @@ class ClientResource extends Resource
         return __('dashboard.resources.client.nav_group');
     }
 
-    public static function shouldRegisterNavigation(): bool
-    {
-        return Auth::user()?->can('clients.view') ?? false;
-    }
-
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('clients.view') ?? false;
+        return static::canViewAny();
     }
 
-    public static function canViewAny(): bool
+    public static function canViewAnyByPermission(): bool
     {
         return Auth::user()?->can('clients.view') ?? false;
     }
 
-    public static function canCreate(): bool
+    public static function canCreateByPermission(): bool
     {
         return Auth::user()?->can('clients.create') ?? false;
     }
 
-    public static function canEdit($record): bool
+    public static function canEditByPermission($record): bool
     {
         return Auth::user()?->can('clients.update') ?? false;
     }
 
-    public static function canDelete($record): bool
+    public static function canDeleteByPermission($record): bool
     {
         return Auth::user()?->can('clients.delete') ?? false;
     }
 
-    public static function canRestore($record): bool
+    public static function canRestoreByPermission($record): bool
     {
         return Auth::user()?->can('clients.restore') ?? false;
     }
 
-    public static function canForceDelete($record): bool
+    public static function canForceDeleteByPermission($record): bool
     {
         return Auth::user()?->can('clients.force_delete') ?? false;
     }
 
-    public static function canDeleteAny(): bool
+    public static function canDeleteAnyByPermission(): bool
     {
         return Auth::user()?->can('clients.delete_bulk') ?? false;
     }
 
-    public static function canRestoreAny(): bool
+    public static function canRestoreAnyByPermission(): bool
     {
         return Auth::user()?->can('clients.restore_bulk') ?? false;
     }
 
-    public static function canForceDeleteAny(): bool
+    public static function canForceDeleteAnyByPermission(): bool
     {
         return Auth::user()?->can('clients.force_delete_bulk') ?? false;
     }

@@ -8,6 +8,7 @@ use App\Filament\Tenant\Resources\Clients\ClientResource;
 use App\Filament\Tenant\Resources\LeadSources\LeadSourceResource;
 use App\Filament\Tenant\Resources\Suppliers\SupplierResource;
 use App\Http\Middleware\EnsureTenantIsInitialized;
+use App\Http\Middleware\EnsureTenantModuleActive;
 use App\Http\Middleware\TenantAuthenticateSession;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -85,6 +86,7 @@ class CrmPanelProvider extends PanelProvider
                 InitializeTenancyByDomain::class,
                 PreventAccessFromCentralDomains::class,
                 EnsureTenantIsInitialized::class,
+                EnsureTenantModuleActive::class.':crm',
             ])
             ->authMiddleware([
                 Authenticate::class,

@@ -57,7 +57,7 @@ class InvoicePrintSettingResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('erp.invoice_print.view');
+        return tenant_module_any_enabled(\App\Support\Modules\TenantModule::Store, \App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.invoice_print.view'));
     }
 
     public static function canEdit(Model $record): bool

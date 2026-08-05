@@ -68,17 +68,17 @@ class AccountsCenterResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->can('accounts_centers.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('accounts_centers.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('accounts_centers.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('accounts_centers.view') ?? false);
     }
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->can('accounts_centers.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('accounts_centers.view') ?? false);
     }
 
     public static function canCreate(): bool

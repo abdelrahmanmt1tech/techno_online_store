@@ -3,6 +3,7 @@
 namespace App\Filament\Tenant\Pages;
 
 use App\Models\Setting;
+use App\Support\Modules\TenantModule;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
@@ -47,7 +48,7 @@ class FooterSettings extends Page
 
     public static function canAccess(): bool
     {
-        return Auth::user()->can('footer-settings.view');
+        return tenant_module_enabled(TenantModule::Store) && Auth::user()->can('footer-settings.view');
     }
 
     public function mount(): void

@@ -34,7 +34,7 @@
  - **Tenant** (`/app`, `authGuard('tenant')`) — per-tenant. Discovers `app/Filament/Tenant/{Resources,Pages}/` **and** `app/Filament/Crm/{Resources,Pages,Widgets}`.
  - **CRM** (`/app/crm`, `authGuard('tenant')`, primary Teal) — peer merchant CRM panel (`CrmPanelProvider`). Discovers `app/Filament/Crm/*`; explicitly registers Client, LeadSource, Supplier (those live under `app/Filament/Tenant/Resources/`). Grown into a full pipeline: Opportunities (+ stages, follow-ups, notes, commissions, payment cycles), Campaigns — plus commission/report pages (`app/Filament/Crm/Pages/`) and `/crm/reports/*/print` routes in `routes/tenant.php`.
 - CRM + double-entry accounting port notes: [`docs/crm-accounting-port.md`](docs/crm-accounting-port.md). Accounting UI nav group: `__('erp.nav.accounts')` («حسابات وقيود»).
-- **Merchant modules** (per-module subscription; plan packages cancelled as gating model): [`docs/tenant-modules.md`](docs/tenant-modules.md). Gate: `tenant_module_enabled()` / `TenantModuleGate` (always `true` until billing). Auto journal posting only when `tenant_accounting_active()`.
+- **Merchant modules** (per-module subscription): [`docs/tenant-modules.md`](docs/tenant-modules.md). Gate: `tenant_module_enabled()` / `tenant_module_any_enabled()` / `TenantModuleGate` (from active `tenant_packages`; opened by `BYPASS_PERMISSIONS` in non-production). Auto journal posting only when `tenant_accounting_active()`.
 - **Central DB**: `admins`, `tenants`, `domains`, `permissions`, `roles`, sessions/cache/jobs.
 - **Per-tenant DBs**: `rwadsolu_tenant_{uuid}` (prefix in `config/tenancy.php`). Created synchronously via `CreateDatabase` → `MigrateDatabase`. `SeedTenantDatabase` (a **queued** job, `ShouldQueue`) is dispatched from `CreateTenant.php` and the API controller, not run in the event pipeline.
 - **Tenant migrations**: `database/migrations/tenant/` (non-default, set in `tenancy.migration_parameters`).
@@ -124,6 +124,7 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Work lands on `dev` (old
 |---|---|
 | [`docs/crm-accounting-port.md`](docs/crm-accounting-port.md) | CRM + double-entry accounting port |
 | [`docs/tenant-modules.md`](docs/tenant-modules.md) | Merchant module gating model (`tenant_module_enabled()`) |
+| [`docs/tenant-modules-api.md`](docs/tenant-modules-api.md) | Storefront modules status API for frontend |
 | [`docs/commerce-core.md`](docs/commerce-core.md) | Shared catalog, UnifiedSalesEngine, POS foundation |
 | [`docs/pos-runtime.md`](docs/pos-runtime.md) | POS session lifecycle, cash flow, guard, receipts, shift reports |
 | [`docs/pos-interface.md`](docs/pos-interface.md) | POS Blade + Vue terminal, routes, checkout/suspend/close flows |

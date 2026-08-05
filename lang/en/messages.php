@@ -9,4 +9,5 @@ return [
     'successfully' => 'Successfully',
     'review_not_eligible' => 'You can only review products from delivered orders.',
     'review_already_exists' => 'You have already reviewed this product.',
+    'module_not_available' => 'This module is not available for the current store subscription.',
 ];

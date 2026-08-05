@@ -4,6 +4,7 @@ namespace App\Filament\Tenant\Pages\Accounting;
 
 use App\Models\Tenant\AccountTree;
 use App\Models\Tenant\TenantSetting;
+use App\Support\Modules\TenantModule;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -36,6 +37,11 @@ class AccountingSettings extends Page
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-cog-6-tooth';
+    }
+
+    public static function canAccess(): bool
+    {
+        return tenant_module_enabled(TenantModule::Accounting);
     }
 
     public function mount(): void

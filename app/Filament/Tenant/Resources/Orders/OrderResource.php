@@ -48,7 +48,7 @@ class OrderResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('orders.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Store) && (Auth::user()->can('orders.view'));
     }
 
     public static function canCreate(): bool

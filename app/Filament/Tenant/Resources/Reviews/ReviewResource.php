@@ -42,7 +42,7 @@ class ReviewResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('reviews.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Store) && (Auth::user()->can('reviews.view'));
     }
 
     public static function canEdit(Model $record): bool

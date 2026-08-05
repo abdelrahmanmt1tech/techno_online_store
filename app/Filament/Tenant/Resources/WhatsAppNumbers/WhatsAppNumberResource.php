@@ -56,7 +56,7 @@ class WhatsAppNumberResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return static::canWhatsAppPermission('whatsapp.view_numbers');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Crm) && (static::canWhatsAppPermission('whatsapp.view_numbers'));
     }
 
     public static function canCreate(): bool

@@ -2,9 +2,11 @@
 
 namespace App\Filament\Tenant\Resources\PosSettings;
 
+use App\Filament\Concerns\RequiresTenantModule;
 use App\Filament\Tenant\Resources\PosSettings\Pages\ManagePosSettings;
 use App\Filament\Tenant\Resources\PosSettings\Schemas\PosSettingForm;
 use App\Models\Tenant\PosSetting;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -13,11 +15,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class PosSettingResource extends Resource
 {
+    use RequiresTenantModule;
+
     protected static ?string $model = PosSetting::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Cog6Tooth;
 
     protected static ?int $navigationSort = 403;
+
+    protected static function requiredTenantModules(): array
+    {
+        return [TenantModule::Pos];
+    }
 
     public static function getNavigationGroup(): ?string
     {

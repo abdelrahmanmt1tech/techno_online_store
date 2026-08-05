@@ -154,4 +154,14 @@ class TenantModuleGateTest extends TestCase
             $this->assertTrue(TenantModuleGate::enabled($module));
         }
     }
+
+    public function test_any_enabled_matches_shared_catalog_store_or_pos(): void
+    {
+        $this->subscribe($this->makePackage('pos'));
+
+        $this->assertTrue(TenantModuleGate::anyEnabled(TenantModule::Store, TenantModule::Pos));
+        $this->assertTrue(tenant_module_any_enabled(TenantModule::Store, TenantModule::Pos));
+        $this->assertFalse(TenantModuleGate::anyEnabled(TenantModule::Store, TenantModule::Crm));
+        $this->assertFalse(tenant_module_any_enabled('store', 'crm'));
+    }
 }

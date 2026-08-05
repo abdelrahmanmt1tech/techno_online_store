@@ -4,6 +4,7 @@ namespace App\Filament\Tenant\Pages;
 
 use App\Filament\Shared\WhatsApp\Concerns\ChecksWhatsAppPermissions;
 use App\Filament\Shared\WhatsApp\Concerns\InteractsWithWhatsAppInbox;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -31,7 +32,7 @@ class WhatsAppInboxPage extends Page
 
     public static function canAccess(): bool
     {
-        return static::canWhatsAppPermission('whatsapp.view_inbox');
+        return tenant_module_enabled(TenantModule::Crm) && static::canWhatsAppPermission('whatsapp.view_inbox');
     }
 
     public function mount(?int $conversation = null): void

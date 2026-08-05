@@ -47,7 +47,7 @@ class GoodsReceiptResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('erp.goods_receipts.view');
+        return tenant_module_any_enabled(\App\Support\Modules\TenantModule::Store, \App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.goods_receipts.view'));
     }
 
     public static function canCreate(): bool

@@ -52,7 +52,7 @@ class MessengerPageResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return static::canMessengerPermission('messenger.view_pages');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Crm) && (static::canMessengerPermission('messenger.view_pages'));
     }
 
     public static function canCreate(): bool

@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Pages;
 use App\Filament\Shared\Messenger\Concerns\ChecksMessengerPermissions;
 use App\Filament\Tenant\Resources\MessengerPages\MessengerPageResource;
 use App\Messenger\Onboarding\MessengerOnboardingStateService;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -39,7 +40,7 @@ class ConnectMessengerPage extends Page
 
     public static function canAccess(): bool
     {
-        return static::canMessengerPermission('messenger.manage_pages');
+        return tenant_module_enabled(TenantModule::Crm) && static::canMessengerPermission('messenger.manage_pages');
     }
 
     public function isFacebookLoginConfigured(): bool

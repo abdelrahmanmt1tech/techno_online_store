@@ -49,7 +49,7 @@ class MessengerWebhookEventResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return static::canMessengerPermission('messenger.view_webhook_events');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Crm) && (static::canMessengerPermission('messenger.view_webhook_events'));
     }
 
     public static function canView(Model $record): bool

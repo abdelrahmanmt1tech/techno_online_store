@@ -4,6 +4,7 @@ namespace App\Filament\Tenant\Pages;
 
 use App\Models\Tenant\Category;
 use App\Models\Tenant\HomeSection;
+use App\Support\Modules\TenantModule;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
@@ -53,7 +54,7 @@ class HomeSectionBuilder extends Page
 
     public static function canAccess(): bool
     {
-        return Auth::user()->can('settings.home_sections.view');
+        return tenant_module_enabled(TenantModule::Store) && Auth::user()->can('settings.home_sections.view');
     }
 
     public function mount(): void

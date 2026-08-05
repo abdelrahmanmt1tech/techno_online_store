@@ -48,7 +48,7 @@ class WhatsAppTemplateResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return static::canWhatsAppPermission('whatsapp.view_templates');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Crm) && (static::canWhatsAppPermission('whatsapp.view_templates'));
     }
 
     public static function canCreate(): bool

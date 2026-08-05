@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\Concerns;
 
+use App\Support\Modules\TenantModule;
+
 /**
- * SaaS feature gates are not used in techno_online_store.
- * Always pass so CRM resources remain usable during development.
+ * CRM feature gate — resources/pages/widgets that use this trait require an active CRM package.
  */
 trait HasTenantFeatureAccess
 {
     public static function passesTenantFeatureGate(): bool
     {
-        return true;
+        return tenant_module_enabled(TenantModule::Crm);
     }
 }

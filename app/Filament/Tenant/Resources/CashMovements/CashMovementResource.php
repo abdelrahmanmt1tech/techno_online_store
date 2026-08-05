@@ -2,10 +2,12 @@
 
 namespace App\Filament\Tenant\Resources\CashMovements;
 
+use App\Filament\Concerns\RequiresTenantModule;
 use App\Filament\Tenant\Resources\CashMovements\Pages\ListCashMovements;
 use App\Filament\Tenant\Resources\CashMovements\Pages\ViewCashMovement;
 use App\Filament\Tenant\Resources\CashMovements\Tables\CashMovementsTable;
 use App\Models\Tenant\CashMovement;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
@@ -13,11 +15,18 @@ use Filament\Tables\Table;
 
 class CashMovementResource extends Resource
 {
+    use RequiresTenantModule;
+
     protected static ?string $model = CashMovement::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Banknotes;
 
     protected static ?int $navigationSort = 404;
+
+    protected static function requiredTenantModules(): array
+    {
+        return [TenantModule::Pos];
+    }
 
     public static function getNavigationGroup(): ?string
     {

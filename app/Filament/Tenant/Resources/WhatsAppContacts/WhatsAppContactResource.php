@@ -54,7 +54,7 @@ class WhatsAppContactResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return static::canWhatsAppPermission('whatsapp.view_inbox');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Crm) && (static::canWhatsAppPermission('whatsapp.view_inbox'));
     }
 
     public static function canCreate(): bool

@@ -49,7 +49,7 @@ class WhatsAppWebhookEventResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return static::canWhatsAppPermission('whatsapp.view_webhook_events');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Crm) && (static::canWhatsAppPermission('whatsapp.view_webhook_events'));
     }
 
     public static function canView(Model $record): bool

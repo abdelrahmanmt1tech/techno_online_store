@@ -7,6 +7,7 @@ use App\Models\Tenant\AccountsCenter;
 use App\Models\Tenant\Client;
 use App\Models\Tenant\Entry;
 use App\Models\Tenant\Supplier;
+use App\Support\Modules\TenantModule;
 use Illuminate\Support\Facades\Schema;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -52,12 +53,12 @@ class AccountTreeCleanupPage extends Page implements HasTable
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->can('account_tree_cleanup.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && (Auth::user()?->can('account_tree_cleanup.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('account_tree_cleanup.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && (Auth::user()?->can('account_tree_cleanup.view') ?? false);
     }
 
     public function getTableRecordKey(Model|array $record): string

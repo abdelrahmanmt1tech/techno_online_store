@@ -48,7 +48,7 @@ class CustomerResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('customers.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Store) && (Auth::user()->can('customers.view'));
     }
 
     public static function canCreate(): bool

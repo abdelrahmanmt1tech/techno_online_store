@@ -5,6 +5,7 @@ namespace App\Filament\Tenant\Pages\Accounting;
 use App\Enums\OperationType;
 use App\Models\Tenant\FinancialPeriod;
 use App\Models\Tenant\Operation;
+use App\Support\Modules\TenantModule;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
@@ -43,12 +44,12 @@ class OpeningEntriesReport extends Page implements HasTable
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->can('opening_entries_report.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && (Auth::user()?->can('opening_entries_report.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('opening_entries_report.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && (Auth::user()?->can('opening_entries_report.view') ?? false);
     }
 
     public function table(Table $table): Table

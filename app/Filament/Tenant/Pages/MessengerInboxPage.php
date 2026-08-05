@@ -4,6 +4,7 @@ namespace App\Filament\Tenant\Pages;
 
 use App\Filament\Shared\Messenger\Concerns\ChecksMessengerPermissions;
 use App\Filament\Shared\Messenger\Concerns\InteractsWithMessengerInbox;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -31,7 +32,7 @@ class MessengerInboxPage extends Page
 
     public static function canAccess(): bool
     {
-        return static::canMessengerPermission('messenger.view_inbox');
+        return tenant_module_enabled(TenantModule::Crm) && static::canMessengerPermission('messenger.view_inbox');
     }
 
     public function mount(?int $conversation = null): void

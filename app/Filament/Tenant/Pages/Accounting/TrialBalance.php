@@ -7,6 +7,7 @@ use App\Models\Tenant\Client;
 use App\Models\Tenant\Entry;
 use App\Models\Tenant\FinancialPeriod;
 use App\Models\Tenant\Supplier;
+use App\Support\Modules\TenantModule;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
@@ -38,6 +39,11 @@ class TrialBalance extends Page implements HasTable
     public static function getNavigationGroup(): ?string
     {
         return __('erp.nav.accounts');
+    }
+
+    public static function canAccess(): bool
+    {
+        return tenant_module_enabled(TenantModule::Accounting);
     }
 
     public function getTitle(): string

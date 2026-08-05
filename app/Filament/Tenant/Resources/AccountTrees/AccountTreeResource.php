@@ -66,17 +66,17 @@ class AccountTreeResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->can('account_trees.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('account_trees.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('account_trees.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('account_trees.view') ?? false);
     }
 
     public static function canViewAny(): bool
     {
-        return Auth::user()?->can('account_trees.view') ?? false;
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Accounting) && (Auth::user()?->can('account_trees.view') ?? false);
     }
 
     public static function canView($record): bool

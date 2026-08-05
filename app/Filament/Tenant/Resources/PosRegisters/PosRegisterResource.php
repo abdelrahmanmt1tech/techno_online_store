@@ -2,12 +2,14 @@
 
 namespace App\Filament\Tenant\Resources\PosRegisters;
 
+use App\Filament\Concerns\RequiresTenantModule;
 use App\Filament\Tenant\Resources\PosRegisters\Pages\CreatePosRegister;
 use App\Filament\Tenant\Resources\PosRegisters\Pages\EditPosRegister;
 use App\Filament\Tenant\Resources\PosRegisters\Pages\ListPosRegisters;
 use App\Filament\Tenant\Resources\PosRegisters\Schemas\PosRegisterForm;
 use App\Filament\Tenant\Resources\PosRegisters\Tables\PosRegistersTable;
 use App\Models\Tenant\PosRegister;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,11 +18,18 @@ use Filament\Tables\Table;
 
 class PosRegisterResource extends Resource
 {
+    use RequiresTenantModule;
+
     protected static ?string $model = PosRegister::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ComputerDesktop;
 
     protected static ?int $navigationSort = 400;
+
+    protected static function requiredTenantModules(): array
+    {
+        return [TenantModule::Pos];
+    }
 
     public static function getNavigationGroup(): ?string
     {

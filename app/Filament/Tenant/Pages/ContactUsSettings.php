@@ -3,6 +3,7 @@
 namespace App\Filament\Tenant\Pages;
 
 use App\Models\Setting;
+use App\Support\Modules\TenantModule;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
@@ -47,7 +48,7 @@ class ContactUsSettings extends Page
 
     public static function canAccess(): bool
     {
-        return Auth::user()->can('settings.contact_us.view');
+        return tenant_module_enabled(TenantModule::Store) && Auth::user()->can('settings.contact_us.view');
     }
 
     public function mount(): void

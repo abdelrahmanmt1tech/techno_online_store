@@ -103,6 +103,8 @@ use App\Filament\Tenant\Resources\WhatsAppContacts\WhatsAppContactResource;
 use App\Filament\Tenant\Resources\WhatsAppNumbers\WhatsAppNumberResource;
 use App\Filament\Tenant\Resources\WhatsAppTemplates\WhatsAppTemplateResource;
 use App\Filament\Tenant\Resources\WhatsAppWebhookEvents\WhatsAppWebhookEventResource;
+use App\Support\Modules\TenantModule;
+use App\Support\Modules\TenantModuleGate;
 use Filament\Navigation\NavigationBuilder;
 use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
@@ -149,98 +151,108 @@ class TenantNavigationBuilder
     }
 
     /**
-     * @return array<string, array<int, array<string, string>|string>>
+     * modules: any of the listed sellable modules must be enabled.
+     * omit modules (or empty) = always eligible for module gate (still subject to resource canAccess).
+     *
+     * @return array<string, array<int, array<string, mixed>|string>>
      */
     private function groupEntries(): array
     {
+        $commerce = [TenantModule::Store, TenantModule::Pos];
+        $store = [TenantModule::Store];
+        $pos = [TenantModule::Pos];
+        $crm = [TenantModule::Crm];
+        $accounting = [TenantModule::Accounting];
+        $supplier = [TenantModule::Store, TenantModule::Pos, TenantModule::Crm];
+
         return [
             'sales_pos' => [
-                ['type' => 'manual', 'key' => 'pos_terminal'],
-                CashierSessionResource::class,
-                SalesInvoiceResource::class,
-                SalesReturnResource::class,
-                CashDrawerResource::class,
-                PosPaymentMethodResource::class,
-                SaleResource::class,
-                InvoicePaymentResource::class,
-                PosRegisterResource::class,
-                PosSettingResource::class,
-                CashMovementResource::class,
+                ['type' => 'manual', 'key' => 'pos_terminal', 'modules' => $pos],
+                ['class' => CashierSessionResource::class, 'modules' => $pos],
+                ['class' => SalesInvoiceResource::class, 'modules' => $commerce],
+                ['class' => SalesReturnResource::class, 'modules' => $commerce],
+                ['class' => CashDrawerResource::class, 'modules' => $pos],
+                ['class' => PosPaymentMethodResource::class, 'modules' => $pos],
+                ['class' => SaleResource::class, 'modules' => $commerce],
+                ['class' => InvoicePaymentResource::class, 'modules' => $commerce],
+                ['class' => PosRegisterResource::class, 'modules' => $pos],
+                ['class' => PosSettingResource::class, 'modules' => $pos],
+                ['class' => CashMovementResource::class, 'modules' => $pos],
             ],
             'purchases_suppliers' => [
-                PurchaseOrderResource::class,
-                GoodsReceiptResource::class,
-                PurchaseInvoiceResource::class,
-                PurchaseReturnResource::class,
-                ['class' => SupplierResource::class, 'label' => 'tenant_navigation.items.supplier_directory'],
+                ['class' => PurchaseOrderResource::class, 'modules' => $commerce],
+                ['class' => GoodsReceiptResource::class, 'modules' => $commerce],
+                ['class' => PurchaseInvoiceResource::class, 'modules' => $commerce],
+                ['class' => PurchaseReturnResource::class, 'modules' => $commerce],
+                ['class' => SupplierResource::class, 'label' => 'tenant_navigation.items.supplier_directory', 'modules' => $supplier],
             ],
             'inventory_management' => [
-                ['class' => InventoryItemResource::class, 'label' => 'tenant_navigation.items.inventory_and_products'],
-                ProductResource::class,
-                CategoryResource::class,
-                StockReceiptResource::class,
-                StockIssueResource::class,
-                StockTransferResource::class,
-                ['class' => StockAdjustmentResource::class, 'label' => 'tenant_navigation.items.stock_adjustments'],
-                ['class' => StockDamageResource::class, 'label' => 'tenant_navigation.items.stock_damages'],
-                StockMovementResource::class,
-                StockBalanceResource::class,
-                WarehouseResource::class,
+                ['class' => InventoryItemResource::class, 'label' => 'tenant_navigation.items.inventory_and_products', 'modules' => $commerce],
+                ['class' => ProductResource::class, 'modules' => $commerce],
+                ['class' => CategoryResource::class, 'modules' => $commerce],
+                ['class' => StockReceiptResource::class, 'modules' => $commerce],
+                ['class' => StockIssueResource::class, 'modules' => $commerce],
+                ['class' => StockTransferResource::class, 'modules' => $commerce],
+                ['class' => StockAdjustmentResource::class, 'label' => 'tenant_navigation.items.stock_adjustments', 'modules' => $commerce],
+                ['class' => StockDamageResource::class, 'label' => 'tenant_navigation.items.stock_damages', 'modules' => $commerce],
+                ['class' => StockMovementResource::class, 'modules' => $commerce],
+                ['class' => StockBalanceResource::class, 'modules' => $commerce],
+                ['class' => WarehouseResource::class, 'modules' => $commerce],
             ],
             'finance_accounting' => [
-                ProfitAndLoss::class,
-                TrialBalance::class,
-                ['class' => OperationResource::class, 'label' => 'tenant_navigation.items.accounting_entries'],
-                AccountTreeResource::class,
-                ['class' => AccountsCenterResource::class, 'label' => 'tenant_navigation.items.cost_centers'],
-                ['class' => PartyAccountStatement::class, 'label' => 'tenant_navigation.items.party_account_statement'],
-                GeneralLedger::class,
-                FinancialPeriodResource::class,
-                BalanceSheet::class,
-                AccountingSettings::class,
-                OpeningEntriesReport::class,
-                PeriodBalancesSnapshotReport::class,
-                AccountsCentersReport::class,
-                AccountsCenterDetailsReport::class,
-                AccountTreeCleanupPage::class,
+                ['class' => ProfitAndLoss::class, 'modules' => $accounting],
+                ['class' => TrialBalance::class, 'modules' => $accounting],
+                ['class' => OperationResource::class, 'label' => 'tenant_navigation.items.accounting_entries', 'modules' => $accounting],
+                ['class' => AccountTreeResource::class, 'modules' => $accounting],
+                ['class' => AccountsCenterResource::class, 'label' => 'tenant_navigation.items.cost_centers', 'modules' => $accounting],
+                ['class' => PartyAccountStatement::class, 'label' => 'tenant_navigation.items.party_account_statement', 'modules' => $accounting],
+                ['class' => GeneralLedger::class, 'modules' => $accounting],
+                ['class' => FinancialPeriodResource::class, 'modules' => $accounting],
+                ['class' => BalanceSheet::class, 'modules' => $accounting],
+                ['class' => AccountingSettings::class, 'modules' => $accounting],
+                ['class' => OpeningEntriesReport::class, 'modules' => $accounting],
+                ['class' => PeriodBalancesSnapshotReport::class, 'modules' => $accounting],
+                ['class' => AccountsCentersReport::class, 'modules' => $accounting],
+                ['class' => AccountsCenterDetailsReport::class, 'modules' => $accounting],
+                ['class' => AccountTreeCleanupPage::class, 'modules' => $accounting],
             ],
             'crm_marketing' => [
-                ['class' => ClientResource::class, 'label' => 'tenant_navigation.items.clients_and_leads'],
-                LeadClients::class,
-                OpportunityResource::class,
-                OpportunityFollowUpResource::class,
-                CampaignResource::class,
-                WhatsAppInboxPage::class,
-                ConnectWhatsAppPage::class,
-                WhatsAppNumberResource::class,
-                WhatsAppTemplateResource::class,
-                WhatsAppContactResource::class,
-                MessengerInboxPage::class,
-                ConnectMessengerPage::class,
-                MessengerPageResource::class,
-                LeadSourceResource::class,
-                OpportunityStageResource::class,
-                FollowUpTypeResource::class,
-                FollowUpStatusResource::class,
-                CustomerReportsPage::class,
-                SourceReportsPage::class,
-                OpportunityReportsPage::class,
-                FollowUpReportsPage::class,
-                CampaignReportsPage::class,
-                EmployeePerformanceReportsPage::class,
+                ['class' => ClientResource::class, 'label' => 'tenant_navigation.items.clients_and_leads', 'modules' => $crm],
+                ['class' => LeadClients::class, 'modules' => $crm],
+                ['class' => OpportunityResource::class, 'modules' => $crm],
+                ['class' => OpportunityFollowUpResource::class, 'modules' => $crm],
+                ['class' => CampaignResource::class, 'modules' => $crm],
+                ['class' => WhatsAppInboxPage::class, 'modules' => $crm],
+                ['class' => ConnectWhatsAppPage::class, 'modules' => $crm],
+                ['class' => WhatsAppNumberResource::class, 'modules' => $crm],
+                ['class' => WhatsAppTemplateResource::class, 'modules' => $crm],
+                ['class' => WhatsAppContactResource::class, 'modules' => $crm],
+                ['class' => MessengerInboxPage::class, 'modules' => $crm],
+                ['class' => ConnectMessengerPage::class, 'modules' => $crm],
+                ['class' => MessengerPageResource::class, 'modules' => $crm],
+                ['class' => LeadSourceResource::class, 'modules' => $crm],
+                ['class' => OpportunityStageResource::class, 'modules' => $crm],
+                ['class' => FollowUpTypeResource::class, 'modules' => $crm],
+                ['class' => FollowUpStatusResource::class, 'modules' => $crm],
+                ['class' => CustomerReportsPage::class, 'modules' => $crm],
+                ['class' => SourceReportsPage::class, 'modules' => $crm],
+                ['class' => OpportunityReportsPage::class, 'modules' => $crm],
+                ['class' => FollowUpReportsPage::class, 'modules' => $crm],
+                ['class' => CampaignReportsPage::class, 'modules' => $crm],
+                ['class' => EmployeePerformanceReportsPage::class, 'modules' => $crm],
             ],
             'ecommerce_website' => [
-                OrderResource::class,
-                CustomerResource::class,
-                CouponResource::class,
-                ['class' => ReviewResource::class, 'label' => 'tenant_navigation.items.review_ratings'],
-                HomeSectionBuilder::class,
-                PageResource::class,
-                BrowseThemesPage::class,
-                ContactUsSettings::class,
-                FooterSettings::class,
-                ['class' => GovernorateResource::class, 'label' => 'tenant_navigation.items.governorates_and_regions'],
-                ContactResource::class,
+                ['class' => OrderResource::class, 'modules' => $store],
+                ['class' => CustomerResource::class, 'modules' => $store],
+                ['class' => CouponResource::class, 'modules' => $store],
+                ['class' => ReviewResource::class, 'label' => 'tenant_navigation.items.review_ratings', 'modules' => $store],
+                ['class' => HomeSectionBuilder::class, 'modules' => $store],
+                ['class' => PageResource::class, 'modules' => $store],
+                ['class' => BrowseThemesPage::class, 'modules' => $store],
+                ['class' => ContactUsSettings::class, 'modules' => $store],
+                ['class' => FooterSettings::class, 'modules' => $store],
+                ['class' => GovernorateResource::class, 'label' => 'tenant_navigation.items.governorates_and_regions', 'modules' => $store],
+                ['class' => ContactResource::class, 'modules' => $store],
             ],
             'human_resources' => [
                 HrEmployeeResource::class,
@@ -252,9 +264,9 @@ class TenantNavigationBuilder
                 HrAttendanceSummaryPage::class,
                 HrPayrollPeriodResource::class,
                 HrPayrollSummaryPage::class,
-                MyCommissions::class,
-                OpportunityCommissionResource::class,
-                CommissionPaymentCycleResource::class,
+                ['class' => MyCommissions::class, 'modules' => $crm],
+                ['class' => OpportunityCommissionResource::class, 'modules' => $crm],
+                ['class' => CommissionPaymentCycleResource::class, 'modules' => $crm],
                 HrJobTitleResource::class,
                 HrSettingResource::class,
             ],
@@ -262,13 +274,13 @@ class TenantNavigationBuilder
                 GeneralSettings::class,
                 RoleResource::class,
                 TenantUserResource::class,
-                ['class' => InvoicePrintSettingResource::class, 'label' => 'tenant_navigation.items.invoice_printing_and_webhooks'],
-                WhatsAppWebhookEventResource::class,
-                WhatsAppApiRequestResource::class,
-                MessengerWebhookEventResource::class,
-                MessengerApiRequestResource::class,
-                UnitOfMeasureResource::class,
-                BrandResource::class,
+                ['class' => InvoicePrintSettingResource::class, 'label' => 'tenant_navigation.items.invoice_printing_and_webhooks', 'modules' => $commerce],
+                ['class' => WhatsAppWebhookEventResource::class, 'modules' => $crm],
+                ['class' => WhatsAppApiRequestResource::class, 'modules' => $crm],
+                ['class' => MessengerWebhookEventResource::class, 'modules' => $crm],
+                ['class' => MessengerApiRequestResource::class, 'modules' => $crm],
+                ['class' => UnitOfMeasureResource::class, 'modules' => $commerce],
+                ['class' => BrandResource::class, 'modules' => $commerce],
                 CodeSettings::class,
                 BranchResource::class,
             ],
@@ -276,7 +288,7 @@ class TenantNavigationBuilder
     }
 
     /**
-     * @param  array<int, array<string, string>|string>  $entries
+     * @param  array<int, array<string, mixed>|string>  $entries
      * @return array<int, NavigationItem>
      */
     private function buildGroupItems(string $groupKey, array $entries): array
@@ -290,6 +302,10 @@ class TenantNavigationBuilder
                 array_push($items, ...$this->prepareItems($entry, $groupLabel, $sort));
                 $sort += 10;
 
+                continue;
+            }
+
+            if (! $this->modulesAllow($entry['modules'] ?? [])) {
                 continue;
             }
 
@@ -309,6 +325,18 @@ class TenantNavigationBuilder
         }
 
         return $items;
+    }
+
+    /**
+     * @param  list<TenantModule|string>  $modules
+     */
+    private function modulesAllow(array $modules): bool
+    {
+        if ($modules === []) {
+            return true;
+        }
+
+        return TenantModuleGate::anyEnabled(...$modules);
     }
 
     /**
@@ -360,6 +388,6 @@ class TenantNavigationBuilder
 
     private function groupLabel(string $groupKey): string
     {
-        return __('tenant_navigation.groups.' . $groupKey);
+        return __('tenant_navigation.groups.'.$groupKey);
     }
 }

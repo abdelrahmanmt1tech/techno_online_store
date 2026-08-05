@@ -2,12 +2,14 @@
 
 namespace App\Filament\Tenant\Resources\PosPaymentMethods;
 
+use App\Filament\Concerns\RequiresTenantModule;
 use App\Filament\Tenant\Resources\PosPaymentMethods\Pages\CreatePosPaymentMethod;
 use App\Filament\Tenant\Resources\PosPaymentMethods\Pages\EditPosPaymentMethod;
 use App\Filament\Tenant\Resources\PosPaymentMethods\Pages\ListPosPaymentMethods;
 use App\Filament\Tenant\Resources\PosPaymentMethods\Schemas\PosPaymentMethodForm;
 use App\Filament\Tenant\Resources\PosPaymentMethods\Tables\PosPaymentMethodsTable;
 use App\Models\Tenant\PosPaymentMethod;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,11 +18,18 @@ use Filament\Tables\Table;
 
 class PosPaymentMethodResource extends Resource
 {
+    use RequiresTenantModule;
+
     protected static ?string $model = PosPaymentMethod::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CreditCard;
 
     protected static ?int $navigationSort = 401;
+
+    protected static function requiredTenantModules(): array
+    {
+        return [TenantModule::Pos];
+    }
 
     public static function getNavigationGroup(): ?string
     {

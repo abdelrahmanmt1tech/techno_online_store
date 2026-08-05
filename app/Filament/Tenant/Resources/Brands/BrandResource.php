@@ -2,12 +2,14 @@
 
 namespace App\Filament\Tenant\Resources\Brands;
 
+use App\Filament\Concerns\RequiresTenantModule;
 use App\Filament\Tenant\Resources\Brands\Pages\CreateBrand;
 use App\Filament\Tenant\Resources\Brands\Pages\EditBrand;
 use App\Filament\Tenant\Resources\Brands\Pages\ListBrands;
 use App\Filament\Tenant\Resources\Brands\Schemas\BrandForm;
 use App\Filament\Tenant\Resources\Brands\Tables\BrandsTable;
 use App\Models\Tenant\Brand;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,11 +18,18 @@ use Filament\Tables\Table;
 
 class BrandResource extends Resource
 {
+    use RequiresTenantModule;
+
     protected static ?string $model = Brand::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Tag;
 
     protected static ?int $navigationSort = 280;
+
+    protected static function requiredTenantModules(): array
+    {
+        return [TenantModule::Store, TenantModule::Pos];
+    }
 
     public static function getNavigationGroup(): ?string
     {

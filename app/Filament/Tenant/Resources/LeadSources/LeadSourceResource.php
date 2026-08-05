@@ -2,14 +2,11 @@
 
 namespace App\Filament\Tenant\Resources\LeadSources;
 
-use App\Filament\Tenant\Resources\LeadSources\Pages\CreateLeadSource;
-use App\Filament\Tenant\Resources\LeadSources\Pages\EditLeadSource;
+use App\Filament\Crm\CrmResource;
 use App\Filament\Tenant\Resources\LeadSources\Pages\ListLeadSources;
 use App\Filament\Tenant\Resources\LeadSources\Schemas\LeadSourceForm;
 use App\Filament\Tenant\Resources\LeadSources\Tables\LeadSourcesTable;
-use App\Models\Tenant\LeadSource;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
@@ -17,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
-class LeadSourceResource extends Resource
+class LeadSourceResource extends CrmResource
 {
     protected static ?string $model = \App\Models\Tenant\LeadSource::class;
 
@@ -25,15 +22,13 @@ class LeadSourceResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-
     protected static ?int $navigationSort = 110;
 
     protected static ?string $navigationLabel = null;
+
     protected static ?string $pluralModelLabel = null;
+
     protected static ?string $modelLabel = null;
-
-
-
 
     public static function getNavigationLabel(): string
     {
@@ -55,57 +50,52 @@ class LeadSourceResource extends Resource
         return __('dashboard.resources.lead_source.nav_group');
     }
 
-    public static function shouldRegisterNavigation(): bool
-    {
-        return Auth::user()?->can('lead_sources.view') ?? false;
-    }
-
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('lead_sources.view') ?? false;
+        return static::canViewAny();
     }
 
-    public static function canViewAny(): bool
+    public static function canViewAnyByPermission(): bool
     {
         return Auth::user()?->can('lead_sources.view') ?? false;
     }
 
-    public static function canCreate(): bool
+    public static function canCreateByPermission(): bool
     {
         return Auth::user()?->can('lead_sources.create') ?? false;
     }
 
-    public static function canEdit($record): bool
+    public static function canEditByPermission($record): bool
     {
         return Auth::user()?->can('lead_sources.update') ?? false;
     }
 
-    public static function canDelete($record): bool
+    public static function canDeleteByPermission($record): bool
     {
         return Auth::user()?->can('lead_sources.delete') ?? false;
     }
 
-    public static function canRestore($record): bool
+    public static function canRestoreByPermission($record): bool
     {
         return Auth::user()?->can('lead_sources.restore') ?? false;
     }
 
-    public static function canForceDelete($record): bool
+    public static function canForceDeleteByPermission($record): bool
     {
         return Auth::user()?->can('lead_sources.force_delete') ?? false;
     }
 
-    public static function canDeleteAny(): bool
+    public static function canDeleteAnyByPermission(): bool
     {
         return Auth::user()?->can('lead_sources.delete_bulk') ?? false;
     }
 
-    public static function canRestoreAny(): bool
+    public static function canRestoreAnyByPermission(): bool
     {
         return Auth::user()?->can('lead_sources.restore_bulk') ?? false;
     }
 
-    public static function canForceDeleteAny(): bool
+    public static function canForceDeleteAnyByPermission(): bool
     {
         return Auth::user()?->can('lead_sources.force_delete_bulk') ?? false;
     }

@@ -46,7 +46,7 @@ class CouponResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('coupons.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Store) && (Auth::user()->can('coupons.view'));
     }
 
     public static function canCreate(): bool

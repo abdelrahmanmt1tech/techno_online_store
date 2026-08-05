@@ -47,7 +47,7 @@ class PageResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('pages.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Store) && (Auth::user()->can('pages.view'));
     }
 
     public static function canCreate(): bool

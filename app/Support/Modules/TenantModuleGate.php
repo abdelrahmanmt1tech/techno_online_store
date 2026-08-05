@@ -58,6 +58,26 @@ final class TenantModuleGate
     }
 
     /**
+     * True when any of the given modules is enabled for the current tenant.
+     *
+     * @param  TenantModule|string  ...$modules
+     */
+    public static function anyEnabled(TenantModule|string ...$modules): bool
+    {
+        if ($modules === []) {
+            return true;
+        }
+
+        foreach ($modules as $module) {
+            if (self::enabled($module)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return list<string>
      */
     public static function enabledKeys(): array
@@ -84,7 +104,7 @@ final class TenantModuleGate
 
         $enabled = once(fn () => self::enabledModulesForCurrentTenant());
 
-        return in_array($module, $enabled, true);
+        return in_array($module->value, $enabled, true);
     }
 
     /**

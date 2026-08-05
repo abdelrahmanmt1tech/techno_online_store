@@ -2,12 +2,14 @@
 
 namespace App\Filament\Tenant\Resources\CashDrawers;
 
+use App\Filament\Concerns\RequiresTenantModule;
 use App\Filament\Tenant\Resources\CashDrawers\Pages\CreateCashDrawer;
 use App\Filament\Tenant\Resources\CashDrawers\Pages\EditCashDrawer;
 use App\Filament\Tenant\Resources\CashDrawers\Pages\ListCashDrawers;
 use App\Filament\Tenant\Resources\CashDrawers\Schemas\CashDrawerForm;
 use App\Filament\Tenant\Resources\CashDrawers\Tables\CashDrawersTable;
 use App\Models\Tenant\CashDrawer;
+use App\Support\Modules\TenantModule;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,11 +18,18 @@ use Filament\Tables\Table;
 
 class CashDrawerResource extends Resource
 {
+    use RequiresTenantModule;
+
     protected static ?string $model = CashDrawer::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ArchiveBox;
 
     protected static ?int $navigationSort = 399;
+
+    protected static function requiredTenantModules(): array
+    {
+        return [TenantModule::Pos];
+    }
 
     public static function getNavigationGroup(): ?string
     {

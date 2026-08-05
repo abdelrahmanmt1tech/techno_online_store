@@ -3,6 +3,7 @@
 namespace App\Filament\Tenant\Pages\Accounting;
 
 use App\Models\Tenant\AccountsCenterMovement;
+use App\Support\Modules\TenantModule;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -39,12 +40,12 @@ class AccountsCentersReport extends Page implements HasTable
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->can('accounts_centers_report.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && (Auth::user()?->can('accounts_centers_report.view') ?? false);
     }
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->can('accounts_centers_report.view') ?? false;
+        return tenant_module_enabled(TenantModule::Accounting) && (Auth::user()?->can('accounts_centers_report.view') ?? false);
     }
 
     public function getTitle(): string
