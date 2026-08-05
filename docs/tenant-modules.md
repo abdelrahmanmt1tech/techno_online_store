@@ -8,8 +8,8 @@
 - **Cancelled:** selling via a single plan / package entitlement matrix as the commercial model.
 - **Chosen:** the merchant subscribes to **modules**, each with its **own subscription price**.
 - Current sellable modules:
-  - `store` — المتجر
-  - `pos` — نقاط البيع (POS)
+  - `store` — المتجر الإلكتروني (طلبات، منتجات، فئات، كوبونات، موقع…)
+  - `pos` — نقاط البيع + المخزون + المشتريات + مبيعات ERP
   - `crm` — إدارة العملاء
   - `accounting` — المحاسبة
   - `hr` — الموارد البشرية
@@ -51,17 +51,25 @@ The lookup lives in `TenantModuleGate::resolve()` / `enabledModulesForCurrentTen
 
 | Area | Module gate |
 |---|---|
-| Products + categories (admin catalog) | `store` **or** `pos` |
-| Brands, UoM, inventory/stock, purchases, ERP sales/invoices | `store` **or** `pos` |
+| Products + categories + brands (shared catalog) | `store` **or** `pos` |
 | Branches | `store` **or** `pos` |
-| Suppliers | `store` **or** `pos` **or** `crm` |
-| Storefront admin (orders, coupons, CMS, themes…) + public store API | `store` |
-| POS terminal `/app/pos*` + POS Filament resources | `pos` |
+| Storefront admin (orders, customers, coupons, reviews, CMS, themes, governorates, contacts) + public store API | `store` |
+| POS terminal `/app/pos*` + POS admin (registers, sessions, drawers…) | `pos` |
+| ERP inventory (items, warehouses, receipts/issues/transfers/adjustments/damage, movements, balances) | `pos` |
+| ERP sales (sales, sales invoices/returns, invoice payments) + invoice print settings + UoM | `pos` |
+| Purchases (POs, GRNs, purchase invoices/returns) | `pos` |
+| Suppliers | `pos` **or** `crm` |
 | CRM panel `/app/crm`, CRM resources/pages, messaging inbox/connect, CRM reports print | `crm` |
 | Accounting UI (journals, COA, reports, settings) | `accounting` |
 | Auto journal posting (`Post*ToJournal*`) | `tenant_accounting_active()` |
 | HR (employees, attendance, payroll, HR dashboard widgets, `/app/hr/*`) | `hr` |
-| Users / roles / general settings | no sellable-module gate |
+| Users / roles / general settings / my subscriptions | no sellable-module gate |
+
+### Store vs POS (product rule)
+
+- **Store** is a narrow ecommerce module: storefront orders, catalog for the website, coupons, CMS.
+- **POS** owns operational ERP: inventory documents, purchases, ERP sales/invoices, warehouses, and the POS terminal.
+- Catalog (`products` / `categories` / `brands`) stays shared so a POS-only tenant can still sell SKUs without a storefront package.
 
 ## Automatic journal posting
 
@@ -83,10 +91,11 @@ if (! tenant_accounting_active()) {
 |---|---|
 | CRM panel / CRM resources/pages/widgets | `tenant_module_enabled('crm')` via `HasTenantFeatureAccess` + `EnsureTenantModuleActive:crm` on `/app/crm` |
 | Client + LeadSource resources | extend `CrmResource` (same CRM gate) |
-| POS routes / Pos* resources | `EnsureTenantModuleActive:pos` + `RequiresTenantModule` |
+| POS routes + ERP print + Pos* resources | `EnsureTenantModuleActive:pos` + `RequiresTenantModule` / `tenant_module_enabled(Pos)` |
 | Storefront admin + `/api/tenant` commerce | `store` on pages/resources + middleware on store API group |
 | Public module status API | `GET /api/tenant/modules` + `GET /api/tenant/modules/store` (always reachable) — see [`docs/tenant-modules-api.md`](tenant-modules-api.md) |
-| Shared catalog Products/Categories | `tenant_module_any_enabled(Store, Pos)` |
+| Shared catalog Products/Categories/Brands | `tenant_module_any_enabled(Store, Pos)` |
+| ERP inventory / purchases / ERP sales | `tenant_module_enabled(Pos)` |
 | Accounting nav + pages/resources | `tenant_module_enabled('accounting')` |
 | HR resources/pages + `/app/hr/*` routes | `tenant_module_enabled('hr')` + `EnsureTenantModuleActive:hr` |
 | Branches | `tenant_module_any_enabled(Store, Pos)` |
@@ -95,7 +104,7 @@ if (! tenant_accounting_active()) {
 
 ## Dev / QA note
 
-To verify gating locally set `BYPASS_PERMISSIONS=false`, then open a tenant with only one active package (e.g. Store only). CRM/POS/Accounting/HR sections and routes must disappear / 404. Branches remain visible when POS (or Store) is active.
+To verify gating locally set `BYPASS_PERMISSIONS=false`, then open a tenant with only the Store package: ecommerce items remain, while inventory/purchases/ERP sales/POS terminal disappear. With POS only: operational ERP + catalog remain; storefront orders/CMS disappear.
 
 ## Data model
 

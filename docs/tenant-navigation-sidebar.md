@@ -78,9 +78,10 @@ Sidebar entries are filtered by sellable modules before render (`TenantModuleGat
 
 Examples:
 
-- Products + categories → `store` **or** `pos`
-- POS terminal + POS resources → `pos`
-- Storefront ecommerce → `store`
+- Products + categories + brands → `store` **or** `pos`
+- Storefront ecommerce (orders, coupons, CMS…) → `store`
+- POS terminal + ERP inventory/purchases/sales → `pos`
+- Suppliers → `pos` **or** `crm`
 - CRM / messaging → `crm`
 - Finance & accounting → `accounting`
 - HR resources → `hr`

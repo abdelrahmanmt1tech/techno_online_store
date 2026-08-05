@@ -46,7 +46,7 @@ class UnitOfMeasureResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return tenant_module_any_enabled(\App\Support\Modules\TenantModule::Store, \App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.uom.view'));
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.uom.view'));
     }
 
     public static function canCreate(): bool

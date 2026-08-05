@@ -43,7 +43,7 @@ class InvoicePaymentResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return tenant_module_any_enabled(\App\Support\Modules\TenantModule::Store, \App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.invoice_payments.view'));
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.invoice_payments.view'));
     }
 
     public static function canCreate(): bool

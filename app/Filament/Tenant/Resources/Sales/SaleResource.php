@@ -47,7 +47,7 @@ class SaleResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return tenant_module_any_enabled(\App\Support\Modules\TenantModule::Store, \App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.sales.view'));
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.sales.view'));
     }
 
     public static function canCreate(): bool

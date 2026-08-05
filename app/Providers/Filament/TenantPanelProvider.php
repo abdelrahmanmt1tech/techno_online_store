@@ -94,7 +94,7 @@ class TenantPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->authenticatedRoutes(function () {
-                Route::middleware([EnsureTenantModuleActive::class.':store,pos'])->group(function () {
+                Route::middleware([EnsureTenantModuleActive::class.':pos'])->group(function () {
                     Route::get(
                         'erp/sales-invoices/{salesInvoice}/print',
                         SalesInvoicePrintController::class,
@@ -104,9 +104,7 @@ class TenantPanelProvider extends PanelProvider
                         'erp/purchase-invoices/{purchaseInvoice}/print',
                         PurchaseInvoicePrintController::class,
                     )->name('erp.purchase-invoices.print');
-                });
 
-                Route::middleware([EnsureTenantModuleActive::class.':pos'])->group(function () {
                     Route::get('pos', PosPageController::class)->name('pos');
                     Route::get('pos/receipt/{sale}', [PosApiController::class, 'receipt'])->name('pos.receipt');
 

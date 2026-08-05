@@ -15,7 +15,7 @@ class PosInventoryStatsWidget extends StatsOverviewWidget
     {
         $user = Auth::guard('tenant')->user();
 
-        if ($user === null || ! $user->can('dashboard.view')) {
+        if ($user === null || ! $user->can('dashboard.view') || ! tenant_module_enabled(\App\Support\Modules\TenantModule::Pos)) {
             return false;
         }
 

@@ -17,6 +17,7 @@ class OrderStatusPie extends ChartWidget
         $user = Auth::guard('tenant')->user();
 
         return $user !== null
+            && tenant_module_enabled(\App\Support\Modules\TenantModule::Store)
             && $user->can('dashboard.view')
             && $user->can('dashboard.store.view');
     }

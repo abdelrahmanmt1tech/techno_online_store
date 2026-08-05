@@ -22,6 +22,7 @@ class LowStockWidget extends Widget
         $user = Auth::guard('tenant')->user();
 
         return $user !== null
+            && tenant_module_enabled(\App\Support\Modules\TenantModule::Pos)
             && $user->can('dashboard.view')
             && $user->can('dashboard.inventory.view');
     }

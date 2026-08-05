@@ -23,7 +23,11 @@ Operational overview widgets inside the Tenant Filament panel (`/app`).
 
 No fixed roles. Assign via Roles UI + `tenants:sync-permissions`.
 
-Widget `canView()` gates both UI and query execution. HR widgets additionally require the `hr` sellable module (`tenant_module_enabled('hr')`).
+Widget `canView()` gates both UI and query execution. Module gates also apply:
+
+- Store widgets → `store`
+- Sales / inventory / POS widgets → `pos`
+- HR widgets → `hr`
 
 ## Metric definitions
 

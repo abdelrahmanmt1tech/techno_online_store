@@ -48,7 +48,7 @@ class StockReceiptResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return tenant_module_any_enabled(\App\Support\Modules\TenantModule::Store, \App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.stock_receipts.view'));
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Pos) && (Auth::user()->can('erp.stock_receipts.view'));
     }
 
     public static function canCreate(): bool

@@ -159,47 +159,45 @@ class TenantNavigationBuilder
      */
     private function groupEntries(): array
     {
-        $commerce = [TenantModule::Store, TenantModule::Pos];
+        $catalog = [TenantModule::Store, TenantModule::Pos];
         $store = [TenantModule::Store];
         $pos = [TenantModule::Pos];
         $crm = [TenantModule::Crm];
         $accounting = [TenantModule::Accounting];
         $hr = [TenantModule::Hr];
-        $supplier = [TenantModule::Store, TenantModule::Pos, TenantModule::Crm];
+        $supplier = [TenantModule::Pos, TenantModule::Crm];
 
         return [
             'sales_pos' => [
                 ['type' => 'manual', 'key' => 'pos_terminal', 'modules' => $pos],
                 ['class' => CashierSessionResource::class, 'modules' => $pos],
-                ['class' => SalesInvoiceResource::class, 'modules' => $commerce],
-                ['class' => SalesReturnResource::class, 'modules' => $commerce],
+                ['class' => SalesInvoiceResource::class, 'modules' => $pos],
+                ['class' => SalesReturnResource::class, 'modules' => $pos],
                 ['class' => CashDrawerResource::class, 'modules' => $pos],
                 ['class' => PosPaymentMethodResource::class, 'modules' => $pos],
-                ['class' => SaleResource::class, 'modules' => $commerce],
-                ['class' => InvoicePaymentResource::class, 'modules' => $commerce],
+                ['class' => SaleResource::class, 'modules' => $pos],
+                ['class' => InvoicePaymentResource::class, 'modules' => $pos],
                 ['class' => PosRegisterResource::class, 'modules' => $pos],
                 ['class' => PosSettingResource::class, 'modules' => $pos],
                 ['class' => CashMovementResource::class, 'modules' => $pos],
             ],
             'purchases_suppliers' => [
-                ['class' => PurchaseOrderResource::class, 'modules' => $commerce],
-                ['class' => GoodsReceiptResource::class, 'modules' => $commerce],
-                ['class' => PurchaseInvoiceResource::class, 'modules' => $commerce],
-                ['class' => PurchaseReturnResource::class, 'modules' => $commerce],
+                ['class' => PurchaseOrderResource::class, 'modules' => $pos],
+                ['class' => GoodsReceiptResource::class, 'modules' => $pos],
+                ['class' => PurchaseInvoiceResource::class, 'modules' => $pos],
+                ['class' => PurchaseReturnResource::class, 'modules' => $pos],
                 ['class' => SupplierResource::class, 'label' => 'tenant_navigation.items.supplier_directory', 'modules' => $supplier],
             ],
             'inventory_management' => [
-                ['class' => InventoryItemResource::class, 'label' => 'tenant_navigation.items.inventory_and_products', 'modules' => $commerce],
-                ['class' => ProductResource::class, 'modules' => $commerce],
-                ['class' => CategoryResource::class, 'modules' => $commerce],
-                ['class' => StockReceiptResource::class, 'modules' => $commerce],
-                ['class' => StockIssueResource::class, 'modules' => $commerce],
-                ['class' => StockTransferResource::class, 'modules' => $commerce],
-                ['class' => StockAdjustmentResource::class, 'label' => 'tenant_navigation.items.stock_adjustments', 'modules' => $commerce],
-                ['class' => StockDamageResource::class, 'label' => 'tenant_navigation.items.stock_damages', 'modules' => $commerce],
-                ['class' => StockMovementResource::class, 'modules' => $commerce],
-                ['class' => StockBalanceResource::class, 'modules' => $commerce],
-                ['class' => WarehouseResource::class, 'modules' => $commerce],
+                ['class' => InventoryItemResource::class, 'label' => 'tenant_navigation.items.inventory_and_products', 'modules' => $pos],
+                ['class' => StockReceiptResource::class, 'modules' => $pos],
+                ['class' => StockIssueResource::class, 'modules' => $pos],
+                ['class' => StockTransferResource::class, 'modules' => $pos],
+                ['class' => StockAdjustmentResource::class, 'label' => 'tenant_navigation.items.stock_adjustments', 'modules' => $pos],
+                ['class' => StockDamageResource::class, 'label' => 'tenant_navigation.items.stock_damages', 'modules' => $pos],
+                ['class' => StockMovementResource::class, 'modules' => $pos],
+                ['class' => StockBalanceResource::class, 'modules' => $pos],
+                ['class' => WarehouseResource::class, 'modules' => $pos],
             ],
             'finance_accounting' => [
                 ['class' => ProfitAndLoss::class, 'modules' => $accounting],
@@ -244,6 +242,8 @@ class TenantNavigationBuilder
                 ['class' => EmployeePerformanceReportsPage::class, 'modules' => $crm],
             ],
             'ecommerce_website' => [
+                ['class' => ProductResource::class, 'modules' => $catalog],
+                ['class' => CategoryResource::class, 'modules' => $catalog],
                 ['class' => OrderResource::class, 'modules' => $store],
                 ['class' => CustomerResource::class, 'modules' => $store],
                 ['class' => CouponResource::class, 'modules' => $store],
@@ -277,15 +277,15 @@ class TenantNavigationBuilder
                 GeneralSettings::class,
                 RoleResource::class,
                 TenantUserResource::class,
-                ['class' => InvoicePrintSettingResource::class, 'label' => 'tenant_navigation.items.invoice_printing_and_webhooks', 'modules' => $commerce],
+                ['class' => InvoicePrintSettingResource::class, 'label' => 'tenant_navigation.items.invoice_printing_and_webhooks', 'modules' => $pos],
                 ['class' => WhatsAppWebhookEventResource::class, 'modules' => $crm],
                 ['class' => WhatsAppApiRequestResource::class, 'modules' => $crm],
                 ['class' => MessengerWebhookEventResource::class, 'modules' => $crm],
                 ['class' => MessengerApiRequestResource::class, 'modules' => $crm],
-                ['class' => UnitOfMeasureResource::class, 'modules' => $commerce],
-                ['class' => BrandResource::class, 'modules' => $commerce],
+                ['class' => UnitOfMeasureResource::class, 'modules' => $pos],
+                ['class' => BrandResource::class, 'modules' => $catalog],
                 CodeSettings::class,
-                ['class' => BranchResource::class, 'modules' => $commerce],
+                ['class' => BranchResource::class, 'modules' => $catalog],
             ],
         ];
     }
