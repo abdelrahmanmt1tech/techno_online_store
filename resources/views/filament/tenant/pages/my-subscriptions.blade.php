@@ -1,4 +1,6 @@
 <x-filament-panels::page>
+    <style>{!! file_get_contents(resource_path('css/subscriptions-page.css')) !!}</style>
+
     @php
         $activePackages = $this->getActivePackages();
         $packages = $this->getPackages();
