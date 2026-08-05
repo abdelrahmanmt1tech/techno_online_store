@@ -5,4 +5,5 @@ return [
     'pos' => 'POS',
     'crm' => 'CRM',
     'accounting' => 'Accounting',
+    'hr' => 'Human Resources',
 ];

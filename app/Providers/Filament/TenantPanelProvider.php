@@ -129,15 +129,17 @@ class TenantPanelProvider extends PanelProvider
                     });
                 });
 
-                Route::get('hr/attendance', [EmployeeAttendanceController::class, 'page'])->name('hr.attendance');
-                Route::get('hr/attendance/status', [EmployeeAttendanceController::class, 'status'])->name('hr.attendance.status');
-                Route::get('hr/attendance/distance', [EmployeeAttendanceController::class, 'distance'])->name('hr.attendance.distance');
-                Route::post('hr/attendance/check-in', [EmployeeAttendanceController::class, 'checkIn'])->name('hr.attendance.check-in');
-                Route::post('hr/attendance/check-out', [EmployeeAttendanceController::class, 'checkOut'])->name('hr.attendance.check-out');
-                Route::get(
-                    'hr/payroll-employees/{payrollEmployee}/slip',
-                    SalarySlipPrintController::class,
-                )->name('hr.payroll.slip');
+                Route::middleware([EnsureTenantModuleActive::class.':hr'])->group(function () {
+                    Route::get('hr/attendance', [EmployeeAttendanceController::class, 'page'])->name('hr.attendance');
+                    Route::get('hr/attendance/status', [EmployeeAttendanceController::class, 'status'])->name('hr.attendance.status');
+                    Route::get('hr/attendance/distance', [EmployeeAttendanceController::class, 'distance'])->name('hr.attendance.distance');
+                    Route::post('hr/attendance/check-in', [EmployeeAttendanceController::class, 'checkIn'])->name('hr.attendance.check-in');
+                    Route::post('hr/attendance/check-out', [EmployeeAttendanceController::class, 'checkOut'])->name('hr.attendance.check-out');
+                    Route::get(
+                        'hr/payroll-employees/{payrollEmployee}/slip',
+                        SalarySlipPrintController::class,
+                    )->name('hr.payroll.slip');
+                });
             })
 
             ->sidebarCollapsibleOnDesktop()

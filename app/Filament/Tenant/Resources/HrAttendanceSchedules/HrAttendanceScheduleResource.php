@@ -46,7 +46,7 @@ class HrAttendanceScheduleResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('hr.schedules.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Hr) && (Auth::user()->can('hr.schedules.view'));
     }
 
     public static function canCreate(): bool

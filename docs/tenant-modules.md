@@ -12,6 +12,7 @@
   - `pos` — نقاط البيع (POS)
   - `crm` — إدارة العملاء
   - `accounting` — المحاسبة
+  - `hr` — الموارد البشرية
 
 Central `Plan` / `TenantSubscription` UI was removed with the `packages` migration; **do not** reintroduce them for feature gating. All availability checks go through the shared gate below.
 
@@ -39,7 +40,7 @@ TenantModuleGate::accountingActive();         // alias helper: tenant_accounting
 Modules are granted from the current tenant's **active `tenant_packages`** rows:
 
 - A package with `is_full_package = true` grants **all** modules.
-- A partial package (`module = store|pos|crm|accounting`) grants **its single** module.
+- A partial package (`module = store|pos|crm|accounting|hr`) grants **its single** module.
 - A package counts as active when `status` is `trial`/`active` **and** `expires_at` is in the future (trial counts because `expires_at` is computed after the trial).
 - No active package → **no modules** (strict gating).
 - `config('app.bypass_permissions')` (true outside production) opens every module for development.
@@ -52,13 +53,15 @@ The lookup lives in `TenantModuleGate::resolve()` / `enabledModulesForCurrentTen
 |---|---|
 | Products + categories (admin catalog) | `store` **or** `pos` |
 | Brands, UoM, inventory/stock, purchases, ERP sales/invoices | `store` **or** `pos` |
+| Branches | `store` **or** `pos` |
 | Suppliers | `store` **or** `pos` **or** `crm` |
 | Storefront admin (orders, coupons, CMS, themes…) + public store API | `store` |
 | POS terminal `/app/pos*` + POS Filament resources | `pos` |
 | CRM panel `/app/crm`, CRM resources/pages, messaging inbox/connect, CRM reports print | `crm` |
 | Accounting UI (journals, COA, reports, settings) | `accounting` |
 | Auto journal posting (`Post*ToJournal*`) | `tenant_accounting_active()` |
-| HR + users/roles/general settings | no sellable-module gate |
+| HR (employees, attendance, payroll, HR dashboard widgets, `/app/hr/*`) | `hr` |
+| Users / roles / general settings | no sellable-module gate |
 
 ## Automatic journal posting
 
@@ -85,12 +88,14 @@ if (! tenant_accounting_active()) {
 | Public module status API | `GET /api/tenant/modules` + `GET /api/tenant/modules/store` (always reachable) — see [`docs/tenant-modules-api.md`](tenant-modules-api.md) |
 | Shared catalog Products/Categories | `tenant_module_any_enabled(Store, Pos)` |
 | Accounting nav + pages/resources | `tenant_module_enabled('accounting')` |
+| HR resources/pages + `/app/hr/*` routes | `tenant_module_enabled('hr')` + `EnsureTenantModuleActive:hr` |
+| Branches | `tenant_module_any_enabled(Store, Pos)` |
 | Tenant sidebar groups | filtered in `TenantNavigationBuilder` |
 | `PostSalesInvoiceToJournalService` etc. | `tenant_accounting_active()` at the top |
 
 ## Dev / QA note
 
-To verify gating locally set `BYPASS_PERMISSIONS=false`, then open a tenant with only one active package (e.g. Store only). CRM/POS/Accounting sections and routes must disappear / 404.
+To verify gating locally set `BYPASS_PERMISSIONS=false`, then open a tenant with only one active package (e.g. Store only). CRM/POS/Accounting/HR sections and routes must disappear / 404. Branches remain visible when POS (or Store) is active.
 
 ## Data model
 

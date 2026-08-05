@@ -46,7 +46,7 @@ class HrJobTitleResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('hr.job_titles.manage');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Hr) && (Auth::user()->can('hr.job_titles.manage'));
     }
 
     public static function canCreate(): bool

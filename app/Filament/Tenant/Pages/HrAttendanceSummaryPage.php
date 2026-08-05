@@ -48,7 +48,7 @@ class HrAttendanceSummaryPage extends Page
 
     public static function canAccess(): bool
     {
-        return Auth::user()->can('hr.reports.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Hr) && (Auth::user()->can('hr.reports.view'));
     }
 
     public function mount(): void

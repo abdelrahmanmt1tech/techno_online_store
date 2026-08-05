@@ -16,7 +16,7 @@
 | Accounting Payment / SafesBank | **STRIPPED** |
 | AccountStatement / Tickets / Meta | **STRIPPED** |
 | Permissions | Deferred (`BYPASS_PERMISSIONS`) |
-| Commercial model | **Per-module subscriptions** (store / pos / crm / accounting) — not plan packages; gate stub always `true` — [`docs/tenant-modules.md`](tenant-modules.md) |
+| Commercial model | **Per-module subscriptions** (store / pos / crm / accounting / hr) — gate via `TenantModuleGate` — [`docs/tenant-modules.md`](tenant-modules.md) |
 | Auto GL posting | Only when `tenant_accounting_active()` (Wave 2+) |
 
 ## Progress

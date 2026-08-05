@@ -10,7 +10,7 @@ if (! function_exists('tenant_module_enabled')) {
      * Resolves against active tenant packages via {@see TenantModuleGate}.
      * Development bypass: config('app.bypass_permissions') opens every module.
      *
-     * @param  TenantModule|string  $module  store|pos|crm|accounting
+     * @param  TenantModule|string  $module  store|pos|crm|accounting|hr
      */
     function tenant_module_enabled(TenantModule|string $module): bool
     {

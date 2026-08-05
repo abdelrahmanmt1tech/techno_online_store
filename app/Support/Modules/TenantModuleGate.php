@@ -22,7 +22,7 @@ final class TenantModuleGate
     /**
      * Whether the merchant may use the given module.
      *
-     * @param  TenantModule|string  $module  Enum or module key (store|pos|crm|accounting)
+     * @param  TenantModule|string  $module  Enum or module key (store|pos|crm|accounting|hr)
      */
     public static function enabled(TenantModule|string $module): bool
     {
@@ -55,6 +55,11 @@ final class TenantModuleGate
     public static function crmEnabled(): bool
     {
         return self::enabled(TenantModule::Crm);
+    }
+
+    public static function hrEnabled(): bool
+    {
+        return self::enabled(TenantModule::Hr);
     }
 
     /**

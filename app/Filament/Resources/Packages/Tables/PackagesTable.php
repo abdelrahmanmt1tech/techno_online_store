@@ -64,6 +64,7 @@ class PackagesTable
                         'pos' => __('modules.pos'),
                         'crm' => __('modules.crm'),
                         'accounting' => __('modules.accounting'),
+                        'hr' => __('modules.hr'),
                     ]),
 
                 SelectFilter::make('is_active')

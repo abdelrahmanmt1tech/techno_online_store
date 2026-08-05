@@ -17,6 +17,10 @@ Lightweight HR for SMB tenants:
 
 **Out of scope:** OT, allowances, commissions, insurance/tax, loans, recruitment, biometric devices, mobile apps, continuous GPS tracking, leave balances, accounting/POS integration, fixed roles.
 
+## Module gate
+
+Sellable module key: `hr`. All HR Filament resources/pages, `/app/hr/*` routes, and HR dashboard widgets require `tenant_module_enabled('hr')` (or a full package). See [`docs/tenant-modules.md`](tenant-modules.md).
+
 ## Architecture
 
 ```text

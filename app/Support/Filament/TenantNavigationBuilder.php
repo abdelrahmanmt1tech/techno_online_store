@@ -163,6 +163,7 @@ class TenantNavigationBuilder
         $pos = [TenantModule::Pos];
         $crm = [TenantModule::Crm];
         $accounting = [TenantModule::Accounting];
+        $hr = [TenantModule::Hr];
         $supplier = [TenantModule::Store, TenantModule::Pos, TenantModule::Crm];
 
         return [
@@ -255,20 +256,20 @@ class TenantNavigationBuilder
                 ['class' => ContactResource::class, 'modules' => $store],
             ],
             'human_resources' => [
-                HrEmployeeResource::class,
-                HrDepartmentResource::class,
-                ['type' => 'manual', 'key' => 'hr_attendance'],
-                HrAttendanceRecordResource::class,
-                HrAttendanceScheduleResource::class,
-                HrAttendanceLocationResource::class,
-                HrAttendanceSummaryPage::class,
-                HrPayrollPeriodResource::class,
-                HrPayrollSummaryPage::class,
+                ['class' => HrEmployeeResource::class, 'modules' => $hr],
+                ['class' => HrDepartmentResource::class, 'modules' => $hr],
+                ['type' => 'manual', 'key' => 'hr_attendance', 'modules' => $hr],
+                ['class' => HrAttendanceRecordResource::class, 'modules' => $hr],
+                ['class' => HrAttendanceScheduleResource::class, 'modules' => $hr],
+                ['class' => HrAttendanceLocationResource::class, 'modules' => $hr],
+                ['class' => HrAttendanceSummaryPage::class, 'modules' => $hr],
+                ['class' => HrPayrollPeriodResource::class, 'modules' => $hr],
+                ['class' => HrPayrollSummaryPage::class, 'modules' => $hr],
                 ['class' => MyCommissions::class, 'modules' => $crm],
                 ['class' => OpportunityCommissionResource::class, 'modules' => $crm],
                 ['class' => CommissionPaymentCycleResource::class, 'modules' => $crm],
-                HrJobTitleResource::class,
-                HrSettingResource::class,
+                ['class' => HrJobTitleResource::class, 'modules' => $hr],
+                ['class' => HrSettingResource::class, 'modules' => $hr],
             ],
             'settings_admin' => [
                 GeneralSettings::class,
@@ -282,7 +283,7 @@ class TenantNavigationBuilder
                 ['class' => UnitOfMeasureResource::class, 'modules' => $commerce],
                 ['class' => BrandResource::class, 'modules' => $commerce],
                 CodeSettings::class,
-                BranchResource::class,
+                ['class' => BranchResource::class, 'modules' => $commerce],
             ],
         ];
     }

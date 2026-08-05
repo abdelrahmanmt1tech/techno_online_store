@@ -46,7 +46,7 @@ class HrEmployeeResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('hr.employees.view');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Hr) && (Auth::user()->can('hr.employees.view'));
     }
 
     public static function canCreate(): bool

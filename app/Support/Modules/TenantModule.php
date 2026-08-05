@@ -14,6 +14,7 @@ enum TenantModule: string
     case Pos = 'pos';
     case Crm = 'crm';
     case Accounting = 'accounting';
+    case Hr = 'hr';
 
     public function label(): string
     {
@@ -22,6 +23,7 @@ enum TenantModule: string
             self::Pos => __('modules.pos'),
             self::Crm => __('modules.crm'),
             self::Accounting => __('modules.accounting'),
+            self::Hr => __('modules.hr'),
         };
     }
 }

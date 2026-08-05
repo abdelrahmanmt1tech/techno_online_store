@@ -42,7 +42,7 @@ class HrSettingResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::user()->can('hr.settings.manage');
+        return tenant_module_enabled(\App\Support\Modules\TenantModule::Hr) && (Auth::user()->can('hr.settings.manage'));
     }
 
     public static function canCreate(): bool

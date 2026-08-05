@@ -16,6 +16,7 @@ class HrAttendanceStatsWidget extends StatsOverviewWidget
         $user = Auth::guard('tenant')->user();
 
         return $user !== null
+            && tenant_module_enabled(\App\Support\Modules\TenantModule::Hr)
             && $user->can('dashboard.view')
             && $user->can('dashboard.hr.view');
     }

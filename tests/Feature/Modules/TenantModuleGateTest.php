@@ -87,6 +87,7 @@ class TenantModuleGateTest extends TestCase
         $this->assertFalse(TenantModuleGate::enabled(TenantModule::Pos));
         $this->assertFalse(TenantModuleGate::enabled(TenantModule::Crm));
         $this->assertFalse(TenantModuleGate::enabled(TenantModule::Accounting));
+        $this->assertFalse(TenantModuleGate::enabled(TenantModule::Hr));
         $this->assertFalse(tenant_accounting_active());
         $this->assertSame(['store'], TenantModuleGate::enabledKeys());
     }
@@ -96,9 +97,10 @@ class TenantModuleGateTest extends TestCase
         $this->subscribe($this->makePackage(null, true));
 
         $this->assertSame(
-            ['store', 'pos', 'crm', 'accounting'],
+            ['store', 'pos', 'crm', 'accounting', 'hr'],
             TenantModuleGate::enabledKeys()
         );
+        $this->assertTrue(TenantModuleGate::hrEnabled());
         $this->assertTrue(TenantModuleGate::accountingActive());
         $this->assertTrue(tenant_accounting_active());
     }

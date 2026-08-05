@@ -76,7 +76,8 @@ When not subscribed / expired:
       "store": { "key": "store", "label": "Store", "enabled": true },
       "pos": { "key": "pos", "label": "POS", "enabled": false },
       "crm": { "key": "crm", "label": "CRM", "enabled": false },
-      "accounting": { "key": "accounting", "label": "Accounting", "enabled": false }
+      "accounting": { "key": "accounting", "label": "Accounting", "enabled": false },
+      "hr": { "key": "hr", "label": "Human Resources", "enabled": false }
     },
     "enabled_modules": ["store"]
   }

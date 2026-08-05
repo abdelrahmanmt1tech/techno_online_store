@@ -273,11 +273,22 @@ class HomePageDataSeeder extends Seeder
                 ],
             ],
             [
+                'name' => ['ar' => 'باقة الموارد البشرية', 'en' => 'HR Package'],
+                'desc' => ['ar' => 'موظفون، حضور، وجداول ورواتب مبسّطة', 'en' => 'Employees, attendance, schedules and simple payroll'],
+                'module' => 'hr',
+                'sort' => 5,
+                'trials_duration' => 14,
+                'prices' => [
+                    ['country' => $sarCountry, 'currency' => $sarCurrency, 'price_monthly' => 59, 'price_yearly' => 590, 'is_default' => true],
+                    ['country' => $egpCountry, 'currency' => $egpCurrency, 'price_monthly' => 299, 'price_yearly' => 2990, 'is_default' => false],
+                ],
+            ],
+            [
                 'name' => ['ar' => 'الباقة الشاملة', 'en' => 'Full Package'],
-                'desc' => ['ar' => 'كل الوحدات: المتجر، نقاط البيع، إدارة العملاء، والمحاسبة', 'en' => 'All modules: store, POS, CRM and accounting'],
+                'desc' => ['ar' => 'كل الوحدات: المتجر، نقاط البيع، إدارة العملاء، المحاسبة، والموارد البشرية', 'en' => 'All modules: store, POS, CRM, accounting and HR'],
                 'module' => null,
                 'is_full_package' => true,
-                'sort' => 5,
+                'sort' => 6,
                 'trials_duration' => 14,
                 'prices' => [
                     ['country' => $sarCountry, 'currency' => $sarCurrency, 'price_monthly' => 299, 'price_yearly' => 2990, 'is_default' => true],
