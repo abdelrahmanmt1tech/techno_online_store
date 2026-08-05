@@ -41,6 +41,7 @@ use App\Filament\Tenant\Pages\HomeSectionBuilder;
 use App\Filament\Tenant\Pages\HrAttendanceSummaryPage;
 use App\Filament\Tenant\Pages\HrPayrollSummaryPage;
 use App\Filament\Tenant\Pages\MessengerInboxPage;
+use App\Filament\Tenant\Pages\MySubscriptionsPage;
 use App\Filament\Tenant\Pages\WhatsAppInboxPage;
 use App\Filament\Tenant\Resources\AccountsCenterResource;
 use App\Filament\Tenant\Resources\AccountTrees\AccountTreeResource;
@@ -272,6 +273,7 @@ class TenantNavigationBuilder
                 ['class' => HrSettingResource::class, 'modules' => $hr],
             ],
             'settings_admin' => [
+                MySubscriptionsPage::class,
                 GeneralSettings::class,
                 RoleResource::class,
                 TenantUserResource::class,

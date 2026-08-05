@@ -83,5 +83,7 @@ Examples:
 - Storefront ecommerce → `store`
 - CRM / messaging → `crm`
 - Finance & accounting → `accounting`
+- HR resources → `hr`
+- My Subscriptions (`MySubscriptionsPage`) → always under Settings (no module gate)
 
 See [`docs/tenant-modules.md`](tenant-modules.md) for the full ownership map.
