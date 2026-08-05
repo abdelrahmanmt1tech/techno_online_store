@@ -23,6 +23,7 @@
 | `php artisan tenants:sync-credentials` | Push `email`/`password` from `TenantUser` to tenant-db `users` |
 | `php artisan hr:mark-absent` | Mark employees absent after schedule end (hourly via scheduler) |
 | `php artisan whatsapp:onboarding-sessions:cleanup` | Expire stale WhatsApp onboarding sessions |
+| `php artisan tenant:seed-store1` | Demo tenant `store1.{app_url_host}` (dev only); credentials `store1@gmail.com` / `123456789` |
 | `php artisan test --filter=Erp` | Run only ERP tests |
 | `php artisan test --filter=CommerceAndSale` | Run ERP↔commerce stock-isolation test |
 
@@ -47,6 +48,7 @@
 - **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `GET packages` (active packages; `?country_id=` **required**, falls back to the `is_default` price when the country has no price), `POST tenants` (accepts a top-level `period` = `monthly`/`yearly` that applies to all packages, plus `packages[]` = `[{package_id, price_id}]`, one price per selected package; `price_id` must belong to its `package_id`), `started_at` optional.
 - **Tenant API** (`routes/tenant.php`): Auth (register/verify/login/logout/forgot-password), products, categories, governorates, contacts, cart CRUD, coupon apply, checkout (OTP flow), orders, favorites, profile, reviews, home, pages. **Do not register `GET /` here** — it overwrites the central landing and `PreventAccessFromCentralDomains` returns 404 on central domains.
 - **Public web** (`routes/web.php`): Landing (`/` + `/platform`), legal pages, WhatsApp/Messenger webhooks, tenant login, forgot-password OTP flow, WhatsApp/Messenger onboarding (central domain middleware).
+- **Panel-scoped routes**: POS terminal/API (`/app/pos*`) and HR attendance check-in/out are registered in `TenantPanelProvider.php` `->routes()`, **not** in route files. Grep `app/Providers/Filament/TenantPanelProvider.php` when you can't find a `/app/*` route in `routes/`.
 - **GitHub Actions** (no test CI): `deploy.yml` runs on `dev` push, `deploy-production.yml` on `main` push / `workflow_dispatch`. Both SSH into the server and deploy there. No tests run in CI.
 
 ## Filament Resources

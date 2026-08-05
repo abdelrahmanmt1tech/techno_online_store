@@ -76,6 +76,7 @@ return [
     'price_monthly' => 'Monthly Price',
     'price_yearly' => 'Yearly Price',
     'is_default' => 'Default',
+    'at_least_one_default_required' => 'At least one default price must be selected',
     'package_type' => 'Package Type',
     'package_prices' => 'Prices',
     'add_price' => 'Add Price',

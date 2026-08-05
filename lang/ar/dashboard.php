@@ -75,6 +75,7 @@ return [
     'price_monthly' => 'السعر الشهري',
     'price_yearly' => 'السعر السنوي',
     'is_default' => 'افتراضي',
+    'at_least_one_default_required' => 'يجب تحديد سعر افتراضي واحد على الأقل',
     'package_type' => 'نوع الباقة',
     'package_prices' => 'الأسعار',
     'add_price' => 'إضافة سعر',

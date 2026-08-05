@@ -83,8 +83,8 @@ Route::prefix('messenger/onboarding')
     return nl2br(Artisan::output());
  });
 
- Route::get('/seed-packages', function () {
-    Artisan::call('migrate', ['--force' => true]);
+//  Route::get('/seed-packages', function () {
+//     Artisan::call('migrate', ['--force' => true]);
 
-    return nl2br(Artisan::output());
- });
+//     return nl2br(Artisan::output());
+//  });

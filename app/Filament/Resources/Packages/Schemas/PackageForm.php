@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Packages\Schemas;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Support\Modules\TenantModule;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -14,7 +15,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class PackageForm
@@ -93,6 +93,15 @@ class PackageForm
                             ->reorderable(false)
                             ->collapsible()
                             ->defaultItems(1)
+                            ->rules([
+                                function (): Closure {
+                                    return function (string $attribute, mixed $value, Closure $fail): void {
+                                        if (! collect($value ?? [])->contains(fn (array $item) => (bool) ($item['is_default'] ?? false))) {
+                                            $fail(__('dashboard.at_least_one_default_required'));
+                                        }
+                                    };
+                                },
+                            ])
                             ->schema([
                                 Grid::make()
                                     ->columns(4)
@@ -112,7 +121,7 @@ class PackageForm
                                             ->disableOptionWhen(function (string $value, Get $get): bool {
                                                 $currentCountryId = $get('country_id');
 
-                                                $selectedCountries = collect($get('../../') ?? [])
+                                                $selectedCountries = collect($get('../') ?? [])
                                                     ->pluck('country_id')
                                                     ->filter()
                                                     ->unique()
@@ -161,18 +170,7 @@ class PackageForm
                                         Toggle::make('is_default')
                                             ->label(__('dashboard.is_default'))
                                             ->default(false)
-                                            ->live()
-                                            ->afterStateUpdated(function (bool $state, Get $get, Set $set) {
-                                                if (! $state) {
-                                                    return;
-                                                }
-
-                                                foreach (array_keys($get('../../') ?? []) as $key) {
-                                                    $set("../../{$key}/is_default", false);
-                                                }
-
-                                                $set('is_default', true);
-                                            })
+                                            ->fixIndistinctState()
                                             ->columnSpanFull(),
                                     ]),
                             ])
