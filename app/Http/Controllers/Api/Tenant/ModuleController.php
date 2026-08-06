@@ -64,11 +64,9 @@ class ModuleController extends Controller
             'enabled' => $enabled,
             'available' => $enabled,
             'subscribed' => $enabled,
-            'pages' => [
-                'terms' => route('central.pages.show', ['slug' => 'terms-and-conditions']),
-                'privacy' => route('central.pages.show', ['slug' => 'privacy-policy']),
-            ],
-            'dashboard_url' => url('/app'),
+            'terms_link' => route('central.pages.show', ['slug' => 'terms-and-conditions']),
+            'policy_link' => route('central.pages.show', ['slug' => 'privacy-policy']),
+            'dashboard_link' => url('/app'),
         ], __('messages.fetched_successfully'));
     }
 }
