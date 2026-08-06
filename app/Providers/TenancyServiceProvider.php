@@ -28,7 +28,7 @@ class TenancyServiceProvider extends ServiceProvider
                     Jobs\MigrateDatabase::class,
                 ])->send(function (Events\TenantCreated $event) {
                     return $event->tenant;
-                })->shouldBeQueued(false),
+                })->shouldBeQueued(true),
             ],
             Events\SavingTenant::class => [],
             Events\TenantSaved::class => [],

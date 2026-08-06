@@ -90,8 +90,6 @@ class PackagesRelationManager extends RelationManager
                                 if ($packagePrice) {
                                     $set('price', $period === 'yearly' ? $packagePrice->price_yearly : $packagePrice->price_monthly);
                                     $set('currency_id', $packagePrice->currency_id);
-                                    $set('duration', 1);
-                                    $set('duration_type', $durationType);
                                     $set('expires_at', $this->resolveExpiry(
                                         $startedAt,
                                         1,
@@ -141,34 +139,10 @@ class PackagesRelationManager extends RelationManager
                                 'yearly' => __('dashboard.yearly'),
                             ])
                             ->native(false)
-                            ->default('monthly')
+                            ->default(fn ($record) => $record?->duration_type === 'year' ? 'yearly' : 'monthly')
                             ->required()
                             ->live()
                             ->afterStateUpdated(fn ($state, $set, $get) => $this->applyPriceOption($get('price_option'), $set, $get))
-                            ->columnSpan(1),
-
-                        Select::make('duration_type')
-                            ->label(__('dashboard.duration_type'))
-                            ->options([
-                                'day' => __('dashboard.day'),
-                                'month' => __('dashboard.month'),
-                                'year' => __('dashboard.year'),
-                            ])
-                            ->native(false)
-                            ->default('month')
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(fn ($state, $set, $get) => $this->syncExpiry($set, $get))
-                            ->columnSpan(1),
-
-                        TextInput::make('duration')
-                            ->label(__('dashboard.duration'))
-                            ->numeric()
-                            ->minValue(1)
-                            ->default(1)
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(fn ($state, $set, $get) => $this->syncExpiry($set, $get))
                             ->columnSpan(1),
 
                         DateTimePicker::make('started_at')
@@ -245,12 +219,9 @@ class PackagesRelationManager extends RelationManager
         }
 
         $period = $get('period') ?? 'monthly';
-        $durationType = $period === 'yearly' ? 'year' : 'month';
 
         $set('price', $period === 'yearly' ? $price->price_yearly : $price->price_monthly);
         $set('currency_id', $price->currency_id);
-        $set('duration', 1);
-        $set('duration_type', $durationType);
 
         $this->syncExpiry($set, $get);
     }
@@ -269,17 +240,16 @@ class PackagesRelationManager extends RelationManager
     private function syncExpiry($set, $get): void
     {
         $startedAt = $get('started_at');
-        $duration = $get('duration');
-        $durationType = $get('duration_type');
+        $period = $get('period') ?? 'monthly';
 
-        if (! $startedAt || ! $duration || ! $durationType) {
+        if (! $startedAt) {
             return;
         }
 
         $set('expires_at', $this->resolveExpiry(
             Carbon::parse($startedAt),
-            (int) $duration,
-            $durationType,
+            1,
+            $period === 'yearly' ? 'year' : 'month',
         ));
     }
 
