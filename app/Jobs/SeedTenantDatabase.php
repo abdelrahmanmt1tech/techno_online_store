@@ -43,9 +43,9 @@ class SeedTenantDatabase implements ShouldQueue
                 ]
             );
 
-            StoreTenantPermissionsArray();
-            $role = setupStoreAdminRole();
-            $user->assignRole($role);
+            // StoreTenantPermissionsArray();
+            // $role = setupStoreAdminRole();
+            // $user->assignRole($role);
 
             DB::transaction(function (): void {
                 (new TenantDataSeeder)->run();
