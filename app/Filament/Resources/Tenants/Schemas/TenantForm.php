@@ -96,10 +96,13 @@ class TenantForm
                             ])
                             ->afterStateHydrated(function (TextInput $component, $state, $record): void {
                                 if ($record) {
-                                    $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+                                    $centralDomain = parse_url(config('app.domain_url'), PHP_URL_HOST) ?? 'localhost';
                                     $domain = $record->domains()->first()?->domain;
                                     if ($domain) {
-                                        $component->state(str_replace('.'.$centralDomain, '', $domain));
+                                        $suffix = '.'.$centralDomain;
+                                        $component->state(str_ends_with($domain, $suffix)
+                                            ? substr($domain, 0, -strlen($suffix))
+                                            : strtok($domain, '.'));
                                     }
                                 }
                             }),
