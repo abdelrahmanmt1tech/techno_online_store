@@ -115,6 +115,35 @@ class PackagesRelationManager extends RelationManager
                             ->native(false)
                             ->live()
                             ->afterStateUpdated(fn ($state, $set, $get) => $this->applyPriceOption($state, $set, $get))
+                            ->afterStateHydrated(function (Select $component, $record): void {
+                                if (! $record) {
+                                    return;
+                                }
+
+                                $package = Package::with('prices')->find($record->package_id);
+
+                                if (! $package) {
+                                    return;
+                                }
+
+                                $tenant = $this->getOwnerRecord();
+
+                                $candidatePrices = $package->prices
+                                    ->when(
+                                        $tenant?->country_id,
+                                        fn ($prices) => $prices->where('country_id', $tenant->country_id),
+                                    );
+
+                                if ($candidatePrices->isEmpty()) {
+                                    $candidatePrices = $package->prices;
+                                }
+
+                                $packagePrice = $candidatePrices
+                                    ->first(fn (PackagePrice $price) => $price->currency_id === $record->currency_id)
+                                    ?? $candidatePrices->sortByDesc('is_default')->first();
+
+                                $component->state($packagePrice?->id);
+                            })
                             ->columnSpan(1),
 
                         TextInput::make('price')
@@ -145,6 +174,7 @@ class PackagesRelationManager extends RelationManager
                             ])
                             ->native(false)
                             ->default(fn ($record) => $record?->duration_type === 'year' ? 'yearly' : 'monthly')
+                            ->afterStateHydrated(fn ($component, $record) => $component->state($record?->duration_type === 'year' ? 'yearly' : 'monthly'))
                             ->required()
                             ->live()
                             ->afterStateUpdated(fn ($state, $set, $get) => $this->applyPriceOption($get('price_option'), $set, $get))
