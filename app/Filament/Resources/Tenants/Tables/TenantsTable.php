@@ -33,7 +33,8 @@ class TenantsTable
                 TextColumn::make('domains.domain')
                     ->label(__('dashboard.subdomain'))
                     ->listWithLineBreaks()
-                    ->limitList(1),
+                    ->limitList(1)
+                    ->copyable(),
 
                 TextColumn::make('country.name')
                     ->label(__('dashboard.country'))
