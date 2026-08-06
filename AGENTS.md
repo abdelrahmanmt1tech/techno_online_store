@@ -19,6 +19,7 @@
 | `./vendor/bin/pint` | Lint (Laravel Pint) |
 | `php artisan db:seed --class=AdminSeeder` | Super admin (`admin@gmail.com` / `password`) + syncs permissions |
 | `php artisan db:seed --class=HomePageDataSeeder` | Settings, plans, FAQs, categories, themes, blog data |
+| `php artisan db:seed --class=PageSeeder` | System pages `privacy-policy` + `terms-and-conditions` (non-deletable, `Page::PROTECTED_SLUGS`) |
 | `php artisan tenants:sync-permissions` | Sync permissions to all tenant DBs (`--migrate` also runs tenant migrations) |
 | `php artisan tenants:sync-credentials` | Push `email`/`password` from `TenantUser` to tenant-db `users` |
 | `php artisan hr:mark-absent` | Mark employees absent after schedule end (hourly via scheduler) |
@@ -32,7 +33,7 @@
 - **Three Filament panels**, two auth guards (`admin`, `tenant`), primary Emerald:
  - **Admin** (`/admin`, `authGuard('admin')`, `->default()`) — central management. Discovers `app/Filament/Resources/` and `app/Filament/Pages/`.
  - **Tenant** (`/app`, `authGuard('tenant')`) — per-tenant. Discovers `app/Filament/Tenant/{Resources,Pages}/` **and** `app/Filament/Crm/{Resources,Pages,Widgets}`.
- - **CRM** (`/app/crm`, `authGuard('tenant')`, primary Teal) — peer merchant CRM panel (`CrmPanelProvider`). Discovers `app/Filament/Crm/*`; explicitly registers Client, LeadSource, Supplier (those live under `app/Filament/Tenant/Resources/`). Grown into a full pipeline: Opportunities (+ stages, follow-ups, notes, commissions, payment cycles), Campaigns — plus commission/report pages (`app/Filament/Crm/Pages/`) and `/crm/reports/*/print` routes in `routes/tenant.php`.
+ - **CRM** (`/app/crm`, `authGuard('tenant')`, primary Teal) — peer merchant CRM panel (`CrmPanelProvider`). Discovers `app/Filament/Crm/{Resources,Pages,Widgets}`; explicitly registers `ClientResource`, `LeadSourceResource`, `SupplierResource` (those live under `app/Filament/Tenant/Resources/`). CRM resources: Opportunities, OpportunityStages, OpportunityFollowUps, OpportunityCommissions, CommissionPaymentCycles, Campaigns, FollowUpStatuses, FollowUpTypes. CRM pages: MyCommissions, LeadClients, ViewMyCommission + `Reports/`; `/crm/reports/*/print` routes in `routes/tenant.php`.
 - CRM + double-entry accounting port notes: [`docs/crm-accounting-port.md`](docs/crm-accounting-port.md). Accounting UI nav group: `__('erp.nav.accounts')` («حسابات وقيود»).
 - **Merchant modules** (per-module subscription): [`docs/tenant-modules.md`](docs/tenant-modules.md). Gate: `tenant_module_enabled()` / `tenant_module_any_enabled()` / `TenantModuleGate` (from active `tenant_packages`; opened by `BYPASS_PERMISSIONS` in non-production). Auto journal posting only when `tenant_accounting_active()`.
 - **Central DB**: `admins`, `tenants`, `domains`, `permissions`, `roles`, sessions/cache/jobs.
@@ -45,7 +46,7 @@
 
 ### Routes
 
-- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET settings`, `GET countries`, `GET currencies`, `GET packages` (active packages; `?country_id=` **required**, falls back to the `is_default` price when the country has no price), `POST tenants` (accepts a top-level `period` = `monthly`/`yearly` that applies to all packages, plus `packages[]` = `[{package_id, price_id}]`, one price per selected package; `price_id` must belong to its `package_id`), `started_at` optional.
+- **Central API** (`routes/api.php`): `GET home`, `GET themes`, `GET categories`, `GET footer`, `POST contact`, `GET terms`, `GET privacy`, `GET blogs`, `GET blogs/categories`, `GET blogs/{slug}`, `GET pages`, `GET pages/{slug}` (static pages, `?` optional; active only, order by `sort_order`), `GET settings`, `GET countries`, `GET currencies`, `GET packages` (active packages; `?country_id=` **required**, falls back to the `is_default` price when the country has no price), `POST tenants` (accepts a top-level `period` = `monthly`/`yearly` that applies to all packages, plus `packages[]` = `[{package_id, price_id}]`, one price per selected package; `price_id` must belong to its `package_id`), `started_at` optional.
 - **Tenant API** (`routes/tenant.php`): Auth (register/verify/login/logout/forgot-password), products, categories, governorates, contacts, cart CRUD, coupon apply, checkout (OTP flow), orders, favorites, profile, reviews, home, pages. **Do not register `GET /` here** — it overwrites the central landing and `PreventAccessFromCentralDomains` returns 404 on central domains.
 - **Public web** (`routes/web.php`): Landing (`/` + `/platform`), legal pages, WhatsApp/Messenger webhooks, tenant login, forgot-password OTP flow, WhatsApp/Messenger onboarding (central domain middleware).
 - **Panel-scoped routes**: POS terminal/API (`/app/pos*`) and HR attendance check-in/out are registered in `TenantPanelProvider.php` `->routes()`, **not** in route files. Grep `app/Providers/Filament/TenantPanelProvider.php` when you can't find a `/app/*` route in `routes/`.
@@ -55,10 +56,10 @@
 
 Admin resources under `app/Filament/Resources/`, tenant under `app/Filament/Tenant/Resources/`. Each has `Pages/`, `Schemas/`, `Tables/` subdirectories.
 
-- **Admin resources** (17): Admins, Roles, Tenants, Packages, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents
+- **Admin resources** (18): Admins, Roles, Tenants, Packages, Categories, Countries, Currencies, WhatsAppNumbers, WhatsAppWebhookEvents, Blogs, BlogCategories, Contacts, Faqs, Tags, Themes, MessengerPages, MessengerWebhookEvents, Pages
 - **Admin pages** (18): 13 settings pages (General, About, AiServices, Code, ContactUs, Footer, HaveQuestion, Intro, MarketingChannels, PaymentGateways, ShippingCompanies, Statistics, TrainingSupport) + MessagingHealthDashboard, MetaIntegrationsReset, WhatsAppInboxPage, WhatsAppTemplatesPage, MessengerInboxPage
 - **Admin widgets**: AdminKpis, TenantsTrend, WhatsAppStatusPie, MessengerStatusPie, WebhookEventsTrend
-- **Tenant resources** (57 dirs): store (Categories, Products, Brands, Reviews, Coupons, Customers, Contacts, Governorates, Orders, Pages, TenantUsers, Roles) — messaging (WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, WhatsAppContacts, MessengerPages, MessengerWebhookEvents, MessengerApiRequests) — ERP (Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, InvoicePayments, InvoicePrintSettings, StockTransactions/{Receipt,Issue,Transfer,Adjustment,Damage}, StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns) — POS (PosRegisters, PosSettings, PosPaymentMethods, CashDrawers, CashierSessions, CashMovements) — HR (HrEmployees, HrDepartments, HrJobTitles, HrAttendanceSchedules, HrAttendanceRecords, HrAttendanceLocations, HrPayrollPeriods, HrSettings) — CRM/accounting (Clients, LeadSources, AccountTrees, AccountsCenterResource, FinancialPeriods, Operations)
+- **Tenant resources** (57 dirs): store (Categories, Products, Brands, Reviews, Coupons, Customers, Contacts, Governorates, Orders, Pages, TenantUsers, Roles) — messaging (WhatsAppNumbers, WhatsAppTemplates, WhatsAppWebhookEvents, WhatsAppApiRequests, WhatsAppContacts, MessengerPages, MessengerWebhookEvents, MessengerApiRequests) — ERP (Branches, Warehouses, UnitsOfMeasure, InventoryItems, Suppliers, InvoicePayments, InvoicePrintSettings, StockTransactions (flat `Stock{Receipt,Issue,Transfer,Adjustment,Damage}Resource.php`), StockMovements, StockBalances, PurchaseOrders, GoodsReceipts, PurchaseInvoices, PurchaseReturns, Sales, SalesInvoices, SalesReturns) — POS (PosRegisters, PosSettings, PosPaymentMethods, CashDrawers, CashierSessions, CashMovements) — HR (HrEmployees, HrDepartments, HrJobTitles, HrAttendanceSchedules, HrAttendanceRecords, HrAttendanceLocations, HrPayrollPeriods, HrSettings) — CRM/accounting (Clients, LeadSources, AccountTrees, AccountsCenterResource, FinancialPeriods, Operations)
 - **Tenant pages** (27): WhatsAppInboxPage, MessengerInboxPage, ConnectWhatsAppPage, ConnectMessengerPage, HomeSectionBuilder, BrowseThemesPage, Dashboard, MySubscriptionsPage, GeneralSettings, FooterSettings, ContactUsSettings, CodeSettings, HrAttendanceSummaryPage, HrPayrollSummaryPage + `Accounting/` report pages (BalanceSheet, ProfitAndLoss, TrialBalance, GeneralLedger, AccountsCentersReport, AccountsCenterDetailsReport, AccountTreeStatementPage, AccountTreeCleanupPage, PartyAccountStatement, AssistantLedger, OpeningEntriesReport, PeriodBalancesSnapshotReport, AccountingSettings)
 - **Tenant widgets**: StoreKpis, OrdersTrend, OrderStatusPie + Dashboard Lite widgets (SalesChartWidget, SalesCollectionStatsWidget, LatestSalesWidget, LowStockWidget, PosInventoryStatsWidget, AttendanceTodayWidget, HrAttendanceStatsWidget) — see [`docs/dashboard-lite.md`](docs/dashboard-lite.md)
 - **Shared components**: `app/Filament/Shared/` (WhatsApp/, Messenger/, SeoFormSection.php, SeoFormOnelanguageSection.php)
@@ -106,7 +107,7 @@ Use `asset('storage/tenant'.tenant('id').'/'.$model->file)` — never `asset('st
 
 ## Commerce Core (Shared Catalog + Sales Engine + POS Foundation)
 
-Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Work lands on `dev` (older `feature/*` branches merged).
+Docs: [`docs/commerce-core.md`](docs/commerce-core.md).
 
 - **Single catalog**: extend existing `products` / variants / categories — do **not** create parallel product tables for ERP/POS.
 - **UnifiedSalesEngine** (`App\Services\Commerce\UnifiedSalesEngine`): one path for confirm/invoice/payment/return/suspend across Store/ERP/POS/API channels. Delegates to existing ERP Actions.
@@ -147,10 +148,15 @@ Docs: [`docs/commerce-core.md`](docs/commerce-core.md). Work lands on `dev` (old
 | [`docs/tenant-orders-api.postman_collection.json`](docs/tenant-orders-api.postman_collection.json) | Tenant orders API endpoints |
 | [`docs/favorites-api.postman_collection.json`](docs/favorites-api.postman_collection.json) | Favorites API endpoints |
 | [`docs/reviews-api.postman_collection.json`](docs/reviews-api.postman_collection.json) | Reviews API endpoints |
+| [`docs/profile-api.postman_collection.json`](docs/profile-api.postman_collection.json) | Profile API endpoints |
+| [`docs/tenant-profile-api.postman_collection.json`](docs/tenant-profile-api.postman_collection.json) | Tenant profile API endpoints |
+
+Other files under `docs/` (`wave-*`, `plan-*`, `erp-core-{discovery,handover,implementation-log,manual-testing,test-plan}`, `accounting-crm-qa`) are historical planning/QA notes — not kept current, ignore for implementation.
 
 ## Gotchas
 
 - **Never** run `migrate:fresh`, `db:wipe`, `migrate:refresh`, or any destructive DB command without asking the user first.
+- **Feature gating is strict outside production**: modules come from active `tenant_packages` rows. ERP stock/sales/purchases and POS are gated to the `pos` module; storefront admin + public store API to `store`; `config('app.bypass_permissions')` (true unless production) opens everything. Don't add parallel checks — use `tenant_module_enabled()` / `EnsureTenantModuleActive` (full ownership map: [`docs/tenant-modules.md`](docs/tenant-modules.md)).
 - **Do not set `SESSION_DOMAIN` to a value with a port** (e.g., `localhost:8000`).
 - `composer run dev` uses `npx concurrently` (needs Node) and `php artisan pail` (needs `pcntl` — not available on Windows). Run the other 3 processes manually if on Windows.
 - Tenant seeding (`SeedTenantDatabase`) is dispatched as a queued job from `CreateTenant.php` and the API controller, not run in the event pipeline.

@@ -331,6 +331,17 @@ function permissionsArray(): array
             ],
         ],
 
+        // ── Pages (Sort: 160) ──
+        [
+            'name' => 'dashboard.cms_pages',
+            'permissions' => [
+                ['name' => 'dashboard.permissions.view', 'key' => 'pages.view'],
+                ['name' => 'dashboard.permissions.create', 'key' => 'pages.create'],
+                ['name' => 'dashboard.permissions.update', 'key' => 'pages.update'],
+                ['name' => 'dashboard.permissions.delete', 'key' => 'pages.delete'],
+            ],
+        ],
+
         // ══════════════════════════════════════════════
         // ══ بدون جروب ══
         // ══════════════════════════════════════════════

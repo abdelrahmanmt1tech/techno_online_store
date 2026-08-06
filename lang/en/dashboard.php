@@ -1587,6 +1587,7 @@ return [
     'page_active' => 'Active',
     'show_in_footer' => 'Show in Footer',
     'page_sort_order' => 'Sort Order',
+    'protected_page_cannot_delete' => 'This is a system page and cannot be deleted.',
     'themes_group' => 'Themes',
     'browse_themes' => 'Browse Themes',
     'theme_preview' => 'Preview',

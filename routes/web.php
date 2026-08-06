@@ -77,14 +77,20 @@ Route::prefix('messenger/onboarding')
 //     return 'sent';
 // });
 
- Route::get('/clear-config', function () {
+Route::get('/clear-config', function () {
     Artisan::call('optimize:clear');
 
     return nl2br(Artisan::output());
- });
+});
 
 //  Route::get('/seed-packages', function () {
 //     Artisan::call('migrate', ['--force' => true]);
 
 //     return nl2br(Artisan::output());
 //  });
+
+Route::get('/seed-pages', function () {
+    Artisan::call('db:seed', ['--class' => 'Database\\Seeders\\PageSeeder']);
+
+    return nl2br(Artisan::output());
+});

@@ -1587,6 +1587,7 @@ return [
     'page_active' => 'نشط',
     'show_in_footer' => 'إظهار في الفوتر',
     'page_sort_order' => 'ترتيب العرض',
+    'protected_page_cannot_delete' => 'هذه صفحة نظام ولا يمكن حذفها.',
     'themes_group' => 'الثيمات',
     'browse_themes' => 'تصفح الثيمات',
     'theme_preview' => 'معاينة',

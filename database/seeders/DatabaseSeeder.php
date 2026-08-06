@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             HomePageDataSeeder::class,
             CountrySeeder::class,
             CurrencySeeder::class,
+            PageSeeder::class,
         ]);
     }
 }
