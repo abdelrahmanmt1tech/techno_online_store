@@ -32,7 +32,7 @@ class EditTenant extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+        $centralDomain = parse_url(config('app.domain_url'), PHP_URL_HOST) ?? 'localhost';
         $domain = $this->record->domains()->first()?->domain;
 
         if ($domain) {
