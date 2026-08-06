@@ -30,49 +30,55 @@ class TenantController extends Controller
         $isYearly = $period === 'yearly';
         $durationType = $isYearly ? 'year' : 'month';
 
-        $tenant = DB::transaction(function () use ($data, $subdomain, $startedAt, $isYearly, $durationType, $centralDomain) {
-            $tenant = Tenant::create(Arr::except($data, [
-                'subdomain',
-                'password',
-                'password_confirmation',
-                'started_at',
-                'period',
-                'packages',
-            ]));
+        try {
+            $tenant = DB::transaction(function () use ($data, $subdomain, $startedAt, $isYearly, $durationType, $centralDomain) {
+                $tenant = Tenant::create(Arr::except($data, [
+                    'subdomain',
+                    'password',
+                    'password_confirmation',
+                    'started_at',
+                    'period',
+                    'packages',
+                ]));
 
-            if ($subdomain) {
-                $tenant->createDomain($subdomain.'.'.$centralDomain);
-            }
+                if ($subdomain) {
+                    $tenant->createDomain($subdomain.'.'.$centralDomain);
+                }
 
-            foreach ($data['packages'] as $item) {
-                $package = Package::find($item['package_id']);
-                $price = PackagePrice::find($item['price_id']);
+                foreach ($data['packages'] as $item) {
+                    $package = Package::find($item['package_id']);
+                    $price = PackagePrice::find($item['price_id']);
 
-                $trialEndsAt = $package->trials_duration
-                    ? $startedAt->copy()->addDays($package->trials_duration)
-                    : null;
+                    $trialEndsAt = $package->trials_duration
+                        ? $startedAt->copy()->addDays($package->trials_duration)
+                        : null;
 
-                $amount = $isYearly ? $price->price_yearly : $price->price_monthly;
+                    $amount = $isYearly ? $price->price_yearly : $price->price_monthly;
 
-                $tenant->packages()->create([
-                    'package_id' => $package->id,
-                    'price' => $amount,
-                    'currency_id' => $price->currency_id,
-                    'duration' => 1,
-                    'duration_type' => $durationType,
-                    'started_at' => $startedAt,
-                    'trial_ends_at' => $trialEndsAt,
-                    'expires_at' => ($trialEndsAt ?? $startedAt)
-                        ->copy()
-                        ->{"add{$durationType}s"}(1),
-                    'status' => 'active',
-                ]);
-            }
+                    $tenant->packages()->create([
+                        'package_id' => $package->id,
+                        'price' => $amount,
+                        'currency_id' => $price->currency_id,
+                        'duration' => 1,
+                        'duration_type' => $durationType,
+                        'started_at' => $startedAt,
+                        'trial_ends_at' => $trialEndsAt,
+                        'expires_at' => ($trialEndsAt ?? $startedAt)
+                            ->copy()
+                            ->{"add{$durationType}s"}(1),
+                        'status' => 'active',
+                    ]);
+                }
 
-            return $tenant;
-        });
+                return $tenant;
+            });
 
-        SeedTenantDatabase::dispatch($tenant, $password);
+            SeedTenantDatabase::dispatch($tenant, $password);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return $this->errorResponse($e->getMessage(), 500);
+        }
 
         return $this->createdResponse([
             'id' => $tenant->id,
