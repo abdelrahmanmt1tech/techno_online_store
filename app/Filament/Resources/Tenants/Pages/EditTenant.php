@@ -36,7 +36,11 @@ class EditTenant extends EditRecord
         $domain = $this->record->domains()->first()?->domain;
 
         if ($domain) {
-            $data['subdomain'] = str_replace('.'.$centralDomain, '', $domain);
+            $suffix = '.'.$centralDomain;
+
+            $data['subdomain'] = str_ends_with($domain, $suffix)
+                ? substr($domain, 0, -strlen($suffix))
+                : strtok($domain, '.');
         }
 
         return $data;
