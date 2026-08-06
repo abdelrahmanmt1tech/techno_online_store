@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Central\PageListResource;
-use App\Models\Page;
 use App\Support\Modules\TenantModule;
 use App\Support\Modules\TenantModuleGate;
 use App\Traits\ApiResponse;
@@ -60,24 +58,17 @@ class ModuleController extends Controller
     {
         $enabled = TenantModuleGate::storeEnabled();
 
-        $pages = Page::on($this->centralConnection())
-            ->whereIn('slug', Page::PROTECTED_SLUGS)
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
-
         return $this->successResponse([
             'key' => TenantModule::Store->value,
             'label' => TenantModule::Store->label(),
             'enabled' => $enabled,
             'available' => $enabled,
             'subscribed' => $enabled,
-            'pages' => PageListResource::collection($pages),
+            'pages' => [
+                'terms' => route('central.pages.show', ['slug' => 'terms-and-conditions']),
+                'privacy' => route('central.pages.show', ['slug' => 'privacy-policy']),
+            ],
+            'dashboard_url' => url('/app'),
         ], __('messages.fetched_successfully'));
-    }
-
-    private function centralConnection(): string
-    {
-        return config('tenancy.database.central_connection', config('database.default'));
     }
 }
