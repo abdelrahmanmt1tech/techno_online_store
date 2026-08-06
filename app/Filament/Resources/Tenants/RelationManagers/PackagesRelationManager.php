@@ -10,6 +10,7 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -85,21 +86,25 @@ class PackagesRelationManager extends RelationManager
                                 $period = $get('period') ?? 'monthly';
                                 $durationType = $period === 'yearly' ? 'year' : 'month';
 
+                                $trialEndsAt = $package->trials_duration
+                                    ? $startedAt->copy()->addDays($package->trials_duration)
+                                    : null;
+
+                                $set('trial_ends_at', $trialEndsAt?->toDateTimeString());
+
                                 $set('price_option', $packagePrice?->id);
 
                                 if ($packagePrice) {
                                     $set('price', $period === 'yearly' ? $packagePrice->price_yearly : $packagePrice->price_monthly);
                                     $set('currency_id', $packagePrice->currency_id);
+                                    $set('duration', 1);
+                                    $set('duration_type', $durationType);
                                     $set('expires_at', $this->resolveExpiry(
-                                        $startedAt,
+                                        $trialEndsAt ?? $startedAt,
                                         1,
                                         $durationType,
                                     ));
                                 }
-
-                                $set('trial_ends_at', $package->trials_duration
-                                    ? $startedAt->copy()->addDays($package->trials_duration)->toDateTimeString()
-                                    : null);
                             })
                             ->columnSpan(1),
 
@@ -155,11 +160,16 @@ class PackagesRelationManager extends RelationManager
 
                         DateTimePicker::make('trial_ends_at')
                             ->label(__('dashboard.trial_ends_at'))
+                            ->live()
+                            ->afterStateUpdated(fn ($state, $set, $get) => $this->syncExpiry($set, $get))
                             ->columnSpan(1),
 
                         DateTimePicker::make('expires_at')
                             ->label(__('dashboard.expires_at'))
                             ->columnSpan(1),
+
+                        Hidden::make('duration'),
+                        Hidden::make('duration_type'),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -240,16 +250,22 @@ class PackagesRelationManager extends RelationManager
     private function syncExpiry($set, $get): void
     {
         $startedAt = $get('started_at');
+        $trialEndsAt = $get('trial_ends_at');
         $period = $get('period') ?? 'monthly';
 
         if (! $startedAt) {
             return;
         }
 
+        $durationType = $period === 'yearly' ? 'year' : 'month';
+        $base = $trialEndsAt ? Carbon::parse($trialEndsAt) : Carbon::parse($startedAt);
+
+        $set('duration', 1);
+        $set('duration_type', $durationType);
         $set('expires_at', $this->resolveExpiry(
-            Carbon::parse($startedAt),
+            $base,
             1,
-            $period === 'yearly' ? 'year' : 'month',
+            $durationType,
         ));
     }
 
