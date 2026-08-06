@@ -16,7 +16,7 @@ class EditTenant extends EditRecord
         $subdomain = $state['subdomain'] ?? null;
 
         if ($subdomain) {
-            $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+            $centralDomain = parse_url(config('app.domain_url'), PHP_URL_HOST) ?? 'localhost';
             $fullDomain = $subdomain.'.'.$centralDomain;
             $existingDomain = $this->record->domains()->first();
 
