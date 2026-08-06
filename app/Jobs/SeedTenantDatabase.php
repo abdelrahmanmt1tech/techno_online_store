@@ -47,9 +47,9 @@ class SeedTenantDatabase implements ShouldQueue
             $role = setupStoreAdminRole();
             $user->assignRole($role);
 
-            // DB::transaction(function (): void {
-            //     // (new TenantDataSeeder)->run();
-            // });
+            DB::transaction(function (): void {
+                (new TenantDataSeeder)->run();
+            });
         });
 
         if ($email) {

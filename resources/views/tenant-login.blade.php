@@ -187,16 +187,33 @@
                                     </label>
                                 </div>
                                 <div class="fi-fo-field-content-col">
-                                    <div class="fi-fo-field-content">
-                                        <x-filament::input.wrapper :invalid="$errors->has('password')">
-                                            <x-filament::input type="password" name="password" id="password" required
-                                                autocomplete="current-password" />
-                                        </x-filament::input.wrapper>
+                                <div class="fi-fo-field-content">
+                                    <x-filament::input.wrapper :invalid="$errors->has('password')" x-data="{ showPassword: false }">
+                                        <x-filament::input type="password" name="password" id="password" required
+                                            autocomplete="current-password" x-bind:type="showPassword ? 'text' : 'password'" />
 
-                                        @error('password')
-                                            <p class="fi-fo-field-wrp-error-message">{{ $message }}</p>
-                                        @enderror
-                                    </div>
+                                        <x-slot name="suffix">
+                                            <button type="button" tabindex="-1" x-on:click="showPassword = !showPassword"
+                                                x-bind:aria-label="showPassword ? @js(__('filament-forms::components.text_input.actions.hide_password.label')) : @js(__('filament-forms::components.text_input.actions.show_password.label'))"
+                                                style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#6b7280;background:transparent;border:none;padding:0.25rem;border-radius:0.375rem;"
+                                                x-on:mouseenter="$el.style.color='#374151'"
+                                                x-on:mouseleave="$el.style.color='#6b7280'">
+                                                <svg x-show="!showPassword" class="fi-icon fi-size-md" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                    <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+                                                    <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                <svg x-show="showPassword" x-cloak class="fi-icon fi-size-md" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                    <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l14.5 14.5a.75.75 0 1 0 1.06-1.06l-1.745-1.745a10.029 10.029 0 0 0 3.3-4.38 1.651 1.651 0 0 0 0-1.185A10.004 10.004 0 0 0 9.999 3a9.956 9.956 0 0 0-4.744 1.194L3.28 2.22ZM7.752 6.69l1.092 1.092a2.5 2.5 0 0 1 3.374 3.373l1.091 1.092a4 4 0 0 0-5.557-5.557Zm-2.201 2.201a4 4 0 0 0 5.355 5.355l-1.066-1.066a2.5 2.5 0 0 1-3.223-3.223l-1.066-1.066Z" clip-rule="evenodd"/>
+                                                    <path d="m13.411 15.472 1.018 1.018a.75.75 0 0 0 1.03-.032A9.96 9.96 0 0 0 18.671 14.59a.75.75 0 0 0-.001-.158A10.005 10.005 0 0 0 13.41 15.472Z"/>
+                                                </svg>
+                                            </button>
+                                        </x-slot>
+                                    </x-filament::input.wrapper>
+
+                                    @error('password')
+                                        <p class="fi-fo-field-wrp-error-message">{{ $message }}</p>
+                                    @enderror
+                                </div>
                                 </div>
                             </div>
 
