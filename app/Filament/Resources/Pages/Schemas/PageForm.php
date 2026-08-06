@@ -58,15 +58,15 @@ class PageForm
                             ->default(true)
                             ->columnSpan(1),
 
-                        Toggle::make('show_in_header')
-                            ->label(__('dashboard.show_in_header'))
-                            ->default(false)
-                            ->columnSpan(1),
+                        // Toggle::make('show_in_header')
+                        //     ->label(__('dashboard.show_in_header'))
+                        //     ->default(false)
+                        //     ->columnSpan(1),
 
-                        Toggle::make('show_in_footer')
-                            ->label(__('dashboard.show_in_footer'))
-                            ->default(false)
-                            ->columnSpan(1),
+                        // Toggle::make('show_in_footer')
+                        //     ->label(__('dashboard.show_in_footer'))
+                        //     ->default(false)
+                        //     ->columnSpan(1),
                     ])
                     ->columnSpanFull(),
 

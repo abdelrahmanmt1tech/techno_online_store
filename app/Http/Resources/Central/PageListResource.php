@@ -13,14 +13,14 @@ class PageListResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
-            'image' => $this->image ? asset('storage/'.$this->image) : null,
-            'sort_order' => $this->sort_order,
-            'show_in_header' => $this->show_in_header,
-            'show_in_footer' => $this->show_in_footer,
-            'content' => $this->when(
-                $request->route()?->getName() === 'central.pages.show',
-                $this->content
-            ),
+            // 'image' => $this->image ? asset('storage/'.$this->image) : null,
+            // 'sort_order' => $this->sort_order,
+            // 'show_in_header' => $this->show_in_header,
+            // 'show_in_footer' => $this->show_in_footer,
+            // 'content' => $this->when(
+            //     $request->route()?->getName() === 'central.pages.show',
+            //     $this->content
+            // ),
         ];
     }
 }

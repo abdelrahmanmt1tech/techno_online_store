@@ -42,13 +42,13 @@ class PagesTable
                 ToggleColumn::make('is_active')
                     ->label(__('dashboard.page_active')),
 
-                IconColumn::make('show_in_header')
-                    ->label(__('dashboard.show_in_header'))
-                    ->boolean(),
+                // IconColumn::make('show_in_header')
+                //     ->label(__('dashboard.show_in_header'))
+                //     ->boolean(),
 
-                IconColumn::make('show_in_footer')
-                    ->label(__('dashboard.show_in_footer'))
-                    ->boolean(),
+                // IconColumn::make('show_in_footer')
+                //     ->label(__('dashboard.show_in_footer'))
+                //     ->boolean(),
 
                 TextColumn::make('sort_order')
                     ->label(__('dashboard.page_sort_order'))

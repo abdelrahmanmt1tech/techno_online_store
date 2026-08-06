@@ -134,11 +134,10 @@ Route::middleware([
             // الفروع
             Route::get('branches', [BranchController::class, 'index']);
             Route::get('branches/{branch:slug}', [BranchController::class, 'show']);
-
-            // الصفحات
-            Route::get('pages', [PageController::class, 'index']);
-            Route::get('pages/{slug}', [PageController::class, 'show']);
         });
+        // الصفحات
+        Route::get('pages', [PageController::class, 'index']);
+        Route::get('pages/{slug}', [PageController::class, 'show']);
     });
 });
 
